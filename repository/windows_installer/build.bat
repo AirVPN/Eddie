@@ -60,7 +60,7 @@ rem Signing
 SET /p VARSIGNPASSWORD= < "%VARSCRIPTDIR%\..\signing\eddie.win-signing.pfx.pwd"
 IF exist %VARSCRIPTDIR%\..\signing\eddie.win-signing.pfx (
 	echo Step: Signing		
-	%VARSCRIPTDIR%\..\windows_common\signtool.exe sign /fd sha256 /p "%VARSIGNPASSWORD%" /f "%VARSCRIPTDIR%\..\signing\eddie.win-signing.pfx" /t http://timestamp.comodoca.com/authenticode /d "Eddie - OpenVPN UI" "%VARFINALPATH%" || goto :error
+	%VARSCRIPTDIR%\..\windows_common\signtool.exe sign /fd sha256 /p "%VARSIGNPASSWORD%" /f "%VARSCRIPTDIR%\..\signing\eddie.win-signing.pfx" /t http://timestamp.comodoca.com/authenticode /d "Eddie - VPN Tunnel" "%VARFINALPATH%" || goto :error
 )
 
 rem Deploy

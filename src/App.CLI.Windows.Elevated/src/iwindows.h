@@ -18,11 +18,18 @@
 
 #include "../../App.CLI.Common.Elevated/ibase.h"
 
+#include "wintun.h"
+
 class IWindows : public IBase
 {
 protected:
 
 	virtual void Do(const std::string& id, const std::string& command, std::map<std::string, std::string>& params);
+	virtual bool IsServiceInstalled();
+	virtual bool ServiceInstall();
+	virtual bool ServiceUninstall();
+	virtual bool ServiceUninstallSupportRealtime();
+	virtual bool FullUninstall();
 
 	// Virtual
 protected:
@@ -33,7 +40,6 @@ protected:
 	virtual bool IsRoot();
 	virtual void Sleep(int ms);
 	virtual uint64_t GetTimestampUnixUsec();
-	virtual int Ping(const std::string& host, const int timeout);
 	pid_t GetCurrentProcessId();
 	virtual pid_t GetParentProcessId();
 	virtual pid_t GetParentProcessId(pid_t pid);
@@ -80,12 +86,31 @@ protected:
 		HANDLE stderrReadHandle = NULL;
 	} t_shellinfo;
 
+	bool IsWin8OrGreater();
 	std::string GetLastErrorAsString();
 	t_shellinfo ExecStart(const std::string& path, const std::vector<std::string>& args);
 	DWORD ExecEnd(t_shellinfo info);
 	void ExecCleanup(t_shellinfo info);
+	int SetInterfaceMetric(const int index, const std::string layer, const int value);
 
 	bool ServiceDelete(const std::string& id);
+	bool ServiceUninstallDirect();
+
+	// Wintun	
+	HMODULE m_wintunLibrary = 0;
+	bool WintunEnsureLibrary();
+	DWORD WintunVersion();
+	void WintunAdapterAdd(const std::wstring& pool, const std::wstring& name);
+	void WintunAdapterEnsure(const std::wstring& pool, const std::wstring& name);
+	void WintunAdapterRemove(const std::wstring& pool, const std::wstring& name);
+	void WintunAdapterRemovePool(const std::wstring& pool);
+
+public:
+	WINTUN_ADAPTER_HANDLE WintunAdapterOpen(const std::wstring& pool, const std::wstring& name);
+	void WintunAdapterClose(WINTUN_ADAPTER_HANDLE hAdapter);
+	void WintunAdapterRemove(WINTUN_ADAPTER_HANDLE hAdapter);
+
+protected:
 
 	// WireGuard
 	int WireGuardTunnel(const std::string& configName);

@@ -30,7 +30,10 @@
     <ClCompile Include="..\App.CLI.Windows.Elevated\src\iwindows.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\App.CLI.Windows.Elevated\src\yxml.c">
+    <ClCompile Include="..\App.CLI.Common.Elevated\ping.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\App.CLI.Windows.Elevated\src\yxml.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

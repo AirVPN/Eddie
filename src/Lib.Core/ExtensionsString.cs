@@ -124,6 +124,12 @@ namespace Eddie.Core
 		}
 		*/
 
+		// Used when need "\"" + mystr.EscapeQuote() + "\"".
+		public static string EscapeQuote(this string str)
+		{
+			return str.Replace("\"", "\\\"");
+		}
+
 		public static string PruneCharsNotIn(this string str, string chars)
 		{
 			string result = "";

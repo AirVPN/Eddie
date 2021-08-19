@@ -17,6 +17,9 @@ RMDIR Lib.Core\obj /S /Q
 RMDIR Lib.Forms\bin /S /Q
 RMDIR Lib.Forms\obj /S /Q
 
+RMDIR Lib.Forms.Skin\bin /S /Q
+RMDIR Lib.Forms.Skin\obj /S /Q
+
 RMDIR Lib.Platform.Windows\bin /S /Q
 RMDIR Lib.Platform.Windows\obj /S /Q
 

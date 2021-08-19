@@ -24,10 +24,11 @@ using System.Globalization;
 using System.Text;
 using System.Windows.Forms;
 using Eddie.Core;
+using Eddie.Forms.Skin;
 
 namespace Eddie.Forms.Forms
 {
-	public partial class About : Eddie.Forms.Form
+	public partial class About : Eddie.Forms.Skin.SkinForm
 	{
 		public About()
 		{
@@ -72,8 +73,8 @@ namespace Eddie.Forms.Forms
 			Skin.GraphicsCommon(e.Graphics);
 
 			//Form.DrawImage(e.Graphics, GuiUtils.GetResourceImage("about_header_bg"), new Rectangle(0, 0, ClientSize.Width + 50, 88 + 2)); // +50 and +2 to avoid GDI+ problem
-			Form.DrawImage(e.Graphics, GuiUtils.GetResourceImage("about_header_bg"), new Rectangle(0, 0, ClientSize.Width + 50, 88)); // +50 and +2 to avoid GDI+ problem
-			Form.DrawImage(e.Graphics, GuiUtils.GetResourceImage("about_logo"), new Rectangle(0, 0, 392, 88));
+			SkinForm.DrawImage(e.Graphics, GuiUtils.GetResourceImage("about_header_bg"), new Rectangle(0, 0, ClientSize.Width + 50, 88)); // +50 and +2 to avoid GDI+ problem
+			SkinForm.DrawImage(e.Graphics, GuiUtils.GetResourceImage("about_logo"), new Rectangle(0, 0, 392, 88));
 		}
 
 		private void lnkWebsite_LinkClicked(object sender, EventArgs e)

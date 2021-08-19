@@ -353,15 +353,6 @@ namespace Eddie.Core.ConfigBuilder
 					text = text.Substring(0, posComment1) + text.Substring(posEndOfLine);
 				}
 
-				/* Removed in 2.14.3
-				int posComment2 = text.IndexOf("\n;");
-				if (posComment2 != -1)
-				{
-					int posEndOfLine = text.IndexOf("\n", posComment2);
-					text = text.Substring(0, posComment2) + text.Substring(posEndOfLine);
-				}
-				*/
-
 				if (text == originalText)
 					break;
 			}

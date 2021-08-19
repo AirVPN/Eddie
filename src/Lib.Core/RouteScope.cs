@@ -63,7 +63,7 @@ namespace Eddie.Core
 
 		public void End()
 		{
-			if ((m_address != null) && (m_address.Valid)) // Only one time			
+			if ((m_address != null) && (m_address.Valid)) // Only one time
 			{
 				if (Engine.Instance.NetworkLockManager != null)
 					Engine.Instance.NetworkLockManager.DeallowIP(m_address);

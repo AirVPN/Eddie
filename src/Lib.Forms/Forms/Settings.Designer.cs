@@ -1,33 +1,33 @@
 namespace Eddie.Forms.Forms
 {
-    partial class Settings
-    {
-        /// <summary>
-        /// Required designer variable.
-        /// </summary>
-        private System.ComponentModel.IContainer components = null;
+	partial class Settings
+	{
+		/// <summary>
+		/// Required designer variable.
+		/// </summary>
+		private System.ComponentModel.IContainer components = null;
 
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing && (components != null))
-            {
-                components.Dispose();
-            }
-            base.Dispose(disposing);
-        }
+		/// <summary>
+		/// Clean up any resources being used.
+		/// </summary>
+		/// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+		protected override void Dispose(bool disposing)
+		{
+			if (disposing && (components != null))
+			{
+				components.Dispose();
+			}
+			base.Dispose(disposing);
+		}
 
-        #region Windows Form Designer generated code
+		#region Windows Form Designer generated code
 
-        /// <summary>
-        /// Required method for Designer support - do not modify
-        /// the contents of this method with the code editor.
-        /// </summary>
-        private void InitializeComponent()
-        {
+		/// <summary>
+		/// Required method for Designer support - do not modify
+		/// the contents of this method with the code editor.
+		/// </summary>
+		private void InitializeComponent()
+		{
 			this.components = new System.ComponentModel.Container();
 			Eddie.Forms.Skin.TabPage tabAdvanced;
 			Eddie.Forms.Skin.TabPage tabDirectives;
@@ -57,7 +57,7 @@ namespace Eddie.Forms.Forms
 			this.chkWindowsSshPlinkForce = new Eddie.Forms.Skin.CheckBox();
 			this.chkWindowsDisableDriverUpgrade = new Eddie.Forms.Skin.CheckBox();
 			this.chkWindowsDebugWorkaround = new Eddie.Forms.Skin.CheckBox();
-			this.chkWindowsTapUp = new Eddie.Forms.Skin.CheckBox();
+			this.chkWindowsAdaptersCleanup = new Eddie.Forms.Skin.CheckBox();
 			this.cmdAdvancedUninstallDriverTap = new Eddie.Forms.Skin.Button();
 			this.chkAdvancedPingerEnabled = new Eddie.Forms.Skin.CheckBox();
 			this.cmdExeBrowse = new Eddie.Forms.Skin.Button();
@@ -101,6 +101,8 @@ namespace Eddie.Forms.Forms
 			this.cboOpenVpnRcvbuf = new Eddie.Forms.Skin.ComboBox();
 			this.lblOpenVpnSndbuf = new Eddie.Forms.Skin.Label();
 			this.cboOpenVpnSndbuf = new Eddie.Forms.Skin.ComboBox();
+			this.lblNetworkIfaceName = new Eddie.Forms.Skin.Label();
+			this.txtNetworkIfaceName = new Eddie.Forms.Skin.TextBox();
 			this.lblNetworkEntryIpLayer = new Eddie.Forms.Skin.Label();
 			this.cboNetworkEntryIpLayer = new Eddie.Forms.Skin.ComboBox();
 			this.mnuRoutes = new System.Windows.Forms.ContextMenuStrip(this.components);
@@ -327,8 +329,8 @@ namespace Eddie.Forms.Forms
 			// 
 			// txtHummingbirdPath
 			// 
-			this.txtHummingbirdPath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			this.txtHummingbirdPath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.txtHummingbirdPath.Location = new System.Drawing.Point(421, 523);
 			this.txtHummingbirdPath.Margin = new System.Windows.Forms.Padding(4);
 			this.txtHummingbirdPath.Name = "txtHummingbirdPath";
@@ -375,11 +377,11 @@ namespace Eddie.Forms.Forms
 			this.cboAdvancedUpdaterChannel.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.cboAdvancedUpdaterChannel.FormattingEnabled = true;
 			this.cboAdvancedUpdaterChannel.Items.AddRange(new object[] {
-            "Automatic",
-            "Never",
-            "Every minute",
-            "Every ten minute",
-            "Every one hour"});
+			"Automatic",
+			"Never",
+			"Every minute",
+			"Every ten minute",
+			"Every one hour"});
 			this.cboAdvancedUpdaterChannel.Location = new System.Drawing.Point(369, 207);
 			this.cboAdvancedUpdaterChannel.Margin = new System.Windows.Forms.Padding(4);
 			this.cboAdvancedUpdaterChannel.Name = "cboAdvancedUpdaterChannel";
@@ -434,8 +436,8 @@ namespace Eddie.Forms.Forms
 			// 
 			// lnkAdvancedHelp
 			// 
-			this.lnkAdvancedHelp.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			this.lnkAdvancedHelp.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.lnkAdvancedHelp.BackColor = System.Drawing.Color.Maroon;
 			this.lnkAdvancedHelp.Cursor = System.Windows.Forms.Cursors.Hand;
 			this.lnkAdvancedHelp.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(70)))), ((int)(((byte)(141)))));
@@ -502,11 +504,11 @@ namespace Eddie.Forms.Forms
 			this.cboAdvancedManifestRefresh.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.cboAdvancedManifestRefresh.FormattingEnabled = true;
 			this.cboAdvancedManifestRefresh.Items.AddRange(new object[] {
-            "Automatic",
-            "Never",
-            "Every minute",
-            "Every ten minute",
-            "Every one hour"});
+			"Automatic",
+			"Never",
+			"Every minute",
+			"Every ten minute",
+			"Every one hour"});
 			this.cboAdvancedManifestRefresh.Location = new System.Drawing.Point(369, 162);
 			this.cboAdvancedManifestRefresh.Margin = new System.Windows.Forms.Padding(4);
 			this.cboAdvancedManifestRefresh.Name = "cboAdvancedManifestRefresh";
@@ -521,7 +523,7 @@ namespace Eddie.Forms.Forms
 			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsSshPlinkForce);
 			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsDisableDriverUpgrade);
 			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsDebugWorkaround);
-			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsTapUp);
+			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsAdaptersCleanup);
 			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.cmdAdvancedUninstallDriverTap);
 			this.pnlAdvancedGeneralWindowsOnly.Location = new System.Drawing.Point(604, 16);
 			this.pnlAdvancedGeneralWindowsOnly.Margin = new System.Windows.Forms.Padding(4);
@@ -596,17 +598,17 @@ namespace Eddie.Forms.Forms
 			this.chkWindowsDebugWorkaround.Text = "Experimental workarounds";
 			this.chkWindowsDebugWorkaround.UseVisualStyleBackColor = false;
 			// 
-			// chkWindowsTapUp
+			// chkWindowsAdaptersCleanup
 			// 
-			this.chkWindowsTapUp.BackColor = System.Drawing.Color.Transparent;
-			this.chkWindowsTapUp.ForeColor = System.Drawing.Color.Black;
-			this.chkWindowsTapUp.Location = new System.Drawing.Point(24, 67);
-			this.chkWindowsTapUp.Margin = new System.Windows.Forms.Padding(4);
-			this.chkWindowsTapUp.Name = "chkWindowsTapUp";
-			this.chkWindowsTapUp.Size = new System.Drawing.Size(356, 33);
-			this.chkWindowsTapUp.TabIndex = 55;
-			this.chkWindowsTapUp.Text = "Force TAP interface UP";
-			this.chkWindowsTapUp.UseVisualStyleBackColor = false;
+			this.chkWindowsAdaptersCleanup.BackColor = System.Drawing.Color.Transparent;
+			this.chkWindowsAdaptersCleanup.ForeColor = System.Drawing.Color.Black;
+			this.chkWindowsAdaptersCleanup.Location = new System.Drawing.Point(24, 67);
+			this.chkWindowsAdaptersCleanup.Margin = new System.Windows.Forms.Padding(4);
+			this.chkWindowsAdaptersCleanup.Name = "chkWindowsAdaptersCleanup";
+			this.chkWindowsAdaptersCleanup.Size = new System.Drawing.Size(356, 33);
+			this.chkWindowsAdaptersCleanup.TabIndex = 55;
+			this.chkWindowsAdaptersCleanup.Text = "Clean adapters";
+			this.chkWindowsAdaptersCleanup.UseVisualStyleBackColor = false;
 			// 
 			// cmdAdvancedUninstallDriverTap
 			// 
@@ -654,8 +656,8 @@ namespace Eddie.Forms.Forms
 			// 
 			// txtExePath
 			// 
-			this.txtExePath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			this.txtExePath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.txtExePath.Location = new System.Drawing.Point(369, 388);
 			this.txtExePath.Margin = new System.Windows.Forms.Padding(4);
 			this.txtExePath.Name = "txtExePath";
@@ -763,8 +765,8 @@ namespace Eddie.Forms.Forms
 			// 
 			// txtOpenVpnDirectivesCustomPath
 			// 
-			this.txtOpenVpnDirectivesCustomPath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			this.txtOpenVpnDirectivesCustomPath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.txtOpenVpnDirectivesCustomPath.Location = new System.Drawing.Point(192, 531);
 			this.txtOpenVpnDirectivesCustomPath.Margin = new System.Windows.Forms.Padding(4);
 			this.txtOpenVpnDirectivesCustomPath.Name = "txtOpenVpnDirectivesCustomPath";
@@ -786,8 +788,8 @@ namespace Eddie.Forms.Forms
 			// 
 			// lnkOpenVpnDirectivesHelp
 			// 
-			this.lnkOpenVpnDirectivesHelp.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			this.lnkOpenVpnDirectivesHelp.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.lnkOpenVpnDirectivesHelp.BackColor = System.Drawing.Color.Maroon;
 			this.lnkOpenVpnDirectivesHelp.Cursor = System.Windows.Forms.Cursors.Hand;
 			this.lnkOpenVpnDirectivesHelp.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(70)))), ((int)(((byte)(141)))));
@@ -807,10 +809,10 @@ namespace Eddie.Forms.Forms
 			this.cboOpenVpnDirectivesDefaultSkip.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.cboOpenVpnDirectivesDefaultSkip.FormattingEnabled = true;
 			this.cboOpenVpnDirectivesDefaultSkip.Items.AddRange(new object[] {
-            "Disabled",
-            "Automatic",
-            "Resolvconf (Linux only)",
-            "Renaming (Linux only)"});
+			"Disabled",
+			"Automatic",
+			"Resolvconf (Linux only)",
+			"Renaming (Linux only)"});
 			this.cboOpenVpnDirectivesDefaultSkip.Location = new System.Drawing.Point(501, 480);
 			this.cboOpenVpnDirectivesDefaultSkip.Margin = new System.Windows.Forms.Padding(4);
 			this.cboOpenVpnDirectivesDefaultSkip.Name = "cboOpenVpnDirectivesDefaultSkip";
@@ -846,8 +848,8 @@ namespace Eddie.Forms.Forms
 			// 
 			this.txtOpenVpnDirectivesBase.AcceptsReturn = true;
 			this.txtOpenVpnDirectivesBase.AcceptsTab = true;
-			this.txtOpenVpnDirectivesBase.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			this.txtOpenVpnDirectivesBase.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.txtOpenVpnDirectivesBase.Location = new System.Drawing.Point(501, 45);
 			this.txtOpenVpnDirectivesBase.Margin = new System.Windows.Forms.Padding(4);
 			this.txtOpenVpnDirectivesBase.Multiline = true;
@@ -860,9 +862,9 @@ namespace Eddie.Forms.Forms
 			// 
 			this.txtOpenVpnDirectivesCustom.AcceptsReturn = true;
 			this.txtOpenVpnDirectivesCustom.AcceptsTab = true;
-			this.txtOpenVpnDirectivesCustom.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			this.txtOpenVpnDirectivesCustom.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+			| System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.txtOpenVpnDirectivesCustom.Location = new System.Drawing.Point(20, 45);
 			this.txtOpenVpnDirectivesCustom.Margin = new System.Windows.Forms.Padding(4);
 			this.txtOpenVpnDirectivesCustom.Multiline = true;
@@ -985,14 +987,14 @@ namespace Eddie.Forms.Forms
 			// 
 			// lstAdvancedEvents
 			// 
-			this.lstAdvancedEvents.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			this.lstAdvancedEvents.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+			| System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.lstAdvancedEvents.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            columnHeader1,
-            columnHeader2,
-            this.columnHeader3,
-            this.columnHeader4});
+			columnHeader1,
+			columnHeader2,
+			this.columnHeader3,
+			this.columnHeader4});
 			this.lstAdvancedEvents.FullRowSelect = true;
 			this.lstAdvancedEvents.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
 			this.lstAdvancedEvents.HideSelection = false;
@@ -1060,6 +1062,8 @@ namespace Eddie.Forms.Forms
 			this.tabNetworking.Controls.Add(this.cboOpenVpnRcvbuf);
 			this.tabNetworking.Controls.Add(this.lblOpenVpnSndbuf);
 			this.tabNetworking.Controls.Add(this.cboOpenVpnSndbuf);
+			this.tabNetworking.Controls.Add(this.lblNetworkIfaceName);
+			this.tabNetworking.Controls.Add(this.txtNetworkIfaceName);
 			this.tabNetworking.Controls.Add(this.lblNetworkEntryIpLayer);
 			this.tabNetworking.Controls.Add(this.cboNetworkEntryIpLayer);
 			this.tabNetworking.Location = new System.Drawing.Point(4, 24);
@@ -1132,8 +1136,8 @@ namespace Eddie.Forms.Forms
 			this.cboNetworkIPv6Mode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.cboNetworkIPv6Mode.FormattingEnabled = true;
 			this.cboNetworkIPv6Mode.Items.AddRange(new object[] {
-            "None",
-            "Disable"});
+			"None",
+			"Disable"});
 			this.cboNetworkIPv6Mode.Location = new System.Drawing.Point(464, 138);
 			this.cboNetworkIPv6Mode.Margin = new System.Windows.Forms.Padding(4);
 			this.cboNetworkIPv6Mode.Name = "cboNetworkIPv6Mode";
@@ -1157,8 +1161,8 @@ namespace Eddie.Forms.Forms
 			this.cboNetworkIPv4Mode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.cboNetworkIPv4Mode.FormattingEnabled = true;
 			this.cboNetworkIPv4Mode.Items.AddRange(new object[] {
-            "None",
-            "Disable"});
+			"None",
+			"Disable"});
 			this.cboNetworkIPv4Mode.Location = new System.Drawing.Point(464, 26);
 			this.cboNetworkIPv4Mode.Margin = new System.Windows.Forms.Padding(4);
 			this.cboNetworkIPv4Mode.Name = "cboNetworkIPv4Mode";
@@ -1179,13 +1183,13 @@ namespace Eddie.Forms.Forms
 			// 
 			// cboNetworkEntryInterface
 			// 
-			this.cboNetworkEntryInterface.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			this.cboNetworkEntryInterface.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.cboNetworkEntryInterface.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.cboNetworkEntryInterface.FormattingEnabled = true;
 			this.cboNetworkEntryInterface.Items.AddRange(new object[] {
-            "None",
-            "Disable"});
+			"None",
+			"Disable"});
 			this.cboNetworkEntryInterface.Location = new System.Drawing.Point(464, 290);
 			this.cboNetworkEntryInterface.Margin = new System.Windows.Forms.Padding(4);
 			this.cboNetworkEntryInterface.Name = "cboNetworkEntryInterface";
@@ -1209,11 +1213,11 @@ namespace Eddie.Forms.Forms
 			this.cboOpenVpnRcvbuf.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.cboOpenVpnRcvbuf.FormattingEnabled = true;
 			this.cboOpenVpnRcvbuf.Items.AddRange(new object[] {
-            "Automatic",
-            "Never",
-            "Every minute",
-            "Every ten minute",
-            "Every one hour"});
+			"Automatic",
+			"Never",
+			"Every minute",
+			"Every ten minute",
+			"Every one hour"});
 			this.cboOpenVpnRcvbuf.Location = new System.Drawing.Point(462, 417);
 			this.cboOpenVpnRcvbuf.Margin = new System.Windows.Forms.Padding(4);
 			this.cboOpenVpnRcvbuf.Name = "cboOpenVpnRcvbuf";
@@ -1237,16 +1241,36 @@ namespace Eddie.Forms.Forms
 			this.cboOpenVpnSndbuf.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.cboOpenVpnSndbuf.FormattingEnabled = true;
 			this.cboOpenVpnSndbuf.Items.AddRange(new object[] {
-            "Automatic",
-            "Never",
-            "Every minute",
-            "Every ten minute",
-            "Every one hour"});
+			"Automatic",
+			"Never",
+			"Every minute",
+			"Every ten minute",
+			"Every one hour"});
 			this.cboOpenVpnSndbuf.Location = new System.Drawing.Point(462, 372);
 			this.cboOpenVpnSndbuf.Margin = new System.Windows.Forms.Padding(4);
 			this.cboOpenVpnSndbuf.Name = "cboOpenVpnSndbuf";
 			this.cboOpenVpnSndbuf.Size = new System.Drawing.Size(198, 28);
 			this.cboOpenVpnSndbuf.TabIndex = 96;
+			// 
+			// lblNetworkIfaceName
+			// 
+			this.lblNetworkIfaceName.BackColor = System.Drawing.Color.Transparent;
+			this.lblNetworkIfaceName.ForeColor = System.Drawing.Color.Black;
+			this.lblNetworkIfaceName.Location = new System.Drawing.Point(28, 462);
+			this.lblNetworkIfaceName.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.lblNetworkIfaceName.Name = "lblNetworkIfaceName";
+			this.lblNetworkIfaceName.Size = new System.Drawing.Size(422, 32);
+			this.lblNetworkIfaceName.TabIndex = 97;
+			this.lblNetworkIfaceName.Text = "VPN interface name (leave empty to skip):";
+			this.lblNetworkIfaceName.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// txtNetworkIfaceName
+			// 
+			this.txtNetworkIfaceName.Location = new System.Drawing.Point(462, 462);
+			this.txtNetworkIfaceName.Margin = new System.Windows.Forms.Padding(4);
+			this.txtNetworkIfaceName.Name = "txtNetworkIfaceName";
+			this.txtNetworkIfaceName.Size = new System.Drawing.Size(268, 26);
+			this.txtNetworkIfaceName.TabIndex = 98;
 			// 
 			// lblNetworkEntryIpLayer
 			// 
@@ -1274,9 +1298,9 @@ namespace Eddie.Forms.Forms
 			// 
 			this.mnuRoutes.ImageScalingSize = new System.Drawing.Size(20, 20);
 			this.mnuRoutes.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.mnuRoutesAdd,
-            this.mnuRoutesRemove,
-            this.mnuRoutesEdit});
+			this.mnuRoutesAdd,
+			this.mnuRoutesRemove,
+			this.mnuRoutesEdit});
 			this.mnuRoutes.Name = "mnuServers";
 			this.mnuRoutes.Size = new System.Drawing.Size(153, 100);
 			// 
@@ -1361,8 +1385,8 @@ namespace Eddie.Forms.Forms
 			// 
 			// tabSettings
 			// 
-			this.tabSettings.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			this.tabSettings.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.tabSettings.Appearance = System.Windows.Forms.TabAppearance.FlatButtons;
 			this.tabSettings.Controls.Add(this.tabGeneral);
 			this.tabSettings.Controls.Add(this.tabUI);
@@ -1876,10 +1900,10 @@ namespace Eddie.Forms.Forms
 			this.cboUiUnit.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.cboUiUnit.FormattingEnabled = true;
 			this.cboUiUnit.Items.AddRange(new object[] {
-            "Disabled",
-            "Automatic",
-            "Resolvconf (Linux only)",
-            "Renaming (Linux only)"});
+			"Disabled",
+			"Automatic",
+			"Resolvconf (Linux only)",
+			"Renaming (Linux only)"});
 			this.cboUiUnit.Location = new System.Drawing.Point(432, 74);
 			this.cboUiUnit.Margin = new System.Windows.Forms.Padding(4);
 			this.cboUiUnit.Name = "cboUiUnit";
@@ -1967,8 +1991,8 @@ namespace Eddie.Forms.Forms
 			// 
 			// lnkProtocolsHelp2
 			// 
-			this.lnkProtocolsHelp2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			this.lnkProtocolsHelp2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.lnkProtocolsHelp2.Cursor = System.Windows.Forms.Cursors.Hand;
 			this.lnkProtocolsHelp2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(70)))), ((int)(((byte)(141)))));
 			this.lnkProtocolsHelp2.Location = new System.Drawing.Point(20, 572);
@@ -1983,8 +2007,8 @@ namespace Eddie.Forms.Forms
 			// 
 			// lnkProtocolsHelp1
 			// 
-			this.lnkProtocolsHelp1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			this.lnkProtocolsHelp1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.lnkProtocolsHelp1.Cursor = System.Windows.Forms.Cursors.Hand;
 			this.lnkProtocolsHelp1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(70)))), ((int)(((byte)(141)))));
 			this.lnkProtocolsHelp1.Location = new System.Drawing.Point(20, 538);
@@ -2011,16 +2035,16 @@ namespace Eddie.Forms.Forms
 			// 
 			// lstProtocols
 			// 
-			this.lstProtocols.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			this.lstProtocols.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+			| System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.lstProtocols.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.colProtocolsType,
-            this.colProtocolsProtocol,
-            this.colProtocolsPort,
-            this.colProtocolsEntry,
-            this.colProtocolsDescription,
-            this.colProtocolsTech});
+			this.colProtocolsType,
+			this.colProtocolsProtocol,
+			this.colProtocolsPort,
+			this.colProtocolsEntry,
+			this.colProtocolsDescription,
+			this.colProtocolsTech});
 			this.lstProtocols.FullRowSelect = true;
 			this.lstProtocols.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
 			this.lstProtocols.HideSelection = false;
@@ -2138,8 +2162,8 @@ namespace Eddie.Forms.Forms
 			// 
 			// lnkProxyTorHelp
 			// 
-			this.lnkProxyTorHelp.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			this.lnkProxyTorHelp.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.lnkProxyTorHelp.BackColor = System.Drawing.Color.Transparent;
 			this.lnkProxyTorHelp.Cursor = System.Windows.Forms.Cursors.Hand;
 			this.lnkProxyTorHelp.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(70)))), ((int)(((byte)(141)))));
@@ -2211,8 +2235,8 @@ namespace Eddie.Forms.Forms
 			// 
 			// label17
 			// 
-			this.label17.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			this.label17.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.label17.BackColor = System.Drawing.Color.Transparent;
 			this.label17.ForeColor = System.Drawing.Color.Black;
 			this.label17.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
@@ -2222,13 +2246,13 @@ namespace Eddie.Forms.Forms
 			this.label17.Size = new System.Drawing.Size(366, 123);
 			this.label17.TabIndex = 45;
 			this.label17.Text = "If you use Tor as proxy, \r\nyou need to set up \r\nyour real proxy\r\ninside Tor confi" +
-    "guration";
+	"guration";
 			this.label17.TextAlign = System.Drawing.ContentAlignment.TopRight;
 			// 
 			// label12
 			// 
-			this.label12.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			this.label12.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.label12.BackColor = System.Drawing.Color.Transparent;
 			this.label12.ForeColor = System.Drawing.Color.Black;
 			this.label12.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
@@ -2257,9 +2281,9 @@ namespace Eddie.Forms.Forms
 			this.cboProxyAuthentication.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.cboProxyAuthentication.FormattingEnabled = true;
 			this.cboProxyAuthentication.Items.AddRange(new object[] {
-            "None",
-            "Basic",
-            "NTLM"});
+			"None",
+			"Basic",
+			"NTLM"});
 			this.cboProxyAuthentication.Location = new System.Drawing.Point(300, 212);
 			this.cboProxyAuthentication.Margin = new System.Windows.Forms.Padding(4);
 			this.cboProxyAuthentication.Name = "cboProxyAuthentication";
@@ -2325,10 +2349,10 @@ namespace Eddie.Forms.Forms
 			this.cboProxyMode.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.cboProxyMode.FormattingEnabled = true;
 			this.cboProxyMode.Items.AddRange(new object[] {
-            "None",
-            "Http",
-            "Socks",
-            "Tor"});
+			"None",
+			"Http",
+			"Socks",
+			"Tor"});
 			this.cboProxyMode.Location = new System.Drawing.Point(300, 27);
 			this.cboProxyMode.Margin = new System.Windows.Forms.Padding(4);
 			this.cboProxyMode.Name = "cboProxyMode";
@@ -2455,13 +2479,13 @@ namespace Eddie.Forms.Forms
 			// 
 			// lstRoutes
 			// 
-			this.lstRoutes.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			this.lstRoutes.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+			| System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.lstRoutes.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.colRoutesIp,
-            this.colRoutesAction,
-            this.colRoutesNotes});
+			this.colRoutesIp,
+			this.colRoutesAction,
+			this.colRoutesNotes});
 			this.lstRoutes.ContextMenuStrip = this.mnuRoutes;
 			this.lstRoutes.FullRowSelect = true;
 			this.lstRoutes.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
@@ -2517,8 +2541,8 @@ namespace Eddie.Forms.Forms
 			// 
 			// pnlDnsWindowsOnly
 			// 
-			this.pnlDnsWindowsOnly.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			this.pnlDnsWindowsOnly.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.pnlDnsWindowsOnly.Controls.Add(this.lblDnsIgnoreDNS6);
 			this.pnlDnsWindowsOnly.Controls.Add(this.lblDnsEnsureLock);
 			this.pnlDnsWindowsOnly.Controls.Add(this.lblDnsForceAllInterfaces);
@@ -2605,8 +2629,8 @@ namespace Eddie.Forms.Forms
 			// 
 			// label10
 			// 
-			this.label10.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			this.label10.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.label10.BackColor = System.Drawing.Color.Transparent;
 			this.label10.ForeColor = System.Drawing.Color.Black;
 			this.label10.Location = new System.Drawing.Point(396, 399);
@@ -2694,11 +2718,11 @@ namespace Eddie.Forms.Forms
 			// 
 			// lstDnsServers
 			// 
-			this.lstDnsServers.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			this.lstDnsServers.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+			| System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.lstDnsServers.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            columnHeader5});
+			columnHeader5});
 			this.lstDnsServers.ContextMenuStrip = this.mnuRoutes;
 			this.lstDnsServers.FullRowSelect = true;
 			this.lstDnsServers.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
@@ -2732,8 +2756,8 @@ namespace Eddie.Forms.Forms
 			this.cboDnsSwitchMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.cboDnsSwitchMode.FormattingEnabled = true;
 			this.cboDnsSwitchMode.Items.AddRange(new object[] {
-            "Disabled",
-            "Automatic"});
+			"Disabled",
+			"Automatic"});
 			this.cboDnsSwitchMode.Location = new System.Drawing.Point(396, 28);
 			this.cboDnsSwitchMode.Margin = new System.Windows.Forms.Padding(4);
 			this.cboDnsSwitchMode.Name = "cboDnsSwitchMode";
@@ -2796,8 +2820,8 @@ namespace Eddie.Forms.Forms
 			// 
 			this.txtLockWhiteListOutgoingIPs.AcceptsReturn = true;
 			this.txtLockWhiteListOutgoingIPs.AcceptsTab = true;
-			this.txtLockWhiteListOutgoingIPs.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
+			this.txtLockWhiteListOutgoingIPs.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+			| System.Windows.Forms.AnchorStyles.Left)));
 			this.txtLockWhiteListOutgoingIPs.Location = new System.Drawing.Point(421, 427);
 			this.txtLockWhiteListOutgoingIPs.Margin = new System.Windows.Forms.Padding(4);
 			this.txtLockWhiteListOutgoingIPs.Multiline = true;
@@ -2847,8 +2871,8 @@ namespace Eddie.Forms.Forms
 			this.cboLockOutgoing.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.cboLockOutgoing.FormattingEnabled = true;
 			this.cboLockOutgoing.Items.AddRange(new object[] {
-            "Block",
-            "Allow"});
+			"Block",
+			"Allow"});
 			this.cboLockOutgoing.Location = new System.Drawing.Point(291, 118);
 			this.cboLockOutgoing.Margin = new System.Windows.Forms.Padding(4);
 			this.cboLockOutgoing.Name = "cboLockOutgoing";
@@ -2872,8 +2896,8 @@ namespace Eddie.Forms.Forms
 			this.cboLockIncoming.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.cboLockIncoming.FormattingEnabled = true;
 			this.cboLockIncoming.Items.AddRange(new object[] {
-            "Block",
-            "Allow"});
+			"Block",
+			"Allow"});
 			this.cboLockIncoming.Location = new System.Drawing.Point(291, 78);
 			this.cboLockIncoming.Margin = new System.Windows.Forms.Padding(4);
 			this.cboLockIncoming.Name = "cboLockIncoming";
@@ -2932,8 +2956,8 @@ namespace Eddie.Forms.Forms
 			// 
 			// lnkLockHelp
 			// 
-			this.lnkLockHelp.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			this.lnkLockHelp.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.lnkLockHelp.Cursor = System.Windows.Forms.Cursors.Hand;
 			this.lnkLockHelp.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(70)))), ((int)(((byte)(141)))));
 			this.lnkLockHelp.Location = new System.Drawing.Point(20, 572);
@@ -2984,8 +3008,8 @@ namespace Eddie.Forms.Forms
 			// 
 			this.txtLockWhiteListIncomingIPs.AcceptsReturn = true;
 			this.txtLockWhiteListIncomingIPs.AcceptsTab = true;
-			this.txtLockWhiteListIncomingIPs.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
+			this.txtLockWhiteListIncomingIPs.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+			| System.Windows.Forms.AnchorStyles.Left)));
 			this.txtLockWhiteListIncomingIPs.Location = new System.Drawing.Point(24, 427);
 			this.txtLockWhiteListIncomingIPs.Margin = new System.Windows.Forms.Padding(4);
 			this.txtLockWhiteListIncomingIPs.Multiline = true;
@@ -3065,8 +3089,8 @@ namespace Eddie.Forms.Forms
 			// 
 			// TxtLoggingPathComputed
 			// 
-			this.TxtLoggingPathComputed.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			this.TxtLoggingPathComputed.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.TxtLoggingPathComputed.BackColor = System.Drawing.Color.Transparent;
 			this.TxtLoggingPathComputed.ForeColor = System.Drawing.Color.Black;
 			this.TxtLoggingPathComputed.Location = new System.Drawing.Point(111, 153);
@@ -3079,8 +3103,8 @@ namespace Eddie.Forms.Forms
 			// 
 			// lblLoggingHelp
 			// 
-			this.lblLoggingHelp.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			this.lblLoggingHelp.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.lblLoggingHelp.BackColor = System.Drawing.Color.Transparent;
 			this.lblLoggingHelp.ForeColor = System.Drawing.Color.Black;
 			this.lblLoggingHelp.Location = new System.Drawing.Point(26, 345);
@@ -3092,8 +3116,8 @@ namespace Eddie.Forms.Forms
 			// 
 			// txtLogPath
 			// 
-			this.txtLogPath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			this.txtLogPath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.txtLogPath.Location = new System.Drawing.Point(111, 118);
 			this.txtLogPath.Margin = new System.Windows.Forms.Padding(4);
 			this.txtLogPath.Name = "txtLogPath";
@@ -3176,63 +3200,62 @@ namespace Eddie.Forms.Forms
 			this.tabLogging.PerformLayout();
 			this.ResumeLayout(false);
 
-        }
+		}
 
-        #endregion
+		#endregion
 
-        private Skin.ColumnHeader colLogDate;
-        private Skin.ColumnHeader colLogMessage;
-        private Skin.CheckBox chkSystemStart;
-        private Skin.Label lblProxyType;
-        private Skin.ComboBox cboProxyMode;
-        private Skin.TextBox txtProxyPort;
-        private Skin.Label lblProxyPort;
-        private Skin.TextBox txtProxyHost;
-        private Skin.Label lblProxyHost;
-        private Skin.Label lblProxyAuthentication;
-        private Skin.ComboBox cboProxyAuthentication;
-        private Skin.TextBox txtProxyPassword;
-        private Skin.Label lblProxyPassword;
-        private Skin.TextBox txtProxyLogin;
-		private Skin.Label lblProxyLogin;        
-        private Skin.Label label6;
-        private Skin.ListView lstRoutes;
-        private Skin.ColumnHeader colRoutesIp;
-        private Skin.ColumnHeader colRoutesNotes;
-        private Skin.ColumnHeader colRoutesAction;
-        private Skin.Label label12;
-        private Skin.Button cmdRouteEdit;
-        private Skin.Button cmdRouteRemove;
-        private Skin.Button cmdRouteAdd;
-        private Skin.Panel pnlCommands;
-        private Skin.Button cmdCancel;
-        private Skin.Button cmdOk;
-        private System.Windows.Forms.ContextMenuStrip mnuRoutes;
-        private System.Windows.Forms.ToolStripMenuItem mnuRoutesAdd;
-        private System.Windows.Forms.ToolStripMenuItem mnuRoutesRemove;
+		private Skin.ColumnHeader colLogDate;
+		private Skin.ColumnHeader colLogMessage;
+		private Skin.CheckBox chkSystemStart;
+		private Skin.Label lblProxyType;
+		private Skin.ComboBox cboProxyMode;
+		private Skin.TextBox txtProxyPort;
+		private Skin.Label lblProxyPort;
+		private Skin.TextBox txtProxyHost;
+		private Skin.Label lblProxyHost;
+		private Skin.Label lblProxyAuthentication;
+		private Skin.ComboBox cboProxyAuthentication;
+		private Skin.TextBox txtProxyPassword;
+		private Skin.Label lblProxyPassword;
+		private Skin.TextBox txtProxyLogin;
+		private Skin.Label lblProxyLogin;
+		private Skin.Label label6;
+		private Skin.ListView lstRoutes;
+		private Skin.ColumnHeader colRoutesIp;
+		private Skin.ColumnHeader colRoutesNotes;
+		private Skin.ColumnHeader colRoutesAction;
+		private Skin.Label label12;
+		private Skin.Button cmdRouteEdit;
+		private Skin.Button cmdRouteRemove;
+		private Skin.Button cmdRouteAdd;
+		private Skin.Panel pnlCommands;
+		private Skin.Button cmdCancel;
+		private Skin.Button cmdOk;
+		private System.Windows.Forms.ContextMenuStrip mnuRoutes;
+		private System.Windows.Forms.ToolStripMenuItem mnuRoutesAdd;
+		private System.Windows.Forms.ToolStripMenuItem mnuRoutesRemove;
 		private System.Windows.Forms.ToolStripMenuItem mnuRoutesEdit;
-        private Skin.TabControl tabSettings;
-        private Skin.TabPage tabGeneral;
+		private Skin.TabControl tabSettings;
+		private Skin.TabPage tabGeneral;
 		private Skin.TabPage tabUI;
 		private Skin.TabPage tabProtocols;
-        private Skin.TabPage tabProxy;
-        private Skin.TabPage tabRoutes;
-        private Skin.Button cmdExeBrowse;
-        private Skin.TextBox txtExePath;
-        private Skin.Label lblExePath;
+		private Skin.TabPage tabProxy;
+		private Skin.TabPage tabRoutes;
+		private Skin.Button cmdExeBrowse;
+		private Skin.TextBox txtExePath;
+		private Skin.Label lblExePath;
 		private Skin.CheckBox chkAdvancedCheckRoute;
-        private Skin.CheckBox chkWindowsTapUp;
-        private Skin.CheckBox chkExpert;
-        private Skin.TextBox txtOpenVpnDirectivesBase;
-        private Skin.TextBox txtOpenVpnDirectivesCustom;
-        private Skin.Button cmdAdvancedEventsEdit;
-        private Skin.Button cmdAdvancedEventsClear;
-        private Skin.ListView lstAdvancedEvents;
-        private Skin.Label label1;
-        private Skin.Label label3;
-        private Skin.Label label2;
-        private Skin.ColumnHeader columnHeader3;
-        private Skin.ColumnHeader columnHeader4;
+		private Skin.CheckBox chkExpert;
+		private Skin.TextBox txtOpenVpnDirectivesBase;
+		private Skin.TextBox txtOpenVpnDirectivesCustom;
+		private Skin.Button cmdAdvancedEventsEdit;
+		private Skin.Button cmdAdvancedEventsClear;
+		private Skin.ListView lstAdvancedEvents;
+		private Skin.Label label1;
+		private Skin.Label label3;
+		private Skin.Label label2;
+		private Skin.ColumnHeader columnHeader3;
+		private Skin.ColumnHeader columnHeader4;
 		private Skin.Button cmdAdvancedUninstallDriverTap;
 		private Skin.CheckBox chkAdvancedPingerEnabled;
 		private System.Windows.Forms.GroupBox pnlAdvancedGeneralWindowsOnly;
@@ -3266,39 +3289,39 @@ namespace Eddie.Forms.Forms
 		private Skin.ListView lstDnsServers;
 		private Skin.CheckBox chkLogLevelDebug;
 		private Skin.CheckBox chkWindowsDisableDriverUpgrade;
-        private Skin.ListView lstProtocols;
-        private Skin.ColumnHeader colProtocolsDescription;
+		private Skin.ListView lstProtocols;
+		private Skin.ColumnHeader colProtocolsDescription;
 		private Skin.ColumnHeader colProtocolsType;
-		private Skin.ColumnHeader colProtocolsProtocol;		
+		private Skin.ColumnHeader colProtocolsProtocol;
 		private Skin.ColumnHeader colProtocolsPort;
-        private System.Windows.Forms.ColumnHeader colProtocolsEntry;
-        private Skin.LinkLabel lnkProtocolsHelp2;
-        private Skin.LinkLabel lnkProtocolsHelp1;
-        private System.Windows.Forms.CheckBox chkProtocolsAutomatic;
-        private Skin.CheckBox chkWindowsDebugWorkaround;
-        private Skin.TextBox txtProxyTorControlPassword;
-        private Skin.Label lblProxyTorControlPassword;
-        private Skin.Button cmdProxyTorTest;
-        private Skin.TextBox txtProxyTorControlPort;
-        private Skin.Label lblProxyTorControlPort;
-        private Skin.LinkLabel lnkProxyTorHelp;
-        private Skin.LinkLabel lnkLockHelp;
-        private Skin.LinkLabel lnkAdvancedHelp;
-        private Skin.Label lblDnsCheck;
-        private Skin.Label label10;
-        private Skin.ComboBox cboOpenVpnDirectivesDefaultSkip;
-        private Skin.Label lblLockAllowPing;
-        private Skin.Label lblLockAllowPrivate;
-        private Skin.LinkLabel lnkOpenVpnDirectivesHelp;
-        private Skin.CheckBox chkOsSingleInstance;
-        private Skin.Label lblConnect;
-        private Skin.Label lblNetLock;
-        private Skin.CheckBox chkConnect;
-        private Skin.Label lblGeneralStartLast;
-        private Skin.CheckBox chkNetLock;
-        private Skin.CheckBox chkGeneralStartLast;
-        private Skin.Button cmdResetToDefault;
-        private Skin.Button cmdLoggingOpen;
+		private System.Windows.Forms.ColumnHeader colProtocolsEntry;
+		private Skin.LinkLabel lnkProtocolsHelp2;
+		private Skin.LinkLabel lnkProtocolsHelp1;
+		private System.Windows.Forms.CheckBox chkProtocolsAutomatic;
+		private Skin.CheckBox chkWindowsDebugWorkaround;
+		private Skin.TextBox txtProxyTorControlPassword;
+		private Skin.Label lblProxyTorControlPassword;
+		private Skin.Button cmdProxyTorTest;
+		private Skin.TextBox txtProxyTorControlPort;
+		private Skin.Label lblProxyTorControlPort;
+		private Skin.LinkLabel lnkProxyTorHelp;
+		private Skin.LinkLabel lnkLockHelp;
+		private Skin.LinkLabel lnkAdvancedHelp;
+		private Skin.Label lblDnsCheck;
+		private Skin.Label label10;
+		private Skin.ComboBox cboOpenVpnDirectivesDefaultSkip;
+		private Skin.Label lblLockAllowPing;
+		private Skin.Label lblLockAllowPrivate;
+		private Skin.LinkLabel lnkOpenVpnDirectivesHelp;
+		private Skin.CheckBox chkOsSingleInstance;
+		private Skin.Label lblConnect;
+		private Skin.Label lblNetLock;
+		private Skin.CheckBox chkConnect;
+		private Skin.Label lblGeneralStartLast;
+		private Skin.CheckBox chkNetLock;
+		private Skin.CheckBox chkGeneralStartLast;
+		private Skin.Button cmdResetToDefault;
+		private Skin.Button cmdLoggingOpen;
 		private Skin.Label lblLockAllowDNS;
 		private Skin.CheckBox chkLockAllowDNS;
 		private System.Windows.Forms.ColumnHeader colProtocolsTech;
@@ -3321,6 +3344,8 @@ namespace Eddie.Forms.Forms
 		private Skin.ComboBox cboOpenVpnRcvbuf;
 		private Skin.Label lblOpenVpnSndbuf;
 		private Skin.ComboBox cboOpenVpnSndbuf;
+		private Skin.Label lblNetworkIfaceName;
+		private Skin.TextBox txtNetworkIfaceName;
 		private Skin.Label lblNetworkEntryIpLayer;
 		private Skin.ComboBox cboNetworkEntryIpLayer;
 		private Skin.Label lblLockOutgoing;
@@ -3361,6 +3386,7 @@ namespace Eddie.Forms.Forms
 		private Skin.CheckBox chkNetworkIPv6AutoSwitch;
 		private Skin.Label lblNetworkIPv4AutoSwitch;
 		private Skin.CheckBox chkNetworkIPv4AutoSwitch;
+		private Skin.CheckBox chkWindowsAdaptersCleanup;
 		private Skin.CheckBox chkWindowsSshPlinkForce;
 		private Skin.Label lblAdvancedUpdaterChannel;
 		private Skin.ComboBox cboAdvancedUpdaterChannel;

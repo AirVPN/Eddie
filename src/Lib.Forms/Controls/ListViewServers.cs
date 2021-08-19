@@ -94,6 +94,7 @@ namespace Eddie.Forms.Controls
 
 			SetSort(1, SortOrder.Ascending);
 
+			ResourceManager = Properties.Resources.ResourceManager;
 			ImageIconResourcePrefix = "flags_";
 			ImageStateResourcePrefix = "blacklist_";
 
@@ -115,7 +116,7 @@ namespace Eddie.Forms.Controls
 			Controls.ListViewItemServer listItemServer = e.Item as Controls.ListViewItemServer;
 
 			if (listItemServer.Info.CanConnect() == false)
-				return Form.Skin.ListViewDisabledBackBrush;
+				return Skin.SkinForm.Skin.ListViewDisabledBackBrush;
 
 			return null;
 		}
@@ -138,8 +139,8 @@ namespace Eddie.Forms.Controls
 
 				Rectangle sourceH = new Rectangle(0, 0, Convert.ToInt32(Convert.ToDouble(imageH.Width) * part), imageH.Height);
 
-				Form.DrawImageContain(e.Graphics, imageN, e.Bounds, 0);
-				Form.DrawImageContain(e.Graphics, imageH, e.Bounds, 0, sourceH);
+				Skin.SkinForm.DrawImageContain(e.Graphics, imageN, e.Bounds, 0);
+				Skin.SkinForm.DrawImageContain(e.Graphics, imageH, e.Bounds, 0, sourceH);
 			}
 			else if (e.ColumnIndex == 4)
 			{
@@ -173,11 +174,11 @@ namespace Eddie.Forms.Controls
 				if (W > R1.Width)
 					W = R1.Width;
 				//e.Graphics.FillRectangle(Form.Skin.BarBrush, new Rectangle(R1.Left, R1.Top, W, R1.Height));
-				Form.FillRectangle(e.Graphics, b, new Rectangle(R1.Left, R1.Top, W, R1.Height));
+				Skin.SkinForm.FillRectangle(e.Graphics, b, new Rectangle(R1.Left, R1.Top, W, R1.Height));
 
 				R1.Height -= 1;
 				//e.Graphics.DrawRectangle(m_loadPen, R1);
-				Form.DrawString(e.Graphics, label, e.Item.Font, Form.Skin.ForeBrush, R1, GuiUtils.StringFormatCenterMiddle);
+				Skin.SkinForm.DrawString(e.Graphics, label, e.Item.Font, Skin.SkinForm.Skin.ForeBrush, R1, Skin.SkinUtils.StringFormatCenterMiddle);
 			}
 		}
 

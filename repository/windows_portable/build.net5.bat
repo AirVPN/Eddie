@@ -96,8 +96,8 @@ IF exist %VARSCRIPTDIR%\..\signing\eddie.win-signing.pfx (
 			rem %VARSCRIPTDIR%\..\windows_common\signtool.exe verify /pa "%%~ff" | find /i "No signature found"
 			%VARSCRIPTDIR%\..\windows_common\signtool.exe verify /pa "%%~ff"
 			if ERRORLEVEL 1 (
-				echo %VARSCRIPTDIR%\..\windows_common\signtool.exe sign /fd sha256 /p "%VARSIGNPASSWORD%" /f "%VARSCRIPTDIR%\..\signing\eddie.win-signing.pfx" /t http://timestamp.comodoca.com/authenticode /d "Eddie - OpenVPN UI" "%%~ff" || goto :error
-				%VARSCRIPTDIR%\..\windows_common\signtool.exe sign /fd sha256 /p "%VARSIGNPASSWORD%" /f "%VARSCRIPTDIR%\..\signing\eddie.win-signing.pfx" /t http://timestamp.comodoca.com/authenticode /d "Eddie - OpenVPN UI" "%%~ff" || goto :error
+				echo %VARSCRIPTDIR%\..\windows_common\signtool.exe sign /fd sha256 /p "%VARSIGNPASSWORD%" /f "%VARSCRIPTDIR%\..\signing\eddie.win-signing.pfx" /t http://timestamp.comodoca.com/authenticode /d "Eddie - VPN Tunnel" "%%~ff" || goto :error
+				%VARSCRIPTDIR%\..\windows_common\signtool.exe sign /fd sha256 /p "%VARSIGNPASSWORD%" /f "%VARSCRIPTDIR%\..\signing\eddie.win-signing.pfx" /t http://timestamp.comodoca.com/authenticode /d "Eddie - VPN Tunnel" "%%~ff" || goto :error
 			) ELSE (
 				rem Already signed
 			)

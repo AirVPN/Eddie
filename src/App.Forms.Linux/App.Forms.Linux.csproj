@@ -169,6 +169,10 @@
       <Project>{76BEBDA7-F8A2-46E3-9011-CC14F754DBE5}</Project>
       <Name>Lib.Platform.Linux</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Lib.Forms.Skin\Lib.Forms.Skin.csproj">
+      <Project>{D236F3C2-E2B6-4849-88DD-739CE8F01FA2}</Project>
+      <Name>Lib.Forms.Skin</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="icon.ico" />

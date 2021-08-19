@@ -3,7 +3,7 @@ Version: {@version}
 Release: 0
 
 License: see /usr/share/doc/eddie-cli/copyright
-Summary: Eddie - OpenVPN CLI
+Summary: Eddie - VPN Tunnel - CLI
 Packager: Eddie.website <maintainer@eddie.website>
 URL: https://eddie.website
 Group: net
@@ -15,7 +15,7 @@ AutoReqProv: no
 %define _unpackaged_files_terminate_build 0
 
 %description
-OpenVPN CLI with additional user-friendly features
+OpenVPN/WireGuard CLI with additional user-friendly features
 Open-Source, GPLv3, Developed by AirVPN
 
 %files

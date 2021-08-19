@@ -53,18 +53,10 @@ std::string systemdPath = "/usr/lib/systemd/system";
 std::string systemdUnitName = serviceName + ".service";
 std::string systemdUnitPath = systemdPath + "/" + systemdUnitName;
 
-
 int Impl::Main()
 {
 	signal(SIGINT, SIG_IGN); // If Eddie is executed as terminal, and receive a Ctrl+C, elevated are terminated before child process (if 'spot'). Need a better solution.
 	signal(SIGHUP, SIG_IGN); // Signal of reboot, ignore, container will manage it
-
-	// ping test
-	/*
-	std::cout << "ping ipv4:" << Ping("8.8.8.8",10) << "\n";
-	std::cout << "ping ipv6:" << Ping("2a00:1450:4002:800::200e",10) << "\n";
-	exit(1);
-	*/
 
 	prctl(PR_SET_PDEATHSIG, SIGHUP); // Any child process will be killed if this process died, Linux specific
 
@@ -141,7 +133,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 								continue;
 
 							LogRemote("Flush DNS - " + service + " via systemd");
-							ExecEx2(servicePath, StringEnsureSecure(service), "restart");
+							ExecEx2(servicePath, StringEnsureFileName(service), "restart");
 							restarted[service] = 1;
 						}
 					}
@@ -777,7 +769,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 		else if (params["layer"] == "ipv6")
 			args.push_back("-6");
 		args.push_back("route");
-		args.push_back(StringEnsureSecure(params["action"]));
+		args.push_back(StringEnsureAlphaNumeric(params["action"]));
 		args.push_back(StringEnsureCidr(params["destination"]));
 		if (params.find("gateway") != params.end())
 		{
@@ -787,7 +779,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 		if (params.find("interface") != params.end())
 		{
 			args.push_back("dev");
-			args.push_back(StringEnsureSecure(params["interface"]));
+			args.push_back(StringEnsureInterfaceName(params["interface"]));
 		}
 		if (params.find("metric") != params.end())
 		{
@@ -1069,8 +1061,8 @@ bool Impl::ServiceInstall()
 		std::string elevatedArgs = "\"mode=service\"";
 		std::string integrity = ComputeIntegrityHash(GetProcessPathCurrent(), "");
 		if (m_cmdline.find("service_port") != m_cmdline.end())
-			elevatedArgs += " \"service_port=" + StringEnsureSecure(m_cmdline["service_port"]) + "\"";
-		elevatedArgs += " \"integrity=" + StringEnsureSecure(integrity) + "\"";
+			elevatedArgs += " \"service_port=" + StringEnsureNumericInt(m_cmdline["service_port"]) + "\"";
+		elevatedArgs += " \"integrity=" + StringEnsureIntegrity(integrity) + "\"";
 
 		std::string unit = "";
 		unit += "[Unit]\n";

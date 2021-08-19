@@ -115,7 +115,7 @@ namespace Eddie.Core
 		}
 
 		// Called for user events or special UI interaction
-		public static bool ExecUserEvent(string filename, string arguments, bool waitEnd)
+		public static bool ExecForUserEvent(string filename, string arguments, bool waitEnd)
 		{
 			/* <2.17.3
 			List<string> args = UtilsString.StringToList(arguments, " ", true, true, false, false);

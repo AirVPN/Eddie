@@ -81,6 +81,7 @@ namespace Eddie.Forms.Controls
 
 			SetSort(0, SortOrder.Ascending);
 
+			ResourceManager = Properties.Resources.ResourceManager;
 			ImageIconResourcePrefix = "flags_";
 			ImageStateResourcePrefix = "blacklist_";
 
@@ -123,11 +124,11 @@ namespace Eddie.Forms.Controls
 				int W = Conversions.ToInt32(p * R1.Width);
 				if (W > R1.Width)
 					W = R1.Width;
-				Form.FillRectangle(e.Graphics, b, new Rectangle(R1.Left, R1.Top, W, R1.Height));
+				Skin.SkinForm.FillRectangle(e.Graphics, b, new Rectangle(R1.Left, R1.Top, W, R1.Height));
 
 				R1.Height -= 1;
 				//e.Graphics.DrawRectangle(m_loadPen, R1);
-				e.Graphics.DrawString(label, e.Item.Font, Form.Skin.ForeBrush, R1, GuiUtils.StringFormatCenterMiddle);
+				e.Graphics.DrawString(label, e.Item.Font, Skin.SkinForm.Skin.ForeBrush, R1, Skin.SkinUtils.StringFormatCenterMiddle);
 			}
 		}
 

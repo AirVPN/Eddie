@@ -26,7 +26,7 @@ using Eddie.Core;
 
 namespace Eddie.Forms.Forms
 {
-	public partial class WindowConnection : Eddie.Forms.Form
+	public partial class WindowConnection : Eddie.Forms.Skin.SkinForm
 	{
 		public ConnectionInfo Info;
 

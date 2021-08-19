@@ -45,7 +45,11 @@ namespace Eddie.Core.ConnectionTypes
 		{
 			base.Build();
 
-			m_interfaceName = Engine.Instance.Options.Get("wireguard.interface.name");
+			// With OpenVPN can be empty (no manual adapter creation).
+			// With WireGuard, must exists (WG create the adapter).
+			m_interfaceName = Engine.Instance.Options.Get("network.iface.name");
+			if (m_interfaceName == "")
+				m_interfaceName = Engine.Instance.Options.GetOption("network.iface.name").Default;
 
 			m_configStartup = new ConfigBuilder.WireGuard();
 

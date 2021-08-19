@@ -400,12 +400,12 @@ namespace Eddie.Platform.MacOS
 			return (NativeMethods.eddie_kill(process.Id, (int)NativeMethods.Signum.SIGTERM) == 0);
 		}
 
-		public override int GetRecommendedRcvBufDirective()
+		public override int GetOpenVpnRecommendedRcvBufDirective()
 		{
 			return 256 * 1024;
 		}
 
-		public override int GetRecommendedSndBufDirective()
+		public override int GetOpenVpnRecommendedSndBufDirective()
 		{
 			return 256 * 1024;
 		}
@@ -556,58 +556,9 @@ namespace Eddie.Platform.MacOS
 			}
 			return false;
 		}
-				
-		public override long Ping(IpAddress host, int timeoutSec)
+
+		public override void RouteApply(Json jRoute, string action)
 		{
-			// Xamarin.Mac don't implement IPv6 ping.
-			if (host.IsV4)
-				return base.Ping(host, timeoutSec);
-
-			if ((host == null) || (host.Valid == false))
-				return -1;  
-
-            {
-                float iMS = -1;
-
-				string pingPath = "";
-				if (host.IsV4)
-					pingPath = LocateExecutable("ping");
-				else if (host.IsV6)
-					pingPath = LocateExecutable("ping6");
-				else
-					return -1;
-				if (pingPath != "")
-                {
-                    SystemExec exec = new SystemExec();
-                    exec.Path = pingPath;
-                    exec.Arguments.Add("-c 1");
-					//exec.Arguments.Add("-t " + timeoutSec.ToString()); // macOS ping6 don't have any timeout option
-					//exec.Arguments.Add("-W " + timeoutSec.ToString()); // macOS ping6 don't have any timeout option
-					exec.Arguments.Add("-q");
-                    exec.Arguments.Add("-n");
-                    exec.Arguments.Add(host.Address);
-                    exec.NoDebugLog = true;
-
-                    if (exec.Run())
-                    {
-                        string result = exec.Output;
-                        string sMS = result.ToLowerInvariant().ExtractBetween("min/avg/max/std-dev = ", "/");
-						if (float.TryParse(sMS, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out iMS) == false)
-                            iMS = -1;
-                    }
-                }
-
-                return (long)iMS;
-            }
-        }        
-
-		public override string GetDriverVersion(string driver)
-		{
-			return "Expected";
-		}
-
-        public override void RouteApply(Json jRoute, string action)
-        {
 			IpAddress destination = jRoute["destination"].ValueString;
 			Core.Elevated.Command c = new Core.Elevated.Command();
 			c.Parameters["command"] = "route";
@@ -625,7 +576,7 @@ namespace Eddie.Platform.MacOS
 				c.Parameters["metric"] = jRoute["metric"].ValueString;
 			string result = Engine.Instance.Elevated.DoCommandSync(c);
 		}
-        
+
 		public override IpAddresses ResolveDNS(string host)
 		{
 			// Base method with Dns.GetHostEntry have cache issue, for example on Fedora. OS X it's based on Mono.
@@ -1009,7 +960,7 @@ namespace Eddie.Platform.MacOS
 			return result;
 		}
 
-        public override void OnJsonNetworkInfo(Json jNetworkInfo)
+		public override void OnJsonNetworkInfo(Json jNetworkInfo)
 		{
 			// Step1: Set IPv6 support to true by default.
 			// From base virtual, always 'false'. Missing Mono implementation? 
@@ -1177,7 +1128,12 @@ namespace Eddie.Platform.MacOS
 			else
 				return base.FileGetSignedId(path);
 		}
-    }
+
+		public override string OpenVpnGetDriverVersion(string driver)
+		{
+			return "Expected";
+		}
+	}
 
 	public class DnsSwitchEntry
 	{

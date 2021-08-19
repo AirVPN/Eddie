@@ -91,16 +91,6 @@ namespace Eddie.Platform.MacOS
 				throw new Exception("Unexpected result: " + result);
 		}
 
-		public override void AllowIP(IpAddress ip)
-		{
-			base.AllowIP(ip);
-		}
-
-		public override void DeallowIP(IpAddress ip)
-		{
-			base.DeallowIP(ip);
-		}
-
 		public override void OnUpdateIps()
 		{
 			base.OnUpdateIps();

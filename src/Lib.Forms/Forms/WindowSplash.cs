@@ -23,10 +23,11 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using Eddie.Core;
+using Eddie.Forms.Skin;
 
 namespace Eddie.Forms.Forms
 {
-	public partial class WindowSplash : Eddie.Forms.Form
+	public partial class WindowSplash : Eddie.Forms.Skin.SkinForm
 	{
 		public String Body;
 
@@ -73,7 +74,7 @@ namespace Eddie.Forms.Forms
 			r.Width -= 10;
 			r.Height -= 10;
 
-			Form.DrawString(e.Graphics, Body, Font, Brushes.White, r, m_sf);
+			SkinForm.DrawString(e.Graphics, Body, Font, Brushes.White, r, m_sf);
 		}
 
 		private delegate void SetStatusDelegate(string t);

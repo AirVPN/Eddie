@@ -170,11 +170,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\App.CLI.Common.Elevated\ibase.cpp" />
+    <ClCompile Include="..\App.CLI.Common.Elevated\ping.cpp" />
     <ClCompile Include="..\App.CLI.Common.Elevated\sha256.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="src\impl.cpp" />
     <ClCompile Include="src\iwindows.cpp" />
-    <ClCompile Include="src\yxml.c" />
+    <ClCompile Include="src\yxml.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="App.CLI.Windows.Elevated.rc" />

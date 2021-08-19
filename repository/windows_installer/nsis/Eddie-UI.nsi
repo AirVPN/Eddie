@@ -13,7 +13,7 @@
 	SetCompressor /SOLID /FINAL lzma  
 			
 	;Name and file
-	Name "Eddie - OpenVPN UI"
+	Name "Eddie - VPN Tunnel"
 	OutFile "{@out}"
 	
 	; Adds an XP manifest to the installer
@@ -244,7 +244,7 @@
 		WriteRegStr HKLM "Software\AirVPN" "" $INSTDIR
 		
 		; Write the uninstall keys for Windows
-		WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\AirVPN" "DisplayName" "Eddie - OpenVPN UI"
+		WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\AirVPN" "DisplayName" "Eddie - VPN Tunnel"
 		WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\AirVPN" "UninstallString" '"$INSTDIR\uninstall.exe"'
 		WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\AirVPN" "URLInfoAbout" "https://eddie.website"
 		WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\AirVPN" "HelpLink" "https://eddie.website"
@@ -278,7 +278,7 @@
 
 Section "Uninstall"
 
-	ExecWait '"$INSTDIR\Eddie-CLI-Elevated.exe" service=uninstall'
+	ExecWait '"$INSTDIR\Eddie-CLI-Elevated.exe" service=uninstall-full'
 
 	{@files_delete}
 		

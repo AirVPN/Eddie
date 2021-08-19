@@ -26,7 +26,7 @@ using Eddie.Core;
 
 namespace Eddie.Forms.Forms
 {
-	public partial class TextViewer : Eddie.Forms.Form
+	public partial class TextViewer : Eddie.Forms.Skin.SkinForm
 	{
 		public TextViewer()
 		{

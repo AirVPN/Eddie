@@ -268,12 +268,7 @@ namespace Eddie.Core
 					{
 						m_connection = Engine.CurrentServer.BuildConnection(this);
 
-						if (Engine.Instance.Options.GetBool("advanced.skip_tun_detect") == false)
-						{
-							string driverRequested = Platform.Instance.GetConnectionTunDriver(m_connection);
-							Engine.Instance.WaitMessageSet(LanguageManager.GetText("OsDriverInstall", driverRequested), false);
-							Platform.Instance.EnsureDriverAndAdapterAvailable(driverRequested);
-						}
+						m_connection.EnsureDriver();
 
 						Engine.WaitMessageSet(LanguageManager.GetText("ConnectionCredentials"), true);
 						if (Engine.CurrentServer.Provider.ApplyCredentials(m_connection) == false)
@@ -725,11 +720,31 @@ namespace Eddie.Core
 			Json jRoute = new Json();
 			jRoute["destination"].Value = route.Destination.ToCIDR(true);
 
+			if ((route.Destination.IsV4) && (m_connection.BlockedIPv4))
+			{
+				Engine.Instance.Logs.LogVerbose("Routes, skipped for " + route.Destination.ToCIDR() + " : IPv4 blocked.");
+				return null;
+			}
+			if ((route.Destination.IsV6) && (m_connection.BlockedIPv6))
+			{
+				Engine.Instance.Logs.LogVerbose("Routes, skipped for " + route.Destination.ToCIDR() + " : IPv6 blocked.");
+				return null;
+			}
+
 			if (route.Gateway == "vpn_gateway")
 			{
 				if (m_connection.Interface == null) // If don't reach connection
 					return null;
 
+				if (Platform.Instance.GetRequireNextHop())
+				{
+					// This will works only if Gateway and DNS are the same IP.
+					// Anyway, it's only for Win7.
+					if (route.Destination.IsV4)
+						jRoute["gateway"].Value = m_connection.GetDns().OnlyIPv4.First;
+					else
+						jRoute["gateway"].Value = m_connection.GetDns().OnlyIPv6.First;
+				}
 				jRoute["interface"].Value = m_connection.Interface.Id;
 			}
 			else if (route.Gateway == "net_gateway")
@@ -739,7 +754,7 @@ namespace Eddie.Core
 					IpAddress netGateway = Engine.Instance.GetDefaultGatewayIPv4();
 					if (netGateway == null)
 					{
-						Engine.Instance.Logs.LogVerbose("Routes, skipped for " + route.Destination.ToCIDR() + ": IPv4 Net gateway not available.");
+						Engine.Instance.Logs.LogVerbose("Routes, skipped for " + route.Destination.ToCIDR() + " : IPv4 Net gateway not available.");
 						return null;
 					}
 					else
@@ -753,7 +768,7 @@ namespace Eddie.Core
 					IpAddress netGateway = Engine.Instance.GetDefaultGatewayIPv6();
 					if (netGateway == null)
 					{
-						Engine.Instance.Logs.LogVerbose("Routes, skipped for " + route.Destination.ToCIDR() + ": IPv6 Net gateway not available.");
+						Engine.Instance.Logs.LogVerbose("Routes, skipped for " + route.Destination.ToCIDR() + " : IPv6 Net gateway not available.");
 						return null;
 					}
 					else

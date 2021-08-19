@@ -26,7 +26,7 @@ using Eddie.Core;
 
 namespace Eddie.Forms.Forms
 {
-	public partial class WindowProviderEditManifest : Eddie.Forms.Form
+	public partial class WindowProviderEditManifest : Eddie.Forms.Skin.SkinForm
 	{
 		public Core.Providers.Service Provider;
 

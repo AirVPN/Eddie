@@ -35,6 +35,7 @@
 #else
 #include <unistd.h> // read, write, close (all socket related)
 #include <netdb.h> // htons, listen, sockaddr_in
+
 #endif
 
 #include "hashes.h"       
@@ -158,7 +159,9 @@ void IBase::LogDebug(const std::string& msg)
 	LogDevDebug("Debug:" + msg);
 
 #if defined(Debug) || defined(_DEBUG)
+	m_mutex_cout.lock();
 	std::cout << "Elevated Debug: " << msg << std::endl;
+	m_mutex_cout.unlock();
 #endif
 
 	if (m_debug)
@@ -180,7 +183,7 @@ void IBase::LogDevDebug(const std::string& msg)
 	std::string logPath = FsGetTempPath() + FsPathSeparator + "eddie_elevated.log";
 	logPath = "C:\\elevated.log"; // Win temp
 	FILE* f = fopen(logPath.c_str(), "a");
-	fprintf(f, "PID: %d - %s%s", (int) GetCurrentProcessId(), msg.c_str(), FsEndLine.c_str());
+	fprintf(f, "PID: %d - %s%s", (int)GetCurrentProcessId(), msg.c_str(), FsEndLine.c_str());
 	fclose(f);
 	*/
 }
@@ -253,7 +256,17 @@ int IBase::Main()
 				return 1;
 			}
 		}
-		else if (m_cmdline["service"] == "uninstall")
+		else if (m_cmdline["service"] == "uninstall-full") // Full uninstall request
+		{
+			if (FullUninstall())
+				return 0;
+			else
+			{
+				LogLocal("Service uninstall fail.");
+				return 1;
+			}
+		}
+		else if (m_cmdline["service"] == "uninstall") // Service uninstall request
 		{
 			if (ServiceUninstall())
 				return 0;
@@ -340,6 +353,9 @@ int IBase::Main()
 		m_sockClient = 0;
 		struct sockaddr_in addrClient;
 		socklen_t addrClientLen = sizeof(addrClient);
+		char* buffer = (char*)malloc(NETBUFSIZE);
+		if (buffer == NULL)
+			break;
 
 		LogDebug("Waiting for client");
 
@@ -420,7 +436,7 @@ int IBase::Main()
 
 				ReplyPID(GetCurrentProcessId());
 
-				char buffer[NETBUFSIZE];
+				//char buffer[NETBUFSIZE];
 				std::memset(buffer, 0, NETBUFSIZE);
 				uint bufferPos = 0;
 				bool clientStop = false;
@@ -513,7 +529,8 @@ int IBase::Main()
 							}
 							else if (command != "")
 							{
-								LogDebug("Command:" + command);
+								if (command != "ping")
+									LogDebug("Command:" + command);
 
 								std::thread t = std::thread(ThreadCommand, this, id, command, params);
 								t.detach();
@@ -535,6 +552,8 @@ int IBase::Main()
 		LogDebug("Client soft disconnected");
 
 		SocketClose(m_sockClient);
+
+		free(buffer);
 
 		if (m_singleConnMode)
 			break;
@@ -566,13 +585,35 @@ void IBase::Do(const std::string& commandId, const std::string& command, std::ma
 		if (params.find("mode") != params.end())
 			m_singleConnMode = (params["mode"] == "single");
 	}
-	else if (command == "ping")
+	else if (command == "ping-request")
 	{
-		std::string host = params["host"];
+		std::string ip = params["ip"];
 		int timeoutMs = StringToInt(params["timeout"]);
 
-		int result = Ping(host, timeoutMs);
-		ReplyCommand(commandId, StringFrom(result));
+		int pingID = m_pinger.Request(ip, timeoutMs, "");
+
+		ReplyCommand(commandId, StringFrom(pingID));
+	}
+	else if (command == "ping-engine")
+	{
+		m_pinger.m_pBase = this;
+		m_pinger.m_commandId = commandId;
+		m_pinger.Start();
+
+		for (;;)
+		{
+			int nPending = m_pinger.Check();
+
+			int sleepMs = 1000; // one second
+			if (nPending > 0)
+				sleepMs = 1;
+			Sleep(sleepMs);
+
+			if (IsStopRequested())
+				break;
+		}
+
+		m_pinger.Stop();
 	}
 	else if (command == "bin-path-add")
 	{
@@ -707,6 +748,14 @@ bool IBase::ServiceUninstallSupportRealtime()
 	// Anyway, under Windows, spot mode is installation and activation of the service, so the self-uninstall is to avoid UAC prompt at every exit. 
 	// In Linux/macOS, it's better return false here.
 	return false;
+}
+
+bool IBase::FullUninstall()
+{
+	if (ServiceUninstall() == false)
+		return false;
+
+	return true;
 }
 
 std::string IBase::GetProcessPathCurrent()
@@ -977,14 +1026,34 @@ std::string IBase::StringPruneCharsNotIn(const std::string& str, const std::stri
 	return result;
 }
 
-std::string IBase::StringEnsureSecure(const std::string& str)
+std::string IBase::StringEnsureAlphaNumeric(const std::string& str)
 {
-	return StringPruneCharsNotIn(str, " .;:-_0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+	return StringPruneCharsNotIn(str, "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+}
+
+std::string IBase::StringEnsureHex(const std::string& str)
+{
+	return StringPruneCharsNotIn(str, "0123456789abcdefABCDEF");
+}
+
+std::string IBase::StringEnsureIntegrity(const std::string& str)
+{
+	return StringPruneCharsNotIn(str, "0123456789abcdefABCDEF;");
+}
+
+std::string IBase::StringEnsureFileName(const std::string& str)
+{
+	return StringPruneCharsNotIn(str, " .;:-_0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ()[]{}");
+}
+
+std::string IBase::StringEnsureDirectoryName(const std::string& str)
+{
+	return StringPruneCharsNotIn(str, " .;:-_0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ()[]{}");
 }
 
 std::string IBase::StringEnsureInterfaceName(const std::string& str)
 {
-	return StringPruneCharsNotIn(str, " :-_0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+	return str;
 }
 
 std::string IBase::StringEnsureCidr(const std::string& str)
@@ -1000,6 +1069,11 @@ std::string IBase::StringEnsureIpAddress(const std::string& str)
 std::string IBase::StringEnsureNumericInt(const std::string& str)
 {
 	return StringPruneCharsNotIn(str, "-0123456789");
+}
+
+std::string IBase::StringEnsureQuote(const std::string& str)
+{
+	return StringReplaceAll(str, "\"", "\\\"");
 }
 
 std::string IBase::StringBase64Encode(const std::string& str)
@@ -1456,6 +1530,12 @@ ExecResult IBase::ExecEx8(const std::string& path, const std::string& arg1, cons
 	args.push_back(arg7);
 	args.push_back(arg8);
 	return ExecEx(path, args);
+}
+
+void Pinger::OnResponse(const int& id, const int& result)
+{
+	std::string r = std::to_string(id) + "," + std::to_string(result);
+	m_pBase->ReplyCommand(m_commandId, r);
 }
 
 // --------------------------

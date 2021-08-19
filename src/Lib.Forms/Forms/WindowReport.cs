@@ -27,7 +27,7 @@ using Eddie.Core;
 
 namespace Eddie.Forms.Forms
 {
-	public partial class WindowReport : Eddie.Forms.Form
+	public partial class WindowReport : Eddie.Forms.Skin.SkinForm
 	{
 		public string Body = "";
 
@@ -112,7 +112,7 @@ namespace Eddie.Forms.Forms
 						//sw.Close();	// because of "using"
 					}
 
-					ShowMessageInfo(LanguageManager.GetText("LogsSaveToFileDone"));
+					GuiUtils.MessageBoxInfo(this, LanguageManager.GetText("LogsSaveToFileDone"));
 				}
 			}
 		}

@@ -24,10 +24,11 @@ using System.Text;
 using System.Windows.Forms;
 using System.Xml;
 using Eddie.Core;
+using Eddie.Forms.Skin;
 
 namespace Eddie.Forms.Forms
 {
-	public partial class WindowProviderAdd : Eddie.Forms.Form
+	public partial class WindowProviderAdd : Eddie.Forms.Skin.SkinForm
 	{
 		public String Provider;
 
@@ -49,7 +50,7 @@ namespace Eddie.Forms.Forms
 		{
 			base.OnApplySkin();
 
-			GuiUtils.FixHeightVs(lblProvider, cboProvider);
+			SkinUtils.FixHeightVs(lblProvider, cboProvider);
 		}
 
 		protected override void OnLoad(EventArgs e)

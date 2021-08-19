@@ -160,12 +160,6 @@
   <data name="topbar_red" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\res\topbar_red.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="btn_l_h" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\res\btn_l_h.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="main_l_bg" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\res\main_l_bg.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="status_red" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\res\status_red.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
@@ -192,9 +186,6 @@
   </data>
   <data name="tab_l_n" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\res\tab_l_n.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="btn_l_n" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\res\btn_l_n.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="speed" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\res\speed.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -228,9 +219,6 @@
   </data>
   <data name="tab_preferences" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\tab_preferences.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="form_d_bg" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\res\form_d_bg.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="open_path" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\res\open_path.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -268,9 +256,6 @@
   <data name="settings" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\res\settings.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="main_d_bg" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\res\main_d_bg.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="about" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\res\about.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
@@ -304,17 +289,11 @@
   <data name="success" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\res\success.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="form" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\res\form.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="tab_about_hover" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\tab_about_hover.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="log_warning" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\res\log_icons\log_warning.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="btn_d_d" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\res\btn_d_d.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="stats_system" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\res\stats_pc.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -330,9 +309,6 @@
   </data>
   <data name="restore" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\res\restore.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="btn_d_h" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\res\btn_d_h.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="log_error" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\res\log_icons\log_error.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -367,14 +343,8 @@
   <data name="topbar_yellow" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\res\topbar_yellow.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="btn_d_n" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\res\btn_d_n.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="maintab_servers" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\res\maintab_servers.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="form_l_bg" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\res\form_l_bg.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="progress04" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\res\progress04.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -456,9 +426,6 @@
   </data>
   <data name="about_header_bg" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\res\about_header_bg.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="btn_l_d" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\res\btn_l_d.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="netlock_status_off" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\res\netlock_status_off.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>

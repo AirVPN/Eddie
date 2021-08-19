@@ -26,7 +26,7 @@ using Eddie.Core;
 
 namespace Eddie.Forms.Forms
 {
-	public partial class WindowShellExternalPermission : Eddie.Forms.Form
+	public partial class WindowShellExternalPermission : Eddie.Forms.Skin.SkinForm
 	{
 		public Json Data;
 		public Json Answer;

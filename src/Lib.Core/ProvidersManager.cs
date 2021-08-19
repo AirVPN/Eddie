@@ -65,15 +65,22 @@ namespace Eddie.Core
 		}
 
 
-		public void Init()
+		public bool Init()
 		{
+			bool atLeastOne = false;
 			string path = Engine.Instance.LocateResource("providers");
 
-			FileInfo[] filesJson = new System.IO.DirectoryInfo(path).GetFiles("*.json");
-			foreach (FileInfo fi in filesJson)
+			if (path != "")
 			{
-				LoadDefinitionFromFile(fi.FullName);
+				FileInfo[] filesJson = new System.IO.DirectoryInfo(path).GetFiles("*.json");
+				foreach (FileInfo fi in filesJson)
+				{
+					LoadDefinitionFromFile(fi.FullName);
+					atLeastOne = true;
+				}
 			}
+
+			return atLeastOne;
 		}
 
 		public void Load()

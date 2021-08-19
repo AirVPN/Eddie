@@ -41,11 +41,10 @@ namespace Eddie.Platform.Windows
 	public class Platform : Core.Platform
 	{
 		private string ServiceName = "EddieElevationService";
-		private string WindowsDriverTapId = "0901";
-		private string WindowsDriverTapVersion = "9.24.2";
-		private string WindowsDriverWintunId = "wintun";
-		private string WindowsDriverWintunVersion = "0.8";
-		private string WindowsXpDriverTapVersion = "9.9.2";
+		private string OpenVpnDriverTapId = "0901";
+		private string OpenVpnDriverTapVersion = "9.24.2";
+		private string OpenVpnDriverTapWin7Version = "9.24.2";
+		private string OpenVpnDriverWintunId = "wintun";
 
 		private List<NetworkManagerDnsEntry> m_listOldDns = new List<NetworkManagerDnsEntry>();
 		private string m_oldMetricInterface = "";
@@ -54,34 +53,39 @@ namespace Eddie.Platform.Windows
 		private Mutex m_mutexSingleInstance = null;
 		private NativeMethods.ConsoleCtrlHandlerRoutine m_consoleCtrlHandlerRoutine;
 
-		public static bool IsXpOrNewer()
+		public bool IsXpOrNewer()
 		{
 			OperatingSystem OS = Environment.OSVersion;
 			return (OS.Platform == PlatformID.Win32NT) && (OS.Version.Major >= 5);
 		}
 
-		public static bool IsVistaOrNewer()
+		public bool IsVistaOrNewer()
 		{
 			OperatingSystem OS = Environment.OSVersion;
 			return (OS.Platform == PlatformID.Win32NT) && (OS.Version.Major >= 6);
 		}
 
-		public static bool IsWin7OrNewer()
+		public bool IsWin7OrNewer()
 		{
 			OperatingSystem OS = Environment.OSVersion;
 			return OS.Platform == PlatformID.Win32NT && (OS.Version.Major > 6 || (OS.Version.Major == 6 && OS.Version.Minor >= 1));
 		}
 
-		public static bool IsWin8OrNewer()
+		public bool IsWin8OrNewer()
 		{
 			OperatingSystem OS = Environment.OSVersion;
 			return OS.Platform == PlatformID.Win32NT && (OS.Version.Major > 6 || (OS.Version.Major == 6 && OS.Version.Minor >= 2));
 		}
 
-		public static bool IsWin10OrNewer()
+		public bool IsWin10OrNewer()
 		{
 			OperatingSystem OS = Environment.OSVersion;
 			return (OS.Platform == PlatformID.Win32NT) && (OS.Version.Major >= 10);
+		}
+
+		public bool IsWin7()
+		{
+			return (IsWin7OrNewer()) && (IsWin8OrNewer() == false);
 		}
 
 		// Override
@@ -570,16 +574,16 @@ namespace Eddie.Platform.Windows
 		public override bool FileEnsureCurrentUserOnly(string path)
 		{
 			// Remove Inheritance
-			SystemExec.Exec1(Platform.Instance.LocateExecutable("icacls.exe"), "\"" + SystemExec.EscapePath(path) + "\" /c /t /inheritance:d");
+			SystemExec.Exec1(Platform.Instance.LocateExecutable("icacls.exe"), "\"" + SystemExec.EscapePath(path).EscapeQuote() + "\" /c /t /inheritance:d");
 
 			// Set Ownership to Owner
-			SystemExec.Exec1(Platform.Instance.LocateExecutable("icacls.exe"), "\"" + SystemExec.EscapePath(path) + "\" /c /t /grant \"" + SystemExec.EscapeInsideQuote(Environment.UserName) + "\":F");
+			SystemExec.Exec1(Platform.Instance.LocateExecutable("icacls.exe"), "\"" + SystemExec.EscapePath(path).EscapeQuote() + "\" /c /t /grant \"" + SystemExec.EscapeInsideQuote(Environment.UserName) + "\":F");
 
 			// Remove Authenticated Users
-			SystemExec.Exec1(Platform.Instance.LocateExecutable("icacls.exe"), "\"" + SystemExec.EscapePath(path) + "\" /c /t /remove:g *S-1-5-11");
+			SystemExec.Exec1(Platform.Instance.LocateExecutable("icacls.exe"), "\"" + SystemExec.EscapePath(path).EscapeQuote() + "\" /c /t /remove:g *S-1-5-11");
 
 			// Remove other groups
-			SystemExec.Exec1(Platform.Instance.LocateExecutable("icacls.exe"), "\"" + SystemExec.EscapePath(path) + "\" /c /t /remove Administrator \"BUILTIN\\Administrators\" \"NT AUTHORITY\\Authenticated Users\" \"BUILTIN\\Users\" BUILTIN Everyone System Users");
+			SystemExec.Exec1(Platform.Instance.LocateExecutable("icacls.exe"), "\"" + SystemExec.EscapePath(path).EscapeQuote() + "\" /c /t /remove Administrator \"BUILTIN\\Administrators\" \"NT AUTHORITY\\Authenticated Users\" \"BUILTIN\\Users\" BUILTIN Everyone System Users");
 
 			return true;
 		}
@@ -632,45 +636,6 @@ namespace Eddie.Platform.Windows
 			return true;
 		}
 
-
-		public override Int64 Ping(IpAddress host, int timeoutSec)
-		{
-			if (host.IsV4)
-				return base.Ping(host, timeoutSec);
-
-			// If IPv6, We use a Task<> because otherwise timeout is not honored and hang forever in Win10 with IPv6 issues (Vbox in Nat)
-
-			if ((host == null) || (host.Valid == false))
-				return -1;
-
-			Task<long> pingTask = Task.Factory.StartNew(() =>
-			{
-				try
-				{
-					using (Ping pingSender = new Ping())
-					{
-						PingReply reply = pingSender.Send(host.ToString());
-
-						if (reply.Status == IPStatus.Success)
-							return reply.RoundtripTime;
-						else
-							return -1;
-					}
-				}
-				catch
-				{
-					return -1;
-				}
-			});
-
-			pingTask.Wait(timeoutSec * 1000);
-			if (pingTask.IsCompleted)
-				return pingTask.Result;
-			else
-				return -1;
-
-		}
-
 		public override bool ProcessKillSoft(Core.Process process)
 		{
 			// This is called only for close SSL or SSH process (running not elevated)
@@ -718,12 +683,12 @@ namespace Eddie.Platform.Windows
 			*/
 		}
 
-		public override int GetRecommendedRcvBufDirective()
+		public override int GetOpenVpnRecommendedRcvBufDirective()
 		{
 			return 256 * 1024;
 		}
 
-		public override int GetRecommendedSndBufDirective()
+		public override int GetOpenVpnRecommendedSndBufDirective()
 		{
 			return 256 * 1024;
 		}
@@ -769,8 +734,6 @@ namespace Eddie.Platform.Windows
 			c.Parameters["command"] = "route";
 			c.Parameters["action"] = action;
 			c.Parameters["destination"] = destination.ToCIDR(true);
-			//c.Parameters["address"] = destination.Address;
-			//c.Parameters["mask"] = destination.Mask;
 			c.Parameters["iface"] = interfaceIdx.ToString();
 			if (jRoute.HasKey("gateway"))
 			{
@@ -890,6 +853,9 @@ namespace Eddie.Platform.Windows
 		{
 			// FlushDNS(); // Moved in 2.13.3 in ::session.cs, but only if a connection occur.
 
+			if (Engine.Instance.Options.GetBool("windows.adapters.cleanup"))
+				Engine.Instance.Elevated.DoCommandSync("wintun-adapter-removepool", "pool", Constants.WintunPool);
+
 			Recovery.Save();
 		}
 
@@ -951,11 +917,16 @@ namespace Eddie.Platform.Windows
 				config.AppendDirectives("pull-filter ignore \"dhcp-option DNS6\"", "OS");
 			}
 
-			if (Engine.Instance.GetOpenVpnTool().VersionAboveOrEqual("2.5"))
+			if (IsWin8OrNewer()) // Win7 throw "WintunCreateAdapter fail"
 			{
-				if (Engine.Instance.Options.GetBool("windows.wintun"))
+				if (Engine.Instance.GetOpenVpnTool().VersionAboveOrEqual("2.5"))
 				{
-					config.AppendDirectives("windows-driver wintun", "OS");
+					if (Engine.Instance.Options.GetBool("windows.wintun"))
+					{
+						config.AppendDirectives("windows-driver wintun", "OS");
+						if (Core.Engine.Instance.Options.Get("network.iface.name") != "")
+							config.AppendDirectives("dev-node \"" + Core.Engine.Instance.Options.Get("network.iface.name").EscapeQuote() + "\"", "OS");
+					}
 				}
 			}
 
@@ -979,13 +950,13 @@ namespace Eddie.Platform.Windows
 				Core.ConnectionTypes.OpenVPN connectionOpenVPN = connection as Core.ConnectionTypes.OpenVPN;
 				string driver = connectionOpenVPN.ConfigStartup.GetOneDirectiveText("windows-driver");
 				if (driver == "wintun")
-					return WindowsDriverWintunId;
+					return OpenVpnDriverWintunId;
 				else
-					return WindowsDriverTapId;
+					return OpenVpnDriverTapId;
 			}
 			else if (connection is Core.ConnectionTypes.WireGuard)
 			{
-				return WindowsDriverWintunId;
+				return OpenVpnDriverWintunId;
 			}
 			else
 				throw new Exception("Unexpected connection type");
@@ -1340,6 +1311,9 @@ namespace Eddie.Platform.Windows
 			if (IsWin7OrNewer()) // 2.12.2
 				if (Wfp.ClearPendingRules())
 					Engine.Instance.Logs.Log(LogType.Warning, LanguageManager.GetText("WfpRecovery"));
+
+			if (Engine.Instance.Options.GetBool("windows.adapters.cleanup"))
+				Engine.Instance.Elevated.DoCommandSync("wintun-adapter-removepool", "pool", Constants.WintunPool);
 		}
 
 		public override void OnRecoveryLoad(XmlElement root)
@@ -1540,7 +1514,7 @@ namespace Eddie.Platform.Windows
 
 			// Fallback
 			string sigcheckPath = Engine.Instance.GetPathTools() + "\\sigcheck.exe";
-			string[] sigcheck = SystemExec.Exec3(sigcheckPath, "-c", "-nobanner", "\"" + SystemExec.EscapePath(path) + "\"").Split('\n');
+			string[] sigcheck = SystemExec.Exec3(sigcheckPath, "-c", "-nobanner", "\"" + SystemExec.EscapePath(path).EscapeQuote() + "\"").Split('\n');
 
 			List<string> list = sigcheck[1].StringToList(",", true, false, false, true);
 
@@ -1550,7 +1524,49 @@ namespace Eddie.Platform.Windows
 			return "No: Not signed or invalid.";
 		}
 
-		public override string GetDriverVersion(string driver)
+		public override bool GetRequireNextHop()
+		{
+			return IsWin7();
+		}
+
+		public override bool GetUseOpenVpnRoutes()
+		{
+			// In 2.21, we implement routes in Eddie,
+			// and use our system also in OpenVPN.
+			// But in Win7 don't work well.
+			return IsWin7();
+		}
+
+		public override string OpenVpnGetTunDriverReport()
+		{
+			string result = "";
+
+			List<string> drivers = new List<string>();
+			drivers.Add(OpenVpnDriverTapId);
+			//drivers.Add(OpenVpnDriverWintunId);
+
+			foreach (string driver in drivers)
+			{
+				string driverResult = OpenVpnGetDriverVersion(driver);
+				if (driverResult == "")
+					driverResult = "Not found";
+				if (result != "")
+					result += "; ";
+				result += driver + ": " + driverResult;
+			}
+			return result;
+		}
+
+		/*
+		public override List<string> GetTrustedPaths()
+		{
+			List<string> list = base.GetTrustedPaths();
+			list.Add(Environment.SystemDirectory);
+			return list;
+		}
+		*/
+
+		public override string OpenVpnGetDriverVersion(string driver)
 		{
 			try
 			{
@@ -1582,22 +1598,6 @@ namespace Eddie.Platform.Windows
 
 						return result;
 					}
-
-					/* // Not a realtime solution
-					ManagementObjectSearcher objSearcher = new ManagementObjectSearcher("Select * from Win32_PnPSignedDriver where DeviceName='" + Engine.Instance.Options.Get("windows.adapter_name") + "'");
-
-					ManagementObjectCollection objCollection = objSearcher.Get();
-
-					foreach (ManagementObject obj in objCollection)
-					{
-						object objVersion = obj["DriverVersion"];
-						if(objVersion != null)
-						{
-							string version = objVersion as string;
-							return version;
-						}				
-					}
-					*/
 				}
 				else if (driver == "wintun")
 				{
@@ -1618,39 +1618,19 @@ namespace Eddie.Platform.Windows
 			return "";
 		}
 
-		public override string GetTunDriverReport()
+		public override void OpenVpnEnsureDriverAndAdapterAvailable(string driver)
 		{
-			string result = "";
+			string version = OpenVpnGetDriverVersion(driver);
 
-			List<string> drivers = new List<string>();
-			drivers.Add(WindowsDriverTapId);
-			drivers.Add(WindowsDriverWintunId);
-
-			foreach (string driver in drivers)
+			string bundleVersion = OpenVpnDriverTapVersion;
+			if (driver == OpenVpnDriverTapId)
 			{
-				string driverResult = GetDriverVersion(driver);
-				if (driverResult == "")
-					driverResult = "Not found";
-				if (result != "")
-					result += "; ";
-				result += driver + ": " + driverResult;
+				bundleVersion = OpenVpnDriverTapVersion;
+				if (IsWin8OrNewer() == false) // Win7
+					bundleVersion = OpenVpnDriverTapWin7Version;
 			}
-			return result;
-		}
-
-		public override void EnsureDriverAndAdapterAvailable(string driver)
-		{
-			string version = GetDriverVersion(driver);
-
-			string bundleVersion = WindowsDriverTapVersion;
-			if (driver == WindowsDriverTapId)
-			{
-				bundleVersion = WindowsDriverTapVersion;
-				if (IsVistaOrNewer() == false) // XP
-					bundleVersion = WindowsXpDriverTapVersion;
-			}
-			else if (driver == WindowsDriverWintunId)
-				bundleVersion = WindowsDriverWintunVersion;
+			else
+				return;
 
 			bool needInstall = false;
 
@@ -1672,12 +1652,10 @@ namespace Eddie.Platform.Windows
 				if (driverPath == "")
 					throw new Exception(LanguageManager.GetText("OsDriverInstallerNotAvailable", driver));
 
-				if (driver == WindowsDriverTapId)
-					SystemExec.ExecUserEvent(driverPath, "/S", true);
-				else if (driver == WindowsDriverWintunId)
-					SystemExec.ExecUserEvent("msiexec", "/i \"" + driverPath + "\" /passive /norestart", true);
+				if (driver == OpenVpnDriverTapId)
+					ExecWithUAC(driverPath, "/S");
 
-				if (GetDriverVersion(driver) == "")
+				if (OpenVpnGetDriverVersion(driver) == "")
 					throw new Exception(LanguageManager.GetText("OsDriverFailed", driver));
 			}
 
@@ -1685,23 +1663,25 @@ namespace Eddie.Platform.Windows
 			NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
 			foreach (NetworkInterface adapter in interfaces)
 			{
-				if ((driver == WindowsDriverTapId) && (adapter.Description.ToLowerInvariant().StartsWith("tap-win")))
+				if ((driver == OpenVpnDriverTapId) && (adapter.Description.ToLowerInvariant().StartsWith("tap-win")))
+				{
 					adapterFound = true;
+					break;
+				}
 
-				if ((driver == WindowsDriverWintunId) && (adapter.Description.ToLowerInvariant().StartsWith("wintun")))
+				if ((driver == OpenVpnDriverWintunId) && (adapter.Description.ToLowerInvariant().StartsWith("wintun")))
+				{
 					adapterFound = true;
+					break;
+				}
 			}
 
 			if (adapterFound == false)
 			{
 				Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("OsDriverNoAdapterFound", driver));
-				if (driver == WindowsDriverTapId)
+				if (driver == OpenVpnDriverTapId)
 				{
-					SystemExec.ExecUserEvent(Software.FindResource("tapctl"), "create --hwid root\\tap0901", true);
-				}
-				else if (driver == WindowsDriverWintunId)
-				{
-					SystemExec.ExecUserEvent(Software.FindResource("tapctl"), "create --hwid wintun", true);
+					ExecWithUAC(Software.FindResource("tapctl"), "create --hwid root\\tap0901");
 				}
 			}
 
@@ -1709,39 +1689,22 @@ namespace Eddie.Platform.Windows
 			interfaces = NetworkInterface.GetAllNetworkInterfaces();
 			foreach (NetworkInterface adapter in interfaces)
 			{
-				if ((driver == WindowsDriverTapId) && (adapter.Description.ToLowerInvariant().StartsWith("tap-win")))
+				if ((driver == OpenVpnDriverTapId) && (adapter.Description.ToLowerInvariant().StartsWith("tap-win")))
+				{
 					adapterFound = true;
-
-				if ((driver == WindowsDriverWintunId) && (adapter.Description.ToLowerInvariant().StartsWith("wintun")))
-					adapterFound = true;
+					break;
+				}
 			}
 
 			if (adapterFound == false)
 				throw new Exception(LanguageManager.GetText("OsDriverAdapterNotAvailable", driver));
 		}
-
-		public override bool UninstallDriver(string driver)
+		public override bool OpenVpnUninstallDriver(string driver)
 		{
 			return DriverUninstall(driver);
 		}
 
-		/*
-		public override List<string> GetTrustedPaths()
-		{
-			List<string> list = base.GetTrustedPaths();
-			list.Add(Environment.SystemDirectory);
-			return list;
-		}
-		*/
-
 		// Specific
-		public bool IsWindows8()
-		{
-			if ((Environment.OSVersion.Version.Major == 6) && (Environment.OSVersion.Version.Minor == 2))
-				return true;
-
-			return false;
-		}
 
 		public void HackWindowsInterfaceUp()
 		{
@@ -1762,141 +1725,47 @@ namespace Eddie.Platform.Windows
 			try
 			{
 				// 2.13.3 : Win10 with ManagementObject & SetDNSServerSearchOrder sometime return errcode 84 "IP not enabled on adapter" if we try to set DNS on Tap in state "Network cable unplugged", typical in end of session.
-				// 2.14.0 : Deprecated
-				//if (IsWin10OrNewer())
+
+				foreach (NetworkManagerDnsEntry entry in m_listOldDns)
 				{
-					foreach (NetworkManagerDnsEntry entry in m_listOldDns)
+					string interfaceName = entry.Description;
+
+					// IPv4
+					if (entry.Layer == "IPv4")
 					{
-						string interfaceName = entry.Description;
-
-						// IPv4
-						if (entry.Layer == "IPv4")
+						if (entry.Dns.OnlyIPv4.Count == 0)
 						{
-							if (entry.Dns.OnlyIPv4.Count == 0)
-							{
-								Engine.Instance.Elevated.DoCommandSync("windows-dns", "layer", "ipv4", "interface", interfaceName, "mode", "dhcp");
-							}
-
-							int nIPv4 = 0;
-							foreach (IpAddress ip in entry.Dns.OnlyIPv4.IPs)
-							{
-								Engine.Instance.Elevated.DoCommandSync("windows-dns", "layer", "ipv4", "interface", interfaceName, "ipaddress", ip.Address, "mode", ((nIPv4 == 0) ? "static" : "add"));
-								nIPv4++;
-							}
-
-							Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("OsWindowsNetworkAdapterDnsRestored", "IPv4", entry.Description, (entry.Dns.OnlyIPv4.Count == 0 ? "automatic" : entry.Dns.OnlyIPv4.ToString())));
+							Engine.Instance.Elevated.DoCommandSync("windows-dns", "layer", "ipv4", "interface", interfaceName, "mode", "dhcp");
 						}
 
-						// IPv6
-						if (entry.Layer == "IPv6")
+						int nIPv4 = 0;
+						foreach (IpAddress ip in entry.Dns.OnlyIPv4.IPs)
 						{
-							if (entry.Dns.OnlyIPv6.Count == 0)
-							{
-								Engine.Instance.Elevated.DoCommandSync("windows-dns", "layer", "ipv6", "interface", interfaceName, "mode", "dhcp");
-							}
-
-							int nIPv6 = 0;
-							foreach (IpAddress ip in entry.Dns.OnlyIPv6.IPs)
-							{
-								Engine.Instance.Elevated.DoCommandSync("windows-dns", "layer", "ipv6", "interface", interfaceName, "ipaddress", ip.Address, "mode", ((nIPv6 == 0) ? "static" : "add"));
-								nIPv6++;
-							}
-
-							Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("OsWindowsNetworkAdapterDnsRestored", "IPv6", entry.Description, (entry.Dns.OnlyIPv6.Count == 0 ? "automatic" : entry.Dns.OnlyIPv6.ToString())));
+							Engine.Instance.Elevated.DoCommandSync("windows-dns", "layer", "ipv4", "interface", interfaceName, "ipaddress", ip.Address, "mode", ((nIPv4 == 0) ? "static" : "add"));
+							nIPv4++;
 						}
+
+						Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("OsWindowsNetworkAdapterDnsRestored", "IPv4", entry.Description, (entry.Dns.OnlyIPv4.Count == 0 ? "automatic" : entry.Dns.OnlyIPv4.ToString())));
+					}
+
+					// IPv6
+					if (entry.Layer == "IPv6")
+					{
+						if (entry.Dns.OnlyIPv6.Count == 0)
+						{
+							Engine.Instance.Elevated.DoCommandSync("windows-dns", "layer", "ipv6", "interface", interfaceName, "mode", "dhcp");
+						}
+
+						int nIPv6 = 0;
+						foreach (IpAddress ip in entry.Dns.OnlyIPv6.IPs)
+						{
+							Engine.Instance.Elevated.DoCommandSync("windows-dns", "layer", "ipv6", "interface", interfaceName, "ipaddress", ip.Address, "mode", ((nIPv6 == 0) ? "static" : "add"));
+							nIPv6++;
+						}
+
+						Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("OsWindowsNetworkAdapterDnsRestored", "IPv6", entry.Description, (entry.Dns.OnlyIPv6.Count == 0 ? "automatic" : entry.Dns.OnlyIPv6.ToString())));
 					}
 				}
-
-				/* <2.14.0
-				// 2.13.3 : Win10 with ManagementObject & SetDNSServerSearchOrder sometime return errcode 84 "IP not enabled on adapter" if we try to set DNS on Tap in state "Network cable unplugged", typical in end of session.
-				if (IsWin10OrNewer())
-				{
-					foreach (NetworkManagerDnsEntry entry in m_listOldDns)
-					{
-						NetworkInterface inet = GetNetworkInterfaceFromGuid(entry.Guid);
-						if (inet != null)
-						{
-							string interfaceName = SystemExec.EscapeInsideQuote(inet.Name);
-
-							if (entry.AutoDns == true)
-							{
-								SystemExec.Exec1(Platform.Instance.LocateExecutable("netsh.exe"), "interface ipv4 set dns name=\"" + interfaceName + "\" source=dhcp register=primary validate=no");								
-							}
-							else
-							{
-								int nIPv4 = 0;
-								int nIPv6 = 0;
-								foreach (IpAddress ip in entry.Dns)
-								{
-									if (ip.IsV4)
-									{
-										if(nIPv4 == 0)
-										{
-											SystemExec.Exec1(Platform.Instance.LocateExecutable("netsh.exe"), "interface ipv4 set dns name=\"" + interfaceName + "\" source=static address=" + ip.Address + " register=primary validate=no");
-										}
-										else
-										{
-											SystemExec.Exec1(Platform.Instance.LocateExecutable("netsh.exe"), "interface ipv4 add dnsserver name=\"" + interfaceName + "\" address=" + ip.Address + " validate=no");
-										}
-										nIPv4++;
-									} else if(ip.IsV6)
-									{
-										if (nIPv6 == 0)
-										{
-											SystemExec.Exec1(Platform.Instance.LocateExecutable("netsh.exe"), "interface ipv6 set dns name=\"" + interfaceName + "\" source=static address=" + ip.Address + " register=primary validate=no");
-										}
-										else
-										{
-											SystemExec.Exec1(Platform.Instance.LocateExecutable("netsh.exe"), "interface ipv6 add dnsserver name=\"" + interfaceName + "\" address=" + ip.Address + " validate=no");
-										}
-										nIPv6++;
-									}
-								}
-							}
-
-							string descTo = (entry.AutoDns ? "automatic" : String.Join(",", entry.Dns));
-							Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("NetworkAdapterDnsRestored, entry.Description, descTo));
-						}
-					}
-				}
-				else
-				{
-					ManagementClass objMC = new ManagementClass("Win32_NetworkAdapterConfiguration");
-					ManagementObjectCollection objMOC = objMC.GetInstances();
-
-					foreach (ManagementObject objMO in objMOC)
-					{
-						string guid = objMO["SettingID"] as string;
-						foreach (NetworkManagerDnsEntry entry in m_listOldDns)
-						{
-							if (entry.Guid == guid)
-							{
-								ManagementBaseObject objSetDNSServerSearchOrder = objMO.GetMethodParameters("SetDNSServerSearchOrder");
-								if (entry.AutoDns == false)
-								{
-									objSetDNSServerSearchOrder["DNSServerSearchOrder"] = entry.Dns;
-								}
-								else
-								{
-									//objSetDNSServerSearchOrder["DNSServerSearchOrder"] = new string[] { };
-									objSetDNSServerSearchOrder["DNSServerSearchOrder"] = null;
-								}
-
-								objMO.InvokeMethod("SetDNSServerSearchOrder", objSetDNSServerSearchOrder, null);
-
-								if (entry.AutoDns == true)
-								{
-									// Sometime, under Windows 10, the above method don't set it to automatic. So, registry write.
-									Registry.SetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\\" + entry.Guid, "NameServer", "");
-								}
-
-								string descTo = (entry.AutoDns ? "automatic" : String.Join(",", entry.Dns));
-								Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("NetworkAdapterDnsRestored, entry.Description, descTo));
-							}
-						}
-					}
-				}
-				*/
 			}
 			catch (Exception ex)
 			{
@@ -1971,14 +1840,9 @@ namespace Eddie.Platform.Windows
 
 		private string GetDriverInstallerPath(string driver)
 		{
-			if (driver == WindowsDriverWintunId)
-				return Software.FindResource("eddie-wintun");
-			else if (driver == WindowsDriverTapId)
+			if (driver == OpenVpnDriverTapId)
 			{
-				if (IsVistaOrNewer())
-					return Software.FindResource("tap-windows");
-				else
-					return Software.FindResource("tap-windows-xp");
+				return Software.FindResource("tap-windows");
 			}
 			else
 				return "";
@@ -1986,9 +1850,7 @@ namespace Eddie.Platform.Windows
 
 		private string GetDriverUninstallPath(string driver)
 		{
-			if (driver == WindowsDriverWintunId)
-				return Software.FindResource("eddie-wintun");
-			else if (driver == WindowsDriverTapId)
+			if (driver == OpenVpnDriverTapId)
 			{
 				// Note: 32 bit uninstaller can't be viewed by 64 bit app and viceversa.
 				// http://www.rhyous.com/2011/01/24/how-read-the-64-bit-registry-from-a-32-bit-application-or-vice-versa/
@@ -2005,24 +1867,6 @@ namespace Eddie.Platform.Windows
 
 			return "";
 		}
-		/*
-		private bool DriverInstall(string driver)
-		{
-			string driverPath = GetDriverInstallerPath(driver);
-
-			if (driverPath == "")
-				throw new Exception(LanguageManager.GetText("OsDriverInstallerNotAvailable"));
-
-			if(driver == WindowsDriverTapId)
-				SystemExec.ExecUserEvent(driverPath, "/S", true);
-			else if(driver == WindowsDriverWintunId)
-				SystemExec.ExecUserEvent("msiexec", "/i \"" + driverPath + "\" /quiet /norestart", true);
-
-			System.Threading.Thread.Sleep(3000);
-
-			return (GetDriverVersion(driver) != "");
-		}
-		*/
 
 		public bool DriverUninstall(string driver)
 		{
@@ -2030,20 +1874,25 @@ namespace Eddie.Platform.Windows
 			if (driverPath == "")
 				return false;
 
-			if (driver == WindowsDriverTapId)
+			if (driver == OpenVpnDriverTapId)
 			{
-				SystemExec.ExecUserEvent(driverPath, "/S", true);
+				ExecWithUAC(driverPath, "/S");
 			}
-			else if (driver == WindowsDriverWintunId)
+			else if (driver == OpenVpnDriverWintunId)
 			{
 				//SystemExec.ExecUserEvent("msiexec", "/x \"" + driverPath + "\" /quiet /norestart", true);
-				SystemExec.ExecUserEvent("msiexec", "/x \"" + driverPath + "\" /passive", true);
+				ExecWithUAC("msiexec", "/x \"" + driverPath + "\" /passive");
 			}
 
 
 			System.Threading.Thread.Sleep(3000);
 
-			return (GetDriverVersion(driver) == "");
+			return (OpenVpnGetDriverVersion(driver) == "");
+		}
+
+		public bool ExecWithUAC(string filename, string arguments)
+		{
+			return Platform.Instance.ExecExecuteCore(filename, arguments, true);
 		}
 	}
 

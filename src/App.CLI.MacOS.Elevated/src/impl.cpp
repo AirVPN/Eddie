@@ -725,9 +725,9 @@ bool Impl::ServiceInstall()
 	launchd += "            <string>" + StringXmlEncode(elevatedPath) + "</string>\n";
 	launchd += "            <string>mode=service</string>\n";
 	if (m_cmdline.find("service_port") != m_cmdline.end())
-		launchd += "            <string>service_port=" + StringEnsureSecure(m_cmdline["service_port"]) + "</string>\n";
+		launchd += "            <string>service_port=" + StringEnsureNumericInt(m_cmdline["service_port"]) + "</string>\n";
 	std::string integrity = ComputeIntegrityHash(GetProcessPathCurrent(), "");
-	launchd += "            <string>integrity=" + StringEnsureSecure(integrity) + "</string>\n";
+	launchd += "            <string>integrity=" + StringEnsureIntegrity(integrity) + "</string>\n";
 	launchd += "        </array>\n";
 	launchd += "        <key>RunAtLoad</key>\n";
 	launchd += "        <true/>\n";
@@ -880,7 +880,7 @@ void Impl::AddTorCookiePaths(const std::string& torPath, const std::string& user
 {
 	if (username != "")
 	{
-		result.push_back("/Users/" + StringEnsureSecure(username) + "/Library/Application Support/TorBrowser-Data/Tor/control_auth_cookie");
+		result.push_back("/Users/" + StringEnsureDirectoryName(username) + "/Library/Application Support/TorBrowser-Data/Tor/control_auth_cookie");
 	}
 
 	IBSD::AddTorCookiePaths(torPath, username, result);

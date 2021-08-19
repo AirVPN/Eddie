@@ -11,28 +11,12 @@
 		<OutputPath>bin\x86\Debug\</OutputPath>
 		<DefineConstants>DEBUG;</DefineConstants>
 		<Externalconsole>true</Externalconsole>
-		<CodeAnalysisRuleSet>$(SolutionDir)\ruleset\eddie.ruleset</CodeAnalysisRuleSet>
-		<CustomCommands>
-			<CustomCommands>
-				<Command>
-					<type>AfterBuild</type>
-					<command>"${SolutionDir}/eddie.linux.postbuild.sh" "${TargetDir}" cli ${ProjectConfigPlat} ${ProjectConfigName}</command>
-				</Command>
-			</CustomCommands>
-		</CustomCommands>
+		<CodeAnalysisRuleSet>$(SolutionDir)\ruleset\eddie.ruleset</CodeAnalysisRuleSet>		
 		<Commandlineparameters>path.tools="../../../../../deploy/linux_x86" path.resources="../../../../../common"</Commandlineparameters>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
 		<OutputPath>bin\x86\Release\</OutputPath>
-		<Externalconsole>true</Externalconsole>
-		<CustomCommands>
-			<CustomCommands>
-				<Command>
-					<type>AfterBuild</type>
-					<command>"${SolutionDir}/eddie.linux.postbuild.sh" "${TargetDir}" cli ${ProjectConfigPlat} ${ProjectConfigName}</command>
-				</Command>
-			</CustomCommands>
-		</CustomCommands>
+		<Externalconsole>true</Externalconsole>		
 		<Commandlineparameters>path.tools="../../../../../deploy/linux_x86" path.resources="../../../../../common"</Commandlineparameters>
 	</PropertyGroup>
 	<PropertyGroup>
@@ -40,27 +24,11 @@
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
 		<OutputPath>bin\x64\Debug\</OutputPath>
-		<DefineConstants>DEBUG;</DefineConstants>
-		<CustomCommands>
-			<CustomCommands>
-				<Command>
-					<type>AfterBuild</type>
-					<command>"${SolutionDir}/eddie.linux.postbuild.sh" "${TargetDir}" cli ${ProjectConfigPlat} ${ProjectConfigName}</command>
-				</Command>
-			</CustomCommands>
-		</CustomCommands>
+		<DefineConstants>DEBUG;</DefineConstants>		
 		<Commandlineparameters>path.tools="../../../../../deploy/linux_x64" path.resources="../../../../../common"</Commandlineparameters>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-		<OutputPath>bin\x64\Release\</OutputPath>
-		<CustomCommands>
-			<CustomCommands>
-				<Command>
-					<type>AfterBuild</type>
-					<command>"${SolutionDir}/eddie.linux.postbuild.sh" "${TargetDir}" cli ${ProjectConfigPlat} ${ProjectConfigName}</command>
-				</Command>
-			</CustomCommands>
-		</CustomCommands>
+		<OutputPath>bin\x64\Release\</OutputPath>		
 		<Commandlineparameters>path.tools="../../../../../deploy/linux_x64" path.resources="../../../../../common"</Commandlineparameters>
 	</PropertyGroup>
 	<ItemGroup>
@@ -75,4 +43,7 @@
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
 	</ItemGroup>
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+	  <Exec Command="$(ProjectDir)\..\eddie.windows.postbuild.bat &quot;$(TargetDir)&quot; cli $(PlatformName) $(ConfigurationName)" />
+	</Target>
 </Project>

@@ -25,7 +25,7 @@ namespace Eddie.Core
 {
 	public class Software
 	{
-		public static string TunDriver = "";
+		public static string XTunDriver = "";
 
 		public static Dictionary<string, Tools.ITool> Tools = new Dictionary<string, Tools.ITool>();
 
@@ -44,17 +44,6 @@ namespace Eddie.Core
 		{
 			Tools.Clear();
 
-			// OpenVPN Driver
-			try
-			{
-				TunDriver = Platform.Instance.GetTunDriverReport();
-			}
-			catch (Exception ex)
-			{
-				Engine.Instance.Logs.Log(LogType.Warning, ex);
-				TunDriver = "";
-			}
-
 			// Tools
 			AddTool("openvpn", new Tools.OpenVPN());
 			AddTool("hummingbird", new Tools.Hummingbird());
@@ -69,10 +58,7 @@ namespace Eddie.Core
 			if (Platform.IsWindows())
 			{
 				AddTool("tap-windows", new Tools.File("tap-windows.exe"));
-				AddTool("tap-windows-xp", new Tools.File("tap-windows-xp.exe"));
-
 				AddTool("tapctl", new Tools.File("tapctl.exe"));
-				AddTool("eddie-wintun", new Tools.File("eddie-wintun-" + Platform.Instance.GetOsArchitecture() + ".msi"));
 			}
 
 			foreach (Tools.ITool tool in Tools.Values)
@@ -87,15 +73,6 @@ namespace Eddie.Core
 
 		public static void Log()
 		{
-			if (TunDriver != "")
-			{
-				Engine.Instance.Logs.Log(LogType.Verbose, "Tun Driver - " + TunDriver);
-			}
-			else
-			{
-				Engine.Instance.Logs.Log(LogType.Error, "Tun Driver - " + LanguageManager.GetText("OsDriverNotAvailable"));
-			}
-
 			if (Engine.Instance.GetOpenVpnTool().Available())
 			{
 				Engine.Instance.Logs.Log(LogType.Verbose, "OpenVPN - Version: " + Engine.Instance.GetOpenVpnTool().Version + " (" + Engine.Instance.GetOpenVpnTool().Path + ")");

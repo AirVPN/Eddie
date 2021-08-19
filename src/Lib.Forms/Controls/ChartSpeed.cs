@@ -155,7 +155,7 @@ namespace Eddie.Forms.Controls
 		protected override void OnPaint(System.Windows.Forms.PaintEventArgs e)
 		{
 			//base.OnPaint(e);            
-			Form.Skin.GraphicsCommon(e.Graphics);
+			Skin.SkinForm.Skin.GraphicsCommon(e.Graphics);
 
 			try
 			{
@@ -163,7 +163,7 @@ namespace Eddie.Forms.Controls
 				int DY = this.ClientRectangle.Height;
 
 				//e.Graphics.FillRectangle(BrushBackground, this.ClientRectangle);				
-				Form.DrawImage(e.Graphics, GuiUtils.GetResourceImage("tab_l_bg"), new Rectangle(0, 0, ClientSize.Width, ClientSize.Height));
+				Skin.SkinForm.DrawImage(e.Graphics, GuiUtils.GetResourceImage("tab_l_bg"), new Rectangle(0, 0, ClientSize.Width, ClientSize.Height));
 
 				m_chartDX = this.ClientRectangle.Width;
 				m_chartDY = this.ClientRectangle.Height - m_legendDY;
@@ -242,7 +242,7 @@ namespace Eddie.Forms.Controls
 					long v = m_chart.GetLastDownload();
 					downCurY = ((v) * (m_chartDY - m_marginTopY)) / maxY;
 					e.Graphics.DrawLine(m_penDownloadLine, 0, m_chartStartY - downCurY, m_chartDX, m_chartStartY - downCurY);
-					Form.DrawStringOutline(e.Graphics, LanguageManager.GetText("ChartDownload") + ": " + ValToDesc(v), FontLabel, m_brushDownloadText, ChartRectangle(0, 0, m_chartDX, m_chartStartY - downCurY), formatBottomRight);
+					Skin.SkinForm.DrawStringOutline(e.Graphics, LanguageManager.GetText("ChartDownload") + ": " + ValToDesc(v), FontLabel, m_brushDownloadText, ChartRectangle(0, 0, m_chartDX, m_chartStartY - downCurY), formatBottomRight);
 				}
 
 				// Upload line
@@ -252,7 +252,7 @@ namespace Eddie.Forms.Controls
 					float dly = 0;
 					if (Math.Abs(downCurY - y) < 10) dly = 15; // Download and upload overwrap, distance it.
 					e.Graphics.DrawLine(m_penUploadLine, 0, m_chartStartY - y, m_chartDX, m_chartStartY - y);
-					Form.DrawStringOutline(e.Graphics, LanguageManager.GetText("ChartUpload") + ": " + ValToDesc(v), FontLabel, m_brushUploadText, ChartRectangle(0, 0, m_chartDX, m_chartStartY - y - dly), formatBottomRight);
+					Skin.SkinForm.DrawStringOutline(e.Graphics, LanguageManager.GetText("ChartUpload") + ": " + ValToDesc(v), FontLabel, m_brushUploadText, ChartRectangle(0, 0, m_chartDX, m_chartStartY - y - dly), formatBottomRight);
 				}
 
 				// Mouse lines
@@ -319,7 +319,7 @@ namespace Eddie.Forms.Controls
 							}
 						}
 
-						Form.DrawStringOutline(e.Graphics, label, FontLabel, m_brushMouse, rect, formatAlign);
+						Skin.SkinForm.DrawStringOutline(e.Graphics, label, FontLabel, m_brushMouse, rect, formatAlign);
 					}
 				}
 

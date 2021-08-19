@@ -26,7 +26,7 @@ using Eddie.Core;
 
 namespace Eddie.Forms.Forms
 {
-	public partial class WindowUnlock : Eddie.Forms.Form
+	public partial class WindowUnlock : Eddie.Forms.Skin.SkinForm
 	{
 		public bool AuthFailed = false;
 		public string Body = "";

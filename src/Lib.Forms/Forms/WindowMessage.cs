@@ -26,7 +26,7 @@ using Eddie.Core;
 
 namespace Eddie.Forms.Forms
 {
-	public partial class WindowMessage : Eddie.Forms.Form
+	public partial class WindowMessage : Eddie.Forms.Skin.SkinForm
 	{
 		public enum MessageKind
 		{

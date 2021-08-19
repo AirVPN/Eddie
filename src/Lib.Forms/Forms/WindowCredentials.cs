@@ -24,10 +24,11 @@ using System.Globalization;
 using System.Text;
 using System.Windows.Forms;
 using Eddie.Core;
+using Eddie.Forms.Skin;
 
 namespace Eddie.Forms.Forms
 {
-	public partial class WindowCredentials : Eddie.Forms.Form
+	public partial class WindowCredentials : Eddie.Forms.Skin.SkinForm
 	{
 		public Credentials Credentials;
 
@@ -47,9 +48,9 @@ namespace Eddie.Forms.Forms
 		{
 			base.OnApplySkin();
 
-			GuiUtils.FixHeightVs(txtUsername, lblUsername);
-			GuiUtils.FixHeightVs(txtPassword, lblPassword);
-			GuiUtils.FixHeightVs(lblRemember, cboRemember);
+			SkinUtils.FixHeightVs(txtUsername, lblUsername);
+			SkinUtils.FixHeightVs(txtPassword, lblPassword);
+			SkinUtils.FixHeightVs(lblRemember, cboRemember);
 		}
 
 		protected override void OnLoad(EventArgs e)

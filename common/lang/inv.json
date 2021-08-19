@@ -260,7 +260,7 @@
     "ManHeaderOption2": "Default options are read from the profile. Options in command-line override them but are not saved in the profile at exit.\nYou can run the UI, choose options in the UI, and then launch the command-line edition with the profile options, to avoid to specify all the options in the command-line.",
     "ManHeaderOption3": "The options [i]--login[\/i] and [i]--password[\/i] are mandatory if they are not already in the profile.\nBy default, the client doesn't connect to any server automatically. Specify [i]--connect[\/i] to connect automatically.\nSpecify [i]--netlock[\/i] to start with network lock activation.",
     "ManHeaderOption4": "By default the application works interactively: Press [i]n[\/i] to connect to a server, [i]x[\/i] or [i]ctrl+c[\/i] to exit.\nSpecify [i]--batch[\/i] for non-interactive mode.",
-    "ManName": "eddie-cli -- Eddie - OpenVPN UI, console edition",
+    "ManName": "eddie-cli -- Eddie - OpenVPN/WireGuard VPN Tunnel, console edition",
     "ManOptionAdvancedCheckRoute": "If [i]True[\/i] send a request to the server, that check it come from within the tunnel, and reply with an acknowledgement.",
     "ManOptionAdvancedExpert": "Activate some expert information and features; allows sending commands to OpenVPN Management Interface via Logs window; show verbose logs message in main windows",
     "ManOptionAdvancedPingerDelay": "Ping each server every [i]X[\/i] seconds. If [i]0[\/i], the recommended values are used.",

@@ -14,7 +14,7 @@ IF exist %VARSCRIPTDIR%\..\signing\eddie.win-signing.pfx (
 			%VARSCRIPTDIR%\..\windows_common\signtool.exe verify /pa "%%~ff"
 			if ERRORLEVEL 1 (
 				echo Need sign
-				%VARSCRIPTDIR%\..\windows_common\signtool.exe sign /fd sha256 /p "%VARSIGNPASSWORD%" /f "%VARSCRIPTDIR%\..\signing\eddie.win-signing.pfx" /t http://timestamp.comodoca.com/authenticode /d "Eddie - OpenVPN UI" "%%~ff" || goto :error								
+				%VARSCRIPTDIR%\..\windows_common\signtool.exe sign /fd sha256 /p "%VARSIGNPASSWORD%" /f "%VARSCRIPTDIR%\..\signing\eddie.win-signing.pfx" /t http://timestamp.comodoca.com/authenticode /d "Eddie - VPN Tunnel" "%%~ff" || goto :error								
 			) ELSE (
 				rem Already signed
 			)

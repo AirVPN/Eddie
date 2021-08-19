@@ -1,14 +1,18 @@
-Compile libcurl under VS2017
+Compile libcurl under VS2019
 
-Go to
-\src\Lib.Platform.Windows.Native\curl\winbuild\
+Download and extract curl-*.zip
 
-Open VS2017 developer prompt, TWO times (x86 and x64)
 
+Open X64 Native Tools Command Prompt for VS 2019
+Goto winbuild subdir
 nmake /f Makefile.vc mode=static machine=x64 RTLIBCFG=static
 
+Open X86 Native Tools Command Prompt for VS 2019
+Goto winbuild subdir
 nmake /f Makefile.vc mode=static machine=x86 RTLIBCFG=static
-(in both arch)
+
+
+
 
 Copy curl\builds\libcurl-vc-x86-release-static-ipv6-sspi-winssl\include
 in \src\Lib.Platform.Windows.Native\curl\

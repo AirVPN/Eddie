@@ -57,13 +57,14 @@ namespace Eddie.Forms.Linux
 				{
 					m_client = new UiClient();
 					m_client.Engine = new Engine(Environment.CommandLine);
-					m_client.Init(Environment.CommandLine);
+					if (m_client.Init(Environment.CommandLine) == false)
+						return;
 				}
 			}
-			catch (Exception e)
+			catch (Exception ex)
 			{
-				Console.WriteLine(e.StackTrace);
-				MessageBox.Show(e.Message, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+				Console.WriteLine(ex.StackTrace);
+				MessageBox.Show(ex.Message, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
 
 			// Application.Run must be outside the catch above, otherwise it's not unhandled

@@ -36,7 +36,6 @@ protected:
 	virtual bool IsRoot();
 	virtual void Sleep(int ms);
 	virtual uint64_t GetTimestampUnixUsec();
-	virtual int Ping(const std::string& host, const int timeout);
 	virtual pid_t GetCurrentProcessId();
 	virtual pid_t GetParentProcessId();
 	virtual pid_t GetParentProcessId(pid_t pid);

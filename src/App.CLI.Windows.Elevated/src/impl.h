@@ -23,25 +23,20 @@ class Impl :public IWindows
 public:
 	int Main();
 	virtual void Do(const std::string& id, const std::string& command, std::map<std::string, std::string>& params);
-	virtual bool IsServiceInstalled();
-	virtual bool ServiceInstall();
-	virtual bool ServiceUninstall();
-	virtual bool ServiceUninstallSupportRealtime();
+
 
 	// Private
 private:
-	int SetInterfaceMetric(const int index, const std::string layer, const int value);
 
-	bool ServiceUninstallDirect();
 
 	// WFP
-	HANDLE m_wfpEngineHandle;
+	HANDLE m_wfpEngineHandle = 0;
 	GUID m_wfpSubLayerGUID;
 	std::string m_wfpSubLayerName;
 	std::wstring m_wfpSubLayerWName;
 	std::wstring m_wfpServiceWName;
 	std::string m_wfpLastError;
-	UINT32 m_wfpLastErrorCode;
+	UINT32 m_wfpLastErrorCode = 0;
 	std::vector<UINT64> m_wfpFilters;
 
 	UINT16 m_wfpMaxSubLayerWeight = 65535;

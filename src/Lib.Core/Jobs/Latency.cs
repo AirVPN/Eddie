@@ -28,8 +28,6 @@ namespace Eddie.Core.Jobs
 {
 	public class Latency : Eddie.Core.Job
 	{
-		public List<PingerJob> Jobs = new List<PingerJob>();
-
 		public override ThreadPriority GetPriority()
 		{
 			return ThreadPriority.Normal;
@@ -50,7 +48,7 @@ namespace Eddie.Core.Jobs
 			{
 				List<ConnectionInfo> connections = GetConnectionsToPing();
 
-				// Note: If Pinger is not enabled, works like all ping results is 0.						
+				// Note: If Pinger is not enabled, works like all ping results is 0.
 				bool enabled = GetEnabled();
 
 				Int64 timeNow = Utils.UnixTimeStamp();
@@ -78,18 +76,18 @@ namespace Eddie.Core.Jobs
 
 						if (canPingServer)
 						{
-							if (Jobs.Count < jobsLimit)
+							connectionInfo.LastPingTest = timeNow;
+							startOne = true;
+
+							Ping p = new Ping();
+							p.Ip = connectionInfo.IpsEntry.FirstPreferIPv4;
+							p.TimeoutMs = Engine.Instance.Options.GetInt("pinger.timeout");
+							p.Server = connectionInfo;
+							p.CompleteEvent += delegate (Ping p2)
 							{
-								connectionInfo.LastPingTest = timeNow;
-
-								PingerJob job = new PingerJob();
-								job.Server = connectionInfo;
-								lock (Jobs)
-									Jobs.Add(job);
-
-								ThreadPool.QueueUserWorkItem(new WaitCallback(DoPing), job);
-								startOne = true;
-							}
+								PingResult(p2.Server, p2.Result);
+							};
+							Engine.Instance.PingManager.Add(p);
 						}
 						else
 						{
@@ -115,15 +113,12 @@ namespace Eddie.Core.Jobs
 					m_timeEvery = 100;
 				else
 					m_timeEvery = 1000;
-
-				for (; ; )
-				{
-					lock (Jobs)
-						if (Jobs.Count == 0)
-							break;
-					Sleep(100);
-				}
 			}
+		}
+
+		private void ElevatedEngine_ReceiveEvent(Elevated.Command c, string data)
+		{
+			throw new NotImplementedException();
 		}
 
 		public bool GetEnabled()
@@ -179,11 +174,14 @@ namespace Eddie.Core.Jobs
 			}
 		}
 
+		// TOCLEAN
+		/*
 		private static void DoPing(object o)
 		{
 			PingerJob job = o as PingerJob;
 			job.Run();
 		}
+		*/
 
 		public void PingResult(ConnectionInfo infoServer, PingReply reply)
 		{

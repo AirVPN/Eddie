@@ -157,10 +157,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\App.CLI.Common.Elevated\ibase.cpp" />
+    <ClCompile Include="..\App.CLI.Common.Elevated\ping.cpp" />
     <ClCompile Include="..\App.CLI.Common.Elevated\sha256.cpp" />
     <ClCompile Include="..\App.CLI.Windows.Elevated\src\impl.cpp" />
     <ClCompile Include="..\App.CLI.Windows.Elevated\src\iwindows.cpp" />
-    <ClCompile Include="..\App.CLI.Windows.Elevated\src\yxml.c" />
+    <ClCompile Include="..\App.CLI.Windows.Elevated\src\yxml.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>

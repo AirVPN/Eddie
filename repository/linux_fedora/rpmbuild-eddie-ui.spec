@@ -3,7 +3,7 @@ Version: {@version}
 Release: 0
 
 License: see /usr/share/doc/eddie-ui/copyright
-Summary: Eddie - OpenVPN UI
+Summary: Eddie - VPN Tunnel - UI
 Packager: Eddie.website <maintainer@eddie.website>
 URL: https://eddie.website
 Group: net
@@ -16,7 +16,7 @@ Obsoletes: airvpn < 2.14.4
 %define _unpackaged_files_terminate_build 0
 
 %description
-OpenVPN UI with additional user-friendly features
+OpenVPN/WireGuard UI with additional user-friendly features
 Open-Source, GPLv3, Developed by AirVPN
 
 %files

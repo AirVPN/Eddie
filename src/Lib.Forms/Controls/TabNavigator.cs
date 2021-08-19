@@ -151,9 +151,9 @@ namespace Eddie.Forms.Controls
 		{
 			base.OnPaint(e);
 
-			Form.FillRectangle(e.Graphics, Form.Skin.GetBrush("color.tab.tabs.background"), ClientRectangle);
-			Form.FillRectangle(e.Graphics, Form.Skin.GetBrush("color.tab.page.background"), GetPageRect());
-			Form.DrawImageOpt(e.Graphics, GuiUtils.GetResourceImage("form"), ClientRectangle);
+			Skin.SkinForm.FillRectangle(e.Graphics, Skin.SkinForm.Skin.GetBrush("color.tab.tabs.background"), ClientRectangle);
+			Skin.SkinForm.FillRectangle(e.Graphics, Skin.SkinForm.Skin.GetBrush("color.tab.page.background"), GetPageRect());
+			Skin.SkinForm.DrawImageOpt(e.Graphics, Skin.SkinUtils.GetSkinResourceImage("form"), ClientRectangle);
 
 			/*
 			if (TitleRightBottom != "")
@@ -178,13 +178,13 @@ namespace Eddie.Forms.Controls
 				else if (t == m_hoverItem)
 					colorName = "hover";
 
-				Form.FillRectangle(e.Graphics, Form.Skin.GetBrush("color.tab." + colorName + ".background"), r);
+				Skin.SkinForm.FillRectangle(e.Graphics, Skin.SkinForm.Skin.GetBrush("color.tab." + colorName + ".background"), r);
 
 				//Form.DrawRectangle(e.Graphics, Form.Skin.GetPen("color.tab.tabs.border"), r);
 
-				Form.DrawLine(e.Graphics, Form.Skin.GetPen("color.tab.tabs.border"), new Point(r.Left, r.Top), new Point(r.Right - 1, r.Top));
-				Form.DrawLine(e.Graphics, Form.Skin.GetPen("color.tab.tabs.border"), new Point(r.Left, r.Top), new Point(r.Left, r.Bottom));
-				Form.DrawLine(e.Graphics, Form.Skin.GetPen("color.tab.tabs.border"), new Point(r.Left, r.Bottom), new Point(r.Right - 1, r.Bottom));
+				Skin.SkinForm.DrawLine(e.Graphics, Skin.SkinForm.Skin.GetPen("color.tab.tabs.border"), new Point(r.Left, r.Top), new Point(r.Right - 1, r.Top));
+				Skin.SkinForm.DrawLine(e.Graphics, Skin.SkinForm.Skin.GetPen("color.tab.tabs.border"), new Point(r.Left, r.Top), new Point(r.Left, r.Bottom));
+				Skin.SkinForm.DrawLine(e.Graphics, Skin.SkinForm.Skin.GetPen("color.tab.tabs.border"), new Point(r.Left, r.Bottom), new Point(r.Right - 1, r.Bottom));
 
 				Rectangle rText = r;
 
@@ -196,13 +196,13 @@ namespace Eddie.Forms.Controls
 					int imageDx = r.Height;
 					int imageDy = r.Height;
 					Image icon = GuiUtils.GetResourceImage(Pages[t].Icon);
-					Form.DrawImageContain(e.Graphics, icon, new Rectangle(rText.Right - imageDx, rText.Top, imageDx, imageDy), 20);
+					Skin.SkinForm.DrawImageContain(e.Graphics, icon, new Rectangle(rText.Right - imageDx, rText.Top, imageDx, imageDy), 20);
 
 					rText.Width -= imageDx;
 					rText.Width -= m_distanceIcon;
 				}
 
-				Form.DrawString(e.Graphics, Pages[t].Text, GetTabsFont(), Form.Skin.GetBrush("color.tab." + colorName + ".foreground"), rText, GuiUtils.StringFormatRightMiddle);
+				Skin.SkinForm.DrawString(e.Graphics, Pages[t].Text, GetTabsFont(), Skin.SkinForm.Skin.GetBrush("color.tab." + colorName + ".foreground"), rText, Skin.SkinUtils.StringFormatRightMiddle);
 			}
 		}
 
@@ -254,7 +254,7 @@ namespace Eddie.Forms.Controls
 				if (tabPage.TabVisible == false)
 					continue;
 
-				Size tabSize = GuiUtils.GetFontSize(g, GetTabsFont(), tabPage.Text);
+				Size tabSize = Skin.SkinUtils.GetFontSize(g, GetTabsFont(), tabPage.Text);
 				if (navDx == -1)
 					navDx = tabSize.Width;
 				else if (navDx < tabSize.Width)

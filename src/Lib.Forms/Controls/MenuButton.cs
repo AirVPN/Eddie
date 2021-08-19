@@ -79,7 +79,7 @@ namespace Eddie.Forms.Controls
 			else
 				img = GuiUtils.GetResourceImage("topbar_logo");
 
-			Form.DrawImage(e.Graphics, img, r);
+			Skin.SkinForm.DrawImage(e.Graphics, img, r);
 		}
 	}
 }

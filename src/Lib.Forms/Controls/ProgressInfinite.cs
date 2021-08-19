@@ -68,7 +68,7 @@ namespace Eddie.Forms.Controls
 
 			Image img = GuiUtils.GetResourceImage("progress" + String.Format("{0:00}", m_step));
 
-			Form.DrawImage(e.Graphics, img, r);
+			Skin.SkinForm.DrawImage(e.Graphics, img, r);
 		}
 	}
 }

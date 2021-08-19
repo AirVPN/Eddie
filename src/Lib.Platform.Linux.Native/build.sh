@@ -2,10 +2,6 @@
 
 set -e
 
-#if [ $1 -eq "" ]; then
-#    echo First arg must be Config, 'Debug' or 'Release'
-#    exit 1
-#fi
 CONFIG=$1
 MODE=$2
 
@@ -35,7 +31,7 @@ fi
 #g++ -shared -fPIC -o "$BASEPATH/bin/libLib.Platform.Linux.Native.so" "$BASEPATH/src/api.cpp" -Wall -std=c++11 -O3 -static -pthread -Wl,--whole-archive -lpthread -Wl,--no-whole-archive -D$1
 
 # Version without libcurl (C#::Platform::FetchUrlInternal=false)
-g++ -shared -fPIC -o "$BASEPATH/bin/libLib.Platform.Linux.Native.so" "$BASEPATH/src/api.cpp" -Wall -std=c++11 -O3 -D$CONFIG
+g++ -shared -fPIC -o "$BASEPATH/bin/libLib.Platform.Linux.Native.so" "$BASEPATH/lib.cpp" -Wall -std=c++11 -O3 -D$CONFIG
 
 # Version libcurl - unresolved deploy compatibility issues libcurl3 vs libcurl4, CURL_OPENSSL_3 issue etc. And remember need AppImage/Portable static edition.
 # When compiled in our Debian8 (that have libcurl4-openssl-dev), result binary throw in recent linux with libcurl4 "version CURL_OPENSSL_3 not found". Dependencies with libcurl3 is excluded, will uninstall other software.

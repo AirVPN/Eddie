@@ -26,7 +26,7 @@ using Eddie.Core;
 
 namespace Eddie.Forms.Forms
 {
-	public partial class WindowProviderNoBootstrap : Eddie.Forms.Form
+	public partial class WindowProviderNoBootstrap : Eddie.Forms.Skin.SkinForm
 	{
 		public static WindowProviderNoBootstrap Singleton;
 

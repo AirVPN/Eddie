@@ -44,10 +44,19 @@ namespace Eddie.Forms
 
 			base.Init(environmentCommandLine);
 
-			GuiUtils.Init();
+			try
+			{
+				Skin.SkinUtils.Init();
 
-			SplashWindow = new Forms.WindowSplash();
-			SplashWindow.Show();
+				SplashWindow = new Forms.WindowSplash();
+				SplashWindow.Show();
+			}
+			catch (Exception ex)
+			{
+				Engine.Instance.Logs.LogFatal("Cannot initialize UI. Probably a DISPLAY issue, ensure your are not running as root. Error:" + ex.Message);
+				return false;
+			}
+
 
 			if (Engine == null)
 				Engine = new Eddie.Forms.Engine(environmentCommandLine);
@@ -76,7 +85,7 @@ namespace Eddie.Forms
 			if (AppContext != null)
 				AppContext.ExitThread();
 
-			if (GuiUtils.IsUnix())
+			if (Platform.Instance.IsUnixSystem())
 			{
 				System.Windows.Forms.Application.Exit();
 			}
@@ -120,7 +129,7 @@ namespace Eddie.Forms
 			}
 			else if (cmd == "engine.ui")
 			{
-				Form.Skin.ClearFontCache(); // Splash loaded before options
+				Skin.SkinForm.Skin.ClearFontCache(); // Splash loaded before options
 
 				SplashWindow.RequestMain();
 			}

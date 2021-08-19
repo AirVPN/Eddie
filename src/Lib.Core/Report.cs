@@ -125,21 +125,25 @@ namespace Eddie.Core
 
 			Add("Test Ping IPv4", TestPing(Constants.WebSiteIPv4));
 			Add("Test Ping IPv6", TestPing(Constants.WebSiteIPv6));
-			
+			Add("Test Ping IPv6", TestPing("2a03:b0c0:2:d0::11b4:6009"));
+
 			Add("Test HTTP IPv4", TestUrl("http://" + Constants.WebSiteIPv4 + "/test/"));
 			Add("Test HTTP IPv6", TestUrl("http://[" + Constants.WebSiteIPv6 + "]/test/"));
 			Add("Test HTTPS", TestUrl("https://" + Constants.Domain + "/test/"));
 		}
 
-		public string TestPing(string host)
+		public string TestPing(string ip)
 		{
 			try
 			{
-				Int64 result = Platform.Instance.Ping(new IpAddress(host), 10);
-				if (result == -1)
-					return LanguageManager.GetText("Failed");
-				else
+				Ping p = new Ping();
+				p.Ip = ip;
+				p.TimeoutMs = 5000;
+				int result = p.DoSync();
+				if (result != -1)
 					return result + " ms";
+				else
+					return LanguageManager.GetText("Failed");
 			}
 			catch (Exception ex)
 			{
@@ -176,14 +180,14 @@ namespace Eddie.Core
 			Add("OS architecture", Platform.Instance.GetOsArchitecture());
 			Add("Mono /.Net Framework", Platform.Instance.GetNetFrameworkVersion());
 
-			Add("TUN driver", Software.TunDriver);
-			Add("OpenVPN", Software.GetTool("openvpn").Version + " (" + Software.GetTool("openvpn").Path + ")");
-			Add("Hummingbird", Software.GetTool("hummingbird").Version + " (" + Software.GetTool("hummingbird").Path + ")");
+			Add("TUN drivers", Platform.Instance.OpenVpnGetTunDriverReport());
+			Add("OpenVPN", Software.GetTool("openvpn").GetVersionDesc());
+			Add("Hummingbird", Software.GetTool("hummingbird").GetVersionDesc());
 			Add("WireGuard", Platform.Instance.GetWireGuardVersionShow());
-			Add("SSH", Software.GetTool("ssh").Version + " (" + Software.GetTool("ssh").Path + ")");
-			Add("SSL", Software.GetTool("ssl").Version + " (" + Software.GetTool("ssl").Path + ")");
+			Add("SSH", Software.GetTool("ssh").GetVersionDesc());
+			Add("SSL", Software.GetTool("ssl").GetVersionDesc());
 			if (Platform.Instance.FetchUrlInternal() == false)
-				Add("curl", Software.GetTool("curl").Version + " (" + Software.GetTool("curl").Path + ")");
+				Add("curl", Software.GetTool("curl").GetVersionDesc());
 
 			Add("Profile path", Engine.Instance.GetProfilePath());
 			Add("Data path", Engine.Instance.GetDataPath());

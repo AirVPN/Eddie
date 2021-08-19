@@ -41,6 +41,8 @@ copy %basepath%\Lib.Platform.Windows.Native\bin\%arch%\Release\Lib.Platform.Wind
 
 echo Copy WireGuard library
 copy %basepath%\..\dependencies\wireguard\bin\windows_%arch%\tunnel.dll "%targetdir%\wireguard.dll" /Y /V || GOTO error
+echo Copy Wintun library
+copy %basepath%\..\deploy\windows_%arch%\wintun.dll "%targetdir%\wintun.dll" /Y /V || GOTO error
 
 GOTO done
 

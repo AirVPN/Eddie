@@ -23,10 +23,11 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using Eddie.Core;
+using Eddie.Forms.Skin;
 
 namespace Eddie.Forms.Forms
 {
-	public partial class SettingsRoute : Eddie.Forms.Form
+	public partial class SettingsRoute : Eddie.Forms.Skin.SkinForm
 	{
 		public String Ip;
 		public String Action;
@@ -50,9 +51,9 @@ namespace Eddie.Forms.Forms
 
 			txtHost.Font = Skin.FontMono;
 
-			GuiUtils.FixHeightVs(txtHost, lblHost);
-			GuiUtils.FixHeightVs(cboAction, lblAction);
-			GuiUtils.FixHeightVs(txtNotes, lblNotes);
+			SkinUtils.FixHeightVs(txtHost, lblHost);
+			SkinUtils.FixHeightVs(cboAction, lblAction);
+			SkinUtils.FixHeightVs(txtNotes, lblNotes);
 		}
 
 		protected override void OnLoad(EventArgs e)

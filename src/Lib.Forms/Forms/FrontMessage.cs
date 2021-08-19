@@ -26,7 +26,7 @@ using Eddie.Core;
 
 namespace Eddie.Forms.Forms
 {
-	public partial class FrontMessage : Eddie.Forms.Form
+	public partial class FrontMessage : Eddie.Forms.Skin.SkinForm
 	{
 		public Json Message;
 

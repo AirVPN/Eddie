@@ -23,10 +23,11 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using Eddie.Core;
+using Eddie.Forms.Skin;
 
 namespace Eddie.Forms.Forms
 {
-	public partial class SettingsEvent : Eddie.Forms.Form
+	public partial class SettingsEvent : Eddie.Forms.Skin.SkinForm
 	{
 		public String FileName;
 		public String Arguments;
@@ -45,10 +46,10 @@ namespace Eddie.Forms.Forms
 		{
 			base.OnApplySkin();
 
-			GuiUtils.FixHeightVs(txtFileName, lblFileName);
-			GuiUtils.FixHeightVs(txtFileName, cmdExeBrowse);
-			GuiUtils.FixHeightVs(txtArguments, lblArguments);
-			GuiUtils.FixHeightVs(chkWaitEnd, lblWaitEnd);
+			SkinUtils.FixHeightVs(txtFileName, lblFileName);
+			SkinUtils.FixHeightVs(txtFileName, cmdExeBrowse);
+			SkinUtils.FixHeightVs(txtArguments, lblArguments);
+			SkinUtils.FixHeightVs(chkWaitEnd, lblWaitEnd);
 		}
 
 		void SettingsEvent_Load(object sender, EventArgs e)

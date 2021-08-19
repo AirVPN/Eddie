@@ -24,10 +24,11 @@ using System.Text;
 using System.Windows.Forms;
 using System.Xml;
 using Eddie.Core;
+using Eddie.Forms.Skin;
 
 namespace Eddie.Forms.Forms
 {
-	public partial class Settings : Eddie.Forms.Form
+	public partial class Settings : Eddie.Forms.Skin.SkinForm
 	{
 		private Controls.TabNavigator m_tabMain;
 
@@ -57,57 +58,57 @@ namespace Eddie.Forms.Forms
 
 			mnuRoutes.Font = Skin.FontNormal;
 
-			GuiUtils.FixHeightVs(cboStorageMode, lblStorageMode);
-			GuiUtils.FixHeightVs(txtStoragePassword, lblStoragePassword);
-			GuiUtils.FixHeightVs(txtStoragePasswordConfirm, lblStoragePasswordConfirm);
+			SkinUtils.FixHeightVs(cboStorageMode, lblStorageMode);
+			SkinUtils.FixHeightVs(txtStoragePassword, lblStoragePassword);
+			SkinUtils.FixHeightVs(txtStoragePasswordConfirm, lblStoragePasswordConfirm);
 
-			GuiUtils.FixHeightVs(cboProxyMode, lblProxyType);
-			GuiUtils.FixHeightVs(cboProxyWhen, lblProxyWhen);
-			GuiUtils.FixHeightVs(txtProxyHost, lblProxyHost);
-			GuiUtils.FixHeightVs(txtProxyPort, lblProxyPort);
-			GuiUtils.FixHeightVs(cboProxyAuthentication, lblProxyAuthentication);
-			GuiUtils.FixHeightVs(txtProxyLogin, lblProxyLogin);
-			GuiUtils.FixHeightVs(txtProxyPassword, lblProxyPassword);
-			GuiUtils.FixHeightVs(txtProxyTorControlPort, lblProxyTorControlPort);
-			GuiUtils.FixHeightVs(txtProxyTorControlPassword, lblProxyTorControlPassword);
-			GuiUtils.FixHeightVs(txtProxyTorControlCookiePath, lblProxyTorControlCookiePath);
-			GuiUtils.FixHeightVs(cboDnsSwitchMode, lblDnsSwitchMode);
-			GuiUtils.FixHeightVs(chkDnsCheck, lblDnsCheck);
+			SkinUtils.FixHeightVs(cboProxyMode, lblProxyType);
+			SkinUtils.FixHeightVs(cboProxyWhen, lblProxyWhen);
+			SkinUtils.FixHeightVs(txtProxyHost, lblProxyHost);
+			SkinUtils.FixHeightVs(txtProxyPort, lblProxyPort);
+			SkinUtils.FixHeightVs(cboProxyAuthentication, lblProxyAuthentication);
+			SkinUtils.FixHeightVs(txtProxyLogin, lblProxyLogin);
+			SkinUtils.FixHeightVs(txtProxyPassword, lblProxyPassword);
+			SkinUtils.FixHeightVs(txtProxyTorControlPort, lblProxyTorControlPort);
+			SkinUtils.FixHeightVs(txtProxyTorControlPassword, lblProxyTorControlPassword);
+			SkinUtils.FixHeightVs(txtProxyTorControlCookiePath, lblProxyTorControlCookiePath);
+			SkinUtils.FixHeightVs(cboDnsSwitchMode, lblDnsSwitchMode);
+			SkinUtils.FixHeightVs(chkDnsCheck, lblDnsCheck);
 
-			GuiUtils.FixHeightVs(cboNetworkIPv4Mode, lblNetworkIPv4Mode);
-			GuiUtils.FixHeightVs(cboNetworkIPv6Mode, lblNetworkIPv6Mode);
-			GuiUtils.FixHeightVs(cboNetworkEntryIpLayer, lblNetworkEntryIpLayer);
-			GuiUtils.FixHeightVs(cboNetworkEntryInterface, lblNetworkEntryInterface);
-			GuiUtils.FixHeightVs(cboOpenVpnRcvbuf, lblOpenVpnRcvbuf);
-			GuiUtils.FixHeightVs(cboOpenVpnSndbuf, lblOpenVpnSndbuf);
+			SkinUtils.FixHeightVs(cboNetworkIPv4Mode, lblNetworkIPv4Mode);
+			SkinUtils.FixHeightVs(cboNetworkIPv6Mode, lblNetworkIPv6Mode);
+			SkinUtils.FixHeightVs(cboNetworkEntryIpLayer, lblNetworkEntryIpLayer);
+			SkinUtils.FixHeightVs(cboNetworkEntryInterface, lblNetworkEntryInterface);
+			SkinUtils.FixHeightVs(cboOpenVpnRcvbuf, lblOpenVpnRcvbuf);
+			SkinUtils.FixHeightVs(cboOpenVpnSndbuf, lblOpenVpnSndbuf);
 
-			GuiUtils.FixHeightVs(cboLockMode, lblLockMode);
-			GuiUtils.FixHeightVs(cboLockIncoming, lblLockIncoming);
-			GuiUtils.FixHeightVs(cboLockOutgoing, lblLockOutgoing);
+			SkinUtils.FixHeightVs(cboLockMode, lblLockMode);
+			SkinUtils.FixHeightVs(cboLockIncoming, lblLockIncoming);
+			SkinUtils.FixHeightVs(cboLockOutgoing, lblLockOutgoing);
 
-			GuiUtils.FixHeightVs(chkLockAllowPrivate, lblLockAllowPrivate);
-			GuiUtils.FixHeightVs(chkLockAllowDHCP, lblLockAllowDHCP);
-			GuiUtils.FixHeightVs(chkLockAllowPing, lblLockAllowPing);
-			GuiUtils.FixHeightVs(chkLockAllowDNS, lblLockAllowDNS);
+			SkinUtils.FixHeightVs(chkLockAllowPrivate, lblLockAllowPrivate);
+			SkinUtils.FixHeightVs(chkLockAllowDHCP, lblLockAllowDHCP);
+			SkinUtils.FixHeightVs(chkLockAllowPing, lblLockAllowPing);
+			SkinUtils.FixHeightVs(chkLockAllowDNS, lblLockAllowDNS);
 
-			GuiUtils.FixHeightVs(chkExpert, lblExpert);
-			GuiUtils.FixHeightVs(chkAdvancedCheckRoute, lblAdvancedCheckRoute);
+			SkinUtils.FixHeightVs(chkExpert, lblExpert);
+			SkinUtils.FixHeightVs(chkAdvancedCheckRoute, lblAdvancedCheckRoute);
 
-			GuiUtils.FixHeightVs(cboAdvancedManifestRefresh, lblAdvancedManifestRefresh);
-			GuiUtils.FixHeightVs(cboAdvancedUpdaterChannel, lblAdvancedUpdaterChannel);
-			GuiUtils.FixHeightVs(chkAdvancedPingerEnabled, lblAdvancedPingerEnabled);
+			SkinUtils.FixHeightVs(cboAdvancedManifestRefresh, lblAdvancedManifestRefresh);
+			SkinUtils.FixHeightVs(cboAdvancedUpdaterChannel, lblAdvancedUpdaterChannel);
+			SkinUtils.FixHeightVs(chkAdvancedPingerEnabled, lblAdvancedPingerEnabled);
 
-			GuiUtils.FixHeightVs(lblAdvancedSkipAlreadyRun, chkAdvancedSkipAlreadyRun);
-			GuiUtils.FixHeightVs(lblAdvancedProviders, chkAdvancedProviders);
-			GuiUtils.FixHeightVs(lblHummingbirdPrefer, chkHummingbirdPrefer);
+			SkinUtils.FixHeightVs(lblAdvancedSkipAlreadyRun, chkAdvancedSkipAlreadyRun);
+			SkinUtils.FixHeightVs(lblAdvancedProviders, chkAdvancedProviders);
+			SkinUtils.FixHeightVs(lblHummingbirdPrefer, chkHummingbirdPrefer);
 
-			GuiUtils.FixHeightVs(txtExePath, lblExePath);
-			GuiUtils.FixHeightVs(txtExePath, cmdExeBrowse);
+			SkinUtils.FixHeightVs(txtExePath, lblExePath);
+			SkinUtils.FixHeightVs(txtExePath, cmdExeBrowse);
 
-			GuiUtils.FixHeightVs(txtHummingbirdPath, lblHummingbirdPrefer);
-			GuiUtils.FixHeightVs(txtHummingbirdPath, cmdHummingbirdPathBrowse);
+			SkinUtils.FixHeightVs(txtHummingbirdPath, lblHummingbirdPrefer);
+			SkinUtils.FixHeightVs(txtHummingbirdPath, cmdHummingbirdPathBrowse);
 
-			GuiUtils.FixHeightVs(txtLogPath, lblLogPath);
+			SkinUtils.FixHeightVs(txtLogPath, lblLogPath);
 		}
 
 		protected override void OnLoad(EventArgs e)
@@ -122,17 +123,17 @@ namespace Eddie.Forms.Forms
 
 			// General
 
-			chkSystemStart.Visible = GuiUtils.IsWindows();
+			chkSystemStart.Visible = Platform.Instance.IsWindowsSystem();
 			chkSystemService.Visible = Platform.Instance.AllowService();
 			lblSystemService.Text = Platform.Instance.AllowServiceUserDescription();
-			pnlAdvancedGeneralWindowsOnly.Visible = GuiUtils.IsWindows();
-			pnlDnsWindowsOnly.Visible = GuiUtils.IsWindows();
-			chkWindowsWintun.Visible = GuiUtils.IsWindows();
-			chkWindowsDebugWorkaround.Visible = GuiUtils.IsWindows();
-			lblHummingbirdPrefer.Visible = (GuiUtils.IsWindows() == false);
-			chkHummingbirdPrefer.Visible = (GuiUtils.IsWindows() == false);
-			txtHummingbirdPath.Visible = (GuiUtils.IsWindows() == false);
-			cmdHummingbirdPathBrowse.Visible = (GuiUtils.IsWindows() == false);
+			pnlAdvancedGeneralWindowsOnly.Visible = Platform.Instance.IsWindowsSystem();
+			pnlDnsWindowsOnly.Visible = Platform.Instance.IsWindowsSystem();
+			chkWindowsWintun.Visible = Platform.Instance.IsWindowsSystem();
+			chkWindowsDebugWorkaround.Visible = Platform.Instance.IsWindowsSystem();
+			lblHummingbirdPrefer.Visible = (Platform.Instance.IsWindowsSystem() == false);
+			chkHummingbirdPrefer.Visible = (Platform.Instance.IsWindowsSystem() == false);
+			txtHummingbirdPath.Visible = (Platform.Instance.IsWindowsSystem() == false);
+			cmdHummingbirdPathBrowse.Visible = (Platform.Instance.IsWindowsSystem() == false);
 
 			// Disabled
 			chkOsSingleInstance.Visible = false;
@@ -296,9 +297,10 @@ namespace Eddie.Forms.Forms
 			if (Platform.IsWindows())
 			{
 				cmdAdvancedUninstallDriverTap.Visible = true;
-				cmdAdvancedUninstallDriverTap.Enabled = (Platform.Instance.GetDriverVersion("0901") != "");
-				cmdAdvancedUninstallDriverWintun.Visible = true;
-				cmdAdvancedUninstallDriverWintun.Enabled = (Platform.Instance.GetDriverVersion("wintun") != "");
+				cmdAdvancedUninstallDriverTap.Enabled = (Platform.Instance.OpenVpnGetDriverVersion("0901") != "");
+				cmdAdvancedUninstallDriverWintun.Visible = false;
+				//cmdAdvancedUninstallDriverWintun.Visible = true;
+				//cmdAdvancedUninstallDriverWintun.Enabled = (Platform.Instance.OpenVpnGetDriverVersion("wintun") != "");
 			}
 			else
 			{
@@ -610,6 +612,8 @@ namespace Eddie.Forms.Forms
 			else if (openVpnRcvBuf == 1024 * 512)
 				cboOpenVpnRcvbuf.SelectedIndex = 8;
 
+			txtNetworkIfaceName.Text = o.Get("network.iface.name");
+
 			// Advanced - General
 			chkExpert.Checked = o.GetBool("advanced.expert");
 			chkAdvancedCheckRoute.Checked = o.GetBool("advanced.check.route");
@@ -620,7 +624,7 @@ namespace Eddie.Forms.Forms
 			chkHummingbirdPrefer.Checked = o.GetBool("tools.hummingbird.preferred");
 
 			chkWindowsWintun.Checked = o.GetBool("windows.wintun");
-			chkWindowsTapUp.Checked = o.GetBool("windows.tap_up");
+			chkWindowsAdaptersCleanup.Checked = o.GetBool("windows.adapters.cleanup");
 			chkWindowsDisableDriverUpgrade.Checked = o.GetBool("windows.disable_driver_upgrade");
 			chkWindowsDebugWorkaround.Checked = o.GetBool("windows.workarounds");
 			chkWindowsSshPlinkForce.Checked = o.GetBool("windows.ssh.plink.force");
@@ -722,7 +726,7 @@ namespace Eddie.Forms.Forms
 			{
 				if ((txtStoragePassword.Text.Trim() == "") || (txtStoragePassword.Text != txtStoragePasswordConfirm.Text))
 				{
-					UiClient.Instance.MainWindow.ShowMessageError(LanguageManager.GetText("WindowsSettingsStoragePasswordMismatch"));
+					GuiUtils.MessageBoxError(UiClient.Instance.MainWindow, LanguageManager.GetText("WindowsSettingsStoragePasswordMismatch"));
 					return false;
 				}
 			}
@@ -985,6 +989,8 @@ namespace Eddie.Forms.Forms
 			else if (openVpnRcvBufIndex == 8)
 				o.SetInt("openvpn.rcvbuf", 1024 * 512);
 
+			o.Set("network.iface.name", txtNetworkIfaceName.Text);
+
 			// Advanced - General
 			o.SetBool("advanced.expert", chkExpert.Checked);
 			o.SetBool("advanced.check.route", chkAdvancedCheckRoute.Checked);
@@ -995,14 +1001,13 @@ namespace Eddie.Forms.Forms
 			o.SetBool("tools.hummingbird.preferred", chkHummingbirdPrefer.Checked);
 
 			o.SetBool("windows.wintun", chkWindowsWintun.Checked);
-			o.SetBool("windows.tap_up", chkWindowsTapUp.Checked);
+			o.SetBool("windows.adapters.cleanup", chkWindowsAdaptersCleanup.Checked);
 			o.SetBool("windows.disable_driver_upgrade", chkWindowsDisableDriverUpgrade.Checked);
 			o.SetBool("windows.workarounds", chkWindowsDebugWorkaround.Checked);
 			o.SetBool("windows.ssh.plink.force", chkWindowsSshPlinkForce.Checked);
 
 			SetOption("tools.openvpn.path", txtExePath.Text);
 			SetOption("tools.hummingbird.path", txtHummingbirdPath.Text);
-
 
 			int manifestRefreshIndex = cboAdvancedManifestRefresh.SelectedIndex;
 			if (manifestRefreshIndex == 0) // Auto
@@ -1082,7 +1087,7 @@ namespace Eddie.Forms.Forms
 			SaveOptionsEvent("vpn.down", 6);
 			o.SetBool("external.rules.recommended", chkShellExternalRecommended.Checked);
 
-			Engine.OnSettingsChanged();
+			Engine.Instance.OnSettingsChanged();
 		}
 
 		public void SaveOptionsEvent(string name, int index)
@@ -1115,7 +1120,7 @@ namespace Eddie.Forms.Forms
 
 		public void RefreshLogPreview()
 		{
-			TxtLoggingPathComputed.Text = Engine.Logs.GetParseLogFilePaths(txtLogPath.Text);
+			TxtLoggingPathComputed.Text = Engine.Instance.Logs.GetParseLogFilePaths(txtLogPath.Text);
 		}
 
 		public void EnableIde()
@@ -1396,20 +1401,15 @@ namespace Eddie.Forms.Forms
 
 		private void cmdAdvancedUninstallDriver_Click(object sender, EventArgs e)
 		{
-			if (Platform.Instance.UninstallDriver("0901"))
+			if (Platform.Instance.OpenVpnUninstallDriver("0901"))
 			{
-				ShowMessageInfo(LanguageManager.GetText("OsDriverUninstallDone"));
+				GuiUtils.MessageBoxInfo(this, LanguageManager.GetText("OsDriverUninstallDone"));
 				cmdAdvancedUninstallDriverTap.Enabled = false;
 			}
 		}
 
 		private void cmdAdvancedUninstallDriverWintun_Click(object sender, EventArgs e)
 		{
-			if (Platform.Instance.UninstallDriver("wintun"))
-			{
-				ShowMessageInfo(LanguageManager.GetText("OsDriverUninstallDone"));
-				cmdAdvancedUninstallDriverWintun.Enabled = false;
-			}
 		}
 
 		private void TxtLoggingPath_TextChanged(object sender, EventArgs e)
@@ -1425,7 +1425,7 @@ namespace Eddie.Forms.Forms
 		private void cmdProxyTorTest_Click(object sender, EventArgs e)
 		{
 			string t = TorControl.Test(txtProxyHost.Text, Conversions.ToInt32(txtProxyTorControlPort.Text), txtProxyTorControlPassword.Text);
-			ShowMessageInfo(t);
+			GuiUtils.MessageBoxInfo(this, t);
 		}
 
 		private void optModeAutomatic_CheckedChanged(object sender, EventArgs e)
@@ -1587,7 +1587,7 @@ namespace Eddie.Forms.Forms
 		private void UpdateUiFontGeneral()
 		{
 			if (chkUiFontGeneral.Checked == false)
-				lblUiFontGeneral.Text = GuiUtils.GetSystemFont();
+				lblUiFontGeneral.Text = SkinUtils.GetSystemFont();
 		}
 
 		private void chkUiFontGeneral_CheckedChanged(object sender, EventArgs e)
@@ -1600,7 +1600,7 @@ namespace Eddie.Forms.Forms
 		{
 			using (FontDialog dlg = new FontDialog())
 			{
-				dlg.Font = Form.Skin.FontNormal;
+				dlg.Font = SkinForm.Skin.FontNormal;
 				if (dlg.ShowDialog() == DialogResult.OK)
 				{
 					lblUiFontGeneral.Text = dlg.Font.Name + ", " + dlg.Font.SizeInPoints.ToString();
@@ -1619,7 +1619,7 @@ namespace Eddie.Forms.Forms
 			{
 				Engine.Instance.Options.ResetAll(false);
 				ReadOptions();
-				ShowMessageInfo(LanguageManager.GetText("ResetSettingsDone"));
+				GuiUtils.MessageBoxInfo(this, LanguageManager.GetText("ResetSettingsDone"));
 			}
 		}
 
@@ -1629,7 +1629,7 @@ namespace Eddie.Forms.Forms
 			foreach (string path in paths)
 			{
 				if (Platform.Instance.OpenDirectoryInFileManager(path) == false)
-					ShowMessageError(LanguageManager.GetText("WindowsSettingsLogsCannotOpenDirectory", path));
+					GuiUtils.MessageBoxError(this, LanguageManager.GetText("WindowsSettingsLogsCannotOpenDirectory", path));
 			}
 		}
 
@@ -1657,7 +1657,7 @@ namespace Eddie.Forms.Forms
 		private void cmdShellExternalClear_Click(object sender, EventArgs e)
 		{
 			Engine.Instance.Options.Set("external.rules", Engine.Instance.Options.Dict["external.rules"].Default);
-			ShowMessageInfo("Done.");
+			GuiUtils.MessageBoxInfo(this, "Done.");
 		}
 
 

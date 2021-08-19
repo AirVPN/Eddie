@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lib.Platform.Linux", "Lib.P
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "App.Forms.Linux", "App.Forms.Linux\App.Forms.Linux.csproj", "{C21E315F-C565-4AF0-9E15-9DDF2DD8FBD4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lib.Forms.Skin", "Lib.Forms.Skin\Lib.Forms.Skin.csproj", "{D236F3C2-E2B6-4849-88DD-739CE8F01FA2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -51,6 +53,14 @@ Global
 		{C21E315F-C565-4AF0-9E15-9DDF2DD8FBD4}.Release|x64.Build.0 = Release|x64
 		{C21E315F-C565-4AF0-9E15-9DDF2DD8FBD4}.Release|x86.ActiveCfg = Release|x86
 		{C21E315F-C565-4AF0-9E15-9DDF2DD8FBD4}.Release|x86.Build.0 = Release|x86
+		{D236F3C2-E2B6-4849-88DD-739CE8F01FA2}.Debug|x64.ActiveCfg = Debug|x64
+		{D236F3C2-E2B6-4849-88DD-739CE8F01FA2}.Debug|x64.Build.0 = Debug|x64
+		{D236F3C2-E2B6-4849-88DD-739CE8F01FA2}.Debug|x86.ActiveCfg = Debug|x86
+		{D236F3C2-E2B6-4849-88DD-739CE8F01FA2}.Debug|x86.Build.0 = Debug|x86
+		{D236F3C2-E2B6-4849-88DD-739CE8F01FA2}.Release|x64.ActiveCfg = Release|x64
+		{D236F3C2-E2B6-4849-88DD-739CE8F01FA2}.Release|x64.Build.0 = Release|x64
+		{D236F3C2-E2B6-4849-88DD-739CE8F01FA2}.Release|x86.ActiveCfg = Release|x86
+		{D236F3C2-E2B6-4849-88DD-739CE8F01FA2}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 	EndGlobalSection

@@ -775,48 +775,17 @@ namespace Eddie.Core
 			return false;
 		}
 
-		public virtual Int64 Ping(IpAddress host, int timeoutSec)
-		{
-			if ((host == null) || (host.Valid == false))
-				return -1;
-
-			using (Ping pingSender = new Ping())
-			{
-				PingOptions options = new PingOptions();
-
-				// Use the default TTL value which is 128, but change the fragmentation behavior.
-				//options.DontFragment = true;
-
-				// Create a buffer of 32 bytes of data to be transmitted.
-				try
-				{
-					byte[] buffer = RandomGenerator.GetBuffer(32);
-					int timeout = timeoutSec * 1000;
-					PingReply reply = pingSender.Send(host.ToString(), timeout, buffer, options);
-
-					if (reply.Status == IPStatus.Success)
-						return reply.RoundtripTime;
-					else
-						return -1;
-				}
-				catch
-				{
-					return -1;
-				}
-			}
-		}
-
 		public virtual bool ProcessKillSoft(Process process)
 		{
 			return false;
 		}
 
-		public virtual int GetRecommendedSndBufDirective()
+		public virtual int GetOpenVpnRecommendedSndBufDirective()
 		{
 			return -1;
 		}
 
-		public virtual int GetRecommendedRcvBufDirective()
+		public virtual int GetOpenVpnRecommendedRcvBufDirective()
 		{
 			return -1;
 		}
@@ -1286,25 +1255,12 @@ namespace Eddie.Core
 			return null;
 		}
 
-		public virtual string GetDriverVersion(string driver)
+		public virtual bool GetRequireNextHop()
 		{
-			return LanguageManager.GetText("NotImplemented");
+			return false;
 		}
 
-		public virtual string GetTunDriverReport()
-		{
-			return GetDriverVersion("");
-		}
-
-		public virtual void EnsureDriverAndAdapterAvailable(string driver)
-		{
-			if (GetDriverVersion(driver) != "")
-				return;
-
-			throw new Exception(LanguageManager.GetText("OsDriverCannotInstall"));
-		}
-
-		public virtual bool UninstallDriver(string driver)
+		public virtual bool GetUseOpenVpnRoutes()
 		{
 			return false;
 		}
@@ -1312,6 +1268,30 @@ namespace Eddie.Core
 		public virtual bool GetSupportWireGuard()
 		{
 			return (GetWireGuardVersion() != "");
+		}
+
+		// OpenVPN Driver
+		public virtual string OpenVpnGetTunDriverReport()
+		{
+			return OpenVpnGetDriverVersion("");
+		}
+
+		public virtual string OpenVpnGetDriverVersion(string driver)
+		{
+			return LanguageManager.GetText("NotImplemented");
+		}
+
+		public virtual void OpenVpnEnsureDriverAndAdapterAvailable(string driver)
+		{
+			if (OpenVpnGetDriverVersion(driver) != "")
+				return;
+
+			throw new Exception(LanguageManager.GetText("OsDriverCannotInstall"));
+		}
+
+		public virtual bool OpenVpnUninstallDriver(string driver)
+		{
+			return false;
 		}
 	}
 }

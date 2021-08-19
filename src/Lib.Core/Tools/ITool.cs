@@ -127,6 +127,14 @@ namespace Eddie.Core.Tools
 			return Version.VersionAboveOrEqual(v);
 		}
 
+		public string GetVersionDesc()
+		{
+			if (Version == "")
+				return LanguageManager.GetText("NotAvailable");
+			else
+				return Version + " (" + Path + ")";
+		}
+
 		public void FindResource(string filename)
 		{
 			string searchLocation = "";

@@ -42,15 +42,16 @@ namespace Eddie.Core.Providers
 			ConnectionMode mode = GetMode();
 
 			ConnectionTypes.IConnectionType c = null;
-			if (mode.Type == "openvpn")
+			if (mode.Type == "wireguard")
+				c = new ConnectionTypes.WireGuard();
+			else
 			{
 				if (Engine.Instance.GetOpenVpnTool() is Tools.Hummingbird)
 					c = new ConnectionTypes.Hummingbird();
 				else
 					c = new ConnectionTypes.OpenVPN();
 			}
-			else
-				c = new ConnectionTypes.WireGuard();
+
 			return c;
 		}
 
@@ -976,7 +977,6 @@ namespace Eddie.Core.Providers
 			int hostN = 0;
 			foreach (string url in urls)
 			{
-
 				string host = Utils.HostFromUrl(url);
 
 				hostN++;

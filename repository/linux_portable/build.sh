@@ -44,7 +44,8 @@ if [ $ARCH = "armv7l" ]; then
 elif [ $ARCH = "aarch64" ]; then
 	MKBUNDLECROSSTARGET="mono-6.6.0-debian-10-arm64"
 else
-	MKBUNDLECROSSTARGET="mono-5.10.0-debian-7-${ARCH}"
+	#MKBUNDLECROSSTARGET="mono-5.10.0-debian-7-${ARCH}"
+    MKBUNDLECROSSTARGET="mono-6.8.0-debian-10-${ARCH}"
 fi
 
 # Issue here, check with 'mkbundle --list-targets'
@@ -74,17 +75,21 @@ sed -i 's/\$mono_libdir\///g' ${SCRIPTDIR}/mkbundle.config
 
 echo mkbundle run
 if [ $PROJECT = "cli" ]; then
-	mkbundle eddie-${PROJECTP}.exe -o eddie-${PROJECTP} --cross ${MKBUNDLECROSSTARGET} --i18n all -L /usr/local/lib/mono/4.5 --config ${SCRIPTDIR}/mkbundle.config --library ${TARGETDIR}/bundle/libMonoPosixHelper.so
+	#mkbundle eddie-${PROJECTP}.exe -o eddie-${PROJECTP} --cross ${MKBUNDLECROSSTARGET} --i18n all -L /usr/local/lib/mono/4.5 --config ${SCRIPTDIR}/mkbundle.config --library ${TARGETDIR}/bundle/libMonoPosixHelper.so
+    mkbundle eddie-${PROJECTP}.exe -o eddie-${PROJECTP} --cross ${MKBUNDLECROSSTARGET} --i18n all -L /usr/local/lib/mono/4.5 --config ${SCRIPTDIR}/mkbundle.config
 elif [ $PROJECT = "ui" ]; then
-	mkbundle eddie-${PROJECTP}.exe -o eddie-${PROJECTP} --cross ${MKBUNDLECROSSTARGET} --i18n all -L /usr/local/lib/mono/4.5 --config ${SCRIPTDIR}/mkbundle.config --library ${TARGETDIR}/bundle/libMonoPosixHelper.so --library ${TARGETDIR}/bundle/libgdiplus.so.0
+	#mkbundle eddie-${PROJECTP}.exe -o eddie-${PROJECTP} --cross ${MKBUNDLECROSSTARGET} --i18n all -L /usr/local/lib/mono/4.5 --config ${SCRIPTDIR}/mkbundle.config --library ${TARGETDIR}/bundle/libMonoPosixHelper.so --library ${TARGETDIR}/bundle/libgdiplus.so.0
+    mkbundle eddie-${PROJECTP}.exe -o eddie-${PROJECTP} --cross ${MKBUNDLECROSSTARGET} --i18n all -L /usr/local/lib/mono/4.5 --config ${SCRIPTDIR}/mkbundle.config --library ${TARGETDIR}/bundle/libgdiplus.so.0
 elif [ $PROJECT = "ui3" ]; then
-	mkbundle eddie-${PROJECTP}.exe -o eddie-${PROJECTP} --cross ${MKBUNDLECROSSTARGET} --i18n all -L /usr/local/lib/mono/4.5 --config ${SCRIPTDIR}/mkbundle.config --library ${TARGETDIR}/bundle/libMonoPosixHelper.so
+	#mkbundle eddie-${PROJECTP}.exe -o eddie-${PROJECTP} --cross ${MKBUNDLECROSSTARGET} --i18n all -L /usr/local/lib/mono/4.5 --config ${SCRIPTDIR}/mkbundle.config --library ${TARGETDIR}/bundle/libMonoPosixHelper.so
+    mkbundle eddie-${PROJECTP}.exe -o eddie-${PROJECTP} --cross ${MKBUNDLECROSSTARGET} --i18n all -L /usr/local/lib/mono/4.5 --config ${SCRIPTDIR}/mkbundle.config
 fi
 
 # Remove unneed
 rm ${TARGETDIR}/bundle/*.exe # Linked with mkbundle
 rm ${TARGETDIR}/bundle/*.dll # Linked with mkbundle
 rm ${TARGETDIR}/bundle/*.pdb
+rm ${TARGETDIR}/bundle/*.config
 rm ${TARGETDIR}/bundle/libgdiplus.so.0 # Linked with mkbundle
 rm ${TARGETDIR}/bundle/libMonoPosixHelper.so # Linked with mkbundle
 if [ $PROJECT = "cli" ]; then

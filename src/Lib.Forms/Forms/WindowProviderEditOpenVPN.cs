@@ -23,10 +23,11 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using Eddie.Core;
+using Eddie.Forms.Skin;
 
 namespace Eddie.Forms.Forms
 {
-	public partial class WindowProviderEditOpenVPN : Eddie.Forms.Form
+	public partial class WindowProviderEditOpenVPN : Eddie.Forms.Skin.SkinForm
 	{
 		public Core.Providers.OpenVPN Provider;
 
@@ -47,11 +48,11 @@ namespace Eddie.Forms.Forms
 			base.OnApplySkin();
 
 			lblTitle.Font = Skin.FontBig;
-			GuiUtils.FixHeightVs(lblTitle2, txtTitle2);
-			GuiUtils.FixHeightVs(lblPath, txtPath);
-			GuiUtils.FixHeightVs(lblPath, cmdPathBrowse);
-			GuiUtils.FixHeightVs(lblAuthPassUsername, txtAuthPassUsername);
-			GuiUtils.FixHeightVs(lblAuthPassPassword, txtAuthPassPassword);
+			SkinUtils.FixHeightVs(lblTitle2, txtTitle2);
+			SkinUtils.FixHeightVs(lblPath, txtPath);
+			SkinUtils.FixHeightVs(lblPath, cmdPathBrowse);
+			SkinUtils.FixHeightVs(lblAuthPassUsername, txtAuthPassUsername);
+			SkinUtils.FixHeightVs(lblAuthPassPassword, txtAuthPassPassword);
 		}
 
 		protected override void OnLoad(EventArgs e)

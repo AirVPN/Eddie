@@ -29,8 +29,10 @@ namespace Eddie.Core
 		public static CultureInfo Culture;
 		public static Dictionary<string, Dictionary<string, string>> Messages = null;
 
-		public static void Init()
+		public static bool Init()
 		{
+			bool invFound = false;
+
 			Culture = CultureInfo.InvariantCulture;
 
 			Messages = new Dictionary<string, Dictionary<string, string>>();
@@ -48,6 +50,8 @@ namespace Eddie.Core
 					Json jData = null;
 					if (Json.TryParse(Platform.Instance.FileContentsReadText(jsonPath), out jData))
 					{
+						if (code == "inv")
+							invFound = true;
 						foreach (KeyValuePair<string, object> kp in jData.GetDictionary())
 						{
 							string itemId = kp.Key;
@@ -60,6 +64,8 @@ namespace Eddie.Core
 
 				Messages[code] = items;
 			}
+
+			return invFound;
 		}
 
 		public static Json GetJsonForManifest()

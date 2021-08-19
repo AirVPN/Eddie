@@ -8,7 +8,7 @@
   <vendor_url>https://eddie.website</vendor_url>
   
   <action id="org.airvpn.eddie.ui.elevated.policy">
-    <message>Authentication is required to run elevated commands of Eddie - OpenVPN UI</message>    
+    <message>Authentication is required to run elevated commands of Eddie - VPN Tunnel</message>    
     <description>Run Eddie as root</description>
     <defaults>
       <allow_any>auth_admin</allow_any>

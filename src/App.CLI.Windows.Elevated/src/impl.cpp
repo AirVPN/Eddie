@@ -23,12 +23,15 @@ Some code by ValdikSS
 
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 
-// Note the order: must be included before windows.h
+// Note the order: must be included before Windows.h
 #include <winsock2.h>
-#include "impl.h"
 #include <Ws2tcpip.h>
 #include <ws2ipdef.h>
 #include <iphlpapi.h>
+
+#include "Windows.h"
+
+#include "impl.h"
 
 #include <fcntl.h>
 
@@ -55,6 +58,8 @@ Some code by ValdikSS
 
 #include "yxml.h" // WFP utils, maybe converted in JSON in future
 
+#include "wintun.h"
+
 int Impl::Main()
 {
 	signal(SIGINT, SIG_IGN); // See comment in Linux implementation
@@ -68,7 +73,7 @@ int Impl::Main()
 		ThrowException("Error in sockets initialization");
 	}
 
-	int result = IBase::Main();
+	int result = IWindows::Main();
 
 	WSACleanup();
 
@@ -191,389 +196,10 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 			ReplyCommand(commandId, m_wfpLastError);
 		}
 	}
-	else if (command == "dns-flush")
-	{
-		std::string mode = params["mode"];
-
-		std::string netPath = FsLocateExecutable("net.exe", false);
-		std::string ipconfigPath = FsLocateExecutable("net.exe", false);
-
-		if (mode == "max")
-		{
-			if (netPath != "")
-			{
-				ExecEx1(netPath, "stop dnscache");
-				ExecEx1(netPath, "start dnscache");
-			}
-			if(ipconfigPath != "")
-				ExecEx1(ipconfigPath, "/registerdns");
-		}
-
-		if(ipconfigPath != "")
-			ExecEx1(ipconfigPath, "/flushdns");
-	}
-	else if (command == "set-interface-metric")
-	{
-		int idx = atoi(params["idx"].c_str());
-		int value = atoi(params["value"].c_str());
-		std::string layer = params["layer"];
-		SetInterfaceMetric(idx, layer, value);
-	}
-	else if (command == "route-list")
-	{
-		int n = 0;
-		std::string json = "";
-
-		// Adapters
-		// Return an UNC path as name, we need LUID in hex OR friendly-name, unresolved here, done at C# side
-		// ConvertInterfaceIndexToLuid -> ConvertInterfaceLuidToNameW don't return anyway the friendly-name
-		/*
-		std::map<ULONG, std::string> interfacesIndexToName;
-		{
-			// Declare and initialize variables
-			PIP_INTERFACE_INFO pInfo = NULL;
-			ULONG ulOutBufLen = 0;
-			DWORD dwRetVal = 0;
-			int iReturn = 1;
-			int i;
-
-			dwRetVal = GetInterfaceInfo(NULL, &ulOutBufLen);
-			if (dwRetVal == ERROR_INSUFFICIENT_BUFFER) {
-				pInfo = (IP_INTERFACE_INFO*)MALLOC(ulOutBufLen);
-				if (pInfo != NULL)
-				{
-					dwRetVal = GetInterfaceInfo(pInfo, &ulOutBufLen);
-					if (dwRetVal == NO_ERROR)
-					{
-						for (i = 0; i < pInfo->NumAdapters; i++)
-						{
-							interfacesIndexToName[pInfo->Adapter[i].Index] = StringWStringToUTF8(pInfo->Adapter[i].Name);
-						}
-						iReturn = 0;
-					}
-				}
-			}
-
-			FREE(pInfo);
-		}
-		*/
-
-		// IPv4
-		if (true)
-		{
-			DWORD retval;
-			MIB_IPFORWARD_TABLE2* routes = NULL;
-			MIB_IPFORWARD_ROW2* route;
-			ULONG idx;
-
-			retval = GetIpForwardTable2(AF_INET, &routes);
-			if (retval == ERROR_SUCCESS)
-			{
-				for (idx = 0; idx < routes->NumEntries; idx++)
-				{
-					route = routes->Table + idx;
-
-					char buf[INET_ADDRSTRLEN];
-
-					InetNtopA(AF_INET, &route->NextHop.Ipv4.sin_addr, (PSTR)buf, sizeof(buf));
-					std::string gateway = buf;
-
-					InetNtopA(AF_INET, &route->DestinationPrefix.Prefix.Ipv4.sin_addr, (PSTR)buf, sizeof(buf));
-					std::string destination = buf;
-					destination += "/" + std::to_string(route->DestinationPrefix.PrefixLength);
-
-					if (n > 0)
-						json += ",";
-					json += "{\"destination\":\"" + destination + "\",\"gateway\":\"" + gateway + "\",\"interface_index\":" + std::to_string(route->InterfaceIndex) + ",\"metric\":" + std::to_string(route->Metric) + "}";
-					n++;
-				}
-			}
-
-			FreeMibTable(routes);
-		}
-
-		// IPv6
-		if (true)
-		{
-			DWORD retval;
-			MIB_IPFORWARD_TABLE2* routes = NULL;
-			MIB_IPFORWARD_ROW2* route;
-			ULONG idx;
-
-			retval = GetIpForwardTable2(AF_INET6, &routes);
-			if (retval == ERROR_SUCCESS)
-			{
-				for (idx = 0; idx < routes->NumEntries; idx++)
-				{
-					route = routes->Table + idx;
-
-					char buf[INET6_ADDRSTRLEN];
-
-					InetNtopA(AF_INET6, &route->NextHop.Ipv6.sin6_addr, (PSTR)buf, sizeof(buf));
-					std::string gateway = buf;
-
-					InetNtopA(AF_INET6, &route->DestinationPrefix.Prefix.Ipv6.sin6_addr, (PSTR)buf, sizeof(buf));
-					std::string destination = buf;
-					destination += "/" + std::to_string(route->DestinationPrefix.PrefixLength);
-
-					if (n > 0)
-						json += ",";
-					json += "{\"destination\":\"" + destination + "\",\"gateway\":\"" + gateway + "\",\"interface_index\":" + std::to_string(route->InterfaceIndex) + ",\"metric\":" + std::to_string(route->Metric) + "}";
-					n++;
-				}
-			}
-
-			FreeMibTable(routes);
-		}
-
-		ReplyCommand(commandId, "[" + json + "]");
-	}
-	else if (command == "route")
-	{
-		std::string args = "interface ";
-		if (StringIsIPv4(params["destination"]))
-			args += " ipv4";
-		else if (StringIsIPv6(params["destination"]))
-			args += " ipv6";
-		else
-			ThrowException("Unknown layer");
-		if (params["action"] == "add")
-			args += " add";
-		else if (params["action"] == "remove")
-			args += " del";
-		else
-			ThrowException("Unknown action");
-		args += " route";
-		args += " prefix=\"" + StringEnsureCidr(params["destination"]) + "\"";
-		args += " interface=\"" + StringEnsureNumericInt(params["iface"]) + "\"";
-		if (params.find("gateway") != params.end())
-			args += " nexthop=\"" + StringEnsureIpAddress(params["gateway"]) + "\"";
-		if (params["action"] == "add")
-		{
-			if (params.find("metric") != params.end())
-				args += " metric=" + StringEnsureNumericInt(params["metric"]);
-		}
-		args += " store=active";
-
-		ExecResult shellResult = ExecEx1(FsLocateExecutable("netsh.exe"), args);
-		if (shellResult.exit != 0)
-			ThrowException(GetExecResultDump(shellResult));
-	}
-	else if (command == "windows-dns")
-	{
-		std::string interfaceName = params["interface"];
-		std::string layer = ((params["layer"] == "ipv4") ? "ipv4" : "ipv6");
-		std::string mode = params["mode"];
-		if (mode == "dhcp")
-		{
-			ExecEx1(FsLocateExecutable("netsh.exe"), "interface " + layer + " set dns name=\"" + StringEnsureInterfaceName(interfaceName) + "\" source=dhcp register=primary validate=no");
-		}
-		else if (mode == "static")
-		{
-			std::string ipaddress = params["ipaddress"];
-			ExecEx1(FsLocateExecutable("netsh.exe"), "interface " + layer + " set dns name=\"" + StringEnsureInterfaceName(interfaceName) + "\" source=static address=" + StringEnsureIpAddress(ipaddress) + " register=primary validate=no");
-		}
-		else if (mode == "add")
-		{
-			std::string ipaddress = params["ipaddress"];
-			ExecEx1(FsLocateExecutable("netsh.exe"), "interface " + layer + " add dnsserver name=\"" + StringEnsureInterfaceName(interfaceName) + "\" address=" + StringEnsureIpAddress(ipaddress) + " validate=no");
-		}
-	}
-	else if (command == "windows-firewall")
-	{
-		std::string args = StringTrim(params["args"]);
-		ExecResult result = ExecEx1(FsLocateExecutable("netsh.exe"), "advfirewall " + args);
-	}
-	else if (command == "windows-workaround-25139")
-	{
-		std::string cidr = StringTrim(params["cidr"]);
-		std::string iface = StringTrim(params["iface"]);
-		ExecResult result = ExecEx1(FsLocateExecutable("netsh.exe"), "interface ipv6 del route \"" + StringEnsureCidr(cidr) + "\" interface=\"" + StringEnsureNumericInt(iface) + "\"");
-	}
-	else if (command == "windows-workaround-interface-up")
-	{
-		std::string name = StringTrim(params["name"]);
-		ExecResult result = ExecEx1(FsLocateExecutable("netsh.exe"), "interface set interface \"" + StringEnsureInterfaceName(name) + "\" ENABLED");
-	}
 	else
 	{
 		IWindows::Do(commandId, command, params);
 	}
-}
-
-bool Impl::IsServiceInstalled()
-{
-	std::string serviceId = GetServiceId();
-
-	HKEY hKey;
-	std::string regKey = "SYSTEM\\CurrentControlSet\\Services\\" + serviceId;
-	std::wstring regKeyW = StringUTF8ToWString(regKey);
-	LONG openRes = RegOpenKeyEx(HKEY_LOCAL_MACHINE, regKeyW.c_str(), 0, KEY_ALL_ACCESS, &hKey);
-	LONG closeOut = RegCloseKey(hKey);
-
-	return (openRes == ERROR_SUCCESS);
-}
-
-bool Impl::ServiceInstall()
-{
-	bool success = true;
-
-	int port = 0;
-	if (m_cmdline.find("service_port") != m_cmdline.end())
-		port = atoi(m_cmdline["service_port"].c_str());
-
-	std::string elevatedPath = GetProcessPathCurrent();
-
-	std::string path = FsFileGetDirectory(elevatedPath) + FsPathSeparator + "Eddie-Service-Elevated.exe";
-
-	std::string elevatedArgs = "mode=service";
-	std::string integrity = ComputeIntegrityHash(GetProcessPathCurrent(), "");
-	elevatedArgs += " integrity=" + StringEnsureSecure(integrity);
-
-	if (m_cmdline.find("service_port") != m_cmdline.end())
-		elevatedArgs += " service_port=" + std::to_string(port);
-
-	// Can be active but old version that don't accept new client
-	ServiceUninstallDirect();
-
-	SC_HANDLE serviceControlManager = OpenSCManager(0, 0, SC_MANAGER_ALL_ACCESS); // GENERIC_WRITE is not enough
-	if (serviceControlManager)
-	{
-		std::wstring serviceServiceNameW = StringUTF8ToWString(GetServiceId());
-		std::wstring serviceDisplayNameW = StringUTF8ToWString(GetServiceName());
-		std::wstring servicePathW = StringUTF8ToWString(path);
-		LPCWSTR serviceDependsW = TEXT("Nsi\0TcpIp"); // Added in 2.21.0
-		SC_HANDLE service = CreateService(serviceControlManager, serviceServiceNameW.c_str(), serviceDisplayNameW.c_str(), SC_MANAGER_ALL_ACCESS, SERVICE_WIN32_OWN_PROCESS, SERVICE_DEMAND_START, SERVICE_ERROR_NORMAL, servicePathW.c_str(), NULL, NULL, serviceDependsW, NULL, NULL);
-		if (service)
-		{
-			if (success)
-			{
-				HKEY hKey;
-				std::string regKey = "SYSTEM\\CurrentControlSet\\Services\\" + GetServiceId();
-				std::wstring regKeyW = StringUTF8ToWString(regKey);
-				LONG openRes = RegOpenKeyEx(HKEY_LOCAL_MACHINE, regKeyW.c_str(), 0, KEY_ALL_ACCESS, &hKey);
-				if (openRes != ERROR_SUCCESS)
-					success = false;
-				else
-				{
-					// Write Args
-					std::wstring serviceArgs = StringUTF8ToWString(elevatedArgs);
-					LONG setResA = RegSetValueEx(hKey, TEXT("EddieArgs"), 0, REG_SZ, (LPBYTE)serviceArgs.c_str(), (DWORD)(serviceArgs.size() + 1) * sizeof(wchar_t));
-					if (setResA != ERROR_SUCCESS)
-						success = false;
-
-					// Write Description
-					std::wstring serviceDisplayDescW = StringUTF8ToWString(GetServiceDesc());
-					LONG setResD = RegSetValueEx(hKey, TEXT("Description"), 0, REG_SZ, (LPBYTE)serviceDisplayDescW.c_str(), (DWORD)(serviceDisplayDescW.size() + 1) * sizeof(wchar_t));
-					if (setResD != ERROR_SUCCESS)
-						success = false;
-				}
-			}
-
-			if (success)
-			{
-				// Required by WireGuard
-				SERVICE_SID_INFO svcSidInfo;
-				svcSidInfo.dwServiceSidType = SERVICE_SID_TYPE_UNRESTRICTED;
-				if (!ChangeServiceConfig2(service, SERVICE_CONFIG_SERVICE_SID_INFO, &svcSidInfo))
-					success = false;
-			}
-
-			/* // Done via registry above
-			if(success)
-			{
-				SERVICE_DESCRIPTION svcDescription;
-				svcDescription.lpDescription = &(StringUTF8ToWString(GetServiceDesc()))[0];
-				if (!ChangeServiceConfig2(service, SERVICE_CONFIG_DESCRIPTION, &svcDescription))
-					success = false;
-			}
-			*/
-
-			if (success)
-			{
-				if (!StartService(service, 0, NULL))
-					success = false;
-			}
-
-			CloseServiceHandle(service);
-
-			if (success == false)
-				ServiceUninstallDirect();
-		}
-		CloseServiceHandle(serviceControlManager);
-	}
-
-	return success;
-}
-
-bool Impl::ServiceUninstallDirect()
-{
-	return ServiceDelete(GetServiceId());
-}
-
-bool Impl::ServiceUninstall()
-{
-	if (IsServiceInstalled())
-	{
-		std::string serviceId = GetServiceId();
-
-		if (GetLaunchMode() == "service")
-		{
-			// This is performed 'async' without wait the result, because launched from service itself.
-			// See comment in IBase::ServiceUninstallSupportRealtime
-			std::string path = FsLocateExecutable("sc.exe");
-			std::vector<std::string> args;
-			args.push_back("delete \"" + serviceId + "\"");
-			t_shellinfo info = ExecStart(path, args);
-
-			return true;
-		}
-		else
-		{
-			return ServiceUninstallDirect();
-		}
-	}
-	else
-		return false;
-}
-
-bool Impl::ServiceUninstallSupportRealtime()
-{
-	// See comment in base
-	return true;
-}
-
-
-
-int Impl::SetInterfaceMetric(const int index, const std::string layer, const int value)
-{
-	DWORD err = 0;
-
-	MIB_IPINTERFACE_ROW ipiface;
-	InitializeIpInterfaceEntry(&ipiface);
-	if (layer == "ipv4")
-		ipiface.Family = AF_INET;
-	else if (layer == "ipv6")
-		ipiface.Family = AF_INET6;
-	else
-		return -1;
-	ipiface.InterfaceIndex = index;
-	err = GetIpInterfaceEntry(&ipiface);
-	if (err == NO_ERROR)
-	{
-		if (ipiface.Family == AF_INET)
-			ipiface.SitePrefixLength = 0; // required for IPv4 as per MSDN
-		ipiface.Metric = value;
-		if (value == 0)
-			ipiface.UseAutomaticMetric = TRUE;
-		else
-			ipiface.UseAutomaticMetric = FALSE;
-		err = SetIpInterfaceEntry(&ipiface);
-		if (err == NO_ERROR)
-			return 0;
-	}
-
-	return err;
 }
 
 DWORD Impl::WfpInterfaceCreate(bool bDynamic)

@@ -111,7 +111,7 @@ namespace Eddie.Core
 				o = o.Replace("].", "]\\[char46]");
 
 				// Header
-				o = ".\\\"" + LanguageManager.GetText("ManHeaderComment") + "\n.TH eddie-ui 8 \"" + DateTime.UtcNow.ToString(CultureInfo.InvariantCulture) + "\"" + o;
+				o = ".\\\"" + LanguageManager.GetText("ManHeaderComment") + "\n.TH eddie-ui 8 \"" + DateTime.UtcNow.ToString(CultureInfo.InvariantCulture).EscapeQuote() + "\"" + o;
 
 				o = o.Replace("[sh]", "\n.SH ");
 				o = o.Replace("[/sh]", "\n");
@@ -203,6 +203,19 @@ namespace Eddie.Core
 			{
 				return m_options.ContainsKey(name);
 			}
+		}
+
+		public Option GetOption(string name)
+		{
+			if (Exists(name))
+			{
+				lock (m_options)
+				{
+					return m_options[name];
+				}
+			}
+
+			return null;
 		}
 
 		public string Get(string name)
@@ -490,6 +503,7 @@ namespace Eddie.Core
 			SetDefaultBool("network.ipv6.autoswitch", true, NotInMan);
 			SetDefault("network.gateways.default_skip_types", "text", "Loopback;Tunnel", NotInMan);
 			SetDefaultInt("network.mtu", -1, NotInMan);
+			SetDefault("network.iface.name", "text", "Eddie", LanguageManager.GetText("ManOptionNetworkIfaceName"));
 
 			SetDefault("tools.openvpn.path", "path_file", "", LanguageManager.GetText("ManOptionToolsOpenVpnPath"));
 			SetDefaultBool("tools.hummingbird.preferred", false, NotInMan);
@@ -501,7 +515,7 @@ namespace Eddie.Core
 			SetDefaultInt("http.timeout", 20, NotInMan);
 
 			SetDefaultBool("webui.enabled", true, NotInMan); // WebUI it's a Eddie 3.* feature not yet committed on GitHub.
-			SetDefault("webui.ip", "text", "127.0.0.1", NotInMan);
+			SetDefault("webui.ip", "text", "localhost", NotInMan);
 			SetDefaultInt("webui.port", 4649, NotInMan);
 
 			SetDefaultBool("external.rules.recommended", true, NotInMan);
@@ -516,11 +530,10 @@ namespace Eddie.Core
 			SetDefault("openvpn.directives.data-ciphers", "text", "AES-256-GCM:AES-256-CBC:AES-192-GCM:AES-192-CBC:AES-128-GCM:AES-128-CBC", NotInMan);
 			SetDefault("openvpn.directives.data-ciphers-fallback", "text", "AES-256-CBC", NotInMan);
 			SetDefaultBool("openvpn.directives.chacha20", false, NotInMan); // Temporary
-																			//SetDefaultBool("openvpn.allow.script-security", false, NotInMan);
 			SetDefaultBool("openvpn.skip_defaults", false, LanguageManager.GetText("ManOptionOpenVpnSkipDefaults"));
+			//SetDefaultBool("openvpn.allow.script-security", false, NotInMan);
 
-			SetDefault("wireguard.interface.name", "text", "EddieWG", LanguageManager.GetText("ManOptionWireGuardInterfaceName"));
-			SetDefaultBool("wireguard.interface.skip_commands", true, NotInMan); // Anyway are not implemented, // TOCLEAN
+			SetDefaultBool("wireguard.interface.skip_commands", true, NotInMan); // Anyway are not implemented in Eddie, keep for future.
 			SetDefaultInt("wireguard.peer.persistentkeepalive", 15, LanguageManager.GetText("ManOptionWireGuardPeerPersistentKeepalive"));
 			SetDefaultInt("wireguard.handshake.timeout.first", 50, NotInMan);
 			SetDefaultInt("wireguard.handshake.timeout.connected", 180 + 20, NotInMan); // To maintain the session a client must handshake at least once every 180 seconds
@@ -543,7 +556,7 @@ namespace Eddie.Core
 			SetDefaultInt("pinger.retry", 0, LanguageManager.GetText("ManOptionAdvancedPingerRetry"));
 			SetDefaultInt("pinger.jobs", 25, LanguageManager.GetText("ManOptionAdvancedPingerJobs"));
 			SetDefaultInt("pinger.valid", 0, LanguageManager.GetText("ManOptionAdvancedPingerValid"));
-			SetDefaultInt("pinger.timeout", 3, NotInMan);
+			SetDefaultInt("pinger.timeout", 3000, NotInMan);
 
 			SetDefaultInt("advanced.manifest.refresh", -1, NotInMan);
 			SetDefaultBool("advanced.providers", false, NotInMan);
@@ -564,6 +577,7 @@ namespace Eddie.Core
 			EnsureDefaultsEvent("vpn.down");
 
 			// Windows only			
+			SetDefaultBool("windows.adapters.cleanup", true, NotInMan);
 			SetDefault("windows.adapter_service", "text", "tap0901", LanguageManager.GetText("ManOptionWindowsAdapterService"));
 			SetDefaultBool("windows.disable_driver_upgrade", false, LanguageManager.GetText("ManOptionWindowsDisableDriverUpgrade"));
 			SetDefaultBool("windows.tap_up", true, LanguageManager.GetText("ManOptionWindowsTapUp"));

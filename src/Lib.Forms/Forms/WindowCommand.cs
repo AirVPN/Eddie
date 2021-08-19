@@ -26,7 +26,7 @@ using Eddie.Core;
 
 namespace Eddie.Forms.Forms
 {
-	public partial class WindowCommand : Eddie.Forms.Form
+	public partial class WindowCommand : Eddie.Forms.Skin.SkinForm
 	{
 		public String Command;
 

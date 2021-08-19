@@ -47,9 +47,6 @@
     <ClCompile Include="src\iwindows.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\yxml.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -59,13 +56,19 @@
     <ClCompile Include="..\App.CLI.Common.Elevated\sha256.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\App.CLI.Common.Elevated\ping.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\yxml.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="App.CLI.Windows.Elevated.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>
-  <ItemGroup>    
+  <ItemGroup>
     <Image Include="App.CLI.Windows.Elevated.ico">
       <Filter>Resource Files</Filter>
     </Image>

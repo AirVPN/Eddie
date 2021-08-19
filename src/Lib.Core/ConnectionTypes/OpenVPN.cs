@@ -130,13 +130,13 @@ namespace Eddie.Core.ConnectionTypes
 			}
 
 			int rcvbuf = options.GetInt("openvpn.rcvbuf");
-			if (rcvbuf == -2) rcvbuf = Platform.Instance.GetRecommendedRcvBufDirective();
+			if (rcvbuf == -2) rcvbuf = Platform.Instance.GetOpenVpnRecommendedRcvBufDirective();
 			if (rcvbuf == -2) rcvbuf = -1;
 			if (rcvbuf != -1)
 				m_configStartup.AppendDirective("rcvbuf", rcvbuf.ToString(), "");
 
 			int sndbuf = options.GetInt("openvpn.sndbuf");
-			if (sndbuf == -2) sndbuf = Platform.Instance.GetRecommendedSndBufDirective();
+			if (sndbuf == -2) sndbuf = Platform.Instance.GetOpenVpnRecommendedSndBufDirective();
 			if (sndbuf == -2) sndbuf = -1;
 			if (sndbuf != -1)
 				m_configStartup.AppendDirective("sndbuf", sndbuf.ToString(), "");
@@ -204,7 +204,7 @@ namespace Eddie.Core.ConnectionTypes
 					m_configStartup.AppendDirective("pull-filter", "ignore \"ifconfig-ipv6\"", "Client side");
 				}
 
-				if (Constants.FeatureAllRoutes == false)
+				if (Platform.Instance.GetUseOpenVpnRoutes())
 				{
 					SkipRouteAll = true; // Route All managed by OpenVPN
 
@@ -266,7 +266,7 @@ namespace Eddie.Core.ConnectionTypes
 
 				if (RouteAllIPv4)
 				{
-					if (Constants.FeatureAllRoutes == false)
+					if (Platform.Instance.GetUseOpenVpnRoutes())
 					{
 						m_configStartup.AppendDirective("redirect-gateway", "def1 bypass-dhcp", "");
 					}
@@ -304,6 +304,17 @@ namespace Eddie.Core.ConnectionTypes
 
 		public override void OnStart()
 		{
+			if (m_configStartup.ExistsDirective("windows-driver"))
+			{
+				string ifaceName = Core.Engine.Instance.Options.Get("network.iface.name");
+				if ((m_configStartup.GetOneDirectiveText("windows-driver") == "wintun") && (ifaceName != ""))
+				{
+					string wintunVersion = Core.Engine.Instance.Elevated.DoCommandSync("wintun-adapter-ensure", "pool", Constants.WintunPool, "name", ifaceName);
+					float wintunVersionN = Conversions.ToFloat(wintunVersion) / 100;
+					Engine.Instance.Logs.LogVerbose("Wintun version " + Conversions.ToString(wintunVersionN) + " for network interface '" + ifaceName + "'");
+				}
+			}
+
 			if (Transport == "SSH")
 			{
 				TransportStartProcessSSH();
@@ -638,17 +649,6 @@ namespace Eddie.Core.ConnectionTypes
 					Session.SetReset("ERROR");
 				}
 
-				/* // TOCLEAN, old management
-                if (message.IndexOfInv("MANAGEMENT: Socket bind failed on local address") != -1)
-                {
-                    Engine.Logs.Log(LogType.Verbose, LanguageManager.GetText("AutoPortSwitch"));
-
-                    Engine.Options.SetInt("openvpn.management_port", Engine.Options.GetInt("openvpn.management_port") + 1);
-
-                    SetReset("RETRY");
-                }
-                */
-
 				if (message.IndexOfInv("AUTH_FAILED") != -1)
 				{
 					Engine.Instance.CurrentServer.Provider.OnAuthFailed();
@@ -965,6 +965,16 @@ namespace Eddie.Core.ConnectionTypes
 
 		}
 
+		public override void EnsureDriver()
+		{
+			if (Engine.Instance.Options.GetBool("advanced.skip_tun_detect") == false)
+			{
+				string driverRequested = Platform.Instance.GetConnectionTunDriver(this);
+				Engine.Instance.WaitMessageSet(LanguageManager.GetText("OsDriverInstall", driverRequested), false);
+				Platform.Instance.OpenVpnEnsureDriverAndAdapterAvailable(driverRequested);
+			}
+		}
+
 		public override IpAddresses GetDns()
 		{
 			if (Engine.Instance.Options.GetBool("dns.delegate"))
@@ -1235,7 +1245,7 @@ namespace Eddie.Core.ConnectionTypes
 
 			m_processTransport = new Process();
 			m_processTransport.StartInfo.FileName = Software.GetTool("ssl").Path;
-			m_processTransport.StartInfo.Arguments = "\"" + Encoding.Default.GetString(Encoding.UTF8.GetBytes(sslConfigPath)) + "\""; // encoding workaround, stunnel expect utf8
+			m_processTransport.StartInfo.Arguments = "\"" + Encoding.Default.GetString(Encoding.UTF8.GetBytes(sslConfigPath)).EscapeQuote() + "\""; // encoding workaround, stunnel expect utf8
 			m_processTransport.StartInfo.WorkingDirectory = Platform.Instance.DirectoryTemp();
 
 			m_processTransport.StartInfo.Verb = "run";

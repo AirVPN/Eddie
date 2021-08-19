@@ -32,6 +32,7 @@ namespace Eddie.Platform.Linux
 {
 	public class Platform : Core.Platform
 	{
+		private string m_name = "";
 		private string m_version = "";
 		private string m_architecture = "";
 
@@ -70,16 +71,11 @@ namespace Eddie.Platform.Linux
 			return "Linux";
 		}
 
-		// TOCLEAN
-		/*
+
 		public override string GetName()
 		{
-			if (Platform.Instance.FileExists("/etc/issue"))
-				return FileContentsReadText("/etc/issue").Replace("\n", "").Replace("\r", " - ").Trim();
-			else
-				return base.GetName();
+			return m_name;
 		}
-		*/
 
 		public override string GetVersion()
 		{
@@ -95,7 +91,17 @@ namespace Eddie.Platform.Linux
 		{
 			base.OnInit();
 
-			m_version = SystemExec.Exec1(LocateExecutable("uname"), "-a");
+			if (Platform.Instance.FileExists("/etc/os-release"))
+			{
+				string osrelease = FileContentsReadText("/etc/os-release");
+
+				m_name = osrelease.RegExMatchOne("NAME=\\\"(.+?)\\\"");
+				m_version = osrelease.RegExMatchOne("VERSION=\\\"(.+?)\\\"");
+			}
+
+			if (m_version == "")
+				m_version = SystemExec.Exec1(LocateExecutable("uname"), "-a");
+
 			m_architecture = NormalizeArchitecture(SystemExec.Exec1(LocateExecutable("uname"), "-m").Trim());
 
 			try
@@ -522,16 +528,6 @@ namespace Eddie.Platform.Linux
 			return (NativeMethods.Kill(process.Id, (int)NativeMethods.Signum.SIGTERM) == 0);
 		}
 
-		public override int GetRecommendedRcvBufDirective()
-		{
-			return base.GetRecommendedRcvBufDirective();
-		}
-
-		public override int GetRecommendedSndBufDirective()
-		{
-			return base.GetRecommendedSndBufDirective();
-		}
-
 		public override bool FetchUrlInternal()
 		{
 			return false;  // See comment in Lib.Platform.Native/build.sh
@@ -569,13 +565,13 @@ namespace Eddie.Platform.Linux
 
 		// This works, but we use base to avoid shell
 		/*
-        public override long Ping(IpAddress host, int timeoutSec)
+        public override long Ping(IpAddress ip, int timeoutMs)
         {
-            if ((host == null) || (host.Valid == false))
+            if ((ip == null) || (ip.Valid == false))
                 return -1;
 
             // <2.17.3, require root
-            //return NativeMethods.PingIP(host.ToString(), timeoutSec * 1000);
+            //return NativeMethods.PingIP(ip.ToString(), timeoutMs);
 
             {
                 float iMS = -1;
@@ -589,7 +585,7 @@ namespace Eddie.Platform.Linux
                     exec.Arguments.Add("-w " + timeoutSec.ToString());
                     exec.Arguments.Add("-q");
                     exec.Arguments.Add("-n");
-                    exec.Arguments.Add(host.Address);
+                    exec.Arguments.Add(ip.Address);
                     exec.NoDebugLog = true;
 
                     if (exec.Run())
@@ -632,7 +628,7 @@ namespace Eddie.Platform.Linux
 				c.Parameters["metric"] = jRoute["metric"].ValueString;
 			Engine.Instance.Elevated.DoCommandSync(c);
 		}
-		
+
 		public override IpAddresses ResolveDNS(string host)
 		{
 			IpAddresses result = new IpAddresses();
@@ -940,16 +936,6 @@ namespace Eddie.Platform.Linux
 			return true;
 		}
 
-		public override string GetDriverVersion(string driver)
-		{
-			if (Platform.Instance.FileExists("/dev/net/tun"))
-				return "/dev/net/tun";
-			else if (Platform.Instance.FileExists("/dev/tun"))
-				return "/dev/tun";
-
-			return "";
-		}
-
 		public override void OnJsonNetworkInfo(Json jNetworkInfo)
 		{
 			base.OnJsonNetworkInfo(jNetworkInfo);
@@ -977,7 +963,7 @@ namespace Eddie.Platform.Linux
 				}
 			}
 		}
-		
+
 		public override string OsCredentialSystemName()
 		{
 			string secretToolPath = LocateExecutable("secret-tool");
@@ -1043,6 +1029,16 @@ namespace Eddie.Platform.Linux
 			list.Add("/root/bin");
 
 			return list;
+		}
+
+		public override string OpenVpnGetDriverVersion(string driver)
+		{
+			if (Platform.Instance.FileExists("/dev/net/tun"))
+				return "/dev/net/tun";
+			else if (Platform.Instance.FileExists("/dev/tun"))
+				return "/dev/tun";
+
+			return "";
 		}
 
 		public string GetDnsSwitchMode()

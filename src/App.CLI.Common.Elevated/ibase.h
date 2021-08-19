@@ -26,9 +26,11 @@
 // Platform specific
 // Note: path are always std::string utf8. In Windows, are converted to wstring when need.
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
+#define EDDIE_PLATFORM_WINDOWS
 #include "Windows.h"
 typedef long pid_t;
 typedef unsigned int uint;
+typedef unsigned long ulong;
 typedef SOCKET HSOCKET;
 typedef int socklen_t;
 const std::string FsPathSeparator = "\\";
@@ -39,7 +41,28 @@ const std::string FsPathSeparator = "/";
 const std::string FsEndLine = "\n";
 #endif
 
-class ExecResult;
+#include "ping.h"
+
+class IBase;
+
+class Pinger : public PingEngine
+{
+protected:
+	virtual void OnResponse(const int& id, const int& result);
+
+public:
+	IBase* m_pBase = NULL;
+	std::string m_commandId;
+};
+
+class ExecResult
+{
+public:
+
+	std::string out;
+	std::string err;
+	int exit = 1;
+};
 
 class IBase
 {
@@ -49,12 +72,14 @@ private:
 
 	std::string m_session_key;
 	std::mutex m_mutex_inout;
+	std::mutex m_mutex_cout;
 	HSOCKET m_sockClient = 0;
 	bool m_debug = false;
-	time_t m_lastModified;
+	time_t m_lastModified = 0;
 	std::map<pid_t, bool> m_pidManaged;
 	std::string m_launchMode;
 	bool m_singleConnMode = false;
+	Pinger m_pinger;
 
 protected:
 	std::map<std::string, std::string> m_cmdline;
@@ -76,6 +101,9 @@ protected:
 	void LogDebug(const std::string& msg);
 	void LogDevDebug(const std::string& msg);
 	void ReplyPID(int pid);
+
+	// Engine, Public
+public:
 	void ReplyCommand(const std::string& commandId, const std::string& data);
 
 	// Engine, Private
@@ -83,7 +111,6 @@ private:
 	void ReplyException(const std::string& id, const std::string& message);
 	void EndCommand(const std::string& id);
 	void SendMessage(const std::string& message);
-
 
 	// Virtual
 protected:
@@ -100,6 +127,7 @@ protected:
 	virtual bool ServiceUninstall();
 	virtual bool ServiceReinstall();
 	virtual bool ServiceUninstallSupportRealtime();
+	virtual bool FullUninstall();
 
 	virtual std::string GetProcessPathCurrent();
 	virtual std::string GetProcessPathCurrentDir();
@@ -114,7 +142,6 @@ protected:
 	virtual bool IsRoot() = 0;
 	virtual void Sleep(int ms) = 0;
 	virtual uint64_t GetTimestampUnixUsec() = 0;
-	virtual int Ping(const std::string& host, const int timeout) = 0;
 	virtual pid_t GetCurrentProcessId() = 0;
 	virtual pid_t GetParentProcessId() = 0;
 	virtual pid_t GetParentProcessId(pid_t pid) = 0;
@@ -153,7 +180,6 @@ protected:
 	bool FsFileWriteText(const std::string& path, const std::string& body);
 	bool FsFileAppendText(const std::string& path, const std::string& body);
 	std::string FsFileGetDirectory(const std::string& path);
-
 	std::string FsFileSHA256Sum(const std::string& path);
 	std::string FsLocateExecutable(const std::string& name, const bool throwException = true);
 
@@ -175,11 +201,16 @@ protected:
 	std::string StringTrim(const std::string& s);
 	std::string StringToLower(const std::string& s);
 	std::string StringPruneCharsNotIn(const std::string& str, const std::string& allowed);
-	std::string StringEnsureSecure(const std::string& str);
+	std::string StringEnsureAlphaNumeric(const std::string& str);
+	std::string StringEnsureHex(const std::string& str);
+	std::string StringEnsureIntegrity(const std::string& str);
 	std::string StringEnsureCidr(const std::string& str);
+	std::string StringEnsureFileName(const std::string& str);
+	std::string StringEnsureDirectoryName(const std::string& str);
 	std::string StringEnsureInterfaceName(const std::string& str);
 	std::string StringEnsureIpAddress(const std::string& str);
 	std::string StringEnsureNumericInt(const std::string& str);
+	std::string StringEnsureQuote(const std::string& str);
 	std::string StringBase64Encode(const std::string& str);
 	std::string StringBase64Decode(const std::string& str);
 	std::string StringXmlEncode(const std::string& str);
@@ -221,13 +252,8 @@ protected:
 	ExecResult ExecEx8(const std::string& path, const std::string& arg1, const std::string& arg2, const std::string& arg3, const std::string& arg4, const std::string& arg5, const std::string& arg6, const std::string& arg7, const std::string& arg8);
 };
 
-class ExecResult
-{
-public:
 
-	std::string out;
-	std::string err;
-	int exit = 1;
-};
+
+
 
 void ThreadCommand(IBase* impl, const std::string id, const std::string command, std::map<std::string, std::string> params);

@@ -187,7 +187,7 @@ namespace Eddie.Core.ConnectionTypes
 			// TOFIX: Remember, if i use a generic ovpn with hostname, EntryIp will be empty here, because valorized after
 
 			// The AddRoute(EntryIP, "net_gateway", "EntryIP"), wg-quick implement it with fwmark in Linux. Here we simply route the EntryIP for simplicity between OS
-			
+
 			if (SkipRouteAll == false)
 			{
 				string routeCatchAllMode = Engine.Instance.Options.Get("routes.catch_all_mode");
@@ -245,7 +245,7 @@ namespace Eddie.Core.ConnectionTypes
 				AddRoute(ip, "vpn_gateway", "For Checking Route");
 			}
 
-			if (Constants.FeatureAllRoutes)
+			if (Platform.Instance.GetUseOpenVpnRoutes() == false)
 				AddRoute(EntryIP, "net_gateway", "IP Entry");
 
 			string routes = Engine.Instance.Options.Get("routes.custom");
@@ -372,6 +372,11 @@ namespace Eddie.Core.ConnectionTypes
 
 		public virtual void OverrideElevatedCommandParameters()
 		{
+		}
+
+		public virtual void EnsureDriver()
+		{
+
 		}
 
 		public virtual IpAddresses GetDns()

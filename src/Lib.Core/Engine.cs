@@ -57,6 +57,7 @@ namespace Eddie.Core
 		private LogsManager m_logsManager;
 		private JobsManager m_jobsManager;
 		private NetworkLockManager m_networkLockManager;
+		private PingManager m_pingManager;
 		private Webserver m_webserver;
 		private Elevated.IElevated m_elevated;
 
@@ -174,6 +175,14 @@ namespace Eddie.Core
 			}
 		}
 
+		public PingManager PingManager
+		{
+			get
+			{
+				return m_pingManager;
+			}
+		}
+
 		public Webserver Webserver
 		{
 			get
@@ -241,7 +250,11 @@ namespace Eddie.Core
 		{
 			try
 			{
-				LanguageManager.Init();
+				if (LanguageManager.Init() == false)
+				{
+					Logs.Log(LogType.Fatal, "Fatal: Unable to locate resources files in " + GetPathResources());
+					return false;
+				}
 
 				StartCommandLine.Init();
 
@@ -334,7 +347,11 @@ namespace Eddie.Core
 				// Providers
 				UiManager.Broadcast("init.step", "message", LanguageManager.GetText("InitStepLoadingProviders"));
 				m_providersManager = new ProvidersManager();
-				m_providersManager.Init();
+				if (m_providersManager.Init() == false)
+				{
+					Logs.Log(LogType.Fatal, "Fatal: Unable to initialize at least one provider.");
+					return false;
+				}
 
 				CountriesManager.Init();
 
@@ -419,6 +436,9 @@ namespace Eddie.Core
 
 				m_networkLockManager = new NetworkLockManager();
 				m_networkLockManager.Init();
+
+				m_pingManager = new PingManager();
+				m_pingManager.Init();
 
 				UiManager.Broadcast("init.step", "message", LanguageManager.GetText("InitStepCheckingSoftware"));
 				Software.Checking();
@@ -621,6 +641,12 @@ namespace Eddie.Core
 			{
 				m_networkLockManager.Deactivation(true);
 				m_networkLockManager = null;
+			}
+
+			if (m_pingManager != null)
+			{
+				m_pingManager.Stop();
+				m_pingManager = null;
 			}
 
 			if (m_webserver != null)
@@ -1532,7 +1558,7 @@ namespace Eddie.Core
 				Logs.Log(LogType.Info, message);
 
 				//Log(LogType.Verbose, "Start Running event '" + name + "', Command: '" + filename + "', Arguments: '" + arguments + "'");
-				SystemExec.ExecUserEvent(filename, arguments, waitEnd);
+				SystemExec.ExecForUserEvent(filename, arguments, waitEnd);
 				//Log(LogType.Verbose, "End Running event '" + name + "', Command: '" + filename + "', Arguments: '" + arguments + "'");
 			}
 		}
@@ -2014,7 +2040,7 @@ namespace Eddie.Core
 			{
 				Json jAbout = new Json();
 				Manifest["about"].Value = jAbout;
-				jAbout["license"].Value = Platform.Instance.FileContentsReadText(LocateResource("license.txt"));
+				jAbout["license"].Value = Platform.Instance.FileContentsReadText(LocateResource("gpl3.txt"));
 				jAbout["libraries"].Value = Platform.Instance.FileContentsReadText(LocateResource("libraries.txt"));
 				jAbout["thanks"].Value = Constants.Thanks;
 

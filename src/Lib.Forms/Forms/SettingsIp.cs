@@ -23,10 +23,11 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using Eddie.Core;
+using Eddie.Forms.Skin;
 
 namespace Eddie.Forms.Forms
 {
-	public partial class SettingsIp : Eddie.Forms.Form
+	public partial class SettingsIp : Eddie.Forms.Skin.SkinForm
 	{
 		public String Ip;
 
@@ -48,7 +49,7 @@ namespace Eddie.Forms.Forms
 
 			txtIP.Font = Skin.FontMono;
 
-			GuiUtils.FixHeightVs(txtIP, lblIP);
+			SkinUtils.FixHeightVs(txtIP, lblIP);
 		}
 
 		protected override void OnLoad(EventArgs e)
