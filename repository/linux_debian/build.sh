@@ -56,9 +56,9 @@ cp ${SCRIPTDIR}/../../deploy/linux_${ARCH}/* $TARGETDIR/usr/lib/eddie-${PROJECT}
 # Resources
 cp -r ${SCRIPTDIR}/bundle/eddie-${PROJECT}/* ${TARGETDIR}
 
-# Add changelog
+# Add changelog (-k because used in old Debian that have LetsEncrypt CA issues)
 mkdir -p $TARGETDIR/usr/share/doc/eddie-${PROJECT}
-curl "https://eddie.website/changelog/?software=client&format=debian&hidden=yes" -o $TARGETDIR/usr/share/doc/eddie-${PROJECT}/changelog
+curl -k "https://eddie.website/changelog/?software=client&format=debian&hidden=yes" -o $TARGETDIR/usr/share/doc/eddie-${PROJECT}/changelog
 gzip -n -9 $TARGETDIR/usr/share/doc/eddie-${PROJECT}/changelog
 
 # Auto-call to make man

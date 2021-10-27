@@ -35,8 +35,8 @@ namespace Eddie.Core
 		public enum UserListType
 		{
 			None = 0,
-			Whitelist = 1,
-			Blacklist = 2
+			Allowlist = 1,
+			Denylist = 2
 		}
 
 		public UserListType UserList = UserListType.None;

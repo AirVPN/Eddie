@@ -70,8 +70,6 @@ namespace Eddie.Core.Tools
 
 			ExceptionIfRequired();
 
-			ProgramScope programScope = new ProgramScope(this.GetPath(), "curl");
-
 			// Don't use proxy if connected to the VPN, or in special cases (checking) during connection.
 			bool bypassProxy = request.BypassProxy;
 			if (bypassProxy == false)
@@ -261,8 +259,6 @@ namespace Eddie.Core.Tools
 			{
 				error = ex.Message;
 			}
-
-			programScope.End();
 
 			if (error != "")
 				throw new Exception(error.Trim());

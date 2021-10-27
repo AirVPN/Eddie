@@ -77,23 +77,7 @@ namespace Eddie.Core
 					}
 				}
 			}
-
-			// WireGuard
-			if (Platform.Instance.GetSupportWireGuard())
-			{
-				if (Engine.Instance.IsLogged())
-				{
-					if (Engine.Instance.AirVPN != null)
-					{
-						if (Engine.Instance.AirVPN.User.GetAttributeString("wg_public_key", "") == "")
-						{
-							Engine.Instance.ReAuth();
-						}
-					}
-				}
-			}
 		}
-
 		public static void FixOptions(Dictionary<string, string> options)
 		{
 			if (options.ContainsKey("mode.protocol"))
@@ -243,6 +227,30 @@ namespace Eddie.Core
 					value = "all";
 				else
 					value = "auto";
+			}
+			else if (name == "servers.whitelist")
+			{
+				name = "servers.allowlist";
+			}
+			else if (name == "servers.blacklist")
+			{
+				name = "servers.denylist";
+			}
+			else if (name == "areas.whitelist")
+			{
+				name = "areas.allowlist";
+			}
+			else if (name == "areas.blacklist")
+			{
+				name = "areas.denylist";
+			}
+			else if (name == "netlock.whitelist.incoming.ips")
+			{
+				name = "netlock.allowlist.incoming.ips";
+			}
+			else if (name == "netlock.whitelist.outgoing.ips")
+			{
+				name = "netlock.allowlist.outgoing.ips";
 			}
 
 #if (EDDIE3)

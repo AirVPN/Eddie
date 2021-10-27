@@ -125,7 +125,6 @@ namespace Eddie.Core
 
 			Add("Test Ping IPv4", TestPing(Constants.WebSiteIPv4));
 			Add("Test Ping IPv6", TestPing(Constants.WebSiteIPv6));
-			Add("Test Ping IPv6", TestPing("2a03:b0c0:2:d0::11b4:6009"));
 
 			Add("Test HTTP IPv4", TestUrl("http://" + Constants.WebSiteIPv4 + "/test/"));
 			Add("Test HTTP IPv6", TestUrl("http://[" + Constants.WebSiteIPv6 + "]/test/"));

@@ -331,10 +331,10 @@ namespace Eddie.UI.Cocoa.Osx
 		AppKit.NSTextField TxtHummingbirdPath { get; set; }
 
 		[Outlet]
-		AppKit.NSTextField TxtLockWhiteListIncomingIPs { get; set; }
+		AppKit.NSTextField TxtLockAllowlistIncomingIPs { get; set; }
 
 		[Outlet]
-		AppKit.NSTextField TxtLockWhiteListOutgoingIPs { get; set; }
+		AppKit.NSTextField TxtLockAllowlistOutgoingIPs { get; set; }
 
 		[Outlet]
 		AppKit.NSTextField TxtLoggingComputedPath { get; set; }
@@ -901,14 +901,14 @@ namespace Eddie.UI.Cocoa.Osx
 				TxtHummingbirdPath = null;
 			}
 
-			if (TxtLockWhiteListIncomingIPs != null) {
-				TxtLockWhiteListIncomingIPs.Dispose ();
-				TxtLockWhiteListIncomingIPs = null;
+			if (TxtLockAllowlistIncomingIPs != null) {
+				TxtLockAllowlistIncomingIPs.Dispose ();
+				TxtLockAllowlistIncomingIPs = null;
 			}
 
-			if (TxtLockWhiteListOutgoingIPs != null) {
-				TxtLockWhiteListOutgoingIPs.Dispose ();
-				TxtLockWhiteListOutgoingIPs = null;
+			if (TxtLockAllowlistOutgoingIPs != null) {
+				TxtLockAllowlistOutgoingIPs.Dispose ();
+				TxtLockAllowlistOutgoingIPs = null;
 			}
 
 			if (TxtLoggingComputedPath != null) {

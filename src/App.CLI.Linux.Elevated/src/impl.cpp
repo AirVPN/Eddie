@@ -310,19 +310,19 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 			// Backup of current
 			std::vector<std::string> args;
 
-			ExecResult shellResultBackup = ExecEx2(nft, "list", "ruleset");
-			if (shellResultBackup.exit != 0)
-				ThrowException("nft issue: " + GetExecResultDump(shellResultBackup));
+			ExecResult execResultBackup = ExecEx2(nft, "list", "ruleset");
+			if (execResultBackup.exit != 0)
+				ThrowException("nft issue: " + GetExecResultDump(execResultBackup));
 
-			FsFileWriteText(pathBackup, shellResultBackup.out);
+			FsFileWriteText(pathBackup, execResultBackup.out);
 
 			// Apply new
 			std::string path = GetTempPath("netlock_nftables_apply.nft");
 			FsFileWriteText(path, params["rules"]);
-			ExecResult shellResultApply = ExecEx2(nft, "-f", path);
+			ExecResult execResultApply = ExecEx2(nft, "-f", path);
 			FsFileDelete(path);
-			if (shellResultApply.exit != 0)
-				ThrowException("nft issue: " + GetExecResultDump(shellResultApply));
+			if (execResultApply.exit != 0)
+				ThrowException("nft issue: " + GetExecResultDump(execResultApply));
 		}
 
 		ReplyCommand(commandId, StringTrim(result));
@@ -334,15 +334,15 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 
 		if (FsFileExists(path))
 		{
-			ExecResult shellResultFlush = ExecEx2(nft, "flush", "ruleset");
-			if (shellResultFlush.exit != 0)
-				ThrowException("nft issue: " + GetExecResultDump(shellResultFlush));
+			ExecResult execResultFlush = ExecEx2(nft, "flush", "ruleset");
+			if (execResultFlush.exit != 0)
+				ThrowException("nft issue: " + GetExecResultDump(execResultFlush));
 
-			ExecResult shellResultRestore = ExecEx2(nft, "-f", path);
+			ExecResult execResultRestore = ExecEx2(nft, "-f", path);
 			FsFileDelete(path);
 
-			if (shellResultRestore.exit != 0)
-				ThrowException("nft issue: " + GetExecResultDump(shellResultRestore));
+			if (execResultRestore.exit != 0)
+				ThrowException("nft issue: " + GetExecResultDump(execResultRestore));
 		}
 	}
 	else if (command == "netlock-nftables-accept-ip")
@@ -432,14 +432,96 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 			else
 				args = &args2;
 
-			ExecResult shellResultRule = ExecEx(nft, *args);
-			if (shellResultRule.exit != 0)
-				ThrowException("nft issue: " + GetExecResultDump(shellResultRule));
+			ExecResult execResultRule = ExecEx(nft, *args);
+			if (execResultRule.exit != 0)
+				ThrowException("nft issue: " + GetExecResultDump(execResultRule));
 
-			output += GetExecResultDump(shellResultRule) + "\n";
+			output += GetExecResultDump(execResultRule) + "\n";
 		}
 
 		ReplyCommand(commandId, StringTrim(output));
+	}
+	else if (command == "netlock-nftables-interface")
+	{
+		std::string nft = FsLocateExecutable("nft");
+
+		ExecResult execRulesList = ExecEx4(nft, "list", "ruleset", "-n", "-a"); // To obtain handles for insert/delete
+		if (execRulesList.exit != 0)
+			ThrowException("nft issue: " + GetExecResultDump(execRulesList));
+		
+		std::string id = StringEnsureInterfaceName(params["id"]);
+		std::string action = params["action"];
+		
+		std::vector<std::string> layers;
+		if(params["ipv4"] == "1")
+			layers.push_back("ip");
+		if(params["ipv6"] == "1")
+			layers.push_back("ip6");
+
+		std::vector<std::string> filters;
+		filters.push_back("INPUT");
+		filters.push_back("FORWARD");
+		filters.push_back("OUTPUT");
+		
+		for (std::vector<std::string>::const_iterator l = layers.begin(); l != layers.end(); ++l)
+		{
+			std::string layer = *l;
+
+			for (std::vector<std::string>::const_iterator f = filters.begin(); f != filters.end(); ++f)
+			{
+				std::string filter = *f;
+
+				if(action == "add")
+				{
+					std::string commentSearch = "eddie_" + layer + "_filter_" + filter + "_latest_rule";
+					std::string handle = NftablesSearchHandle(execRulesList.out, commentSearch);
+					if(handle == "")
+						ThrowException("nft issue: expected rule with comment '" + commentSearch + "' not found");
+
+					std::vector<std::string> args;					
+					args.push_back("insert");
+					args.push_back("rule");					
+					args.push_back(layer);
+					args.push_back("filter");
+					args.push_back(filter);
+					args.push_back("position");
+					args.push_back(handle);					
+					if(filter == "INPUT")
+						args.push_back("iifname");
+					else if(filter == "FORWARD")
+						args.push_back("iifname");
+					else if(filter == "OUTPUT")
+						args.push_back("oifname");
+					args.push_back(id);					
+					args.push_back("counter");
+					args.push_back("accept");
+					args.push_back("comment");
+					args.push_back("eddie_" + layer + "_filter_" + filter + "_interface_" + id);
+
+					ExecResult execRule = ExecEx(nft, args);					
+					if (execRule.exit != 0)
+						ThrowException("nft issue: " + GetExecResultDump(execRule));
+				}
+				else if(action == "del")
+				{
+					std::string commentSearch = "eddie_" + layer + "_filter_" + filter + "_interface_" + id;
+					std::string handle = NftablesSearchHandle(execRulesList.out, commentSearch);
+					if(handle != "") // Already removed?
+					{
+						std::vector<std::string> args;
+						args.push_back("delete");
+						args.push_back("rule");
+						args.push_back(layer);					
+						args.push_back("filter");
+						args.push_back(filter);
+						args.push_back("handle");
+						args.push_back(handle);									
+					
+						ExecEx(nft, args); // Ignore if fail
+					}					
+				}
+			}
+		}
 	}
 	else if (command == "netlock-iptables-available")
 	{
@@ -668,97 +750,74 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 
 		ReplyCommand(commandId, StringTrim(output));
 	}
+	else if (command == "netlock-iptables-interface")
+	{
+		std::string id = StringEnsureInterfaceName(params["id"]);
+		std::string action = params["action"];
+		
+		std::vector<std::string> layers;
+		if(params["ipv4"] == "1")
+			layers.push_back("ipv4");
+		if(params["ipv6"] == "1")
+			layers.push_back("ipv6");
+		
+		for (std::vector<std::string>::const_iterator l = layers.begin(); l != layers.end(); ++l)
+		{
+			std::string layer = *l;
+			if(action == "add")
+			{
+				std::vector<std::string> args;
+				args.push_back("-I");
+				args.push_back("?");
+				args.push_back("1");
+				args.push_back("?");
+				args.push_back(id);
+				args.push_back("-j");
+				args.push_back("ACCEPT");
+				
+				args[1] = "INPUT";
+				args[3] = "-i";
+				IptablesExec(IptablesExecutable(layer,""), args, false, "");
+				
+				args[1] = "FORWARD";
+				args[3] = "-i";
+				IptablesExec(IptablesExecutable(layer,""), args, false, "");
+				
+				args[1] = "OUTPUT";
+				args[3] = "-o";
+				IptablesExec(IptablesExecutable(layer,""), args, false, "");
+			}
+			else if(action == "del")
+			{
+				std::vector<std::string> args;
+				args.push_back("-D");
+				args.push_back("?");
+				args.push_back("?");
+				args.push_back(id);
+				args.push_back("-j");
+				args.push_back("ACCEPT");
+				
+				args[1] = "INPUT";
+				args[2] = "-i";
+				IptablesExec(IptablesExecutable(layer,""), args, false, "");
+				
+				args[1] = "FORWARD";
+				args[2] = "-i";
+				IptablesExec(IptablesExecutable(layer,""), args, false, "");
+				
+				args[1] = "OUTPUT";
+				args[2] = "-o";
+				IptablesExec(IptablesExecutable(layer,""), args, false, "");
+			}
+		}
+	}
 	else if (command == "route-list")
 	{
-		// TODO: WIP on GetRoutesAsJson and replace
+		// TODO: WIP on GetRoutesAsJsonNew and replace
 
-		int n = 0;
-		std::string json;
+		std::string json = GetRoutesAsJson();
 
-		std::string list;
-		ExecResult listIPv4 = ExecEx3(FsLocateExecutable("ip"), "-4", "route", "show");
-		if (listIPv4.exit == 0)
-			list += listIPv4.out + "\n";
-
-		ExecResult listIPv6 = ExecEx3(FsLocateExecutable("ip"), "-6", "route", "show");
-		if (listIPv6.exit == 0)
-			list += listIPv6.out + "\n";
-
-		std::vector<std::string> lines = StringToVector(list, '\n');
-		for (std::vector<std::string>::const_iterator i = lines.begin(); i != lines.end(); ++i)
-		{
-			std::string line = StringTrim(*i);
-
-			std::map<std::string, std::string> keypairs;
-			std::vector<std::string> fields = StringToVector(line, ' ', true);
-
-			if (fields.size() > 0)
-			{
-				keypairs["destination"] = fields[0];
-				fields.erase(fields.begin());
-			}
-			while (fields.size() > 1)
-			{
-				std::string k = fields[0];
-				fields.erase(fields.begin());
-				std::string v = fields[0];
-				fields.erase(fields.begin());
-				keypairs[StringToLower(k)] = v;
-			}
-
-			// Adapt
-			if (keypairs.find("destination") != keypairs.end())
-			{
-				if (keypairs["destination"] == "default")
-				{
-					if (keypairs.find("via") != keypairs.end())
-					{
-						if (StringIsIPv4(keypairs["via"]))
-							keypairs["destination"] = "0.0.0.0/0";
-						else if (StringIsIPv6(keypairs["via"]))
-							keypairs["destination"] = "::/0";
-					}
-				}
-				else if (StringContain(keypairs["destination"], "/") == false)
-				{
-					// Always full CIDR notation
-					if (StringIsIPv4(keypairs["destination"]))
-						keypairs["destination"] = keypairs["destination"] + "/32";
-					else if (StringIsIPv6(keypairs["destination"]))
-						keypairs["destination"] = keypairs["destination"] + "/128";
-				}
-				keypairs["destination"] = StringIpRemoveInterface(keypairs["destination"]);
-			}
-			if (keypairs.find("via") != keypairs.end())
-			{
-				keypairs["gateway"] = StringIpRemoveInterface(keypairs["via"]);
-				keypairs.erase("via");
-			}
-			if (keypairs.find("dev") != keypairs.end())
-			{
-				keypairs["interface"] = keypairs["dev"];
-				keypairs.erase("dev");
-			}
-
-			// Build JSON
-			if (n > 0)
-				json += ",\n";
-			json += "{";
-			int f = 0;
-			for (std::map<std::string, std::string>::iterator it = keypairs.begin(); it != keypairs.end(); ++it)
-			{
-				std::string k = it->first;
-				std::string v = it->second;
-				if (f > 0)
-					json += ",";
-				json += "\"" + k + "\":\"" + v + "\"";
-				f++;
-			}
-			json += "}";
-			n++;
-		}
-
-		ReplyCommand(commandId, "[" + json + "]");
+		ReplyCommand(commandId, json);
 	}
 	else if (command == "route")
 	{
@@ -787,9 +846,9 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 			args.push_back(StringEnsureNumericInt(params["metric"]));
 		}
 
-		ExecResult shellResult = ExecEx(FsLocateExecutable("ip"), args);
-		if (shellResult.exit != 0)
-			ThrowException(GetExecResultDump(shellResult));
+		ExecResult execResult = ExecEx(FsLocateExecutable("ip"), args);
+		if (execResult.exit != 0)
+			ThrowException(GetExecResultDump(execResult));
 	}
 	else if (command == "wireguard-version")
 	{
@@ -838,8 +897,16 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 					ExecEx4(ipPath, "link", "delete", "dev", interfaceId);
 
 				// Configure WireGuard Peer
+				/*
+				// Prefer old syntax for more compiler support
+				wg_peer wgPeer = {
+					.flags = wg_peer_flags(0)
+				};
+				*/
 				wg_peer wgPeer;
+				memset(&wgPeer, 0, sizeof wgPeer);
 				wgPeer.flags = wg_peer_flags(0);
+				
 				if (configmap.find("peer.publickey") != configmap.end())
 				{
 					wgPeer.flags = wg_peer_flags(wgPeer.flags | WGPEER_HAS_PUBLIC_KEY);
@@ -891,8 +958,16 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 				}
 
 				// Configure WireGuard Device
+				/*
+				// Prefer old syntax for more compiler support
+				wg_device wgDevice = {
+					.flags = wg_device_flags(0)
+				};
+				*/
 				wg_device wgDevice;
-				wgDevice.flags = wg_device_flags(0);
+				memset(&wgDevice, 0, sizeof wgDevice);
+				wgDevice.flags = wg_device_flags(0);				
+
 				strcpy(wgDevice.name, interfaceId.c_str());
 				// WGDEVICE_HAS_PUBLIC_KEY ?
 				if (configmap.find("interface.privatekey") != configmap.end())
@@ -956,6 +1031,8 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 
 				ReplyCommand(commandId, "log:setup-complete");
 
+				ReplyCommand(commandId, "log:setup-interface");
+
 				unsigned long handshakeStart = GetTimestampUnix();
 				unsigned long handshakeLast = 0;
 
@@ -967,7 +1044,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 					{
 						if (handshakeLast == 0)
 						{
-							// First
+							// First							
 							ReplyCommand(commandId, "log:handshake-first");
 						}
 
@@ -1290,7 +1367,103 @@ std::string Impl::IptablesExec(const std::string& path, const std::vector<std::s
 	return output;
 }
 
+std::string Impl::NftablesSearchHandle(const std::string& rulesList, const std::string& comment)
+{
+	size_t commentPos = rulesList.find(comment);
+	if (commentPos == std::string::npos)
+		return "";
+	size_t handlePos = rulesList.find("# handle", commentPos);
+	if (handlePos == std::string::npos)
+		return "";
+	handlePos += 9;
+	size_t handleEndPos = rulesList.find("\n", handlePos);
+	if (handleEndPos == std::string::npos)
+		return "";
+
+	return rulesList.substr(handlePos, handleEndPos-handlePos);
+}
+
 std::string Impl::GetRoutesAsJson()
+{
+	int n = 0;
+	std::string json;
+
+	std::string list;
+	ExecResult listIPv4 = ExecEx3(FsLocateExecutable("ip"), "-4", "route", "show");
+	if (listIPv4.exit == 0)
+		list += listIPv4.out + "\n";
+
+	ExecResult listIPv6 = ExecEx3(FsLocateExecutable("ip"), "-6", "route", "show");
+	if (listIPv6.exit == 0)
+		list += listIPv6.out + "\n";
+
+	std::vector<std::string> lines = StringToVector(list, '\n');
+	for (std::vector<std::string>::const_iterator i = lines.begin(); i != lines.end(); ++i)
+	{
+		std::string line = StringTrim(*i);
+
+		std::map<std::string, std::string> keypairs;
+		std::vector<std::string> fields = StringToVector(line, ' ', true);
+
+		if (fields.size() > 0)
+		{
+			keypairs["destination"] = fields[0];
+			fields.erase(fields.begin());
+		}
+		while (fields.size() > 1)
+		{
+			std::string k = fields[0];
+			fields.erase(fields.begin());
+			std::string v = fields[0];
+			fields.erase(fields.begin());
+			keypairs[StringToLower(k)] = v;
+		}
+
+		// Adapt
+		if (keypairs.find("destination") != keypairs.end())
+		{
+			if (keypairs["destination"] == "default")
+			{
+				if (keypairs.find("via") != keypairs.end())
+				{
+					if (StringIsIPv4(keypairs["via"]))
+						keypairs["destination"] = "0.0.0.0/0";
+					else if (StringIsIPv6(keypairs["via"]))
+						keypairs["destination"] = "::/0";
+				}
+			}
+			else if (StringContain(keypairs["destination"], "/") == false)
+			{
+				// Always full CIDR notation
+				if (StringIsIPv4(keypairs["destination"]))
+					keypairs["destination"] = keypairs["destination"] + "/32";
+				else if (StringIsIPv6(keypairs["destination"]))
+					keypairs["destination"] = keypairs["destination"] + "/128";
+			}
+			keypairs["destination"] = StringIpRemoveInterface(keypairs["destination"]);
+		}
+		if (keypairs.find("via") != keypairs.end())
+		{
+			keypairs["gateway"] = StringIpRemoveInterface(keypairs["via"]);
+			keypairs.erase("via");
+		}
+		if (keypairs.find("dev") != keypairs.end())
+		{
+			keypairs["interface"] = keypairs["dev"];
+			keypairs.erase("dev");
+		}
+
+		// Build JSON
+		if (n > 0)
+			json += ",\n";
+		json += JsonFromKeyPairs(keypairs);
+		n++;
+	}
+
+	return "[" + json + "]";
+}
+
+std::string Impl::GetRoutesAsJsonNew()
 {
 	// Not yet used, missing at least conversion of fields in CIDR notation.
 	// Objective here is avoid under linux of external exec "route print".

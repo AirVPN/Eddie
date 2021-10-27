@@ -38,6 +38,10 @@ std::string serviceName = "eddie-elevated";
 std::string serviceDesc = "Eddie Elevation";
 std::string launchdPath = "/Library/LaunchDaemons/org.airvpn.eddie.ui.elevated.plist";
 
+
+
+
+
 int Impl::Main()
 {
 	signal(SIGINT, SIG_IGN); // See comment in Linux implementation
@@ -364,94 +368,15 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 			ThrowException("Rules not loaded");
 		}
 	}
+	else if (command == "network-interface-info")
+	{
+		ReplyCommand(commandId, GetNetworkInterfaceInfoAsJson(params["id"]));
+	}
 	else if (command == "route-list")
 	{
-		int n = 0;
-		std::string json;
+		std::string json = GetRoutesAsJson();
 
-		ExecResult netstatResult = ExecEx1(FsLocateExecutable("netstat"), "-rnl");
-		if (netstatResult.exit == 0)
-		{
-			std::vector<std::string> header;
-			std::vector<std::string> lines = StringToVector(netstatResult.out, '\n');
-			for (std::vector<std::string>::const_iterator i = lines.begin(); i != lines.end(); ++i)
-			{
-				std::string line = StringTrim(*i);
-
-				if (StringStartsWith(line, "Routing tables")) continue;
-				if (StringStartsWith(line, "Internet:")) continue;
-				if (StringStartsWith(line, "Internet6:")) continue;
-
-				if (StringStartsWith(line, "Destination "))
-				{
-					header = StringToVector(line, ' ', true);
-				}
-				else
-				{
-					std::vector<std::string> fields = StringToVector(line, ' ', true);
-					if (fields.size() == header.size() - 1) // Expire may missing
-						fields.push_back("");
-					if (fields.size() == header.size())
-					{
-						std::map<std::string, std::string> keypairs;
-						std::cout << "myline OK:" + line << "\n";
-						for (int f = 0; f < fields.size(); f++)
-							keypairs[StringToLower(header[f])] = fields[f];
-
-						// Adapt
-						if (keypairs.find("destination") != keypairs.end())
-						{
-							if (keypairs["destination"] == "default")
-							{
-								if (keypairs.find("gateway") != keypairs.end())
-								{
-									if (StringIsIPv4(keypairs["gateway"]))
-										keypairs["destination"] = "0.0.0.0/0";
-									else if (StringIsIPv6(keypairs["gateway"]))
-										keypairs["destination"] = "::/0";
-								}
-							}
-							else if (StringContain(keypairs["destination"], "/") == false)
-							{
-								// Always full CIDR notation
-								if (StringIsIPv4(keypairs["destination"]))
-									keypairs["destination"] = keypairs["destination"] + "/32";
-								else if (StringIsIPv6(keypairs["destination"]))
-									keypairs["destination"] = keypairs["destination"] + "/128";
-							}
-							keypairs["destination"] = StringIpRemoveInterface(keypairs["destination"]);
-						}
-						if (keypairs.find("gateway") != keypairs.end())
-							keypairs["gateway"] = StringIpRemoveInterface(keypairs["gateway"]);
-						if (keypairs.find("netif") != keypairs.end())
-						{
-							keypairs["interface"] = keypairs["netif"];
-							keypairs.erase("netif");
-						}
-
-						// Build JSON
-
-						if (n > 0)
-							json += ",\n";
-						json += "{";
-						int f = 0;
-						for (std::map<std::string, std::string>::iterator it = keypairs.begin(); it != keypairs.end(); ++it)
-						{
-							std::string k = it->first;
-							std::string v = it->second;
-							if (f > 0)
-								json += ",";
-							json += "\"" + k + "\":\"" + v + "\"";
-							f++;
-						}
-						json += "}";
-						n++;
-					}
-				}
-			}
-		}
-
-		ReplyCommand(commandId, "[" + json + "]");
+		ReplyCommand(commandId, json);
 	}
 	else if (command == "route")
 	{
@@ -627,6 +552,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 						if (handshakeLast == 0)
 						{
 							// First
+							ReplyCommand(commandId, "log:setup-interface");
 							ReplyCommand(commandId, "log:handshake-first");
 						}
 
@@ -957,6 +883,85 @@ int Impl::FileGetFlags(const std::string& path)
 	return (int)s.st_flags;
 }
 
+std::string Impl::GetRoutesAsJson()
+{
+	int n = 0;
+	std::string json;
+
+	ExecResult netstatResult = ExecEx1(FsLocateExecutable("netstat"), "-rnl");
+	if (netstatResult.exit == 0)
+	{
+		std::vector<std::string> header;
+		std::vector<std::string> lines = StringToVector(netstatResult.out, '\n');
+		for (std::vector<std::string>::const_iterator i = lines.begin(); i != lines.end(); ++i)
+		{
+			std::string line = StringTrim(*i);
+
+			if (StringStartsWith(line, "Routing tables")) continue;
+			if (StringStartsWith(line, "Internet:")) continue;
+			if (StringStartsWith(line, "Internet6:")) continue;
+
+			if (StringStartsWith(line, "Destination "))
+			{
+				header = StringToVector(line, ' ', true);
+			}
+			else
+			{
+				std::vector<std::string> fields = StringToVector(line, ' ', true);
+				if (fields.size() == header.size() - 1) // Expire may missing
+					fields.push_back("");
+				if (fields.size() == header.size())
+				{
+					std::map<std::string, std::string> keypairs;
+					std::cout << "myline OK:" + line << "\n";
+					for (int f = 0; f < fields.size(); f++)
+						keypairs[StringToLower(header[f])] = fields[f];
+
+					// Adapt
+					if (keypairs.find("destination") != keypairs.end())
+					{
+						if (keypairs["destination"] == "default")
+						{
+							if (keypairs.find("gateway") != keypairs.end())
+							{
+								if (StringIsIPv4(keypairs["gateway"]))
+									keypairs["destination"] = "0.0.0.0/0";
+								else if (StringIsIPv6(keypairs["gateway"]))
+									keypairs["destination"] = "::/0";
+							}
+						}
+						else if (StringContain(keypairs["destination"], "/") == false)
+						{
+							// Always full CIDR notation
+							if (StringIsIPv4(keypairs["destination"]))
+								keypairs["destination"] = keypairs["destination"] + "/32";
+							else if (StringIsIPv6(keypairs["destination"]))
+								keypairs["destination"] = keypairs["destination"] + "/128";
+						}
+						keypairs["destination"] = StringIpRemoveInterface(keypairs["destination"]);
+					}
+					if (keypairs.find("gateway") != keypairs.end())
+						keypairs["gateway"] = StringIpRemoveInterface(keypairs["gateway"]);
+					if (keypairs.find("netif") != keypairs.end())
+					{
+						keypairs["interface"] = keypairs["netif"];
+						keypairs.erase("netif");
+					}
+
+					// Build JSON
+
+					if (n > 0)
+						json += ",\n";
+					json += JsonFromKeyPairs(keypairs);
+					n++;
+				}
+			}
+		}
+	}
+
+	return "[" + json + "]";
+}
+
 std::vector<std::string> Impl::GetNetworkInterfaces()
 {
 	ExecResult networksetupListResult = ExecEx1(FsLocateExecutable("networksetup"), "-listallnetworkservices");
@@ -982,6 +987,64 @@ std::vector<std::string> Impl::GetNetworkInterfaces()
 	}
 
 	return output;
+}
+
+std::string Impl::GetNetworkInterfaceInfoAsJson(const std::string& id)
+{
+	std::map<std::string, std::string> kp;
+	
+	// Step1: Set IPv6 support to true by default.
+	// From C#/Mono, always 'false'. Missing Mono implementation? 
+	// After for interfaces listed by 'networksetup -listallhardwareports' we detect specific support.
+
+	kp["support_ipv4"] = "true";
+	kp["support_ipv6"] = "true";
+
+	// Step2: Query 'networksetup -listallhardwareports' to obtain a more accurate device friendly names.
+	// TOFIX: Exists a better method?
+	ExecResult listHardwareReportExec = ExecEx1(FsLocateExecutable("networksetup"),"-listallhardwareports");
+	if(listHardwareReportExec.exit == 0)
+	{
+		std::vector<std::string> listHardwareReport = StringToVector(listHardwareReportExec.out, '\n');
+		std::string name = "";
+		for (std::vector<std::string>::const_iterator i = listHardwareReport.begin(); i != listHardwareReport.end(); ++i)
+		{
+			std::string line = *i;			
+			if(StringStartsWith(line, "Hardware Port: "))
+				name = StringTrim(line.substr(15));
+			else if(StringStartsWith(line, "Device:"))
+			{
+				std::string deviceId = StringTrim(line.substr(8));
+				if(deviceId == id)
+				{
+					// Found, query other info
+					kp["friendly"] = name;
+
+					ExecResult networkSetupGetInfoExec = ExecEx2(FsLocateExecutable("networksetup"), "-getinfo", name);
+					if(networkSetupGetInfoExec.exit == 0)
+					{
+						std::vector<std::string> networkSetupGetInfo = StringToVector(networkSetupGetInfoExec.out, '\n');
+						std::string name = "";
+						for (std::vector<std::string>::const_iterator i = networkSetupGetInfo.begin(); i != networkSetupGetInfo.end(); ++i)
+						{
+							std::string linegi = *i;
+
+							if(StringStartsWith(linegi, "IPv6: "))
+							{
+								std::string ipv6 = StringTrim(linegi.substr(6));								
+								if(ipv6 == "Off")
+									kp["support_ipv6"] = "false";
+							}
+						}
+					}
+					
+					break;				
+				}
+			}
+		}
+	}
+	
+	return JsonFromKeyPairs(kp);
 }
 
 unsigned long Impl::WireGuardLastHandshake(const std::string& wgPath, const std::string& interfaceId)

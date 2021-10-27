@@ -85,9 +85,9 @@
     <BundleResource Include="Resources\about.png" />
     <BundleResource Include="Resources\about_header_bg.png" />
     <BundleResource Include="Resources\add_16.png" />
-    <BundleResource Include="Resources\blacklist_0.png" />
-    <BundleResource Include="Resources\blacklist_1.png" />
-    <BundleResource Include="Resources\blacklist_2.png" />
+    <BundleResource Include="Resources\denylist_0.png" />
+    <BundleResource Include="Resources\denylist_1.png" />
+    <BundleResource Include="Resources\denylist_2.png" />
     <BundleResource Include="Resources\browse.png" />
     <BundleResource Include="Resources\connect_16.png" />
     <BundleResource Include="Resources\copy_16.png" />
@@ -415,9 +415,9 @@
     <BundleResource Include="Resources\netlock_status_on.png" />
     <BundleResource Include="Resources\about_16.png" />
     <BundleResource Include="Resources\add.png" />
-    <BundleResource Include="Resources\blacklist_0_16.png" />
-    <BundleResource Include="Resources\blacklist_1_16.png" />
-    <BundleResource Include="Resources\blacklist_2_16.png" />
+    <BundleResource Include="Resources\denylist_0_16.png" />
+    <BundleResource Include="Resources\denylist_1_16.png" />
+    <BundleResource Include="Resources\denylist_2_16.png" />
     <BundleResource Include="Resources\bool_false.png" />
     <BundleResource Include="Resources\bool_true.png" />
     <BundleResource Include="Resources\btn_d_d.png" />

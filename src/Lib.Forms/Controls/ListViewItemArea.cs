@@ -67,13 +67,13 @@ namespace Eddie.Forms.Controls
 			int stateImageIndex = 2;
 			switch (Info.UserList)
 			{
-				case AreaInfo.UserListType.Whitelist:
+				case AreaInfo.UserListType.Allowlist:
 					{
 						foreColor = Color.DarkGreen;
 						stateImageIndex = 0;
 					}
 					break;
-				case AreaInfo.UserListType.Blacklist:
+				case AreaInfo.UserListType.Denylist:
 					{
 						foreColor = Color.DarkRed;
 						stateImageIndex = 1;

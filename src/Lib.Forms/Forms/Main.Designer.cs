@@ -1,33 +1,33 @@
 ﻿namespace Eddie.Forms.Forms
 {
-    partial class Main
-    {
-        /// <summary>
-        /// Required designer variable.
-        /// </summary>
-        private System.ComponentModel.IContainer components = null;
+	partial class Main
+	{
+		/// <summary>
+		/// Required designer variable.
+		/// </summary>
+		private System.ComponentModel.IContainer components = null;
 
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing && (components != null))
-            {
-                components.Dispose();
-            }
-            base.Dispose(disposing);
-        }
+		/// <summary>
+		/// Clean up any resources being used.
+		/// </summary>
+		/// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+		protected override void Dispose(bool disposing)
+		{
+			if (disposing && (components != null))
+			{
+				components.Dispose();
+			}
+			base.Dispose(disposing);
+		}
 
-        #region Windows Form Designer generated code
+		#region Windows Form Designer generated code
 
-        /// <summary>
-        /// Required method for Designer support - do not modify
-        /// the contents of this method with the code editor.
-        /// </summary>
-        private void InitializeComponent()
-        {
+		/// <summary>
+		/// Required method for Designer support - do not modify
+		/// the contents of this method with the code editor.
+		/// </summary>
+		private void InitializeComponent()
+		{
 			this.components = new System.ComponentModel.Container();
 			System.Windows.Forms.ToolStripMenuItem mnuContextCopyAll;
 			System.Windows.Forms.ToolStripMenuItem mnuContextSaveAll;
@@ -57,23 +57,23 @@
 			this.cboScoreType = new Eddie.Forms.Skin.ComboBox();
 			this.chkLockLast = new Eddie.Forms.Skin.CheckBox();
 			this.cmdServersUndefined = new Eddie.Forms.Skin.Button();
-			this.cmdServersBlackList = new Eddie.Forms.Skin.Button();
-			this.cmdServersWhiteList = new Eddie.Forms.Skin.Button();
+			this.cmdServersDenylist = new Eddie.Forms.Skin.Button();
+			this.cmdServersAllowlist = new Eddie.Forms.Skin.Button();
 			this.cmdServersConnect = new Eddie.Forms.Skin.Button();
 			this.cmdLogsSupport = new Eddie.Forms.Skin.Button();
 			this.cmdLogsClean = new Eddie.Forms.Skin.Button();
 			this.cmdLogsCopy = new Eddie.Forms.Skin.Button();
 			this.cmdLogsSave = new Eddie.Forms.Skin.Button();
 			this.cmdAreasUndefined = new Eddie.Forms.Skin.Button();
-			this.cmdAreasBlackList = new Eddie.Forms.Skin.Button();
-			this.cmdAreasWhiteList = new Eddie.Forms.Skin.Button();
+			this.cmdAreasDenylist = new Eddie.Forms.Skin.Button();
+			this.cmdAreasAllowlist = new Eddie.Forms.Skin.Button();
 			this.mnuLogsContext = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
 			this.mnuServers = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.mnuServersConnect = new System.Windows.Forms.ToolStripMenuItem();
 			this.mnuServersSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-			this.mnuServersWhiteList = new System.Windows.Forms.ToolStripMenuItem();
-			this.mnuServersBlackList = new System.Windows.Forms.ToolStripMenuItem();
+			this.mnuServersAllowlist = new System.Windows.Forms.ToolStripMenuItem();
+			this.mnuServersDenylist = new System.Windows.Forms.ToolStripMenuItem();
 			this.mnuServersUndefined = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
 			this.mnuServersRename = new System.Windows.Forms.ToolStripMenuItem();
@@ -81,8 +81,8 @@
 			this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
 			this.mnuServersRefresh = new System.Windows.Forms.ToolStripMenuItem();
 			this.mnuAreas = new System.Windows.Forms.ContextMenuStrip(this.components);
-			this.mnuAreasWhiteList = new System.Windows.Forms.ToolStripMenuItem();
-			this.mnuAreasBlackList = new System.Windows.Forms.ToolStripMenuItem();
+			this.mnuAreasAllowlist = new System.Windows.Forms.ToolStripMenuItem();
+			this.mnuAreasDenylist = new System.Windows.Forms.ToolStripMenuItem();
 			this.mnuAreasUndefined = new System.Windows.Forms.ToolStripMenuItem();
 			this.tabMain = new Eddie.Forms.Skin.TabControl();
 			this.tabOverview = new Eddie.Forms.Skin.TabPage();
@@ -232,20 +232,20 @@
 			// 
 			this.mnuMain.ImageScalingSize = new System.Drawing.Size(20, 20);
 			this.mnuMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.mnuStatus,
-            this.mnuConnect,
-            this.mnuSeparator3,
-            this.mnuHomePage,
-            this.mnuUser,
-            this.mnuPorts,
-            this.mnuSeparator1,
-            this.mnuSettings,
-            this.mnuUpdater,
-            this.mnuAbout,
-            this.toolStripSeparator2,
-            this.mnuRestore,
-            this.mnuRestoreSep,
-            this.mnuExit});
+			this.mnuStatus,
+			this.mnuConnect,
+			this.mnuSeparator3,
+			this.mnuHomePage,
+			this.mnuUser,
+			this.mnuPorts,
+			this.mnuSeparator1,
+			this.mnuSettings,
+			this.mnuUpdater,
+			this.mnuAbout,
+			this.toolStripSeparator2,
+			this.mnuRestore,
+			this.mnuRestoreSep,
+			this.mnuExit});
 			this.mnuMain.Name = "trayMenu";
 			this.mnuMain.Size = new System.Drawing.Size(338, 328);
 			// 
@@ -375,8 +375,8 @@
 			this.cboScoreType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.cboScoreType.FormattingEnabled = true;
 			this.cboScoreType.Items.AddRange(new object[] {
-            "Speed",
-            "Latency"});
+			"Speed",
+			"Latency"});
 			this.cboScoreType.Location = new System.Drawing.Point(640, 454);
 			this.cboScoreType.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
 			this.cboScoreType.Name = "cboScoreType";
@@ -403,7 +403,7 @@
 			this.cmdServersUndefined.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
 			this.cmdServersUndefined.FlatAppearance.BorderSize = 0;
 			this.cmdServersUndefined.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdServersUndefined.Image = global::Eddie.Forms.Properties.Resources.blacklist_2;
+			this.cmdServersUndefined.Image = global::Eddie.Forms.Properties.Resources.denylist_2;
 			this.cmdServersUndefined.Location = new System.Drawing.Point(1042, 165);
 			this.cmdServersUndefined.Name = "cmdServersUndefined";
 			this.cmdServersUndefined.Size = new System.Drawing.Size(42, 42);
@@ -411,37 +411,37 @@
 			this.cmdServersUndefined.UseVisualStyleBackColor = true;
 			this.cmdServersUndefined.Click += new System.EventHandler(this.cmdServersUndefined_Click);
 			// 
-			// cmdServersBlackList
+			// cmdServersDenylist
 			// 
-			this.cmdServersBlackList.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.cmdServersBlackList.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-			this.cmdServersBlackList.Cursor = System.Windows.Forms.Cursors.Hand;
-			this.cmdServersBlackList.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-			this.cmdServersBlackList.FlatAppearance.BorderSize = 0;
-			this.cmdServersBlackList.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdServersBlackList.Image = global::Eddie.Forms.Properties.Resources.blacklist_1;
-			this.cmdServersBlackList.Location = new System.Drawing.Point(1042, 117);
-			this.cmdServersBlackList.Name = "cmdServersBlackList";
-			this.cmdServersBlackList.Size = new System.Drawing.Size(42, 42);
-			this.cmdServersBlackList.TabIndex = 44;
-			this.cmdServersBlackList.UseVisualStyleBackColor = true;
-			this.cmdServersBlackList.Click += new System.EventHandler(this.cmdServersBlackList_Click);
+			this.cmdServersDenylist.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.cmdServersDenylist.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.cmdServersDenylist.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.cmdServersDenylist.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+			this.cmdServersDenylist.FlatAppearance.BorderSize = 0;
+			this.cmdServersDenylist.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.cmdServersDenylist.Image = global::Eddie.Forms.Properties.Resources.denylist_1;
+			this.cmdServersDenylist.Location = new System.Drawing.Point(1042, 117);
+			this.cmdServersDenylist.Name = "cmdServersDenylist";
+			this.cmdServersDenylist.Size = new System.Drawing.Size(42, 42);
+			this.cmdServersDenylist.TabIndex = 44;
+			this.cmdServersDenylist.UseVisualStyleBackColor = true;
+			this.cmdServersDenylist.Click += new System.EventHandler(this.cmdServersDenylist_Click);
 			// 
-			// cmdServersWhiteList
+			// cmdServersAllowlist
 			// 
-			this.cmdServersWhiteList.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.cmdServersWhiteList.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-			this.cmdServersWhiteList.Cursor = System.Windows.Forms.Cursors.Hand;
-			this.cmdServersWhiteList.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-			this.cmdServersWhiteList.FlatAppearance.BorderSize = 0;
-			this.cmdServersWhiteList.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdServersWhiteList.Image = global::Eddie.Forms.Properties.Resources.blacklist_0;
-			this.cmdServersWhiteList.Location = new System.Drawing.Point(1042, 69);
-			this.cmdServersWhiteList.Name = "cmdServersWhiteList";
-			this.cmdServersWhiteList.Size = new System.Drawing.Size(42, 42);
-			this.cmdServersWhiteList.TabIndex = 43;
-			this.cmdServersWhiteList.UseVisualStyleBackColor = true;
-			this.cmdServersWhiteList.Click += new System.EventHandler(this.cmdServersWhiteList_Click);
+			this.cmdServersAllowlist.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.cmdServersAllowlist.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.cmdServersAllowlist.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.cmdServersAllowlist.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+			this.cmdServersAllowlist.FlatAppearance.BorderSize = 0;
+			this.cmdServersAllowlist.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.cmdServersAllowlist.Image = global::Eddie.Forms.Properties.Resources.denylist_0;
+			this.cmdServersAllowlist.Location = new System.Drawing.Point(1042, 69);
+			this.cmdServersAllowlist.Name = "cmdServersAllowlist";
+			this.cmdServersAllowlist.Size = new System.Drawing.Size(42, 42);
+			this.cmdServersAllowlist.TabIndex = 43;
+			this.cmdServersAllowlist.UseVisualStyleBackColor = true;
+			this.cmdServersAllowlist.Click += new System.EventHandler(this.cmdServersAllowlist_Click);
 			// 
 			// cmdServersConnect
 			// 
@@ -531,7 +531,7 @@
 			this.cmdAreasUndefined.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
 			this.cmdAreasUndefined.FlatAppearance.BorderSize = 0;
 			this.cmdAreasUndefined.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdAreasUndefined.Image = global::Eddie.Forms.Properties.Resources.blacklist_2;
+			this.cmdAreasUndefined.Image = global::Eddie.Forms.Properties.Resources.denylist_2;
 			this.cmdAreasUndefined.Location = new System.Drawing.Point(1042, 102);
 			this.cmdAreasUndefined.Name = "cmdAreasUndefined";
 			this.cmdAreasUndefined.Size = new System.Drawing.Size(42, 42);
@@ -539,47 +539,47 @@
 			this.cmdAreasUndefined.UseVisualStyleBackColor = true;
 			this.cmdAreasUndefined.Click += new System.EventHandler(this.cmdAreasUndefined_Click);
 			// 
-			// cmdAreasBlackList
+			// cmdAreasDenylist
 			// 
-			this.cmdAreasBlackList.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.cmdAreasBlackList.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-			this.cmdAreasBlackList.Cursor = System.Windows.Forms.Cursors.Hand;
-			this.cmdAreasBlackList.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-			this.cmdAreasBlackList.FlatAppearance.BorderSize = 0;
-			this.cmdAreasBlackList.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdAreasBlackList.Image = global::Eddie.Forms.Properties.Resources.blacklist_1;
-			this.cmdAreasBlackList.Location = new System.Drawing.Point(1042, 54);
-			this.cmdAreasBlackList.Name = "cmdAreasBlackList";
-			this.cmdAreasBlackList.Size = new System.Drawing.Size(42, 42);
-			this.cmdAreasBlackList.TabIndex = 51;
-			this.cmdAreasBlackList.UseVisualStyleBackColor = true;
-			this.cmdAreasBlackList.Click += new System.EventHandler(this.cmdAreasBlackList_Click);
+			this.cmdAreasDenylist.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.cmdAreasDenylist.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.cmdAreasDenylist.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.cmdAreasDenylist.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+			this.cmdAreasDenylist.FlatAppearance.BorderSize = 0;
+			this.cmdAreasDenylist.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.cmdAreasDenylist.Image = global::Eddie.Forms.Properties.Resources.denylist_1;
+			this.cmdAreasDenylist.Location = new System.Drawing.Point(1042, 54);
+			this.cmdAreasDenylist.Name = "cmdAreasDenylist";
+			this.cmdAreasDenylist.Size = new System.Drawing.Size(42, 42);
+			this.cmdAreasDenylist.TabIndex = 51;
+			this.cmdAreasDenylist.UseVisualStyleBackColor = true;
+			this.cmdAreasDenylist.Click += new System.EventHandler(this.cmdAreasDenylist_Click);
 			// 
-			// cmdAreasWhiteList
+			// cmdAreasAllowlist
 			// 
-			this.cmdAreasWhiteList.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.cmdAreasWhiteList.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-			this.cmdAreasWhiteList.Cursor = System.Windows.Forms.Cursors.Hand;
-			this.cmdAreasWhiteList.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-			this.cmdAreasWhiteList.FlatAppearance.BorderSize = 0;
-			this.cmdAreasWhiteList.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdAreasWhiteList.Image = global::Eddie.Forms.Properties.Resources.blacklist_0;
-			this.cmdAreasWhiteList.Location = new System.Drawing.Point(1042, 6);
-			this.cmdAreasWhiteList.Name = "cmdAreasWhiteList";
-			this.cmdAreasWhiteList.Size = new System.Drawing.Size(42, 42);
-			this.cmdAreasWhiteList.TabIndex = 61;
-			this.cmdAreasWhiteList.UseVisualStyleBackColor = true;
-			this.cmdAreasWhiteList.Click += new System.EventHandler(this.cmdAreasWhiteList_Click);
+			this.cmdAreasAllowlist.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.cmdAreasAllowlist.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.cmdAreasAllowlist.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.cmdAreasAllowlist.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+			this.cmdAreasAllowlist.FlatAppearance.BorderSize = 0;
+			this.cmdAreasAllowlist.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.cmdAreasAllowlist.Image = global::Eddie.Forms.Properties.Resources.denylist_0;
+			this.cmdAreasAllowlist.Location = new System.Drawing.Point(1042, 6);
+			this.cmdAreasAllowlist.Name = "cmdAreasAllowlist";
+			this.cmdAreasAllowlist.Size = new System.Drawing.Size(42, 42);
+			this.cmdAreasAllowlist.TabIndex = 61;
+			this.cmdAreasAllowlist.UseVisualStyleBackColor = true;
+			this.cmdAreasAllowlist.Click += new System.EventHandler(this.cmdAreasAllowlist_Click);
 			// 
 			// mnuLogsContext
 			// 
 			this.mnuLogsContext.ImageScalingSize = new System.Drawing.Size(20, 20);
 			this.mnuLogsContext.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            mnuContextCopyAll,
-            mnuContextSaveAll,
-            this.toolStripSeparator1,
-            mnuContextCopySelected,
-            mnuContextSaveSelected});
+			mnuContextCopyAll,
+			mnuContextSaveAll,
+			this.toolStripSeparator1,
+			mnuContextCopySelected,
+			mnuContextSaveSelected});
 			this.mnuLogsContext.Name = "mnuContext";
 			this.mnuLogsContext.Size = new System.Drawing.Size(342, 130);
 			// 
@@ -592,16 +592,16 @@
 			// 
 			this.mnuServers.ImageScalingSize = new System.Drawing.Size(20, 20);
 			this.mnuServers.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.mnuServersConnect,
-            this.mnuServersSeparator1,
-            this.mnuServersWhiteList,
-            this.mnuServersBlackList,
-            this.mnuServersUndefined,
-            this.toolStripSeparator4,
-            this.mnuServersRename,
-            this.mnuServersMore,
-            this.toolStripSeparator3,
-            this.mnuServersRefresh});
+			this.mnuServersConnect,
+			this.mnuServersSeparator1,
+			this.mnuServersAllowlist,
+			this.mnuServersDenylist,
+			this.mnuServersUndefined,
+			this.toolStripSeparator4,
+			this.mnuServersRename,
+			this.mnuServersMore,
+			this.toolStripSeparator3,
+			this.mnuServersRefresh});
 			this.mnuServers.Name = "mnuServers";
 			this.mnuServers.Size = new System.Drawing.Size(193, 232);
 			// 
@@ -618,25 +618,25 @@
 			this.mnuServersSeparator1.Name = "mnuServersSeparator1";
 			this.mnuServersSeparator1.Size = new System.Drawing.Size(189, 6);
 			// 
-			// mnuServersWhiteList
+			// mnuServersAllowlist
 			// 
-			this.mnuServersWhiteList.Image = global::Eddie.Forms.Properties.Resources.blacklist_0;
-			this.mnuServersWhiteList.Name = "mnuServersWhiteList";
-			this.mnuServersWhiteList.Size = new System.Drawing.Size(192, 30);
-			this.mnuServersWhiteList.Text = "Whitelist";
-			this.mnuServersWhiteList.Click += new System.EventHandler(this.mnuServersWhitelist_Click);
+			this.mnuServersAllowlist.Image = global::Eddie.Forms.Properties.Resources.denylist_0;
+			this.mnuServersAllowlist.Name = "mnuServersAllowlist";
+			this.mnuServersAllowlist.Size = new System.Drawing.Size(192, 30);
+			this.mnuServersAllowlist.Text = "Allowlist";
+			this.mnuServersAllowlist.Click += new System.EventHandler(this.mnuServersAllowlist_Click);
 			// 
-			// mnuServersBlackList
+			// mnuServersDenylist
 			// 
-			this.mnuServersBlackList.Image = global::Eddie.Forms.Properties.Resources.blacklist_1;
-			this.mnuServersBlackList.Name = "mnuServersBlackList";
-			this.mnuServersBlackList.Size = new System.Drawing.Size(192, 30);
-			this.mnuServersBlackList.Text = "Blacklist";
-			this.mnuServersBlackList.Click += new System.EventHandler(this.mnuServersBlacklist_Click);
+			this.mnuServersDenylist.Image = global::Eddie.Forms.Properties.Resources.denylist_1;
+			this.mnuServersDenylist.Name = "mnuServersDenylist";
+			this.mnuServersDenylist.Size = new System.Drawing.Size(192, 30);
+			this.mnuServersDenylist.Text = "Denylist";
+			this.mnuServersDenylist.Click += new System.EventHandler(this.mnuServersDenylist_Click);
 			// 
 			// mnuServersUndefined
 			// 
-			this.mnuServersUndefined.Image = global::Eddie.Forms.Properties.Resources.blacklist_2;
+			this.mnuServersUndefined.Image = global::Eddie.Forms.Properties.Resources.denylist_2;
 			this.mnuServersUndefined.Name = "mnuServersUndefined";
 			this.mnuServersUndefined.Size = new System.Drawing.Size(192, 30);
 			this.mnuServersUndefined.Text = "Undefined";
@@ -680,31 +680,31 @@
 			// 
 			this.mnuAreas.ImageScalingSize = new System.Drawing.Size(20, 20);
 			this.mnuAreas.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.mnuAreasWhiteList,
-            this.mnuAreasBlackList,
-            this.mnuAreasUndefined});
+			this.mnuAreasAllowlist,
+			this.mnuAreasDenylist,
+			this.mnuAreasUndefined});
 			this.mnuAreas.Name = "mnuAreas";
 			this.mnuAreas.Size = new System.Drawing.Size(171, 94);
 			// 
-			// mnuAreasWhiteList
+			// mnuAreasAllowlist
 			// 
-			this.mnuAreasWhiteList.Image = global::Eddie.Forms.Properties.Resources.blacklist_0;
-			this.mnuAreasWhiteList.Name = "mnuAreasWhiteList";
-			this.mnuAreasWhiteList.Size = new System.Drawing.Size(170, 30);
-			this.mnuAreasWhiteList.Text = "Whitelist";
-			this.mnuAreasWhiteList.Click += new System.EventHandler(this.mnuAreasWhiteList_Click);
+			this.mnuAreasAllowlist.Image = global::Eddie.Forms.Properties.Resources.denylist_0;
+			this.mnuAreasAllowlist.Name = "mnuAreasAllowlist";
+			this.mnuAreasAllowlist.Size = new System.Drawing.Size(170, 30);
+			this.mnuAreasAllowlist.Text = "Allowlist";
+			this.mnuAreasAllowlist.Click += new System.EventHandler(this.mnuAreasAllowlist_Click);
 			// 
-			// mnuAreasBlackList
+			// mnuAreasDenylist
 			// 
-			this.mnuAreasBlackList.Image = global::Eddie.Forms.Properties.Resources.blacklist_1;
-			this.mnuAreasBlackList.Name = "mnuAreasBlackList";
-			this.mnuAreasBlackList.Size = new System.Drawing.Size(170, 30);
-			this.mnuAreasBlackList.Text = "Blacklist";
-			this.mnuAreasBlackList.Click += new System.EventHandler(this.cmdAreasBlackList_Click);
+			this.mnuAreasDenylist.Image = global::Eddie.Forms.Properties.Resources.denylist_1;
+			this.mnuAreasDenylist.Name = "mnuAreasDenylist";
+			this.mnuAreasDenylist.Size = new System.Drawing.Size(170, 30);
+			this.mnuAreasDenylist.Text = "Denylist";
+			this.mnuAreasDenylist.Click += new System.EventHandler(this.cmdAreasDenylist_Click);
 			// 
 			// mnuAreasUndefined
 			// 
-			this.mnuAreasUndefined.Image = global::Eddie.Forms.Properties.Resources.blacklist_2;
+			this.mnuAreasUndefined.Image = global::Eddie.Forms.Properties.Resources.denylist_2;
 			this.mnuAreasUndefined.Name = "mnuAreasUndefined";
 			this.mnuAreasUndefined.Size = new System.Drawing.Size(170, 30);
 			this.mnuAreasUndefined.Text = "Undefined";
@@ -712,9 +712,9 @@
 			// 
 			// tabMain
 			// 
-			this.tabMain.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			this.tabMain.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+			| System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.tabMain.Controls.Add(this.tabOverview);
 			this.tabMain.Controls.Add(this.tabProviders);
 			this.tabMain.Controls.Add(this.tabServers);
@@ -905,7 +905,7 @@
 			// lblConnectedCountry
 			// 
 			this.lblConnectedCountry.BackColor = System.Drawing.Color.Transparent;
-			this.lblConnectedCountry.Image = global::Eddie.Forms.Properties.Resources.blacklist_1;
+			this.lblConnectedCountry.Image = global::Eddie.Forms.Properties.Resources.denylist_1;
 			this.lblConnectedCountry.Location = new System.Drawing.Point(202, 20);
 			this.lblConnectedCountry.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.lblConnectedCountry.Name = "lblConnectedCountry";
@@ -1208,15 +1208,15 @@
 			// 
 			// lstProviders
 			// 
-			this.lstProviders.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			this.lstProviders.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+			| System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.lstProviders.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.colProviderName,
-            this.colProviderProvider,
-            this.colProviderDescription,
-            this.colProviderWebsite,
-            this.colProviderPath});
+			this.colProviderName,
+			this.colProviderProvider,
+			this.colProviderDescription,
+			this.colProviderWebsite,
+			this.colProviderPath});
 			this.lstProviders.FullRowSelect = true;
 			this.lstProviders.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
 			this.lstProviders.HideSelection = false;
@@ -1264,8 +1264,8 @@
 			this.tabServers.Controls.Add(this.chkLockLast);
 			this.tabServers.Controls.Add(this.pnlServers);
 			this.tabServers.Controls.Add(this.cmdServersUndefined);
-			this.tabServers.Controls.Add(this.cmdServersBlackList);
-			this.tabServers.Controls.Add(this.cmdServersWhiteList);
+			this.tabServers.Controls.Add(this.cmdServersDenylist);
+			this.tabServers.Controls.Add(this.cmdServersAllowlist);
 			this.tabServers.Controls.Add(this.cmdServersConnect);
 			this.tabServers.Location = new System.Drawing.Point(4, 29);
 			this.tabServers.Name = "tabServers";
@@ -1330,9 +1330,9 @@
 			// 
 			// pnlServers
 			// 
-			this.pnlServers.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			this.pnlServers.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+			| System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.pnlServers.BackColor = System.Drawing.Color.Maroon;
 			this.pnlServers.Location = new System.Drawing.Point(6, 6);
 			this.pnlServers.Margin = new System.Windows.Forms.Padding(0);
@@ -1342,10 +1342,10 @@
 			// 
 			// tabCountries
 			// 
-			this.tabCountries.Controls.Add(this.cmdAreasWhiteList);
+			this.tabCountries.Controls.Add(this.cmdAreasAllowlist);
 			this.tabCountries.Controls.Add(this.pnlAreas);
 			this.tabCountries.Controls.Add(this.cmdAreasUndefined);
-			this.tabCountries.Controls.Add(this.cmdAreasBlackList);
+			this.tabCountries.Controls.Add(this.cmdAreasDenylist);
 			this.tabCountries.Location = new System.Drawing.Point(4, 29);
 			this.tabCountries.Margin = new System.Windows.Forms.Padding(4);
 			this.tabCountries.Name = "tabCountries";
@@ -1356,9 +1356,9 @@
 			// 
 			// pnlAreas
 			// 
-			this.pnlAreas.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			this.pnlAreas.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+			| System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.pnlAreas.BackColor = System.Drawing.Color.Maroon;
 			this.pnlAreas.Location = new System.Drawing.Point(6, 6);
 			this.pnlAreas.Margin = new System.Windows.Forms.Padding(0);
@@ -1392,9 +1392,9 @@
 			// 
 			// holSpeedChart
 			// 
-			this.holSpeedChart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			this.holSpeedChart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+			| System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.holSpeedChart.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
 			this.holSpeedChart.Location = new System.Drawing.Point(3, 3);
 			this.holSpeedChart.Margin = new System.Windows.Forms.Padding(0);
@@ -1406,8 +1406,8 @@
 			// 
 			// cboSpeedResolution
 			// 
-			this.cboSpeedResolution.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			this.cboSpeedResolution.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.cboSpeedResolution.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.cboSpeedResolution.FormattingEnabled = true;
 			this.cboSpeedResolution.Location = new System.Drawing.Point(238, 456);
@@ -1429,12 +1429,12 @@
 			// 
 			// lstStats
 			// 
-			this.lstStats.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			this.lstStats.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+			| System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.lstStats.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            colStatsKey,
-            colStatsValue});
+			colStatsKey,
+			colStatsValue});
 			this.lstStats.FullRowSelect = true;
 			this.lstStats.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
 			this.lstStats.HideSelection = false;
@@ -1485,13 +1485,13 @@
 			// lstLogs
 			// 
 			this.lstLogs.AllowColumnReorder = true;
-			this.lstLogs.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			this.lstLogs.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+			| System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.lstLogs.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            colIcon,
-            colDate,
-            colMessage});
+			colIcon,
+			colDate,
+			colMessage});
 			this.lstLogs.ContextMenuStrip = this.mnuLogsContext;
 			this.lstLogs.FullRowSelect = true;
 			this.lstLogs.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
@@ -1535,19 +1535,19 @@
 			this.tabLogs.ResumeLayout(false);
 			this.ResumeLayout(false);
 
-        }
+		}
 
-        #endregion
+		#endregion
 
-        private System.Windows.Forms.ContextMenuStrip mnuMain;
-        private System.Windows.Forms.ToolStripMenuItem mnuRestore;
-        private System.Windows.Forms.ToolStripMenuItem mnuExit;
+		private System.Windows.Forms.ContextMenuStrip mnuMain;
+		private System.Windows.Forms.ToolStripMenuItem mnuRestore;
+		private System.Windows.Forms.ToolStripMenuItem mnuExit;
 		private System.Windows.Forms.ToolStripMenuItem mnuSettings;
-        private System.Windows.Forms.ToolStripMenuItem mnuHomePage;
-        private System.Windows.Forms.ToolStripSeparator mnuSeparator1;
-        private System.Windows.Forms.ToolStripMenuItem mnuPorts;
-        private System.Windows.Forms.ToolStripMenuItem mnuUser;
-        private System.Windows.Forms.ToolStripMenuItem mnuAbout;
+		private System.Windows.Forms.ToolStripMenuItem mnuHomePage;
+		private System.Windows.Forms.ToolStripSeparator mnuSeparator1;
+		private System.Windows.Forms.ToolStripMenuItem mnuPorts;
+		private System.Windows.Forms.ToolStripMenuItem mnuUser;
+		private System.Windows.Forms.ToolStripMenuItem mnuAbout;
 		private Skin.Panel pnlWelcome;
 		private Skin.Label lblPassword;
 		private Skin.Label lblLogin;
@@ -1562,8 +1562,8 @@
 		private Skin.CheckBox chkShowAll;
 		private Skin.CheckBox chkLockLast;
 		private Skin.Button cmdServersUndefined;
-		private Skin.Button cmdServersBlackList;
-		private Skin.Button cmdServersWhiteList;
+		private Skin.Button cmdServersDenylist;
+		private Skin.Button cmdServersAllowlist;
 		private Skin.Button cmdServersConnect;
 		private Skin.TabPage tabStats;
 		private Skin.ListView lstStats;
@@ -1577,12 +1577,12 @@
 		private System.Windows.Forms.ContextMenuStrip mnuServers;
 		private System.Windows.Forms.ToolStripMenuItem mnuServersConnect;
 		private System.Windows.Forms.ToolStripSeparator mnuServersSeparator1;
-		private System.Windows.Forms.ToolStripMenuItem mnuServersWhiteList;
-		private System.Windows.Forms.ToolStripMenuItem mnuServersBlackList;
+		private System.Windows.Forms.ToolStripMenuItem mnuServersAllowlist;
+		private System.Windows.Forms.ToolStripMenuItem mnuServersDenylist;
 		private System.Windows.Forms.ToolStripMenuItem mnuServersUndefined;
 		private System.Windows.Forms.ContextMenuStrip mnuAreas;
-		private System.Windows.Forms.ToolStripMenuItem mnuAreasWhiteList;
-		private System.Windows.Forms.ToolStripMenuItem mnuAreasBlackList;
+		private System.Windows.Forms.ToolStripMenuItem mnuAreasAllowlist;
+		private System.Windows.Forms.ToolStripMenuItem mnuAreasDenylist;
 		private System.Windows.Forms.ToolStripMenuItem mnuAreasUndefined;
 		private Skin.TabPage tabOverview;
 		private Skin.TabPage tabSpeed;
@@ -1621,14 +1621,14 @@
 		private Skin.Button cmdServersRefresh;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
 		private System.Windows.Forms.ToolStripMenuItem mnuServersRefresh;
-        private System.Windows.Forms.ComboBox cboKey;
-        private Skin.Label lblKey;
-        private Skin.TabPage tabCountries;
-        private Skin.Button cmdAreasUndefined;
-        private Skin.Button cmdAreasBlackList;
-        private Skin.Panel pnlAreas;
-        private Skin.Panel pnlServers;
-        private Skin.Button cmdAreasWhiteList;
+		private System.Windows.Forms.ComboBox cboKey;
+		private Skin.Label lblKey;
+		private Skin.TabPage tabCountries;
+		private Skin.Button cmdAreasUndefined;
+		private Skin.Button cmdAreasDenylist;
+		private Skin.Panel pnlAreas;
+		private Skin.Panel pnlServers;
+		private Skin.Button cmdAreasAllowlist;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
 		private System.Windows.Forms.ToolStripMenuItem mnuServersRename;
 		private Skin.Button cmdServersRename;

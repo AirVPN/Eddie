@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net.NetworkInformation;
 using System.Text;
 using System.Xml;
 using Eddie.Core;
@@ -29,8 +30,8 @@ namespace Eddie.Platform.Windows
 	public class NetworkLockWfp : NetworkLockPlugin
 	{
 		private Dictionary<string, WfpItem> m_rules = new Dictionary<string, WfpItem>();
-		private string m_lastestIpsWhiteListIncoming = "";
-		private string m_lastestIpsWhiteListOutgoing = "";
+		private string m_lastestIpsAllowlistIncoming = "";
+		private string m_lastestIpsAllowlistOutgoing = "";
 
 		public override string GetCode()
 		{
@@ -98,8 +99,11 @@ namespace Eddie.Platform.Windows
 					AddRule("netlock_allow_loopback", xmlRule);
 				}
 
-				// Allow Eddie / OpenVPN / Stunnel / Plink
-				AddRule("netlock_allow_eddie", Wfp.CreateItemAllowProgram("NetLock - Allow Eddie", Platform.Instance.GetExecutablePath()));
+				// Allow Eddie UI
+				AddRule("netlock_allow_eddie_ui", Wfp.CreateItemAllowProgram("NetLock - Allow Eddie UI", Platform.Instance.GetExecutablePath()));
+
+				// Allow Eddie Elevated
+				AddRule("netlock_allow_eddie_elevated", Wfp.CreateItemAllowProgram("NetLock - Allow Eddie Elevated", Platform.Instance.GetElevatedHelperPath()));
 
 				if (Engine.Instance.Options.GetLower("proxy.mode") == "tor")
 				{
@@ -183,29 +187,35 @@ namespace Eddie.Platform.Windows
 
 			RemoveAllRules();
 
-			m_lastestIpsWhiteListIncoming = "";
-			m_lastestIpsWhiteListOutgoing = "";
+			m_lastestIpsAllowlistIncoming = "";
+			m_lastestIpsAllowlistOutgoing = "";
 		}
 
-		public override void AllowProgram(string path, string name, string guid)
+		public override void AllowProgram(string path)
 		{
-			base.AllowProgram(path, name, guid);
+			base.AllowProgram(path);
 
-			AddRule("netlock_allow_program_" + guid, Wfp.CreateItemAllowProgram("NetLock - Program - Allow " + name, path));
+			string hash = path.HashSHA256();
+
+			AddRule("netlock_allow_program_" + hash, Wfp.CreateItemAllowProgram("NetLock - Program - Allow " + path, path));
 		}
 
-		public override void DeallowProgram(string path, string name, string guid)
+		public override void DeallowProgram(string path)
 		{
-			base.DeallowProgram(path, name, guid);
+			base.DeallowProgram(path);
 
-			RemoveRule("netlock_allow_program_" + guid);
+			string hash = path.HashSHA256();
+
+			RemoveRule("netlock_allow_program_" + hash);
 		}
 
-		public override void AllowInterface(string id)
+		public override void AllowInterface(NetworkInterface networkInterface)
 		{
-			base.AllowInterface(id);
+			base.AllowInterface(networkInterface);
 
-			Json jInfo = Engine.Instance.FindNetworkInterfaceInfo(id);
+			Json jInfo = Engine.Instance.JsonNetworkInterfaceInfo(networkInterface);
+
+			string id = networkInterface.Id;
 
 			// Remember: Fail at WFP side with a "Unknown interface" if the network interface have IPv4 or IPv6 disabled (Ipv6IfIndex == 0).
 
@@ -216,9 +226,11 @@ namespace Eddie.Platform.Windows
 				AddRule("netlock_allow_interface_" + id + "_ipv6", Wfp.CreateItemAllowInterface("NetLock - Interface - Allow " + id + " - IPv6", id, "ipv6"));
 		}
 
-		public override void DeallowInterface(string id)
+		public override void DeallowInterface(NetworkInterface networkInterface)
 		{
-			base.DeallowInterface(id);
+			base.DeallowInterface(networkInterface);
+
+			string id = networkInterface.Id;
 
 			RemoveRule("netlock_allow_interface_" + id + "_ipv4");
 			RemoveRule("netlock_allow_interface_" + id + "_ipv6");
@@ -228,26 +240,26 @@ namespace Eddie.Platform.Windows
 		{
 			base.OnUpdateIps();
 
-			// TOFIX: Crash with a lots of IPs, simulate with GetIpsWhiteListOutgoing(true)
+			// TOFIX: Crash with a lots of IPs, simulate with GetIpsAllowlistOutgoing(true)
 
-			IpAddresses ipsWhiteListIncoming = GetIpsWhiteListIncoming();
-			IpAddresses ipsWhiteListOutgoing = GetIpsWhiteListOutgoing(false); // Don't need full ip, because the client it's allowed as program.
+			IpAddresses ipsAllowlistIncoming = GetIpsAllowlistIncoming();
+			IpAddresses ipsAllowlistOutgoing = GetIpsAllowlistOutgoing(false); // Don't need full ip, because the client it's allowed as program.
 
-			string currentIpsWhiteListIncoming = ipsWhiteListIncoming.ToString();
+			string currentIpsAllowlistIncoming = ipsAllowlistIncoming.ToString();
 
-			if (currentIpsWhiteListIncoming != m_lastestIpsWhiteListIncoming)
+			if (currentIpsAllowlistIncoming != m_lastestIpsAllowlistIncoming)
 			{
 				if (ExistsRule("netlock_allow_incoming_ips_v4"))
 					RemoveRule("netlock_allow_incoming_ips_v4");
 				if (ExistsRule("netlock_allow_incoming_ips_v6"))
 					RemoveRule("netlock_allow_incoming_ips_v6");
 
-				m_lastestIpsWhiteListIncoming = currentIpsWhiteListIncoming;
+				m_lastestIpsAllowlistIncoming = currentIpsAllowlistIncoming;
 
 				XmlElement xmlRuleIncomingV4 = null;
 				XmlElement xmlRuleIncomingV6 = null;
 
-				foreach (IpAddress ip in ipsWhiteListIncoming.IPs)
+				foreach (IpAddress ip in ipsAllowlistIncoming.IPs)
 				{
 					XmlElement XmlIf = null;
 
@@ -296,20 +308,20 @@ namespace Eddie.Platform.Windows
 					AddRule("netlock_allow_incoming_ips_v6", xmlRuleIncomingV6);
 			}
 
-			string currentIpsWhiteListOutgoing = ipsWhiteListOutgoing.ToString();
-			if (currentIpsWhiteListOutgoing != m_lastestIpsWhiteListOutgoing)
+			string currentIpsAllowlistOutgoing = ipsAllowlistOutgoing.ToString();
+			if (currentIpsAllowlistOutgoing != m_lastestIpsAllowlistOutgoing)
 			{
 				if (ExistsRule("netlock_allow_outgoing_ips_v4"))
 					RemoveRule("netlock_allow_outgoing_ips_v4");
 				if (ExistsRule("netlock_allow_outgoing_ips_v6"))
 					RemoveRule("netlock_allow_outgoing_ips_v6");
 
-				m_lastestIpsWhiteListOutgoing = currentIpsWhiteListOutgoing;
+				m_lastestIpsAllowlistOutgoing = currentIpsAllowlistOutgoing;
 
 				XmlElement xmlRuleOutgoingV4 = null;
 				XmlElement xmlRuleOutgoingV6 = null;
 
-				foreach (IpAddress ip in ipsWhiteListOutgoing.IPs)
+				foreach (IpAddress ip in ipsAllowlistOutgoing.IPs)
 				{
 					XmlElement XmlIf = null;
 
@@ -411,7 +423,7 @@ namespace Eddie.Platform.Windows
 			{
 				if (m_rules.ContainsKey(code) == false)
 					return;
-				//throw new Exception("Unexpected: NetLock WFP rule '" + code + "' doesn't exists");
+
 				WfpItem item = m_rules[code];
 				m_rules.Remove(code);
 				Wfp.RemoveItem(item);

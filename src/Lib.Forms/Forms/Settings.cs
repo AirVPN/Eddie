@@ -208,6 +208,7 @@ namespace Eddie.Forms.Forms
 			cboProxyWhen.Items.Add(LanguageManager.GetText("WindowsSettingsProxyWhenNone"));
 
 			// Routes
+			lstRoutes.ResourceManager = Properties.Resources.ResourceManager;
 			lstRoutes.ImageIconResourcePrefix = "routes_";
 			lstRoutes.ResizeColumnString(0, "255.255.255.255/255.255.255.255");
 			lstRoutes.ResizeColumnString(1, "Outside the VPN tunnel");
@@ -680,8 +681,8 @@ namespace Eddie.Forms.Forms
 			chkLockAllowDHCP.Checked = o.GetBool("netlock.allow_dhcp");
 			chkLockAllowPing.Checked = o.GetBool("netlock.allow_ping");
 			chkLockAllowDNS.Checked = o.GetBool("netlock.allow_dns");
-			txtLockWhiteListIncomingIPs.Text = o.Get("netlock.whitelist.incoming.ips");
-			txtLockWhiteListOutgoingIPs.Text = o.Get("netlock.whitelist.outgoing.ips");
+			txtLockAllowlistIncomingIPs.Text = o.Get("netlock.allowlist.incoming.ips");
+			txtLockAllowlistOutgoingIPs.Text = o.Get("netlock.allowlist.outgoing.ips");
 
 			// Advanced - Logging
 			chkLoggingEnabled.Checked = o.GetBool("log.file.enabled");
@@ -1058,8 +1059,8 @@ namespace Eddie.Forms.Forms
 			o.SetBool("netlock.allow_dhcp", chkLockAllowDHCP.Checked);
 			o.SetBool("netlock.allow_ping", chkLockAllowPing.Checked);
 			o.SetBool("netlock.allow_dns", chkLockAllowDNS.Checked);
-			o.Set("netlock.whitelist.incoming.ips", txtLockWhiteListIncomingIPs.Text);
-			o.Set("netlock.whitelist.outgoing.ips", txtLockWhiteListOutgoingIPs.Text);
+			o.Set("netlock.allowlist.incoming.ips", txtLockAllowlistIncomingIPs.Text);
+			o.Set("netlock.allowlist.outgoing.ips", txtLockAllowlistOutgoingIPs.Text);
 
 			// Advanced - Networking
 

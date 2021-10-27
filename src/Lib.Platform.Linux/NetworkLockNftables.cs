@@ -17,18 +17,15 @@
 // </eddie_source_header>
 
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using System.Xml;
+using System.Net.NetworkInformation;
 using Eddie.Core;
 
 namespace Eddie.Platform.Linux
 {
 	public class NetworkLockNftables : NetworkLockPlugin
 	{
-		private IpAddresses m_ipsWhiteListIncoming = new IpAddresses();
-		private IpAddresses m_ipsWhiteListOutgoing = new IpAddresses();
+		private IpAddresses m_ipsAllowlistIncoming = new IpAddresses();
+		private IpAddresses m_ipsAllowlistOutgoing = new IpAddresses();
 		private bool m_supportIPv4 = true;
 		private bool m_supportIPv6 = true;
 
@@ -75,8 +72,8 @@ namespace Eddie.Platform.Linux
 
 			try
 			{
-				IpAddresses ipsWhiteListIncoming = GetIpsWhiteListIncoming();
-				IpAddresses ipsWhiteListOutgoing = GetIpsWhiteListOutgoing(true);
+				IpAddresses ipsAllowlistIncoming = GetIpsAllowlistIncoming();
+				IpAddresses ipsAllowlistOutgoing = GetIpsAllowlistOutgoing(true);
 
 				string defaultPolicyInput = "drop";
 				string defaultPolicyForward = "drop";
@@ -172,11 +169,11 @@ namespace Eddie.Platform.Linux
 				AddRule(rules, "ipv6", "add rule ip6 filter INPUT ct state related,established  counter accept");
 
 				// Input - Allow TUN
-				AddRule(rules, "ipv4", "add rule ip filter INPUT iifname \"tun*\" counter accept");
-				AddRule(rules, "ipv6", "add rule ip6 filter INPUT iifname \"tun*\" counter accept");
+				//AddRule(rules, "ipv4", "add rule ip filter INPUT iifname \"tun*\" counter accept");
+				//AddRule(rules, "ipv6", "add rule ip6 filter INPUT iifname \"tun*\" counter accept");
 
-				// Input - Whitelist incoming
-				foreach (IpAddress ip in ipsWhiteListIncoming.IPs)
+				// Input - Allowlist incoming
+				foreach (IpAddress ip in ipsAllowlistIncoming.IPs)
 				{
 					if (ip.IsV4)
 						AddRule(rules, "ipv4", "add rule ip filter INPUT ip saddr " + ip.ToCIDR() + " counter accept");
@@ -186,19 +183,19 @@ namespace Eddie.Platform.Linux
 				}
 
 				// Input - Redundand, equal to default policy
-				AddRule(rules, "ipv4", "add rule ip filter INPUT counter " + defaultPolicyInput + "");
-				AddRule(rules, "ipv6", "add rule ip6 filter INPUT counter " + defaultPolicyInput + "");
+				AddRule(rules, "ipv4", "add rule ip filter INPUT counter " + defaultPolicyInput + " comment \"eddie_ip_filter_INPUT_latest_rule\"");
+				AddRule(rules, "ipv6", "add rule ip6 filter INPUT counter " + defaultPolicyInput + " comment \"eddie_ip6_filter_INPUT_latest_rule\"");
 
 				// Forward - Disable processing of any RH0 packet which could allow a ping-pong of packets
 				AddRule(rules, "ipv6", "add rule ip6 filter FORWARD rt type 0 counter drop");
 
 				// Forward - Allow TUN
-				AddRule(rules, "ipv4", "add rule ip filter FORWARD iifname \"tun*\" counter accept");
-				AddRule(rules, "ipv6", "add rule ip6 filter FORWARD iifname \"tun*\" counter accept");
+				//AddRule(rules, "ipv4", "add rule ip filter FORWARD iifname \"tun*\" counter accept");
+				//AddRule(rules, "ipv6", "add rule ip6 filter FORWARD iifname \"tun*\" counter accept");
 
 				// Forward - Redundand, equal to default policy
-				AddRule(rules, "ipv4", "add rule ip filter FORWARD counter " + defaultPolicyForward + "");
-				AddRule(rules, "ipv6", "add rule ip6 filter FORWARD counter " + defaultPolicyForward + "");
+				AddRule(rules, "ipv4", "add rule ip filter FORWARD counter " + defaultPolicyForward + " comment \"eddie_ip_filter_FORWARD_latest_rule\"");
+				AddRule(rules, "ipv6", "add rule ip6 filter FORWARD counter " + defaultPolicyForward + " comment \"eddie_ip6_filter_FORWARD_latest_rule\"");
 
 				// Output - Local
 				AddRule(rules, "ipv4", "add rule ip filter OUTPUT oifname \"lo\" counter accept");
@@ -248,8 +245,8 @@ namespace Eddie.Platform.Linux
 				}
 
 				// Allow TUN
-				AddRule(rules, "ipv4", "add rule ip filter OUTPUT oifname \"tun*\" counter accept");
-				AddRule(rules, "ipv6", "add rule ip6 filter OUTPUT oifname \"tun*\" counter accept");
+				//AddRule(rules, "ipv4", "add rule ip filter OUTPUT oifname \"tun*\" counter accept");
+				//AddRule(rules, "ipv6", "add rule ip6 filter OUTPUT oifname \"tun*\" counter accept");
 
 				// If incoming=allow, allow packet response to out
 				// We avoid a general rules, because in block/block mode don't drop already exists keepalive
@@ -259,8 +256,8 @@ namespace Eddie.Platform.Linux
 					AddRule(rules, "ipv6", "add rule ip6 filter OUTPUT ct state established  counter accept");
 				}
 
-				// Whitelist incoming
-				foreach (IpAddress ip in ipsWhiteListIncoming.IPs)
+				// Allowlist incoming
+				foreach (IpAddress ip in ipsAllowlistIncoming.IPs)
 				{
 					if (ip.IsV4)
 						AddRule(rules, "ipv4", "add rule ip filter OUTPUT ip daddr " + ip.ToCIDR() + " ct state established  counter accept");
@@ -268,8 +265,8 @@ namespace Eddie.Platform.Linux
 						AddRule(rules, "ipv6", "add rule ip6 filter OUTPUT ip6 daddr " + ip.ToCIDR() + " ct state established  counter accept");
 				}
 
-				// Whitelist outgoing
-				foreach (IpAddress ip in ipsWhiteListOutgoing.IPs)
+				// Allowlist outgoing
+				foreach (IpAddress ip in ipsAllowlistOutgoing.IPs)
 				{
 					if (ip.IsV4)
 						AddRule(rules, "ipv4", "add rule ip filter OUTPUT ip daddr " + ip.ToCIDR() + " counter accept");
@@ -278,8 +275,8 @@ namespace Eddie.Platform.Linux
 				}
 
 				// Redundand, equal to default policy
-				AddRule(rules, "ipv4", "add rule ip filter OUTPUT counter " + defaultPolicyOutput + "");
-				AddRule(rules, "ipv6", "add rule ip6 filter OUTPUT counter " + defaultPolicyOutput + "");
+				AddRule(rules, "ipv4", "add rule ip filter OUTPUT counter " + defaultPolicyOutput + " comment \"eddie_ip_filter_OUTPUT_latest_rule\"");
+				AddRule(rules, "ipv6", "add rule ip6 filter OUTPUT counter " + defaultPolicyOutput + " comment \"eddie_ip6_filter_OUTPUT_latest_rule\"");
 
 				// Apply 
 				Core.Elevated.Command c = new Core.Elevated.Command();
@@ -291,8 +288,8 @@ namespace Eddie.Platform.Linux
 				if (result != "")
 					throw new Exception("Unexpected result: " + result);
 
-				m_ipsWhiteListIncoming = ipsWhiteListIncoming;
-				m_ipsWhiteListOutgoing = ipsWhiteListOutgoing;
+				m_ipsAllowlistIncoming = ipsAllowlistIncoming;
+				m_ipsAllowlistOutgoing = ipsAllowlistOutgoing;
 
 				OnUpdateIps();
 			}
@@ -312,67 +309,81 @@ namespace Eddie.Platform.Linux
 				throw new Exception("Unexpected result: " + result);
 
 			// IPS
-			m_ipsWhiteListIncoming.Clear();
-			m_ipsWhiteListOutgoing.Clear();
+			m_ipsAllowlistIncoming.Clear();
+			m_ipsAllowlistOutgoing.Clear();
 		}
 
 		public override void OnUpdateIps()
 		{
 			base.OnUpdateIps();
 
-			IpAddresses ipsWhiteListIncoming = GetIpsWhiteListIncoming();
-			IpAddresses ipsWhiteListOutgoing = GetIpsWhiteListOutgoing(true);
+			IpAddresses ipsAllowlistIncoming = GetIpsAllowlistIncoming();
+			IpAddresses ipsAllowlistOutgoing = GetIpsAllowlistOutgoing(true);
 
 			// Incoming - Remove IP not present in the new list
-			foreach (IpAddress ip in m_ipsWhiteListIncoming.IPs)
+			foreach (IpAddress ip in m_ipsAllowlistIncoming.IPs)
 			{
 				if (((ip.IsV4) && (m_supportIPv4 == false)) || ((ip.IsV6) && (m_supportIPv6 == false)))
 					continue;
 
-				if (ipsWhiteListIncoming.Contains(ip) == false)
+				if (ipsAllowlistIncoming.Contains(ip) == false)
 				{
 					Engine.Instance.Elevated.DoCommandSync("netlock-nftables-accept-ip", "layer", (ip.IsV4 ? "ipv4" : "ipv6"), "direction", "in", "action", "del", "cidr", ip.ToCIDR());
 				}
 			}
 
 			// Incoming - Add IP
-			foreach (IpAddress ip in ipsWhiteListIncoming.IPs)
+			foreach (IpAddress ip in ipsAllowlistIncoming.IPs)
 			{
 				if (((ip.IsV4) && (m_supportIPv4 == false)) || ((ip.IsV6) && (m_supportIPv6 == false)))
 					continue;
 
-				if (m_ipsWhiteListIncoming.Contains(ip) == false)
+				if (m_ipsAllowlistIncoming.Contains(ip) == false)
 				{
 					Engine.Instance.Elevated.DoCommandSync("netlock-nftables-accept-ip", "layer", (ip.IsV4 ? "ipv4" : "ipv6"), "direction", "in", "action", "add", "cidr", ip.ToCIDR());
 				}
 			}
 
 			// Outgoing - Remove IP not present in the new list
-			foreach (IpAddress ip in m_ipsWhiteListOutgoing.IPs)
+			foreach (IpAddress ip in m_ipsAllowlistOutgoing.IPs)
 			{
 				if (((ip.IsV4) && (m_supportIPv4 == false)) || ((ip.IsV6) && (m_supportIPv6 == false)))
 					continue;
 
-				if (ipsWhiteListOutgoing.Contains(ip) == false)
+				if (ipsAllowlistOutgoing.Contains(ip) == false)
 				{
 					Engine.Instance.Elevated.DoCommandSync("netlock-nftables-accept-ip", "layer", (ip.IsV4 ? "ipv4" : "ipv6"), "direction", "out", "action", "del", "cidr", ip.ToCIDR());
 				}
 			}
 
 			// Outgoing - Add IP
-			foreach (IpAddress ip in ipsWhiteListOutgoing.IPs)
+			foreach (IpAddress ip in ipsAllowlistOutgoing.IPs)
 			{
 				if (((ip.IsV4) && (m_supportIPv4 == false)) || ((ip.IsV6) && (m_supportIPv6 == false)))
 					continue;
 
-				if (m_ipsWhiteListOutgoing.Contains(ip) == false)
+				if (m_ipsAllowlistOutgoing.Contains(ip) == false)
 				{
 					Engine.Instance.Elevated.DoCommandSync("netlock-nftables-accept-ip", "layer", (ip.IsV4 ? "ipv4" : "ipv6"), "direction", "out", "action", "add", "cidr", ip.ToCIDR());
 				}
 			}
 
-			m_ipsWhiteListIncoming = ipsWhiteListIncoming;
-			m_ipsWhiteListOutgoing = ipsWhiteListOutgoing;
+			m_ipsAllowlistIncoming = ipsAllowlistIncoming;
+			m_ipsAllowlistOutgoing = ipsAllowlistOutgoing;
+		}
+
+		public override void AllowInterface(NetworkInterface networkInterface)
+		{
+			base.AllowInterface(networkInterface); 
+
+			Engine.Instance.Elevated.DoCommandSync("netlock-nftables-interface", "id", networkInterface.Id, "ipv4", m_supportIPv4 ? "1" : "0", "ipv6", m_supportIPv6 ? "1" : "0", "action", "add");
+		}
+
+		public override void DeallowInterface(NetworkInterface networkInterface)
+		{
+			base.DeallowInterface(networkInterface); 
+
+			Engine.Instance.Elevated.DoCommandSync("netlock-nftables-interface", "id", networkInterface.Id, "ipv4", m_supportIPv4 ? "1" : "0", "ipv6", m_supportIPv6 ? "1" : "0", "action", "del");
 		}
 	}
 }

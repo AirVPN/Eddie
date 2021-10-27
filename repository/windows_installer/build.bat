@@ -64,7 +64,7 @@ IF exist %VARSCRIPTDIR%\..\signing\eddie.win-signing.pfx (
 )
 
 rem Deploy
-%VARSCRIPTDIR%\..\windows_common\deploy.bat "%VARFINALPATH%" || goto :error
+CALL %VARSCRIPTDIR%\..\windows_common\deploy.bat "%VARFINALPATH%" || goto :error
 
 rem End
 move "%VARFINALPATH%" "%VARDEPLOYPATH%"

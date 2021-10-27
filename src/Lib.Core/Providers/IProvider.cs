@@ -37,7 +37,7 @@ namespace Eddie.Core.Providers
 			return true;
 		}
 
-		public virtual IpAddresses GetNetworkLockWhiteListOutgoingIPs()
+		public virtual IpAddresses GetNetworkLockAllowlistOutgoingIPs()
 		{
 			IpAddresses list = new IpAddresses();
 

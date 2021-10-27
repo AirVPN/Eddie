@@ -1201,6 +1201,10 @@ namespace Eddie.Core
 		{
 		}
 
+		public virtual void OnJsonNetworkInterfaceInfo(NetworkInterface networkInterface, Json jNetworkInterface)
+		{
+		}
+
 		public virtual void OnJsonRouteList(Json jRoutesList)
 		{
 			// Notes to remember:
@@ -1263,6 +1267,16 @@ namespace Eddie.Core
 		public virtual bool GetUseOpenVpnRoutes()
 		{
 			return false;
+		}
+
+		public virtual bool GetSupportIPv4()
+		{
+			return true;
+		}
+
+		public virtual bool GetSupportIPv6()
+		{
+			return true;
 		}
 
 		public virtual bool GetSupportWireGuard()

@@ -17,18 +17,15 @@
 // </eddie_source_header>
 
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using System.Xml;
+using System.Net.NetworkInformation;
 using Eddie.Core;
 
 namespace Eddie.Platform.Linux
 {
 	public class NetworkLockIptables : NetworkLockPlugin
 	{
-		private IpAddresses m_ipsWhiteListIncoming = new IpAddresses();
-		private IpAddresses m_ipsWhiteListOutgoing = new IpAddresses();
+		private IpAddresses m_ipsAllowlistIncoming = new IpAddresses();
+		private IpAddresses m_ipsAllowlistOutgoing = new IpAddresses();
 		private bool m_supportIPv4 = true;
 		private bool m_supportIPv6 = true;
 
@@ -65,8 +62,8 @@ namespace Eddie.Platform.Linux
 
 			try
 			{
-				IpAddresses ipsWhiteListIncoming = GetIpsWhiteListIncoming();
-				IpAddresses ipsWhiteListOutgoing = GetIpsWhiteListOutgoing(true);
+				IpAddresses ipsAllowlistIncoming = GetIpsAllowlistIncoming();
+				IpAddresses ipsAllowlistOutgoing = GetIpsAllowlistOutgoing(true);
 
 				// Build rules
 				var rulesIPv4 = new System.Text.StringBuilder();
@@ -128,10 +125,10 @@ namespace Eddie.Platform.Linux
 						rulesIPv4.AppendLine("-A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT");
 
 						// Allow TUN
-						rulesIPv4.AppendLine("-A INPUT -i tun+ -j ACCEPT");
+						//rulesIPv4.AppendLine("-A INPUT -i tun+ -j ACCEPT");
 
-						// Whitelist incoming
-						foreach (IpAddress ip in ipsWhiteListIncoming.IPs)
+						// Allowlist incoming
+						foreach (IpAddress ip in ipsAllowlistIncoming.IPs)
 						{
 							if (ip.IsV4)
 							{
@@ -144,7 +141,7 @@ namespace Eddie.Platform.Linux
 						rulesIPv4.AppendLine("-A INPUT -j " + defaultPolicyInput);
 
 						// Allow TUN
-						rulesIPv4.AppendLine("-A FORWARD -i tun+ -j ACCEPT");
+						//rulesIPv4.AppendLine("-A FORWARD -i tun+ -j ACCEPT");
 
 						// Redundand, equal to default policy
 						rulesIPv4.AppendLine("-A FORWARD -j " + defaultPolicyForward);
@@ -188,22 +185,22 @@ namespace Eddie.Platform.Linux
 						}
 
 						// Allow TUN
-						rulesIPv4.AppendLine("-A OUTPUT -o tun+ -j ACCEPT");
+						//rulesIPv4.AppendLine("-A OUTPUT -o tun+ -j ACCEPT"); 
 
 						// If incoming=allow, allow packet response to out
 						// We avoid a general rules, because in block/block mode don't drop already exists keepalive
 						if (defaultPolicyInput == "ACCEPT")
 							rulesIPv4.AppendLine("-A OUTPUT -m state --state ESTABLISHED -j ACCEPT");
 
-						// Whitelist incoming
-						foreach (IpAddress ip in ipsWhiteListIncoming.IPs)
+						// Allowlist incoming
+						foreach (IpAddress ip in ipsAllowlistIncoming.IPs)
 						{
 							if (ip.IsV4)
 								rulesIPv4.AppendLine("-A OUTPUT -d " + ip.ToCIDR() + " -m state --state ESTABLISHED -j ACCEPT");
 						}
 
-						// Whitelist outgoing
-						foreach (IpAddress ip in ipsWhiteListOutgoing.IPs)
+						// Allowlist outgoing
+						foreach (IpAddress ip in ipsAllowlistOutgoing.IPs)
 						{
 							if (ip.IsV4)
 								rulesIPv4.AppendLine("-A OUTPUT -d " + ip.ToCIDR() + " -j ACCEPT");
@@ -276,10 +273,10 @@ namespace Eddie.Platform.Linux
 						rulesIPv6.AppendLine("-A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT");
 
 						// Allow TUN
-						rulesIPv6.AppendLine("-A INPUT -i tun+ -j ACCEPT");
+						//rulesIPv6.AppendLine("-A INPUT -i tun+ -j ACCEPT");
 
-						// Whitelist incoming
-						foreach (IpAddress ip in ipsWhiteListIncoming.IPs)
+						// Allowlist incoming
+						foreach (IpAddress ip in ipsAllowlistIncoming.IPs)
 						{
 							if (ip.IsV6)
 							{
@@ -294,7 +291,7 @@ namespace Eddie.Platform.Linux
 						rulesIPv6.AppendLine("-A FORWARD -m rt --rt-type 0 -j DROP");
 
 						// Allow TUN
-						rulesIPv6.AppendLine("-A FORWARD -i tun+ -j ACCEPT");
+						//rulesIPv6.AppendLine("-A FORWARD -i tun+ -j ACCEPT");
 
 						// Redundand, equal to default policy
 						rulesIPv6.AppendLine("-A FORWARD -j " + defaultPolicyForward);
@@ -320,22 +317,22 @@ namespace Eddie.Platform.Linux
 						}
 
 						// Allow TUN
-						rulesIPv6.AppendLine("-A OUTPUT -o tun+ -j ACCEPT");
+						//rulesIPv6.AppendLine("-A OUTPUT -o tun+ -j ACCEPT");
 
 						// If incoming=allow, allow packet response to out
 						// We avoid a general rules, because in block/block mode don't drop already exists keepalive
 						if (defaultPolicyInput == "ACCEPT")
 							rulesIPv6.AppendLine("-A OUTPUT -m state --state ESTABLISHED -j ACCEPT");
 
-						// Whitelist incoming
-						foreach (IpAddress ip in ipsWhiteListIncoming.IPs)
+						// Allowlist incoming
+						foreach (IpAddress ip in ipsAllowlistIncoming.IPs)
 						{
 							if (ip.IsV6)
 								rulesIPv6.AppendLine("-A OUTPUT -d " + ip.ToCIDR() + " -m state --state ESTABLISHED -j ACCEPT");
 						}
 
-						// Whitelist outgoing
-						foreach (IpAddress ip in ipsWhiteListOutgoing.IPs)
+						// Allowlist outgoing
+						foreach (IpAddress ip in ipsAllowlistOutgoing.IPs)
 						{
 							if (ip.IsV6)
 								rulesIPv6.AppendLine("-A OUTPUT -d " + ip.ToCIDR() + " -j ACCEPT");
@@ -359,8 +356,8 @@ namespace Eddie.Platform.Linux
 				if (result != "")
 					throw new Exception("Unexpected result: " + result);
 
-				m_ipsWhiteListIncoming = ipsWhiteListIncoming;
-				m_ipsWhiteListOutgoing = ipsWhiteListOutgoing;
+				m_ipsAllowlistIncoming = ipsAllowlistIncoming;
+				m_ipsAllowlistOutgoing = ipsAllowlistOutgoing;
 
 				OnUpdateIps();
 			}
@@ -380,67 +377,81 @@ namespace Eddie.Platform.Linux
 				throw new Exception("Unexpected result: " + result);
 
 			// IPS
-			m_ipsWhiteListIncoming.Clear();
-			m_ipsWhiteListOutgoing.Clear();
+			m_ipsAllowlistIncoming.Clear();
+			m_ipsAllowlistOutgoing.Clear();
 		}
 
 		public override void OnUpdateIps()
 		{
 			base.OnUpdateIps();
 
-			IpAddresses ipsWhiteListIncoming = GetIpsWhiteListIncoming();
-			IpAddresses ipsWhiteListOutgoing = GetIpsWhiteListOutgoing(true);
+			IpAddresses ipsAllowlistIncoming = GetIpsAllowlistIncoming();
+			IpAddresses ipsAllowlistOutgoing = GetIpsAllowlistOutgoing(true);
 
 			// Incoming - Remove IP not present in the new list
-			foreach (IpAddress ip in m_ipsWhiteListIncoming.IPs)
+			foreach (IpAddress ip in m_ipsAllowlistIncoming.IPs)
 			{
 				if (((ip.IsV4) && (m_supportIPv4 == false)) || ((ip.IsV6) && (m_supportIPv6 == false)))
 					continue;
 
-				if (ipsWhiteListIncoming.Contains(ip) == false)
+				if (ipsAllowlistIncoming.Contains(ip) == false)
 				{
 					Engine.Instance.Elevated.DoCommandSync("netlock-iptables-accept-ip", "layer", (ip.IsV4 ? "ipv4" : "ipv6"), "direction", "in", "action", "del", "cidr", ip.ToCIDR());
 				}
 			}
 
 			// Incoming - Add IP
-			foreach (IpAddress ip in ipsWhiteListIncoming.IPs)
+			foreach (IpAddress ip in ipsAllowlistIncoming.IPs)
 			{
 				if (((ip.IsV4) && (m_supportIPv4 == false)) || ((ip.IsV6) && (m_supportIPv6 == false)))
 					continue;
 
-				if (m_ipsWhiteListIncoming.Contains(ip) == false)
+				if (m_ipsAllowlistIncoming.Contains(ip) == false)
 				{
 					Engine.Instance.Elevated.DoCommandSync("netlock-iptables-accept-ip", "layer", (ip.IsV4 ? "ipv4" : "ipv6"), "direction", "in", "action", "add", "cidr", ip.ToCIDR());
 				}
 			}
 
 			// Outgoing - Remove IP not present in the new list
-			foreach (IpAddress ip in m_ipsWhiteListOutgoing.IPs)
+			foreach (IpAddress ip in m_ipsAllowlistOutgoing.IPs)
 			{
 				if (((ip.IsV4) && (m_supportIPv4 == false)) || ((ip.IsV6) && (m_supportIPv6 == false)))
 					continue;
 
-				if (ipsWhiteListOutgoing.Contains(ip) == false)
+				if (ipsAllowlistOutgoing.Contains(ip) == false)
 				{
 					Engine.Instance.Elevated.DoCommandSync("netlock-iptables-accept-ip", "layer", (ip.IsV4 ? "ipv4" : "ipv6"), "direction", "out", "action", "del", "cidr", ip.ToCIDR());
 				}
 			}
 
 			// Outgoing - Add IP
-			foreach (IpAddress ip in ipsWhiteListOutgoing.IPs)
+			foreach (IpAddress ip in ipsAllowlistOutgoing.IPs)
 			{
 				if (((ip.IsV4) && (m_supportIPv4 == false)) || ((ip.IsV6) && (m_supportIPv6 == false)))
 					continue;
 
-				if (m_ipsWhiteListOutgoing.Contains(ip) == false)
+				if (m_ipsAllowlistOutgoing.Contains(ip) == false)
 				{
 					Engine.Instance.Elevated.DoCommandSync("netlock-iptables-accept-ip", "layer", (ip.IsV4 ? "ipv4" : "ipv6"), "direction", "out", "action", "add", "cidr", ip.ToCIDR());
 				}
 			}
 
-			m_ipsWhiteListIncoming = ipsWhiteListIncoming;
-			m_ipsWhiteListOutgoing = ipsWhiteListOutgoing;
+			m_ipsAllowlistIncoming = ipsAllowlistIncoming;
+			m_ipsAllowlistOutgoing = ipsAllowlistOutgoing;
+		}
+
+		public override void AllowInterface(NetworkInterface networkInterface)
+		{
+			base.AllowInterface(networkInterface);
+
+			Engine.Instance.Elevated.DoCommandSync("netlock-iptables-interface", "id", networkInterface.Id, "ipv4", m_supportIPv4 ? "1":"0", "ipv6", m_supportIPv6 ? "1" : "0", "action", "add");
+		}
+
+		public override void DeallowInterface(NetworkInterface networkInterface)
+		{
+			base.DeallowInterface(networkInterface);
+
+			Engine.Instance.Elevated.DoCommandSync("netlock-iptables-interface", "id", networkInterface.Id, "ipv4", m_supportIPv4 ? "1" : "0", "ipv6", m_supportIPv6 ? "1" : "0", "action", "del");
 		}
 	}
 }

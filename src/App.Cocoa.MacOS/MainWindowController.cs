@@ -123,14 +123,14 @@ namespace Eddie.UI.Cocoa.Osx
 			ChkServersShowAll.ToolTip = LanguageManager.GetText("TooltipServersShowAll");
 			CmdServersConnect.ToolTip = LanguageManager.GetText("TooltipServersConnect");
 			CmdServersUndefined.ToolTip = LanguageManager.GetText("TooltipServersUndefined");
-			CmdServersBlackList.ToolTip = LanguageManager.GetText("TooltipServersBlackList");
-			CmdServersWhiteList.ToolTip = LanguageManager.GetText("TooltipServersWhiteList");
+			CmdServersDenylist.ToolTip = LanguageManager.GetText("TooltipServersDenylist");
+			CmdServersAllowlist.ToolTip = LanguageManager.GetText("TooltipServersAllowlist");
 			CmdServersRename.ToolTip = LanguageManager.GetText("TooltipServersRename");
 			CmdServersMore.ToolTip = LanguageManager.GetText("TooltipServersMore");
 			CmdServersRefresh.ToolTip = LanguageManager.GetText("TooltipServersRefresh");
 			CmdAreasUndefined.ToolTip = LanguageManager.GetText("TooltipAreasUndefined");
-			CmdAreasBlackList.ToolTip = LanguageManager.GetText("TooltipAreasBlackList");
-			CmdAreasWhiteList.ToolTip = LanguageManager.GetText("TooltipAreasWhiteList");
+			CmdAreasDenylist.ToolTip = LanguageManager.GetText("TooltipAreasDenylist");
+			CmdAreasAllowlist.ToolTip = LanguageManager.GetText("TooltipAreasAllowlist");
 			CmdLogsCommand.ToolTip = LanguageManager.GetText("TooltipLogsCommand");
 			CmdLogsClean.ToolTip = LanguageManager.GetText("TooltipLogsClean");
 			CmdLogsCopy.ToolTip = LanguageManager.GetText("TooltipLogsCopy");
@@ -256,14 +256,14 @@ namespace Eddie.UI.Cocoa.Osx
 				ConnectManual();
 			};
 
-			CmdServersWhiteList.Activated += (object sender, EventArgs e) =>
+			CmdServersAllowlist.Activated += (object sender, EventArgs e) =>
 			{
-				ServersWhiteList();
+				ServersAllowlist();
 			};
 
-			CmdServersBlackList.Activated += (object sender, EventArgs e) =>
+			CmdServersDenylist.Activated += (object sender, EventArgs e) =>
 			{
-				ServersBlackList();
+				ServersDenylist();
 			};
 
 			CmdServersUndefined.Activated += (object sender, EventArgs e) =>
@@ -291,14 +291,14 @@ namespace Eddie.UI.Cocoa.Osx
 				ConnectManual();
 			};
 
-			MnuServersWhitelist.Activated += (object sender, EventArgs e) =>
+			MnuServersAllowlist.Activated += (object sender, EventArgs e) =>
 			{
-				ServersWhiteList();
+				ServersAllowlist();
 			};
 
-			MnuServersBlacklist.Activated += (object sender, EventArgs e) =>
+			MnuServersDenylist.Activated += (object sender, EventArgs e) =>
 			{
-				ServersBlackList();
+				ServersDenylist();
 			};
 
 			MnuServersUndefined.Activated += (object sender, EventArgs e) =>
@@ -321,14 +321,14 @@ namespace Eddie.UI.Cocoa.Osx
 				ServersRefresh();
 			};
 
-			CmdAreasWhiteList.Activated += (object sender, EventArgs e) =>
+			CmdAreasAllowlist.Activated += (object sender, EventArgs e) =>
 			{
-				AreasWhiteList();
+				AreasAllowlist();
 			};
 
-			CmdAreasBlackList.Activated += (object sender, EventArgs e) =>
+			CmdAreasDenylist.Activated += (object sender, EventArgs e) =>
 			{
-				AreasBlackList();
+				AreasDenylist();
 			};
 
 			CmdAreasUndefined.Activated += (object sender, EventArgs e) =>
@@ -336,14 +336,14 @@ namespace Eddie.UI.Cocoa.Osx
 				AreasUndefinedList();
 			};
 
-			MnuAreasWhitelist.Activated += (object sender, EventArgs e) =>
+			MnuAreasAllowlist.Activated += (object sender, EventArgs e) =>
 			{
-				AreasWhiteList();
+				AreasAllowlist();
 			};
 
-			MnuAreasBlacklist.Activated += (object sender, EventArgs e) =>
+			MnuAreasDenylist.Activated += (object sender, EventArgs e) =>
 			{
-				AreasBlackList();
+				AreasDenylist();
 			};
 
 			MnuAreasUndefined.Activated += (object sender, EventArgs e) =>
@@ -507,7 +507,7 @@ namespace Eddie.UI.Cocoa.Osx
 			};
 
 			CboServersScoringRule.ToolTip = LanguageManager.GetText("TooltipServersScoreType");
-			CmdAreasBlackList.ToolTip = LanguageManager.GetText("TooltipAreasBlackList");
+			CmdAreasDenylist.ToolTip = LanguageManager.GetText("TooltipAreasDenylist");
 
 			Engine.OnRefreshUi();
 
@@ -855,12 +855,12 @@ namespace Eddie.UI.Cocoa.Osx
 			CmdProviderEdit.Enabled = (TableProviders.SelectedRowCount > 0);
 
 			CmdServersConnect.Enabled = ((selectedConnection != null) && (selectedConnection.CanConnect()));
-			CmdServersWhiteList.Enabled = (TableServers.SelectedRowCount > 0);
-			CmdServersBlackList.Enabled = CmdServersWhiteList.Enabled;
-			CmdServersUndefined.Enabled = CmdServersWhiteList.Enabled;
+			CmdServersAllowlist.Enabled = (TableServers.SelectedRowCount > 0);
+			CmdServersDenylist.Enabled = CmdServersAllowlist.Enabled;
+			CmdServersUndefined.Enabled = CmdServersAllowlist.Enabled;
 			MnuServersConnect.Enabled = CmdServersConnect.Enabled;
-			MnuServersWhitelist.Enabled = CmdServersWhiteList.Enabled;
-			MnuServersBlacklist.Enabled = CmdServersBlackList.Enabled;
+			MnuServersAllowlist.Enabled = CmdServersAllowlist.Enabled;
+			MnuServersDenylist.Enabled = CmdServersDenylist.Enabled;
 			MnuServersUndefined.Enabled = CmdServersUndefined.Enabled;
 
 			CmdServersMore.Enabled = (TableServers.SelectedRowCount == 1);
@@ -869,11 +869,11 @@ namespace Eddie.UI.Cocoa.Osx
 			CmdServersRename.Enabled = ((selectedConnection != null) && (selectedConnection.Provider is Core.Providers.OpenVPN));
 			MnuServersRename.Enabled = CmdServersRename.Enabled;
 
-			CmdAreasWhiteList.Enabled = (TableAreas.SelectedRowCount > 0);
-			CmdAreasBlackList.Enabled = CmdAreasWhiteList.Enabled;
-			CmdAreasUndefined.Enabled = CmdAreasWhiteList.Enabled;
-			MnuAreasWhitelist.Enabled = CmdAreasWhiteList.Enabled;
-			MnuAreasBlacklist.Enabled = CmdAreasBlackList.Enabled;
+			CmdAreasAllowlist.Enabled = (TableAreas.SelectedRowCount > 0);
+			CmdAreasDenylist.Enabled = CmdAreasAllowlist.Enabled;
+			CmdAreasUndefined.Enabled = CmdAreasAllowlist.Enabled;
+			MnuAreasAllowlist.Enabled = CmdAreasAllowlist.Enabled;
+			MnuAreasDenylist.Enabled = CmdAreasDenylist.Enabled;
 			MnuAreasUndefined.Enabled = CmdAreasUndefined.Enabled;
 
 			CmdLogsCommand.Hidden = (Engine.Options.GetBool("advanced.expert") == false);
@@ -1092,21 +1092,21 @@ namespace Eddie.UI.Cocoa.Osx
 			}
 		}
 
-		void ServersWhiteList()
+		void ServersAllowlist()
 		{
 			foreach (int i in TableServers.SelectedRows)
 			{
-				TableServersController.GetRelatedItem(i).UserList = ConnectionInfo.UserListType.Whitelist;
+				TableServersController.GetRelatedItem(i).UserList = ConnectionInfo.UserListType.Allowlist;
 			}
 			Engine.UpdateSettings();
 			TableServersController.RefreshUI();
 		}
 
-		void ServersBlackList()
+		void ServersDenylist()
 		{
 			foreach (int i in TableServers.SelectedRows)
 			{
-				TableServersController.GetRelatedItem(i).UserList = ConnectionInfo.UserListType.Blacklist;
+				TableServersController.GetRelatedItem(i).UserList = ConnectionInfo.UserListType.Denylist;
 			}
 			Engine.UpdateSettings();
 			TableServersController.RefreshUI();
@@ -1166,21 +1166,21 @@ namespace Eddie.UI.Cocoa.Osx
 			Engine.Instance.RefreshProvidersInvalidateConnections();
 		}
 
-		void AreasWhiteList()
+		void AreasAllowlist()
 		{
 			foreach (int i in TableAreas.SelectedRows)
 			{
-				TableAreasController.GetRelatedItem(i).UserList = AreaInfo.UserListType.Whitelist;
+				TableAreasController.GetRelatedItem(i).UserList = AreaInfo.UserListType.Allowlist;
 			}
 			Engine.UpdateSettings();
 			TableServersController.RefreshUI();
 		}
 
-		void AreasBlackList()
+		void AreasDenylist()
 		{
 			foreach (int i in TableAreas.SelectedRows)
 			{
-				TableAreasController.GetRelatedItem(i).UserList = AreaInfo.UserListType.Blacklist;
+				TableAreasController.GetRelatedItem(i).UserList = AreaInfo.UserListType.Denylist;
 			}
 			Engine.UpdateSettings();
 			TableAreasController.RefreshUI();

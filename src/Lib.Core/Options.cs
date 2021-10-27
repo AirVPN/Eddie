@@ -431,14 +431,14 @@ namespace Eddie.Core
 			SetDefault("updater.channel", "choice:stable,beta,internal,none", "stable", LanguageManager.GetText("ManOptionUpdaterChannel"));
 
 			SetDefault("servers.last", "text", "", NotInMan, false);
-			SetDefault("servers.whitelist", "text", "", LanguageManager.GetText("ManOptionServersWhiteList"));
-			SetDefault("servers.blacklist", "text", "", LanguageManager.GetText("ManOptionServersBlackList"));
+			SetDefault("servers.allowlist", "text", "", LanguageManager.GetText("ManOptionServersAllowlist"));
+			SetDefault("servers.denylist", "text", "", LanguageManager.GetText("ManOptionServersDenylist"));
 			SetDefaultBool("servers.startlast", false, LanguageManager.GetText("ManOptionServersStartLast"));
 			SetDefaultBool("servers.locklast", false, LanguageManager.GetText("ManOptionServersLockLast"));
 			SetDefault("servers.scoretype", "choice:Speed,Latency", "Speed", LanguageManager.GetText("ManOptionServersScoreType"));
 
-			SetDefault("areas.whitelist", "text", "", LanguageManager.GetText("ManOptionAreasWhiteList"));
-			SetDefault("areas.blacklist", "text", "", LanguageManager.GetText("ManOptionAreasBlackList"));
+			SetDefault("areas.allowlist", "text", "", LanguageManager.GetText("ManOptionAreasAllowlist"));
+			SetDefault("areas.denylist", "text", "", LanguageManager.GetText("ManOptionAreasDenylist"));
 
 			SetDefault("discover.ip_webservice.list", "text", "https://ipleak.net/json/{@ip};https://freegeoip.net/json/{@ip};http://ip-api.com/json/{@ip}", NotInMan);
 			SetDefaultBool("discover.ip_webservice.first", true, NotInMan);
@@ -492,8 +492,8 @@ namespace Eddie.Core
 			SetDefaultBool("netlock.allow_dns", false, LanguageManager.GetText("ManOptionNetLockAllowDNS"));
 			SetDefault("netlock.incoming", "choice:allow,block", "block", NotInMan);
 			SetDefault("netlock.outgoing", "choice:allow,block", "block", NotInMan);
-			SetDefault("netlock.whitelist.incoming.ips", "text", "", LanguageManager.GetText("ManOptionNetLockWhitelistIncomingIps"));
-			SetDefault("netlock.whitelist.outgoing.ips", "text", "", LanguageManager.GetText("ManOptionNetLockWhitelistOutgoingIps"));
+			SetDefault("netlock.allowlist.incoming.ips", "text", "", LanguageManager.GetText("ManOptionNetLockAllowlistIncomingIps"));
+			SetDefault("netlock.allowlist.outgoing.ips", "text", "", LanguageManager.GetText("ManOptionNetLockAllowlistOutgoingIps"));
 
 			SetDefault("network.entry.iface", "text", "", NotInMan);
 			SetDefault("network.entry.iplayer", "text", "ipv4-ipv6", NotInMan); // ipv6-ipv4;ipv4-ipv6;ipv4-only;ipv6-only;
@@ -503,7 +503,7 @@ namespace Eddie.Core
 			SetDefaultBool("network.ipv6.autoswitch", true, NotInMan);
 			SetDefault("network.gateways.default_skip_types", "text", "Loopback;Tunnel", NotInMan);
 			SetDefaultInt("network.mtu", -1, NotInMan);
-			SetDefault("network.iface.name", "text", "Eddie", LanguageManager.GetText("ManOptionNetworkIfaceName"));
+			SetDefault("network.iface.name", "text", "", LanguageManager.GetText("ManOptionNetworkIfaceName"));
 
 			SetDefault("tools.openvpn.path", "path_file", "", LanguageManager.GetText("ManOptionToolsOpenVpnPath"));
 			SetDefaultBool("tools.hummingbird.preferred", false, NotInMan);

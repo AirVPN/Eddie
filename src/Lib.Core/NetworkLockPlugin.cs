@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Net.NetworkInformation;
 using System.Text;
 using System.Xml;
 
@@ -62,6 +63,7 @@ namespace Eddie.Core
 		{
 		}
 
+		/* // Not used
 		public virtual void AllowIP(IpAddress ip)
 		{
 		}
@@ -69,20 +71,21 @@ namespace Eddie.Core
 		public virtual void DeallowIP(IpAddress ip)
 		{
 		}
+		*/
 
-		public virtual void AllowProgram(string path, string name, string guid)
+		public virtual void AllowProgram(string path)
 		{
 		}
 
-		public virtual void DeallowProgram(string path, string name, string guid)
+		public virtual void DeallowProgram(string path)
 		{
 		}
 
-		public virtual void AllowInterface(string id)
+		public virtual void AllowInterface(NetworkInterface networkInterface)
 		{
 		}
 
-		public virtual void DeallowInterface(string id)
+		public virtual void DeallowInterface(NetworkInterface networkInterface)
 		{
 		}
 
@@ -115,13 +118,13 @@ namespace Eddie.Core
 			return title;
 		}
 
-		public IpAddresses GetIpsWhiteListIncoming()
+		public IpAddresses GetIpsAllowlistIncoming()
 		{
 			IpAddresses result = new IpAddresses();
 
-			// Whitelist
+			// Allowlist
 			{
-				string list = Engine.Instance.Options.Get("netlock.whitelist.incoming.ips");
+				string list = Engine.Instance.Options.Get("netlock.allowlist.incoming.ips");
 				list = list.Replace("\u2028", ","); // macOS Hack  // TOCLEAN
 				List<string> hosts = list.StringToList();
 				foreach (string host in hosts)
@@ -138,13 +141,13 @@ namespace Eddie.Core
 			return result;
 		}
 
-		public IpAddresses GetIpsWhiteListOutgoing(bool includeIpUsedByClient)
+		public IpAddresses GetIpsAllowlistOutgoing(bool includeIpUsedByClient)
 		{
 			IpAddresses result = new IpAddresses();
 
-			// Whitelist
+			// Allowlist
 			{
-				string list = Engine.Instance.Options.Get("netlock.whitelist.outgoing.ips");
+				string list = Engine.Instance.Options.Get("netlock.allowlist.outgoing.ips");
 				list = list.Replace("\u2028", ","); // macOS Hack  // TOCLEAN
 				List<string> hosts = list.StringToList();
 				foreach (string host in hosts)
@@ -187,7 +190,7 @@ namespace Eddie.Core
 				// Providers
 				foreach (Providers.IProvider provider in Engine.Instance.ProvidersManager.Providers)
 				{
-					result.Add(provider.GetNetworkLockWhiteListOutgoingIPs());
+					result.Add(provider.GetNetworkLockAllowlistOutgoingIPs());
 				}
 
 				// Servers

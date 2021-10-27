@@ -1162,6 +1162,31 @@ std::string IBase::StringIpRemoveInterface(const std::string& ip)
 }
 
 // --------------------------
+// Utils JSON (avoid library until our usage keep simple)
+// --------------------------
+
+std::string IBase::JsonEncode(const std::string& v)
+{
+	return StringReplaceAll(v, "\"","\\\"");
+}
+
+std::string IBase::JsonFromKeyPairs(std::map<std::string, std::string>& kp)
+{
+	std::string result;
+	int f = 0;
+	for (std::map<std::string, std::string>::iterator it = kp.begin(); it != kp.end(); ++it)
+	{
+		std::string k = it->first;
+		std::string v = it->second;
+		if (f > 0)
+			result += ",";
+		result += "\"" + JsonEncode(k) + "\":\"" + JsonEncode(v) + "\"";
+		f++;
+	}
+	return "{" + result + "}";
+}
+
+// --------------------------
 // Utils other
 // --------------------------
 

@@ -199,7 +199,7 @@ protected:
 	bool StringVectorsEqualOrdered(const std::vector<std::string>& v1, const std::vector<std::string>& v2);
 	std::string StringTrim(const std::string& s, const std::string& chars);
 	std::string StringTrim(const std::string& s);
-	std::string StringToLower(const std::string& s);
+	std::string StringToLower(const std::string& s);	
 	std::string StringPruneCharsNotIn(const std::string& str, const std::string& allowed);
 	std::string StringEnsureAlphaNumeric(const std::string& str);
 	std::string StringEnsureHex(const std::string& str);
@@ -221,6 +221,10 @@ protected:
 	bool StringIsIPv6(const std::string& ip);
 	std::string StringIpNormalize(const std::string& ip);
 	std::string StringIpRemoveInterface(const std::string& ip);
+
+	// Utils JSON (avoid library until our usage keep simple)
+	std::string JsonEncode(const std::string& v);
+	std::string JsonFromKeyPairs(std::map<std::string, std::string>& kp);
 
 	// Utils other
 	unsigned long GetTimestampUnix();

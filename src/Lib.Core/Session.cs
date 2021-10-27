@@ -52,7 +52,6 @@ namespace Eddie.Core
 		private bool m_connected = false;
 		private string m_reset = "";
 		private List<SessionLogEvent> m_logEvents = new List<SessionLogEvent>();
-		private InterfaceScope m_interfaceScope = null;
 		private ConnectionTypes.IConnectionType m_connection = null;
 
 		public ConnectionTypes.IConnectionType Connection
@@ -77,8 +76,6 @@ namespace Eddie.Core
 
 			for (; CancelRequested == false;)
 			{
-				RouteScope routeScope = null;
-
 				bool allowed = true;
 				string waitingMessage = "";
 				int waitingSecs = 0;
@@ -311,8 +308,6 @@ namespace Eddie.Core
 						sessionLastServer = Engine.CurrentServer.Code;
 						Engine.Options.Set("servers.last", Engine.CurrentServer.Code);
 
-						routeScope = new RouteScope(m_connection.EntryIP); // Clodo: Urgent, may not work under some OS with NetLock active. Try to add the RouteScope when detecting protocol from OpenVPN logs.
-
 						Engine.RunEventCommand("vpn.pre");
 
 						string connectingMessage = LanguageManager.GetText("ConnectionConnecting", Engine.CurrentServer.GetNameWithLocation());
@@ -487,18 +482,6 @@ namespace Eddie.Core
 					SetReset("FATAL");
 				}
 
-				if (routeScope != null)
-				{
-					routeScope.End();
-					routeScope = null;
-				}
-
-				if (m_interfaceScope != null)
-				{
-					m_interfaceScope.End();
-					m_interfaceScope = null;
-				}
-
 				if (Engine.StartCommandLine.Get("console.mode") == "batch")
 				{
 					Engine.Instance.RequestStop();
@@ -653,34 +636,7 @@ namespace Eddie.Core
 			}
 		}
 
-		public void SetTunNetworkInterface(NetworkInterface adapter)
-		{
-			m_connection.Interface = adapter;
 
-			m_interfaceScope = new InterfaceScope(m_connection.Interface.Id);
-
-			Json jInfo = Engine.Instance.FindNetworkInterfaceInfo(m_connection.Interface.Id);
-
-			if ((m_connection.ConfigIPv4) && (jInfo != null) && (jInfo.HasKey("support_ipv4")) && (Conversions.ToBool(jInfo["support_ipv4"].Value) == false))
-			{
-				Engine.Instance.Logs.LogWarning(LanguageManager.GetText("IPv4NotSupportedByNetworkAdapter"));
-				if ((Engine.Instance.Options.GetBool("network.ipv4.autoswitch")) && (Engine.Instance.Options.Get("network.ipv4.mode") != "block"))
-				{
-					Engine.Instance.Logs.LogWarning(LanguageManager.GetText("IPv4NotSupportedByNetworkAdapterAutoSwitch"));
-					Engine.Instance.Options.Set("network.ipv4.mode", "block");
-				}
-			}
-
-			if ((m_connection.ConfigIPv6) && (jInfo != null) && (jInfo.HasKey("support_ipv6")) && (Conversions.ToBool(jInfo["support_ipv6"].Value) == false))
-			{
-				Engine.Instance.Logs.LogWarning(LanguageManager.GetText("IPv6NotSupportedByNetworkAdapter"));
-				if ((Engine.Instance.Options.GetBool("network.ipv6.autoswitch")) && (Engine.Instance.Options.Get("network.ipv6.mode") != "block"))
-				{
-					Engine.Instance.Logs.LogWarning(LanguageManager.GetText("IPv6NotSupportedByNetworkAdapterAutoSwitch"));
-					Engine.Instance.Options.Set("network.ipv6.mode", "block");
-				}
-			}
-		}
 
 		public void RoutesApply(string phase)
 		{

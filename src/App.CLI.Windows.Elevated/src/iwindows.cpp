@@ -434,6 +434,8 @@ void IWindows::Do(const std::string& commandId, const std::string& command, std:
 
 				std::string serviceId = "WireGuardTunnel_" + interfaceId;
 				std::string tempPath = FsGetTempPath() + "EddieTemp_" + interfaceId;
+				std::string configPath = "";
+				std::string ringPath = "";
 
 				try
 				{
@@ -442,12 +444,12 @@ void IWindows::Do(const std::string& commandId, const std::string& command, std:
 					if (FsDirectoryCreate(tempPath) == false)
 						ThrowException("Unable to create config directory (" + GetLastErrorAsString() + ")");
 
-					std::string configPath = tempPath + FsPathSeparator + interfaceId + ".conf";
+					configPath = tempPath + FsPathSeparator + interfaceId + ".conf";
 
 					if (FsFileWriteText(configPath, config) == false)
 						ThrowException("Unable to clean previous ring file (" + GetLastErrorAsString() + ")");
 
-					std::string ringPath = tempPath + FsPathSeparator + "log.bin";
+					ringPath = tempPath + FsPathSeparator + "log.bin";
 
 					if (FsFileExists(ringPath))
 						if (FsFileDelete(ringPath) == false)
@@ -632,6 +634,9 @@ void IWindows::Do(const std::string& commandId, const std::string& command, std:
 										if (StringStartsWith(line, "Routine:"))
 											skip = true;
 
+										if (StringContain(line, "Bringing peers up"))
+											ReplyCommand(commandId, "log:setup-interface");
+
 										// Note: the exact handshake can be obtained with pipe (the only info we need), but not implemented to avoid complexity
 										if (StringContain(line, "Received handshake response"))
 										{
@@ -715,8 +720,9 @@ void IWindows::Do(const std::string& commandId, const std::string& command, std:
 				ServiceDelete(serviceId);
 
 				// Stop and delete temp files
-				if (FsDirectoryExists(tempPath))
-					FsDirectoryDelete(tempPath, true);
+				FsFileDelete(configPath);
+				FsFileDelete(ringPath);
+				FsDirectoryDelete(tempPath, false);
 
 				// Close service handlers
 				if (service != 0)
@@ -1128,6 +1134,9 @@ bool IWindows::FsDirectoryCreate(const std::string& path)
 
 bool IWindows::FsFileExists(const std::string& path)
 {
+	if (path == "")
+		return false;
+
 	std::wstring pathW(StringUTF8ToWString(path));
 	if (INVALID_FILE_ATTRIBUTES == ::GetFileAttributes(pathW.c_str()) && ::GetLastError() == ERROR_FILE_NOT_FOUND)
 		return false;
@@ -1137,6 +1146,9 @@ bool IWindows::FsFileExists(const std::string& path)
 
 bool IWindows::FsDirectoryExists(const std::string& path)
 {
+	if (path == "")
+		return false;
+
 	std::wstring pathW(StringUTF8ToWString(path));
 	DWORD ftype = GetFileAttributes(pathW.c_str());
 	if (ftype == INVALID_FILE_ATTRIBUTES)
@@ -1875,7 +1887,7 @@ void IWindows::WintunAdapterRemovePool(const std::wstring& pool)
 	// TOFIX, the code above don't compile on x86
 	WintunAdapterRemove(pool, StringUTF8ToWString("Eddie OpenVPN"));
 #endif
-}
+	}
 
 // Note 2021-05-06:
 // It's not possible to call directly the wireguard.dll entrypoint, because throw

@@ -44,7 +44,9 @@ private:
 	int FileImmutableSet(const std::string& path, const int flag);
 	std::string IptablesExecutable(const std::string& layer, const std::string& action);
 	std::string IptablesExec(const std::string& path, const std::vector<std::string>& args, const bool stdinWrite, const std::string stdinBody);
+	std::string NftablesSearchHandle(const std::string& rulesList, const std::string& comment);
 	std::string GetRoutesAsJson();
+	std::string GetRoutesAsJsonNew();
 	std::string GetRoutesAsJsonHexAddress2string(const std::string& v);
 	int GetRoutesAsJsonConvertMaskToCidrNetMask(const std::string& v);
 	int GetRoutesAsJsonConvertHexPrefixToCidrNetMask(const std::string& v);

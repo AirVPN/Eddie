@@ -101,8 +101,8 @@ void IPosix::Do(const std::string& commandId, const std::string& command, std::m
 				argv.push_back(params["config"]);
 
 				std::string openvpnDirectory = FsFileGetDirectory(params["path"]);
-				int chdirResult = chdir(openvpnDirectory.c_str()); // AppImage, our openvpn have rpath=.
-				if(chdirResult != 0)
+				int chdirResult = chdir(openvpnDirectory.c_str()); // AppImage, our openvpn look ./ for .so
+				if (chdirResult != 0)
 					ThrowException("Unable to chdir " + openvpnDirectory);
 
 				pstream child(argv, mode);
@@ -726,7 +726,7 @@ bool IPosix::CheckIfExecutableIsAllowed(const std::string& path, const bool& thr
 		else
 			return false;
 	}
-	
+
 	return true;
 }
 

@@ -1387,21 +1387,15 @@ namespace Eddie.Platform.Windows
 			}
 		}
 
-		public override void OnJsonNetworkInfo(Json jNetworkInfo)
+		public override void OnJsonNetworkInterfaceInfo(NetworkInterface networkInterface, Json jNetworkInterface)
 		{
-			base.OnJsonNetworkInfo(jNetworkInfo);
+			base.OnJsonNetworkInterfaceInfo(networkInterface, jNetworkInterface);
 
-			foreach (Json jNetworkInterface in jNetworkInfo["interfaces"].Json.GetArray())
-			{
-				string id = jNetworkInterface["id"].Value as string;
+			string id = jNetworkInterface["id"].ValueString;
 
-				jNetworkInterface["dns4"].Value = Registry.GetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\\" + id.ToLowerInvariant(), "NameServer", "") as string;
-				jNetworkInterface["dns6"].Value = Registry.GetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip6\\Parameters\\Interfaces\\" + id.ToLowerInvariant(), "NameServer", "") as string;
-				jNetworkInterface["dns6"].Value = null; // CLODOTEMP, re-check
-			}
-
-			jNetworkInfo["support_ipv4"].Value = OsSupportIPv4();
-			jNetworkInfo["support_ipv6"].Value = OsSupportIPv6();
+			jNetworkInterface["dns4"].Value = Registry.GetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\\" + id.ToLowerInvariant(), "NameServer", "") as string;
+			jNetworkInterface["dns6"].Value = Registry.GetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip6\\Parameters\\Interfaces\\" + id.ToLowerInvariant(), "NameServer", "") as string;
+			jNetworkInterface["dns6"].Value = null; // CLODOTEMP, re-check
 		}
 
 		public override void OnJsonRouteList(Json jRoutesList)
@@ -1535,6 +1529,32 @@ namespace Eddie.Platform.Windows
 			// and use our system also in OpenVPN.
 			// But in Win7 don't work well.
 			return IsWin7();
+		}
+
+		public override bool GetSupportIPv4()
+		{
+			object v = Registry.GetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\TCPIP\\Parameters", "DisabledComponents", "");
+			if (Conversions.ToUInt32(v, 0) == 0) // 0 is the Windows default if the key doesn't exist.
+				v = 0;
+
+			return (Conversions.ToUInt32(v, 0) == 0);
+		}
+
+		public override bool GetSupportIPv6()
+		{
+			bool available = true;
+
+			// Based on: http://support.microsoft.com/kb/929852
+			// Based on: https://www.wincert.net/networking/ipv6-breaking-down-the-disabledcomponents-registry-value/
+			object reg = Registry.GetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\TCPIP6\\Parameters", "DisabledComponents", "");
+			UInt32 v = Conversions.ToUInt32(reg, 0);
+
+			if ((v & (1 << 0)) != 0) // Bit 0 controls ALL of the IPv6 tunnel interfaces. If 1 is disabled
+				available = false;
+			if ((v & (1 << 4)) != 0) // Bit 4 controls IPv6 for non-tunnel interfaces. If 1 is disabled
+				available = false;
+
+			return available;
 		}
 
 		public override string OpenVpnGetTunDriverReport()
@@ -1775,32 +1795,6 @@ namespace Eddie.Platform.Windows
 			m_listOldDns.Clear();
 		}
 
-		private bool OsSupportIPv4()
-		{
-			object v = Registry.GetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\TCPIP\\Parameters", "DisabledComponents", "");
-			if (Conversions.ToUInt32(v, 0) == 0) // 0 is the Windows default if the key doesn't exist.
-				v = 0;
-
-			return (Conversions.ToUInt32(v, 0) == 0);
-		}
-
-		private bool OsSupportIPv6()
-		{
-			bool available = true;
-
-			// Based on: http://support.microsoft.com/kb/929852
-			// Based on: https://www.wincert.net/networking/ipv6-breaking-down-the-disabledcomponents-registry-value/
-			object reg = Registry.GetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\TCPIP6\\Parameters", "DisabledComponents", "");
-			UInt32 v = Conversions.ToUInt32(reg, 0);
-
-			if ((v & (1 << 0)) != 0) // Bit 0 controls ALL of the IPv6 tunnel interfaces. If 1 is disabled
-				available = false;
-			if ((v & (1 << 4)) != 0) // Bit 4 controls IPv6 for non-tunnel interfaces. If 1 is disabled
-				available = false;
-
-			return available;
-		}
-
 		private NetworkInterface GetNetworkInterfaceFromGuid(string guid)
 		{
 			NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
@@ -1811,7 +1805,6 @@ namespace Eddie.Platform.Windows
 			}
 			return null;
 		}
-
 
 		private string NormalizeWinSysPath(string path)
 		{

@@ -430,14 +430,14 @@ namespace Eddie.Forms.Forms
 				m_toolTip.Connect(this.chkShowAll, LanguageManager.GetText("TooltipServersShowAll"));
 				m_toolTip.Connect(this.cmdServersConnect, LanguageManager.GetText("TooltipServersConnect"));
 				m_toolTip.Connect(this.cmdServersUndefined, LanguageManager.GetText("TooltipServersUndefined"));
-				m_toolTip.Connect(this.cmdServersBlackList, LanguageManager.GetText("TooltipServersBlackList"));
-				m_toolTip.Connect(this.cmdServersWhiteList, LanguageManager.GetText("TooltipServersWhiteList"));
+				m_toolTip.Connect(this.cmdServersDenylist, LanguageManager.GetText("TooltipServersDenylist"));
+				m_toolTip.Connect(this.cmdServersAllowlist, LanguageManager.GetText("TooltipServersAllowlist"));
 				m_toolTip.Connect(this.cmdServersRename, LanguageManager.GetText("TooltipServersRename"));
 				m_toolTip.Connect(this.cmdServersMore, LanguageManager.GetText("TooltipServersMore"));
 				m_toolTip.Connect(this.cmdServersRefresh, LanguageManager.GetText("TooltipServersRefresh"));
 				m_toolTip.Connect(this.cmdAreasUndefined, LanguageManager.GetText("TooltipAreasUndefined"));
-				m_toolTip.Connect(this.cmdAreasBlackList, LanguageManager.GetText("TooltipAreasBlackList"));
-				m_toolTip.Connect(this.cmdAreasWhiteList, LanguageManager.GetText("TooltipAreasWhiteList"));
+				m_toolTip.Connect(this.cmdAreasDenylist, LanguageManager.GetText("TooltipAreasDenylist"));
+				m_toolTip.Connect(this.cmdAreasAllowlist, LanguageManager.GetText("TooltipAreasAllowlist"));
 				m_toolTip.Connect(this.cmdLogsCommand, LanguageManager.GetText("TooltipLogsCommand"));
 				m_toolTip.Connect(this.cmdLogsClean, LanguageManager.GetText("TooltipLogsClean"));
 				m_toolTip.Connect(this.cmdLogsCopy, LanguageManager.GetText("TooltipLogsCopy"));
@@ -911,7 +911,7 @@ namespace Eddie.Forms.Forms
 		{
 			if (Platform.Instance.IsUnixSystem())
 			{
-				// To avoid a Mono ListView crash, reproducible by whitelisting servers
+				// To avoid a Mono ListView crash, reproducible by allowlisting servers
 				foreach (ListViewItemServer item in m_listViewServers.Items)
 				{
 					item.Focused = false;
@@ -920,11 +920,11 @@ namespace Eddie.Forms.Forms
 			}
 		}
 
-		private void mnuServersWhitelist_Click(object sender, EventArgs e)
+		private void mnuServersAllowlist_Click(object sender, EventArgs e)
 		{
 			foreach (ListViewItemServer item in m_listViewServers.SelectedItems)
 			{
-				item.Info.UserList = ConnectionInfo.UserListType.Whitelist;
+				item.Info.UserList = ConnectionInfo.UserListType.Allowlist;
 			}
 			Engine.Instance.UpdateSettings();
 			DeselectServersListItem();
@@ -932,11 +932,11 @@ namespace Eddie.Forms.Forms
 			Engine.Instance.OnRefreshUi();
 		}
 
-		private void mnuServersBlacklist_Click(object sender, EventArgs e)
+		private void mnuServersDenylist_Click(object sender, EventArgs e)
 		{
 			foreach (ListViewItemServer item in m_listViewServers.SelectedItems)
 			{
-				item.Info.UserList = ConnectionInfo.UserListType.Blacklist;
+				item.Info.UserList = ConnectionInfo.UserListType.Denylist;
 			}
 			Engine.Instance.UpdateSettings();
 			DeselectServersListItem();
@@ -992,14 +992,14 @@ namespace Eddie.Forms.Forms
 			Engine.Instance.RefreshProvidersInvalidateConnections();
 		}
 
-		private void cmdServersWhiteList_Click(object sender, EventArgs e)
+		private void cmdServersAllowlist_Click(object sender, EventArgs e)
 		{
-			mnuServersWhitelist_Click(sender, e);
+			mnuServersAllowlist_Click(sender, e);
 		}
 
-		private void cmdServersBlackList_Click(object sender, EventArgs e)
+		private void cmdServersDenylist_Click(object sender, EventArgs e)
 		{
-			mnuServersBlacklist_Click(sender, e);
+			mnuServersDenylist_Click(sender, e);
 		}
 
 		private void cmdServersUndefined_Click(object sender, EventArgs e)
@@ -1022,11 +1022,11 @@ namespace Eddie.Forms.Forms
 			mnuServersRefresh_Click(sender, e);
 		}
 
-		private void mnuAreasWhiteList_Click(object sender, EventArgs e)
+		private void mnuAreasAllowlist_Click(object sender, EventArgs e)
 		{
 			foreach (ListViewItemArea item in m_listViewAreas.SelectedItems)
 			{
-				item.Info.UserList = AreaInfo.UserListType.Whitelist;
+				item.Info.UserList = AreaInfo.UserListType.Allowlist;
 			}
 			Engine.Instance.UpdateSettings();
 			//m_listViewAreas.UpdateList();
@@ -1034,11 +1034,11 @@ namespace Eddie.Forms.Forms
 			Engine.Instance.OnRefreshUi();
 		}
 
-		private void mnuAreasBlackList_Click(object sender, EventArgs e)
+		private void mnuAreasDenylist_Click(object sender, EventArgs e)
 		{
 			foreach (ListViewItemArea item in m_listViewAreas.SelectedItems)
 			{
-				item.Info.UserList = AreaInfo.UserListType.Blacklist;
+				item.Info.UserList = AreaInfo.UserListType.Denylist;
 			}
 			Engine.Instance.UpdateSettings();
 			//m_listViewAreas.UpdateList();
@@ -1059,14 +1059,14 @@ namespace Eddie.Forms.Forms
 		}
 
 
-		private void cmdAreasWhiteList_Click(object sender, EventArgs e)
+		private void cmdAreasAllowlist_Click(object sender, EventArgs e)
 		{
-			mnuAreasWhiteList_Click(sender, e);
+			mnuAreasAllowlist_Click(sender, e);
 		}
 
-		private void cmdAreasBlackList_Click(object sender, EventArgs e)
+		private void cmdAreasDenylist_Click(object sender, EventArgs e)
 		{
-			mnuAreasBlackList_Click(sender, e);
+			mnuAreasDenylist_Click(sender, e);
 		}
 
 		private void cmdAreasUndefined_Click(object sender, EventArgs e)
@@ -1750,11 +1750,11 @@ namespace Eddie.Forms.Forms
 			cmdServersConnect.Enabled = ((selectedConnection != null) && (selectedConnection.CanConnect()));
 			mnuServersConnect.Enabled = cmdServersConnect.Enabled;
 
-			cmdServersWhiteList.Enabled = (m_listViewServers.SelectedItems.Count > 0);
-			mnuServersWhiteList.Enabled = cmdServersWhiteList.Enabled;
-			cmdServersBlackList.Enabled = cmdServersWhiteList.Enabled;
-			mnuServersBlackList.Enabled = cmdServersBlackList.Enabled;
-			cmdServersUndefined.Enabled = cmdServersWhiteList.Enabled;
+			cmdServersAllowlist.Enabled = (m_listViewServers.SelectedItems.Count > 0);
+			mnuServersAllowlist.Enabled = cmdServersAllowlist.Enabled;
+			cmdServersDenylist.Enabled = cmdServersAllowlist.Enabled;
+			mnuServersDenylist.Enabled = cmdServersDenylist.Enabled;
+			cmdServersUndefined.Enabled = cmdServersAllowlist.Enabled;
 			mnuServersUndefined.Enabled = cmdServersUndefined.Enabled;
 			cmdServersMore.Enabled = (m_listViewServers.SelectedItems.Count == 1);
 			mnuServersMore.Enabled = cmdServersMore.Enabled;
@@ -1762,11 +1762,11 @@ namespace Eddie.Forms.Forms
 			cmdServersRename.Enabled = ((m_listViewServers.SelectedItems.Count == 1) && ((m_listViewServers.SelectedItems[0] as ListViewItemServer).Info.Provider is Core.Providers.OpenVPN));
 			mnuServersRename.Enabled = cmdServersRename.Enabled;
 
-			cmdAreasWhiteList.Enabled = (m_listViewAreas.SelectedItems.Count > 0);
-			mnuAreasWhiteList.Enabled = cmdAreasWhiteList.Enabled;
-			cmdAreasBlackList.Enabled = cmdAreasWhiteList.Enabled;
-			mnuAreasBlackList.Enabled = cmdAreasBlackList.Enabled;
-			cmdAreasUndefined.Enabled = cmdAreasWhiteList.Enabled;
+			cmdAreasAllowlist.Enabled = (m_listViewAreas.SelectedItems.Count > 0);
+			mnuAreasAllowlist.Enabled = cmdAreasAllowlist.Enabled;
+			cmdAreasDenylist.Enabled = cmdAreasAllowlist.Enabled;
+			mnuAreasDenylist.Enabled = cmdAreasDenylist.Enabled;
+			cmdAreasUndefined.Enabled = cmdAreasAllowlist.Enabled;
 			mnuAreasUndefined.Enabled = cmdAreasUndefined.Enabled;
 
 			cmdLogsCommand.Visible = Engine.Instance.Options.GetBool("advanced.expert");

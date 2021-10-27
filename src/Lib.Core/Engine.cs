@@ -1072,31 +1072,22 @@ namespace Eddie.Core
 						break;
 				}
 
-				// White/black list
-				List<string> serversWhiteList = Options.GetList("servers.whitelist");
-				List<string> serversBlackList = Options.GetList("servers.blacklist");
+				// Allow/deny list
+				List<string> serversAllowlist = Options.GetList("servers.allowlist");
+				List<string> serversDenylist = Options.GetList("servers.denylist");
 				foreach (ConnectionInfo infoConnection in m_connections.Values)
 				{
 					string code = infoConnection.Code;
 					string displayName = infoConnection.DisplayName;
 
-					/*
-					if (serversWhiteList.Contains(code))
-						infoServer.UserList = ServerInfo.UserListType.WhiteList;
-					else if (serversBlackList.Contains(code))
-						infoServer.UserList = ServerInfo.UserListType.BlackList;
-					else
-						infoServer.UserList = ServerInfo.UserListType.None;
-					*/
-					// 2.11.5
-					if (serversWhiteList.Contains(code))
-						infoConnection.UserList = ConnectionInfo.UserListType.Whitelist;
-					else if (serversWhiteList.Contains(displayName))
-						infoConnection.UserList = ConnectionInfo.UserListType.Whitelist;
-					else if (serversBlackList.Contains(code))
-						infoConnection.UserList = ConnectionInfo.UserListType.Blacklist;
-					else if (serversBlackList.Contains(displayName))
-						infoConnection.UserList = ConnectionInfo.UserListType.Blacklist;
+					if (serversAllowlist.Contains(code))
+						infoConnection.UserList = ConnectionInfo.UserListType.Allowlist;
+					else if (serversAllowlist.Contains(displayName))
+						infoConnection.UserList = ConnectionInfo.UserListType.Allowlist;
+					else if (serversDenylist.Contains(code))
+						infoConnection.UserList = ConnectionInfo.UserListType.Denylist;
+					else if (serversDenylist.Contains(displayName))
+						infoConnection.UserList = ConnectionInfo.UserListType.Denylist;
 					else
 						infoConnection.UserList = ConnectionInfo.UserListType.None;
 				}
@@ -1386,21 +1377,21 @@ namespace Eddie.Core
 
 			lock (m_connections)
 			{
-				bool existsWhiteListAreas = false;
-				bool existsWhiteListServers = false;
+				bool existsAllowlistAreas = false;
+				bool existsAllowlistServers = false;
 				foreach (ConnectionInfo server in m_connections.Values)
 				{
-					if (server.UserList == ConnectionInfo.UserListType.Whitelist)
+					if (server.UserList == ConnectionInfo.UserListType.Allowlist)
 					{
-						existsWhiteListServers = true;
+						existsAllowlistServers = true;
 						break;
 					}
 				}
 				foreach (AreaInfo area in m_areas.Values)
 				{
-					if (area.UserList == AreaInfo.UserListType.Whitelist)
+					if (area.UserList == AreaInfo.UserListType.Allowlist)
 					{
-						existsWhiteListAreas = true;
+						existsAllowlistAreas = true;
 						break;
 					}
 				}
@@ -1417,29 +1408,29 @@ namespace Eddie.Core
 						if (m_areas.ContainsKey(server.CountryCode))
 							countryUserList = m_areas[server.CountryCode].UserList;
 
-						if (serverUserList == ConnectionInfo.UserListType.Blacklist)
+						if (serverUserList == ConnectionInfo.UserListType.Denylist)
 						{
 							skip = true;
 						}
-						else if (serverUserList == ConnectionInfo.UserListType.Whitelist)
+						else if (serverUserList == ConnectionInfo.UserListType.Allowlist)
 						{
 							skip = false;
 						}
 						else
 						{
-							if (countryUserList == AreaInfo.UserListType.Blacklist)
+							if (countryUserList == AreaInfo.UserListType.Denylist)
 							{
 								skip = true;
 							}
-							else if ((existsWhiteListServers) && (serverUserList == ConnectionInfo.UserListType.None))
+							else if ((existsAllowlistServers) && (serverUserList == ConnectionInfo.UserListType.None))
 							{
 								skip = true;
 							}
-							else if ((existsWhiteListAreas) && (countryUserList == AreaInfo.UserListType.None))
+							else if ((existsAllowlistAreas) && (countryUserList == AreaInfo.UserListType.None))
 							{
 								skip = true;
 							}
-							else if (countryUserList == AreaInfo.UserListType.Whitelist)
+							else if (countryUserList == AreaInfo.UserListType.Allowlist)
 							{
 								skip = false;
 							}
@@ -1779,8 +1770,8 @@ namespace Eddie.Core
 					infoArea.BandwidthMax = 0;
 				}
 
-				List<string> areasWhiteList = Options.GetList("areas.whitelist");
-				List<string> areasBlackList = Options.GetList("areas.blacklist");
+				List<string> areasAllowlist = Options.GetList("areas.allowlist");
+				List<string> areasDenylist = Options.GetList("areas.denylist");
 
 				lock (m_connections)
 				{
@@ -1839,14 +1830,14 @@ namespace Eddie.Core
 						break;
 				}
 
-				// White/black list
+				// Allow/deny list
 				foreach (AreaInfo infoArea in m_areas.Values)
 				{
 					string code = infoArea.Code;
-					if (areasWhiteList.Contains(code))
-						infoArea.UserList = AreaInfo.UserListType.Whitelist;
-					else if (areasBlackList.Contains(code))
-						infoArea.UserList = AreaInfo.UserListType.Blacklist;
+					if (areasAllowlist.Contains(code))
+						infoArea.UserList = AreaInfo.UserListType.Allowlist;
+					else if (areasDenylist.Contains(code))
+						infoArea.UserList = AreaInfo.UserListType.Denylist;
 					else
 						infoArea.UserList = AreaInfo.UserListType.None;
 				}
@@ -1855,25 +1846,25 @@ namespace Eddie.Core
 
 		public void UpdateSettings()
 		{
-			List<string> connectionsWhiteList = new List<string>();
-			List<string> connectionsBlackList = new List<string>();
+			List<string> connectionsAllowlist = new List<string>();
+			List<string> connectionsDenylist = new List<string>();
 			foreach (ConnectionInfo info in m_connections.Values)
-				if (info.UserList == ConnectionInfo.UserListType.Whitelist)
-					connectionsWhiteList.Add(info.Code);
-				else if (info.UserList == ConnectionInfo.UserListType.Blacklist)
-					connectionsBlackList.Add(info.Code);
-			Options.SetList("servers.whitelist", connectionsWhiteList);
-			Options.SetList("servers.blacklist", connectionsBlackList);
+				if (info.UserList == ConnectionInfo.UserListType.Allowlist)
+					connectionsAllowlist.Add(info.Code);
+				else if (info.UserList == ConnectionInfo.UserListType.Denylist)
+					connectionsDenylist.Add(info.Code);
+			Options.SetList("servers.allowlist", connectionsAllowlist);
+			Options.SetList("servers.denylist", connectionsDenylist);
 
-			List<string> areasWhiteList = new List<string>();
-			List<string> areasBlackList = new List<string>();
+			List<string> areasAllowlist = new List<string>();
+			List<string> areasDenylist = new List<string>();
 			foreach (AreaInfo info in m_areas.Values)
-				if (info.UserList == AreaInfo.UserListType.Whitelist)
-					areasWhiteList.Add(info.Code);
-				else if (info.UserList == AreaInfo.UserListType.Blacklist)
-					areasBlackList.Add(info.Code);
-			Options.SetList("areas.whitelist", areasWhiteList);
-			Options.SetList("areas.blacklist", areasBlackList);
+				if (info.UserList == AreaInfo.UserListType.Allowlist)
+					areasAllowlist.Add(info.Code);
+				else if (info.UserList == AreaInfo.UserListType.Denylist)
+					areasDenylist.Add(info.Code);
+			Options.SetList("areas.allowlist", areasAllowlist);
+			Options.SetList("areas.denylist", areasDenylist);
 		}
 
 		public void SaveSettings()
@@ -2004,17 +1995,6 @@ namespace Eddie.Core
 			}
 
 			return mode;
-		}
-
-		public Json FindNetworkInterfaceInfo(string id)
-		{
-			foreach (Json jNetworkInterface in Manifest["network_info"]["interfaces"].Json.GetArray())
-			{
-				if (jNetworkInterface["id"].Value as string == id)
-					return jNetworkInterface;
-			}
-
-			return null;
 		}
 
 		public Tools.ITool GetOpenVpnTool()
@@ -2227,7 +2207,6 @@ namespace Eddie.Core
 			Json jProvidersDefinition = new Json();
 			j["providers_definitions"].Value = jProvidersDefinition;
 
-
 			return j;
 		}
 
@@ -2237,8 +2216,8 @@ namespace Eddie.Core
 
 			Json jNetworkInfo = new Json();
 
-			jNetworkInfo["support_ipv4"].Value = true; // Default, if unable to detect after
-			jNetworkInfo["support_ipv6"].Value = true; // Default, if unable to detect after
+			jNetworkInfo["support_ipv4"].Value = Platform.Instance.GetSupportIPv4();
+			jNetworkInfo["support_ipv6"].Value = Platform.Instance.GetSupportIPv6();
 
 			jNetworkInfo["routes"].Value = jRouteList;
 
@@ -2278,62 +2257,76 @@ namespace Eddie.Core
 			Json jNetworkInterfaces = new Json();
 			jNetworkInfo["interfaces"].Value = jNetworkInterfaces;
 			NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
-			foreach (NetworkInterface adapter in interfaces)
+			foreach (NetworkInterface networkInterface in interfaces)
 			{
-				Json jNetworkInterface = new Json();
-				jNetworkInterfaces.Append(jNetworkInterface);
-				jNetworkInterface["friendly"].Value = adapter.Name;
-				jNetworkInterface["id"].Value = adapter.Id.ToString();
-				jNetworkInterface["name"].Value = adapter.Name;
-				jNetworkInterface["description"].Value = adapter.Description;
-				jNetworkInterface["type"].Value = adapter.NetworkInterfaceType.ToString();
-				if (jNetworkInterface["type"].ValueString == "53") jNetworkInterface["type"].Value = "Virtual";
-				jNetworkInterface["status"].Value = adapter.OperationalStatus.ToString();
-				jNetworkInterface["bytes_received"].Value = adapter.GetIPv4Statistics().BytesReceived.ToString();
-				jNetworkInterface["bytes_sent"].Value = adapter.GetIPv4Statistics().BytesSent.ToString();
-				try
-				{
-					adapter.GetIPProperties().GetIPv4Properties();
-					jNetworkInterface["support_ipv4"].Value = true;
-				}
-				catch
-				{
-					jNetworkInterface["support_ipv4"].Value = false;
-				}
-				try
-				{
-					adapter.GetIPProperties().GetIPv6Properties();
-					jNetworkInterface["support_ipv6"].Value = true;
-				}
-				catch
-				{
-					jNetworkInterface["support_ipv6"].Value = false;
-				}
-
-				Json jNetworkInterfaceIps = new Json();
-				jNetworkInterfaceIps.EnsureArray();
-				jNetworkInterface["ips"].Value = jNetworkInterfaceIps;
-				foreach (UnicastIPAddressInformation ip2 in adapter.GetIPProperties().UnicastAddresses)
-				{
-					string sIp = ip2.Address.ToString();
-					IpAddress ip = new IpAddress(sIp);
-					if (ip.Valid)
-						jNetworkInterfaceIps.Append(ip.Address);
-				}
-
-				// If can be used for bind
-				jNetworkInterface["bind"].Value = false;
-				//if(adapter.NetworkInterfaceType == NetworkInterfaceType.Ethernet)
-				if (jNetworkInterfaceIps.GetArray().Count > 0)
-				{
-					if (adapter.IsReceiveOnly == false)
-					{
-						jNetworkInterface["bind"].Value = true;
-					}
-				}
+				jNetworkInterfaces.Append(JsonNetworkInterfaceInfo(networkInterface));
 			}
 			Platform.Instance.OnJsonNetworkInfo(jNetworkInfo);
 			return jNetworkInfo;
+		}
+
+		public Json JsonNetworkInterfaceInfo(NetworkInterface networkInterface)
+		{
+			Json jNetworkInterface = new Json();
+			jNetworkInterface["friendly"].Value = networkInterface.Name;
+			jNetworkInterface["id"].Value = networkInterface.Id.ToString();
+			jNetworkInterface["name"].Value = networkInterface.Name;
+			jNetworkInterface["description"].Value = networkInterface.Description;
+			jNetworkInterface["type"].Value = networkInterface.NetworkInterfaceType.ToString();
+			if (jNetworkInterface["type"].ValueString == "53") jNetworkInterface["type"].Value = "Virtual";
+			jNetworkInterface["status"].Value = networkInterface.OperationalStatus.ToString();
+			jNetworkInterface["bytes_received"].Value = networkInterface.GetIPv4Statistics().BytesReceived.ToString();
+			jNetworkInterface["bytes_sent"].Value = networkInterface.GetIPv4Statistics().BytesSent.ToString();
+			try
+			{
+				networkInterface.GetIPProperties().GetIPv4Properties();
+				jNetworkInterface["support_ipv4"].Value = true;
+			}
+			catch
+			{
+				jNetworkInterface["support_ipv4"].Value = false;
+			}
+			try
+			{
+				networkInterface.GetIPProperties().GetIPv6Properties();
+				jNetworkInterface["support_ipv6"].Value = true;
+			}
+			catch
+			{
+				jNetworkInterface["support_ipv6"].Value = false;
+			}
+
+			Json jNetworkInterfaceIps = new Json();
+			jNetworkInterfaceIps.EnsureArray();
+			jNetworkInterface["ips"].Value = jNetworkInterfaceIps;
+			foreach (UnicastIPAddressInformation ip2 in networkInterface.GetIPProperties().UnicastAddresses)
+			{
+				string sIp = ip2.Address.ToString();
+				IpAddress ip = new IpAddress(sIp);
+				if (ip.Valid)
+					jNetworkInterfaceIps.Append(ip.Address);
+			}
+
+			// If can be used for bind
+			jNetworkInterface["bind"].Value = false;
+			//if(adapter.NetworkInterfaceType == NetworkInterfaceType.Ethernet)
+			if (jNetworkInterfaceIps.GetArray().Count > 0)
+			{
+				if (networkInterface.IsReceiveOnly == false)
+				{
+					jNetworkInterface["bind"].Value = true;
+				}
+			}
+
+			Platform.Instance.OnJsonNetworkInterfaceInfo(networkInterface, jNetworkInterface);
+
+			if (Platform.Instance.GetSupportIPv4() == false)
+				jNetworkInterface["support_ipv4"].Value = false;
+
+			if (Platform.Instance.GetSupportIPv6() == false)
+				jNetworkInterface["support_ipv6"].Value = false;
+
+			return jNetworkInterface;
 		}
 
 		public Json JsonRouteList()

@@ -909,8 +909,8 @@ namespace Eddie.UI.Cocoa.Osx
 			GuiUtils.SetCheck(ChkLockAllowPrivate, o.GetBool("netlock.allow_private"));
 			GuiUtils.SetCheck(ChkLockAllowPing, o.GetBool("netlock.allow_ping"));
 			GuiUtils.SetCheck(ChkLockAllowDNS, o.GetBool("netlock.allow_dns"));
-			TxtLockWhiteListIncomingIPs.StringValue = o.Get("netlock.whitelist.incoming.ips");
-            TxtLockWhiteListOutgoingIPs.StringValue = o.Get("netlock.whitelist.outgoing.ips");
+			TxtLockAllowlistIncomingIPs.StringValue = o.Get("netlock.allowlist.incoming.ips");
+            TxtLockAllowlistOutgoingIPs.StringValue = o.Get("netlock.allowlist.outgoing.ips");
 
             // Advanced
 
@@ -1265,8 +1265,8 @@ namespace Eddie.UI.Cocoa.Osx
 			o.SetBool("netlock.allow_private", GuiUtils.GetCheck(ChkLockAllowPrivate));
 			o.SetBool("netlock.allow_ping", GuiUtils.GetCheck(ChkLockAllowPing));
 			o.SetBool("netlock.allow_dns", GuiUtils.GetCheck(ChkLockAllowDNS));
-			o.Set("netlock.whitelist.incoming.ips", TxtLockWhiteListIncomingIPs.StringValue);
-            o.Set("netlock.whitelist.outgoing.ips", TxtLockWhiteListOutgoingIPs.StringValue);
+			o.Set("netlock.allowlist.incoming.ips", TxtLockAllowlistIncomingIPs.StringValue);
+            o.Set("netlock.allowlist.outgoing.ips", TxtLockAllowlistOutgoingIPs.StringValue);
 
             // Advanced - General
             o.SetBool("advanced.expert", GuiUtils.GetCheck(ChkAdvancedExpertMode));

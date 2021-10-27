@@ -37,7 +37,6 @@ namespace Eddie.Core.ConnectionTypes
 		protected ConfigBuilder.OpenVPN m_configStartup;
 		protected ConfigBuilder.OpenVPN m_configWithPush;
 		protected Elevated.Command m_elevatedCommand;
-		protected ProgramScope m_programScope = null;
 
 		protected List<string> m_pendingPushDetected = new List<string>();
 		protected IpAddresses m_dns = new IpAddresses();
@@ -50,6 +49,7 @@ namespace Eddie.Core.ConnectionTypes
 		protected TemporaryFile m_fileSshKey;
 		protected TemporaryFile m_fileSslCrt;
 		protected TemporaryFile m_fileSslConfig;
+		protected string m_networkLockSoftwareExceptionPath = "";
 
 		public string Transport = "";
 		public int TransportSshLocalPort = 0;
@@ -450,10 +450,10 @@ namespace Eddie.Core.ConnectionTypes
 				m_processTransport = null;
 			}
 
-			if (m_programScope != null)
+			if (m_networkLockSoftwareExceptionPath != "")
 			{
-				m_programScope.End();
-				m_programScope = null;
+				if (Engine.Instance.NetworkLockManager != null)
+					Engine.Instance.NetworkLockManager.DeallowProgram(m_networkLockSoftwareExceptionPath);
 			}
 
 			// Closing temporary files
@@ -1047,6 +1047,13 @@ namespace Eddie.Core.ConnectionTypes
 			Engine.Instance.Logs.Log(LogType.Verbose, t);
 		}
 
+		void SetNetworkLockSoftwareExceptionPath(string path)
+		{
+			m_networkLockSoftwareExceptionPath = path;
+			if (Engine.Instance.NetworkLockManager != null)
+				Engine.Instance.NetworkLockManager.AllowProgram(path);
+		}
+
 		void VpnStartProcess()
 		{
 			m_fileConfig = new TemporaryFile("ovpn");
@@ -1055,7 +1062,7 @@ namespace Eddie.Core.ConnectionTypes
 			string path = Engine.Instance.GetOpenVpnTool().Path;
 
 			if (m_processTransport == null)
-				m_programScope = new ProgramScope(path, "VPN Tunnel");
+				SetNetworkLockSoftwareExceptionPath(path);
 
 			m_elevatedCommand = new Elevated.Command();
 			m_elevatedCommand.Parameters["command"] = "openvpn";
@@ -1180,7 +1187,7 @@ namespace Eddie.Core.ConnectionTypes
 
 			arguments += " -N -T -v";
 
-			m_programScope = new ProgramScope(Software.GetTool("ssh").Path, "SSH Tunnel");
+			SetNetworkLockSoftwareExceptionPath(Software.GetTool("ssh").Path);
 
 			m_processTransport = new Process();
 			m_processTransport.StartInfo.FileName = sshToolPath;
@@ -1241,7 +1248,7 @@ namespace Eddie.Core.ConnectionTypes
 			string sslConfigPath = m_fileSslConfig.Path;
 			Platform.Instance.FileContentsWriteText(sslConfigPath, sslConfig, Encoding.UTF8);
 
-			m_programScope = new ProgramScope(Software.GetTool("ssl").Path, "SSL Tunnel");
+			SetNetworkLockSoftwareExceptionPath(Software.GetTool("ssl").Path);
 
 			m_processTransport = new Process();
 			m_processTransport.StartInfo.FileName = Software.GetTool("ssl").Path;

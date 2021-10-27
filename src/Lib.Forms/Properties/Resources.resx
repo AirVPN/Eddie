@@ -145,8 +145,8 @@
   <data name="progress01" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\res\progress01.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="blacklist_0" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\res\blacklist_0.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="denylist_0" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\res\denylist_0.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="more" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\res\more.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -328,8 +328,8 @@
   <data name="stats_vpn" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\res\stats_vpn.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="blacklist_2" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\res\blacklist_2.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="denylist_2" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\res\denylist_2.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="ports" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\res\ports.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -412,8 +412,8 @@
   <data name="tab_n" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\res\tab_n.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="blacklist_1" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\res\blacklist_1.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="denylist_1" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\res\denylist_1.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\res\icon.icns;System.Byte[], mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>

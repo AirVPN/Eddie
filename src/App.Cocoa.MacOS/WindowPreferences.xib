@@ -111,8 +111,8 @@
                 <outlet property="TxtAdvancedOpenVpnDirectivesDefault" destination="NjY-dC-GsQ" id="ZpL-gt-MiU"/>
                 <outlet property="TxtAdvancedOpenVpnPath" destination="lV7-E2-bG9" id="E6t-Sr-yoU"/>
                 <outlet property="TxtHummingbirdPath" destination="DII-q2-F57" id="lZ2-Pv-wA3"/>
-                <outlet property="TxtLockWhiteListIncomingIPs" destination="DHA-pR-pKS" id="mnq-g3-4Bn"/>
-                <outlet property="TxtLockWhiteListOutgoingIPs" destination="9WX-Ur-g7l" id="8VU-ju-iAB"/>
+                <outlet property="TxtLockAllowlistIncomingIPs" destination="DHA-pR-pKS" id="mnq-g3-4Bn"/>
+                <outlet property="TxtLockAllowlistOutgoingIPs" destination="9WX-Ur-g7l" id="8VU-ju-iAB"/>
                 <outlet property="TxtLoggingComputedPath" destination="c9X-34-ftI" id="5cS-z6-JLg"/>
                 <outlet property="TxtLoggingPath" destination="XTE-TQ-fIh" id="pfa-S3-l3h"/>
                 <outlet property="TxtOpenVpnDirectivesCustomPath" destination="EXi-Ec-pGK" id="cAq-o6-lhd"/>
@@ -2040,7 +2040,7 @@
                                         <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="YES" translatesAutoresizingMaskIntoConstraints="NO" id="OnJ-rs-YuT">
                                             <rect key="frame" x="15" y="54" width="296" height="17"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES"/>
-                                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="External program whitelist:" id="e82-5x-uRG">
+                                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="External program allowlist:" id="e82-5x-uRG">
                                                 <font key="font" metaFont="system"/>
                                                 <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>

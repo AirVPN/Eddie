@@ -210,6 +210,15 @@ namespace Eddie.Core.Providers
 			// Auth
 			string key = Engine.Instance.Options.Get("key");
 
+			if (connection.IsPreviewMode() == false)
+			{
+				// Compatibility: if are logged before the WireGuard activation, don't have keys, reauth to obtain.
+				if (User.GetAttributeString("wg_public_key", "") == "")
+				{
+					Engine.Instance.ReAuth();
+				}
+			}
+
 			XmlNode nodeUser = User;
 			if ((nodeUser != null) && (nodeUser.Attributes["ca"] != null))
 			{
@@ -283,8 +292,9 @@ namespace Eddie.Core.Providers
 
 							try
 							{
+								string checkProtocol = GetKeyValue("check_protocol", "https"); // 2.21.2
 								string checkDomain = session.Connection.Info.ProviderName.ToLowerInvariant() + "_exit." + GetKeyValue("check_domain", "");
-								string checkUrl = "https://" + checkDomain + "/check_tun/";
+								string checkUrl = checkProtocol + "://" + checkDomain + "/check_tun/";
 
 								HttpRequest httpRequest = new HttpRequest();
 								httpRequest.Url = checkUrl;
@@ -336,8 +346,9 @@ namespace Eddie.Core.Providers
 
 							try
 							{
+								string checkProtocol = GetKeyValue("check_protocol", "https"); // 2.21.2
 								string checkDomain = session.Connection.Info.ProviderName.ToLowerInvariant() + "_exit." + GetKeyValue("check_domain", "");
-								string checkUrl = "https://" + checkDomain + "/check_tun/";
+								string checkUrl = checkProtocol + "://" + checkDomain + "/check_tun/";
 
 								HttpRequest httpRequest = new HttpRequest();
 								httpRequest.Url = checkUrl;
@@ -385,8 +396,9 @@ namespace Eddie.Core.Providers
 						{
 							try
 							{
+								string checkProtocol = GetKeyValue("check_protocol", "https"); // 2.21.2
 								string checkDomain = session.Connection.Info.ProviderName.ToLowerInvariant() + "." + GetKeyValue("check_domain", "");
-								string checkUrl = "https://" + checkDomain + "/check_tun/";
+								string checkUrl = checkProtocol + "://" + checkDomain + "/check_tun/";
 								HttpRequest httpRequest = new HttpRequest();
 								httpRequest.Url = checkUrl;
 								httpRequest.BypassProxy = true;
@@ -461,8 +473,9 @@ namespace Eddie.Core.Providers
 							//	throw new Exception(LanguageManager.GetText("ConnectionCheckingTryDNSFail, "No DNS answer"));								
 
 							// Check if the server has received the above DNS query
+							string checkProtocol = GetKeyValue("check_protocol", "https"); // 2.21.2
 							string checkDomain = session.Connection.Info.ProviderName.ToLowerInvariant() + "_exit." + GetKeyValue("check_domain", "");
-							string checkUrl = "https://" + checkDomain + "/check_dns/";
+							string checkUrl = checkProtocol + "://" + checkDomain + "/check_dns/";
 							HttpRequest httpRequest = new HttpRequest();
 							httpRequest.Url = checkUrl;
 							httpRequest.BypassProxy = true;
@@ -603,9 +616,9 @@ namespace Eddie.Core.Providers
 			}
 		}
 
-		public override IpAddresses GetNetworkLockWhiteListOutgoingIPs()
+		public override IpAddresses GetNetworkLockAllowlistOutgoingIPs()
 		{
-			IpAddresses result = base.GetNetworkLockWhiteListOutgoingIPs();
+			IpAddresses result = base.GetNetworkLockAllowlistOutgoingIPs();
 
 			List<string> urls = GetBootstrapUrls();
 			foreach (string url in urls)
@@ -990,9 +1003,7 @@ namespace Eddie.Core.Providers
 
 				try
 				{
-					RouteScope routeScope = new RouteScope(host);
 					XmlDocument xmlDoc = FetchUrl(url, parameters);
-					routeScope.End();
 					if (xmlDoc == null)
 						throw new Exception("No answer.");
 

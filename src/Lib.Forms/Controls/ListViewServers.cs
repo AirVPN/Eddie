@@ -96,7 +96,7 @@ namespace Eddie.Forms.Controls
 
 			ResourceManager = Properties.Resources.ResourceManager;
 			ImageIconResourcePrefix = "flags_";
-			ImageStateResourcePrefix = "blacklist_";
+			ImageStateResourcePrefix = "denylist_";
 
 			UpdateList();
 		}
@@ -313,7 +313,7 @@ namespace Eddie.Forms.Controls
 					else
 					{
 						// Mono workaround to avoid a crash, like this: http://sourceforge.net/p/keepass/bugs/1314/
-						// Reproduce the crash by whitelist some server and switch "Show all" continuosly.
+						// Reproduce the crash by allowlist some server and switch "Show all" continuosly.
 						List<ListViewItemServer> items = new List<ListViewItemServer>();
 						foreach (ListViewItemServer itemCurrent in Items)
 						{

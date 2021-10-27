@@ -223,8 +223,8 @@ namespace Eddie.Forms.Forms
 			this.cboDnsSwitchMode = new Eddie.Forms.Skin.ComboBox();
 			this.chkDnsCheck = new Eddie.Forms.Skin.CheckBox();
 			this.tabNetworkLock = new Eddie.Forms.Skin.TabPage();
-			this.lblLockWhiteListOutgoingIPs = new Eddie.Forms.Skin.Label();
-			this.txtLockWhiteListOutgoingIPs = new Eddie.Forms.Skin.TextBox();
+			this.lblLockAllowlistOutgoingIPs = new Eddie.Forms.Skin.Label();
+			this.txtLockAllowlistOutgoingIPs = new Eddie.Forms.Skin.TextBox();
 			this.lblLockAllowDHCP = new Eddie.Forms.Skin.Label();
 			this.chkLockAllowDHCP = new Eddie.Forms.Skin.CheckBox();
 			this.lblLockOutgoing = new Eddie.Forms.Skin.Label();
@@ -238,8 +238,8 @@ namespace Eddie.Forms.Forms
 			this.lnkLockHelp = new Eddie.Forms.Skin.LinkLabel();
 			this.chkLockAllowPing = new Eddie.Forms.Skin.CheckBox();
 			this.chkLockAllowPrivate = new Eddie.Forms.Skin.CheckBox();
-			this.lblLockWhiteListIncomingIPs = new Eddie.Forms.Skin.Label();
-			this.txtLockWhiteListIncomingIPs = new Eddie.Forms.Skin.TextBox();
+			this.lblLockAllowlistIncomingIPs = new Eddie.Forms.Skin.Label();
+			this.txtLockAllowlistIncomingIPs = new Eddie.Forms.Skin.TextBox();
 			this.lblLockMode = new Eddie.Forms.Skin.Label();
 			this.cboLockMode = new Eddie.Forms.Skin.ComboBox();
 			this.tabLogging = new Eddie.Forms.Skin.TabPage();
@@ -948,7 +948,7 @@ namespace Eddie.Forms.Forms
 			this.lblShellExternal.Name = "lblShellExternal";
 			this.lblShellExternal.Size = new System.Drawing.Size(492, 30);
 			this.lblShellExternal.TabIndex = 68;
-			this.lblShellExternal.Text = "External program whitelist:";
+			this.lblShellExternal.Text = "External program Allowlist:";
 			this.lblShellExternal.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
 			// 
 			// cmdAdvancedEventsEdit
@@ -2777,8 +2777,8 @@ namespace Eddie.Forms.Forms
 			// 
 			// tabNetworkLock
 			// 
-			this.tabNetworkLock.Controls.Add(this.lblLockWhiteListOutgoingIPs);
-			this.tabNetworkLock.Controls.Add(this.txtLockWhiteListOutgoingIPs);
+			this.tabNetworkLock.Controls.Add(this.lblLockAllowlistOutgoingIPs);
+			this.tabNetworkLock.Controls.Add(this.txtLockAllowlistOutgoingIPs);
 			this.tabNetworkLock.Controls.Add(this.lblLockAllowDHCP);
 			this.tabNetworkLock.Controls.Add(this.chkLockAllowDHCP);
 			this.tabNetworkLock.Controls.Add(this.lblLockOutgoing);
@@ -2792,8 +2792,8 @@ namespace Eddie.Forms.Forms
 			this.tabNetworkLock.Controls.Add(this.lnkLockHelp);
 			this.tabNetworkLock.Controls.Add(this.chkLockAllowPing);
 			this.tabNetworkLock.Controls.Add(this.chkLockAllowPrivate);
-			this.tabNetworkLock.Controls.Add(this.lblLockWhiteListIncomingIPs);
-			this.tabNetworkLock.Controls.Add(this.txtLockWhiteListIncomingIPs);
+			this.tabNetworkLock.Controls.Add(this.lblLockAllowlistIncomingIPs);
+			this.tabNetworkLock.Controls.Add(this.txtLockAllowlistIncomingIPs);
 			this.tabNetworkLock.Controls.Add(this.lblLockMode);
 			this.tabNetworkLock.Controls.Add(this.cboLockMode);
 			this.tabNetworkLock.Location = new System.Drawing.Point(4, 24);
@@ -2804,31 +2804,31 @@ namespace Eddie.Forms.Forms
 			this.tabNetworkLock.Text = "Network lock";
 			this.tabNetworkLock.UseVisualStyleBackColor = true;
 			// 
-			// lblLockWhiteListOutgoingIPs
+			// lblLockAllowlistOutgoingIPs
 			// 
-			this.lblLockWhiteListOutgoingIPs.BackColor = System.Drawing.Color.Transparent;
-			this.lblLockWhiteListOutgoingIPs.ForeColor = System.Drawing.Color.Black;
-			this.lblLockWhiteListOutgoingIPs.Location = new System.Drawing.Point(418, 388);
-			this.lblLockWhiteListOutgoingIPs.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-			this.lblLockWhiteListOutgoingIPs.Name = "lblLockWhiteListOutgoingIPs";
-			this.lblLockWhiteListOutgoingIPs.Size = new System.Drawing.Size(262, 38);
-			this.lblLockWhiteListOutgoingIPs.TabIndex = 107;
-			this.lblLockWhiteListOutgoingIPs.Text = "IPs allowed for outgoing:";
-			this.lblLockWhiteListOutgoingIPs.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			this.lblLockAllowlistOutgoingIPs.BackColor = System.Drawing.Color.Transparent;
+			this.lblLockAllowlistOutgoingIPs.ForeColor = System.Drawing.Color.Black;
+			this.lblLockAllowlistOutgoingIPs.Location = new System.Drawing.Point(418, 388);
+			this.lblLockAllowlistOutgoingIPs.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.lblLockAllowlistOutgoingIPs.Name = "lblLockAllowlistOutgoingIPs";
+			this.lblLockAllowlistOutgoingIPs.Size = new System.Drawing.Size(262, 38);
+			this.lblLockAllowlistOutgoingIPs.TabIndex = 107;
+			this.lblLockAllowlistOutgoingIPs.Text = "IPs allowed for outgoing:";
+			this.lblLockAllowlistOutgoingIPs.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
 			// 
-			// txtLockWhiteListOutgoingIPs
+			// txtLockAllowlistOutgoingIPs
 			// 
-			this.txtLockWhiteListOutgoingIPs.AcceptsReturn = true;
-			this.txtLockWhiteListOutgoingIPs.AcceptsTab = true;
-			this.txtLockWhiteListOutgoingIPs.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+			this.txtLockAllowlistOutgoingIPs.AcceptsReturn = true;
+			this.txtLockAllowlistOutgoingIPs.AcceptsTab = true;
+			this.txtLockAllowlistOutgoingIPs.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
 			| System.Windows.Forms.AnchorStyles.Left)));
-			this.txtLockWhiteListOutgoingIPs.Location = new System.Drawing.Point(421, 427);
-			this.txtLockWhiteListOutgoingIPs.Margin = new System.Windows.Forms.Padding(4);
-			this.txtLockWhiteListOutgoingIPs.Multiline = true;
-			this.txtLockWhiteListOutgoingIPs.Name = "txtLockWhiteListOutgoingIPs";
-			this.txtLockWhiteListOutgoingIPs.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-			this.txtLockWhiteListOutgoingIPs.Size = new System.Drawing.Size(386, 141);
-			this.txtLockWhiteListOutgoingIPs.TabIndex = 106;
+			this.txtLockAllowlistOutgoingIPs.Location = new System.Drawing.Point(421, 427);
+			this.txtLockAllowlistOutgoingIPs.Margin = new System.Windows.Forms.Padding(4);
+			this.txtLockAllowlistOutgoingIPs.Multiline = true;
+			this.txtLockAllowlistOutgoingIPs.Name = "txtLockAllowlistOutgoingIPs";
+			this.txtLockAllowlistOutgoingIPs.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+			this.txtLockAllowlistOutgoingIPs.Size = new System.Drawing.Size(386, 141);
+			this.txtLockAllowlistOutgoingIPs.TabIndex = 106;
 			// 
 			// lblLockAllowDHCP
 			// 
@@ -2992,31 +2992,31 @@ namespace Eddie.Forms.Forms
 			this.chkLockAllowPrivate.TabIndex = 80;
 			this.chkLockAllowPrivate.UseVisualStyleBackColor = false;
 			// 
-			// lblLockWhiteListIncomingIPs
+			// lblLockAllowlistIncomingIPs
 			// 
-			this.lblLockWhiteListIncomingIPs.BackColor = System.Drawing.Color.Transparent;
-			this.lblLockWhiteListIncomingIPs.ForeColor = System.Drawing.Color.Black;
-			this.lblLockWhiteListIncomingIPs.Location = new System.Drawing.Point(21, 388);
-			this.lblLockWhiteListIncomingIPs.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-			this.lblLockWhiteListIncomingIPs.Name = "lblLockWhiteListIncomingIPs";
-			this.lblLockWhiteListIncomingIPs.Size = new System.Drawing.Size(262, 38);
-			this.lblLockWhiteListIncomingIPs.TabIndex = 76;
-			this.lblLockWhiteListIncomingIPs.Text = "IPs allowed for incoming:";
-			this.lblLockWhiteListIncomingIPs.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			this.lblLockAllowlistIncomingIPs.BackColor = System.Drawing.Color.Transparent;
+			this.lblLockAllowlistIncomingIPs.ForeColor = System.Drawing.Color.Black;
+			this.lblLockAllowlistIncomingIPs.Location = new System.Drawing.Point(21, 388);
+			this.lblLockAllowlistIncomingIPs.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.lblLockAllowlistIncomingIPs.Name = "lblLockAllowlistIncomingIPs";
+			this.lblLockAllowlistIncomingIPs.Size = new System.Drawing.Size(262, 38);
+			this.lblLockAllowlistIncomingIPs.TabIndex = 76;
+			this.lblLockAllowlistIncomingIPs.Text = "IPs allowed for incoming:";
+			this.lblLockAllowlistIncomingIPs.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
 			// 
-			// txtLockWhiteListIncomingIPs
+			// txtLockAllowlistIncomingIPs
 			// 
-			this.txtLockWhiteListIncomingIPs.AcceptsReturn = true;
-			this.txtLockWhiteListIncomingIPs.AcceptsTab = true;
-			this.txtLockWhiteListIncomingIPs.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+			this.txtLockAllowlistIncomingIPs.AcceptsReturn = true;
+			this.txtLockAllowlistIncomingIPs.AcceptsTab = true;
+			this.txtLockAllowlistIncomingIPs.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
 			| System.Windows.Forms.AnchorStyles.Left)));
-			this.txtLockWhiteListIncomingIPs.Location = new System.Drawing.Point(24, 427);
-			this.txtLockWhiteListIncomingIPs.Margin = new System.Windows.Forms.Padding(4);
-			this.txtLockWhiteListIncomingIPs.Multiline = true;
-			this.txtLockWhiteListIncomingIPs.Name = "txtLockWhiteListIncomingIPs";
-			this.txtLockWhiteListIncomingIPs.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-			this.txtLockWhiteListIncomingIPs.Size = new System.Drawing.Size(386, 141);
-			this.txtLockWhiteListIncomingIPs.TabIndex = 75;
+			this.txtLockAllowlistIncomingIPs.Location = new System.Drawing.Point(24, 427);
+			this.txtLockAllowlistIncomingIPs.Margin = new System.Windows.Forms.Padding(4);
+			this.txtLockAllowlistIncomingIPs.Multiline = true;
+			this.txtLockAllowlistIncomingIPs.Name = "txtLockAllowlistIncomingIPs";
+			this.txtLockAllowlistIncomingIPs.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+			this.txtLockAllowlistIncomingIPs.Size = new System.Drawing.Size(386, 141);
+			this.txtLockAllowlistIncomingIPs.TabIndex = 75;
 			// 
 			// lblLockMode
 			// 
@@ -3266,8 +3266,8 @@ namespace Eddie.Forms.Forms
 		private Skin.Label lblLogPath;
 		private Skin.CheckBox chkLoggingEnabled;
 		private Skin.TabPage tabNetworkLock;
-		private Skin.Label lblLockWhiteListIncomingIPs;
-		private Skin.TextBox txtLockWhiteListIncomingIPs;
+		private Skin.Label lblLockAllowlistIncomingIPs;
+		private Skin.TextBox txtLockAllowlistIncomingIPs;
 		private Skin.Label lblLockMode;
 		private Skin.ComboBox cboLockMode;
 		private Skin.Label label17;
@@ -3402,8 +3402,8 @@ namespace Eddie.Forms.Forms
 		private Skin.Button cmdShellExternalView;
 		private Skin.Label lblShellExternal;
 		private Skin.CheckBox chkShellExternalRecommended;
-		private Skin.Label lblLockWhiteListOutgoingIPs;
-		private Skin.TextBox txtLockWhiteListOutgoingIPs;
+		private Skin.Label lblLockAllowlistOutgoingIPs;
+		private Skin.TextBox txtLockAllowlistOutgoingIPs;
 		private Skin.CheckBox chkSystemService;
 		private Skin.Label lblSystemService;
 		private Skin.TextBox txtStoragePasswordConfirm;

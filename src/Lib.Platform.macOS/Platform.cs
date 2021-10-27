@@ -960,52 +960,15 @@ namespace Eddie.Platform.MacOS
 			return result;
 		}
 
-		public override void OnJsonNetworkInfo(Json jNetworkInfo)
+		public override void OnJsonNetworkInterfaceInfo(NetworkInterface networkInterface, Json jNetworkInterface)
 		{
-			// Step1: Set IPv6 support to true by default.
-			// From base virtual, always 'false'. Missing Mono implementation? 
-			// After for interfaces listed by 'networksetup -listallhardwareports' we detect specific support.
-			foreach (Json jNetworkInterface in jNetworkInfo["interfaces"].Json.GetArray())
-			{
-				jNetworkInterface["support_ipv6"].Value = true;
-			}
-
-			// Step2: Query 'networksetup -listallhardwareports' to obtain a more accurate device friendly names.
-			string networksetupPath = LocateExecutable("networksetup");
-			if (networksetupPath != "")
-			{
-				string nsOutput = SystemExec.Exec1(networksetupPath, "-listallhardwareports");
-				string lastName = "";
-				foreach (string line in nsOutput.Split('\n'))
-				{
-					if (line.StartsWith("Hardware Port: ", StringComparison.InvariantCulture))
-						lastName = line.Substring(15).Trim();
-					if (line.StartsWith("Device:", StringComparison.InvariantCulture))
-					{
-						string deviceId = line.Substring(7).Trim();
-						foreach (Json jNetworkInterface in jNetworkInfo["interfaces"].Json.GetArray())
-						{
-							if (jNetworkInterface["id"].Value as string == deviceId)
-							{
-								// Set friendly name
-								jNetworkInterface["friendly"].Value = lastName;
-
-								// Detect IPv6 support
-								string getInfo = SystemExec.Exec(LocateExecutable("networksetup"), new string[] { "-getinfo", SystemExec.EscapeInsideQuote(lastName) });
-
-								string mode = getInfo.RegExMatchOne("^IPv6: (.*?)$").Trim();
-
-								if (mode == "Off")
-									jNetworkInterface["support_ipv6"].Value = false;
-								else
-									jNetworkInterface["support_ipv6"].Value = true;
-
-								break;
-							}
-						}
-					}
-				}
-			}
+			Json j = Json.Parse(Engine.Instance.Elevated.DoCommandSync("network-interface-info", "id", jNetworkInterface["id"].ValueString));
+			if (j.HasKey("friendly"))
+				jNetworkInterface["friendly"].Value = j["friendly"].ValueString;
+			if (j.HasKey("support_ipv4"))
+				jNetworkInterface["support_ipv4"].Value = (j["support_ipv4"].ValueString == "true");
+			if (j.HasKey("support_ipv6"))
+				jNetworkInterface["support_ipv6"].Value = (j["support_ipv6"].ValueString == "true");
 		}
 
 		public string[] GetInterfaces()

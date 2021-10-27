@@ -13,9 +13,9 @@
                 <outlet property="ChkRemember" destination="JjC-fn-XbM" id="mNC-2n-VpW"/>
                 <outlet property="ChkServersLockCurrent" destination="BT7-WG-1wD" id="sjS-gb-yfg"/>
                 <outlet property="ChkServersShowAll" destination="rgn-cW-L4n" id="ff9-xl-Ieh"/>
-                <outlet property="CmdAreasBlackList" destination="TmP-bW-Iij" id="VIP-wL-LwP"/>
+                <outlet property="CmdAreasDenylist" destination="TmP-bW-Iij" id="VIP-wL-LwP"/>
                 <outlet property="CmdAreasUndefined" destination="vwU-Fi-AJc" id="QmR-bO-Zef"/>
-                <outlet property="CmdAreasWhiteList" destination="XeD-zu-9dZ" id="My4-ZX-b9z"/>
+                <outlet property="CmdAreasAllowlist" destination="XeD-zu-9dZ" id="My4-ZX-b9z"/>
                 <outlet property="CmdCancel" destination="oP0-Xw-dSn" id="HZ8-df-KT1"/>
                 <outlet property="CmdConnect" destination="QGJ-5B-Agr" id="p3b-jn-kJF"/>
                 <outlet property="CmdDisconnect" destination="k3b-dA-5fh" id="KZT-kV-0lN"/>
@@ -30,13 +30,13 @@
                 <outlet property="CmdProviderAdd" destination="f5H-SH-IFI" id="dMx-r7-TNE"/>
                 <outlet property="CmdProviderEdit" destination="NIa-9W-aP0" id="JtB-II-lSe"/>
                 <outlet property="CmdProviderRemove" destination="7kQ-mM-d61" id="2Ur-5K-fL4"/>
-                <outlet property="CmdServersBlackList" destination="22y-2n-gzu" id="dLF-U3-1uJ"/>
+                <outlet property="CmdServersDenylist" destination="22y-2n-gzu" id="dLF-U3-1uJ"/>
                 <outlet property="CmdServersConnect" destination="lZp-Qp-Qf3" id="yVK-F8-GSZ"/>
                 <outlet property="CmdServersMore" destination="RL9-Yd-l7P" id="rUC-nW-R7c"/>
                 <outlet property="CmdServersRefresh" destination="I4b-oW-5pb" id="Mbu-WJ-CxG"/>
                 <outlet property="CmdServersRename" destination="i0R-O4-nuU" id="6oo-Wd-6pM"/>
                 <outlet property="CmdServersUndefined" destination="0dd-OC-eGN" id="vwc-ne-5QU"/>
-                <outlet property="CmdServersWhiteList" destination="6GG-GT-Cy4" id="2aL-ue-mdi"/>
+                <outlet property="CmdServersAllowlist" destination="6GG-GT-Cy4" id="2aL-ue-mdi"/>
                 <outlet property="CmdUpdater" destination="Xye-Sa-FcZ" id="MRD-qN-qqt"/>
                 <outlet property="ImgConnectedCountry" destination="Ozh-Vi-DHT" id="tUG-DG-1lf"/>
                 <outlet property="ImgNetworkLock" destination="ons-kJ-mAk" id="c1g-C0-TMb"/>
@@ -56,20 +56,20 @@
                 <outlet property="LblVersion" destination="KQJ-fY-w9r" id="nbE-Mv-HOP"/>
                 <outlet property="LblWaiting1" destination="TxA-1y-Zx4" id="MBl-E8-jXk"/>
                 <outlet property="LblWaiting2" destination="rGP-dy-qN2" id="Cu7-96-5BM"/>
-                <outlet property="MnuAreasBlacklist" destination="uId-gT-4uA" id="QRp-IV-7dt"/>
+                <outlet property="MnuAreasDenylist" destination="uId-gT-4uA" id="QRp-IV-7dt"/>
                 <outlet property="MnuAreasUndefined" destination="0dA-Gd-pTt" id="ZAP-Yd-IlZ"/>
-                <outlet property="MnuAreasWhitelist" destination="pym-DI-K1T" id="ZJg-Ug-llK"/>
+                <outlet property="MnuAreasAllowlist" destination="pym-DI-K1T" id="ZJg-Ug-llK"/>
                 <outlet property="MnuLogsCopyAll" destination="pzM-ZI-Aha" id="X9L-f9-eWU"/>
                 <outlet property="MnuLogsCopySelected" destination="HNy-Yd-WZW" id="zFs-uQ-v7f"/>
                 <outlet property="MnuLogsSaveAll" destination="bCA-eZ-7V1" id="gsx-bM-q3g"/>
                 <outlet property="MnuLogsSaveSelected" destination="1mX-5K-etL" id="vME-bK-734"/>
-                <outlet property="MnuServersBlacklist" destination="MmQ-pB-59L" id="kbw-hG-iTY"/>
+                <outlet property="MnuServersDenylist" destination="MmQ-pB-59L" id="kbw-hG-iTY"/>
                 <outlet property="MnuServersConnect" destination="fNR-2w-1MT" id="urv-Ni-pGF"/>
                 <outlet property="MnuServersMore" destination="xeZ-mn-eys" id="hof-9c-rca"/>
                 <outlet property="MnuServersRefresh" destination="hW5-pl-1cB" id="x9O-Fz-RTY"/>
                 <outlet property="MnuServersRename" destination="PWu-bK-RJA" id="oRU-O2-RlF"/>
                 <outlet property="MnuServersUndefined" destination="Lsg-wR-Ixf" id="A8y-Qs-5tB"/>
-                <outlet property="MnuServersWhitelist" destination="NU4-s6-XgY" id="Imd-Sw-GAs"/>
+                <outlet property="MnuServersAllowlist" destination="NU4-s6-XgY" id="Imd-Sw-GAs"/>
                 <outlet property="MnuTray" destination="2Bv-yX-Px1" id="Y9R-1z-B3f"/>
                 <outlet property="MnuTrayAbout" destination="83q-TJ-BhH" id="fCh-Tc-a98"/>
                 <outlet property="MnuTrayClientArea" destination="ajm-ap-TIo" id="8Fa-pj-sGp"/>
@@ -723,15 +723,15 @@
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </tableHeaderView>
                                         </scrollView>
-                                        <button toolTip="Clean the selected server from whitelist and blacklist" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="0dd-OC-eGN">
+                                        <button toolTip="Clean the selected server from allowlist and denylist" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="0dd-OC-eGN">
                                             <rect key="frame" x="537" y="174" width="36" height="34"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
-                                            <buttonCell key="cell" type="bevel" bezelStyle="regularSquare" image="blacklist_2" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="3Fb-WR-GGO">
+                                            <buttonCell key="cell" type="bevel" bezelStyle="regularSquare" image="denylist_2" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="3Fb-WR-GGO">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
                                         </button>
-                                        <button toolTip="Clean the selected server from whitelist and blacklist" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="i0R-O4-nuU">
+                                        <button toolTip="Clean the selected server from allowlist and denylist" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="i0R-O4-nuU">
                                             <rect key="frame" x="537" y="118" width="36" height="34"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                                             <buttonCell key="cell" type="bevel" bezelStyle="regularSquare" image="rename_16" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="yZ6-45-TZt">
@@ -739,10 +739,10 @@
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
                                         </button>
-                                        <button toolTip="Add the selected server to blacklist" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="22y-2n-gzu">
+                                        <button toolTip="Add the selected server to denylist" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="22y-2n-gzu">
                                             <rect key="frame" x="537" y="211" width="36" height="34"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
-                                            <buttonCell key="cell" type="bevel" bezelStyle="regularSquare" image="blacklist_1" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Sca-5i-omL">
+                                            <buttonCell key="cell" type="bevel" bezelStyle="regularSquare" image="denylist_1" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Sca-5i-omL">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
@@ -750,10 +750,10 @@
                                                 <outlet property="nextKeyView" destination="0dd-OC-eGN" id="Yap-Eg-fne"/>
                                             </connections>
                                         </button>
-                                        <button toolTip="Add the selected server to whitelist" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="6GG-GT-Cy4">
+                                        <button toolTip="Add the selected server to allowlist" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="6GG-GT-Cy4">
                                             <rect key="frame" x="537" y="248" width="36" height="34"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
-                                            <buttonCell key="cell" type="bevel" bezelStyle="regularSquare" image="blacklist_0" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="FXN-Hm-daB">
+                                            <buttonCell key="cell" type="bevel" bezelStyle="regularSquare" image="denylist_0" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="FXN-Hm-daB">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
@@ -825,7 +825,7 @@
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
                                         </button>
-                                        <button toolTip="Clean the selected server from whitelist and blacklist" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="RL9-Yd-l7P">
+                                        <button toolTip="Clean the selected server from allowlist and denylist" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="RL9-Yd-l7P">
                                             <rect key="frame" x="537" y="81" width="36" height="34"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                                             <buttonCell key="cell" type="bevel" bezelStyle="regularSquare" image="more_16" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="nHO-ct-IdY">
@@ -951,7 +951,7 @@
                                         <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="vwU-Fi-AJc">
                                             <rect key="frame" x="537" y="222" width="36" height="34"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
-                                            <buttonCell key="cell" type="bevel" bezelStyle="regularSquare" image="blacklist_2" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Uz1-Im-nuR">
+                                            <buttonCell key="cell" type="bevel" bezelStyle="regularSquare" image="denylist_2" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Uz1-Im-nuR">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
@@ -959,7 +959,7 @@
                                         <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="TmP-bW-Iij">
                                             <rect key="frame" x="537" y="259" width="36" height="34"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
-                                            <buttonCell key="cell" type="bevel" bezelStyle="regularSquare" image="blacklist_1" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="sU7-Eo-tqh">
+                                            <buttonCell key="cell" type="bevel" bezelStyle="regularSquare" image="denylist_1" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="sU7-Eo-tqh">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
@@ -967,7 +967,7 @@
                                         <button toolTip="Tooltip Test" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="XeD-zu-9dZ">
                                             <rect key="frame" x="537" y="296" width="36" height="34"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
-                                            <buttonCell key="cell" type="bevel" bezelStyle="regularSquare" image="blacklist_0" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="ZSk-ea-cwi">
+                                            <buttonCell key="cell" type="bevel" bezelStyle="regularSquare" image="denylist_0" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="ZSk-ea-cwi">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
@@ -1232,13 +1232,13 @@
                     <modifierMask key="keyEquivalentModifierMask"/>
                 </menuItem>
                 <menuItem isSeparatorItem="YES" id="wq4-1T-ab8"/>
-                <menuItem title="Whitelist" image="blacklist_0_16" id="NU4-s6-XgY">
+                <menuItem title="Allowlist" image="denylist_0_16" id="NU4-s6-XgY">
                     <modifierMask key="keyEquivalentModifierMask"/>
                 </menuItem>
-                <menuItem title="Blacklist" image="blacklist_1_16" id="MmQ-pB-59L">
+                <menuItem title="Denylist" image="denylist_1_16" id="MmQ-pB-59L">
                     <modifierMask key="keyEquivalentModifierMask"/>
                 </menuItem>
-                <menuItem title="Undefined" image="blacklist_2_16" id="Lsg-wR-Ixf">
+                <menuItem title="Undefined" image="denylist_2_16" id="Lsg-wR-Ixf">
                     <modifierMask key="keyEquivalentModifierMask"/>
                 </menuItem>
                 <menuItem isSeparatorItem="YES" id="8Ej-nA-22Y"/>
@@ -1256,13 +1256,13 @@
         </menu>
         <menu title="Areas" autoenablesItems="NO" id="xCn-Ef-Z9b">
             <items>
-                <menuItem title="Whitelist" image="blacklist_0_16" id="pym-DI-K1T">
+                <menuItem title="Allowlist" image="denylist_0_16" id="pym-DI-K1T">
                     <modifierMask key="keyEquivalentModifierMask"/>
                 </menuItem>
-                <menuItem title="Blacklist" image="blacklist_1_16" id="uId-gT-4uA">
+                <menuItem title="Denylist" image="denylist_1_16" id="uId-gT-4uA">
                     <modifierMask key="keyEquivalentModifierMask"/>
                 </menuItem>
-                <menuItem title="Undefined" image="blacklist_2_16" id="0dA-Gd-pTt">
+                <menuItem title="Undefined" image="denylist_2_16" id="0dA-Gd-pTt">
                     <modifierMask key="keyEquivalentModifierMask"/>
                 </menuItem>
             </items>
@@ -1326,12 +1326,12 @@
     <resources>
         <image name="about_16" width="16.225351333618164" height="16.225351333618164"/>
         <image name="add_16" width="16.225351333618164" height="16.225351333618164"/>
-        <image name="blacklist_0" width="128" height="128"/>
-        <image name="blacklist_0_16" width="16.225351333618164" height="16.225351333618164"/>
-        <image name="blacklist_1" width="128" height="128"/>
-        <image name="blacklist_1_16" width="16.225351333618164" height="16.225351333618164"/>
-        <image name="blacklist_2" width="128" height="128"/>
-        <image name="blacklist_2_16" width="16.225351333618164" height="16.225351333618164"/>
+        <image name="denylist_0" width="128" height="128"/>
+        <image name="denylist_0_16" width="16.225351333618164" height="16.225351333618164"/>
+        <image name="denylist_1" width="128" height="128"/>
+        <image name="denylist_1_16" width="16.225351333618164" height="16.225351333618164"/>
+        <image name="denylist_2" width="128" height="128"/>
+        <image name="denylist_2_16" width="16.225351333618164" height="16.225351333618164"/>
         <image name="clear" width="129.80281066894531" height="129.80281066894531"/>
         <image name="command" width="129.80281066894531" height="129.80281066894531"/>
         <image name="connect" width="128" height="128"/>

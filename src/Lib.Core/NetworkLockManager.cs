@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Net.NetworkInformation;
 using System.Text;
 using System.Xml;
 
@@ -120,7 +121,7 @@ namespace Eddie.Core
 					Engine.Instance.Logs.Log(LogType.InfoImportant, message);
 
 					// This is not useless: resolve hostnames (available later as cache) before a possible lock of DNS server.
-					nextCurrent.GetIpsWhiteListOutgoing(true);
+					nextCurrent.GetIpsAllowlistOutgoing(true);
 
 					nextCurrent.Activation();
 
@@ -276,40 +277,43 @@ namespace Eddie.Core
 			}
 		}
 
-		public void AllowIP(IpAddress ip)
+		// Not used
+		/*
+		public void XXX_AllowIP(IpAddress ip)
 		{
 			if (m_current != null)
 				m_current.AllowIP(ip);
 		}
 
-		public void DeallowIP(IpAddress ip)
+		public void XXX_DeallowIP(IpAddress ip)
 		{
 			if (m_current != null)
 				m_current.DeallowIP(ip);
 		}
+		*/
 
-		public virtual void AllowProgram(string path, string name, string guid)
+		public virtual void AllowProgram(string path)
 		{
 			if (m_current != null)
-				m_current.AllowProgram(path, name, guid);
+				m_current.AllowProgram(path);
 		}
 
-		public virtual void DeallowProgram(string path, string name, string guid)
+		public virtual void DeallowProgram(string path)
 		{
 			if (m_current != null)
-				m_current.DeallowProgram(path, name, guid);
+				m_current.DeallowProgram(path);
 		}
 
-		public virtual void AllowInterface(string id)
+		public virtual void AllowInterface(NetworkInterface networkInterface)
 		{
 			if (m_current != null)
-				m_current.AllowInterface(id);
+				m_current.AllowInterface(networkInterface);
 		}
 
-		public virtual void DeallowInterface(string id)
+		public virtual void DeallowInterface(NetworkInterface networkInterface)
 		{
 			if (m_current != null)
-				m_current.DeallowInterface(id);
+				m_current.DeallowInterface(networkInterface);
 		}
 	}
 }

@@ -343,6 +343,9 @@ namespace Eddie.Core.ConnectionTypes
 		public virtual void OnClose()
 		{
 			OnCleanAfterStart();
+
+			if (Engine.Instance.NetworkLockManager != null)
+				Engine.Instance.NetworkLockManager.DeallowInterface(Interface);
 		}
 
 		public virtual void OnLogEvent(string source, string message)
@@ -435,26 +438,56 @@ namespace Eddie.Core.ConnectionTypes
 			NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
 
 			// Search by ID
-			foreach (NetworkInterface adapter in interfaces)
+			foreach (NetworkInterface networkInterface in interfaces)
 			{
-				if (adapter.Id == id)
+				if (networkInterface.Id == id)
 				{
-					Session.SetTunNetworkInterface(adapter);
+					SetTunNetworkInterface(networkInterface);
 					return;
 				}
 			}
 
 			// Search by Name
-			foreach (NetworkInterface adapter in interfaces)
+			foreach (NetworkInterface networkInterface in interfaces)
 			{
-				if (adapter.Name == id)
+				if (networkInterface.Name == id)
 				{
-					Session.SetTunNetworkInterface(adapter);
+					SetTunNetworkInterface(networkInterface);
 					return;
 				}
 			}
 
 			throw new Exception("Unexpected: Network interface unknown");
+		}
+
+		protected void SetTunNetworkInterface(NetworkInterface networkInterface)
+		{
+			Interface = networkInterface;
+
+			if (Engine.Instance.NetworkLockManager != null)
+				Engine.Instance.NetworkLockManager.AllowInterface(networkInterface);
+
+			Json jInfo = Engine.Instance.JsonNetworkInterfaceInfo(networkInterface);
+
+			if ((ConfigIPv4) && (jInfo != null) && (jInfo.HasKey("support_ipv4")) && (Conversions.ToBool(jInfo["support_ipv4"].Value) == false))
+			{
+				Engine.Instance.Logs.LogWarning(LanguageManager.GetText("IPv4NotSupportedByNetworkAdapter"));
+				if ((Engine.Instance.Options.GetBool("network.ipv4.autoswitch")) && (Engine.Instance.Options.Get("network.ipv4.mode") != "block"))
+				{
+					Engine.Instance.Logs.LogWarning(LanguageManager.GetText("IPv4NotSupportedByNetworkAdapterAutoSwitch"));
+					Engine.Instance.Options.Set("network.ipv4.mode", "block");
+				}
+			}
+
+			if ((ConfigIPv6) && (jInfo != null) && (jInfo.HasKey("support_ipv6")) && (Conversions.ToBool(jInfo["support_ipv6"].Value) == false))
+			{
+				Engine.Instance.Logs.LogWarning(LanguageManager.GetText("IPv6NotSupportedByNetworkAdapter"));
+				if ((Engine.Instance.Options.GetBool("network.ipv6.autoswitch")) && (Engine.Instance.Options.Get("network.ipv6.mode") != "block"))
+				{
+					Engine.Instance.Logs.LogWarning(LanguageManager.GetText("IPv6NotSupportedByNetworkAdapterAutoSwitch"));
+					Engine.Instance.Options.Set("network.ipv6.mode", "block");
+				}
+			}
 		}
 	}
 }

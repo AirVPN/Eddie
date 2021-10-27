@@ -128,11 +128,9 @@
     <Compile Include="Tools\OpenVPN.cs" />
     <Compile Include="Tools\File.cs" />
     <Compile Include="CompatibilityManager.cs" />
-    <Compile Include="InterfaceScope.cs" />
     <Compile Include="LogsManager.cs" />
     <Compile Include="LogType.cs" />
     <Compile Include="Option.cs" />
-    <Compile Include="ProgramScope.cs" />
     <Compile Include="ProvidersManager.cs" />
     <Compile Include="Providers\Service.cs" />
     <Compile Include="Providers\OpenVPN.cs" />
@@ -143,7 +141,6 @@
     <Compile Include="IpAddress.cs" />
     <Compile Include="NetworkLockManager.cs" />
     <Compile Include="NetworkLockPlugin.cs" />
-    <Compile Include="RouteScope.cs" />
     <Compile Include="Process.cs">
       <SubType>Component</SubType>
     </Compile>

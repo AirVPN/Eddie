@@ -49,7 +49,7 @@ namespace Eddie.Core.ConnectionTypes
 			// With WireGuard, must exists (WG create the adapter).
 			m_interfaceName = Engine.Instance.Options.Get("network.iface.name");
 			if (m_interfaceName == "")
-				m_interfaceName = Engine.Instance.Options.GetOption("network.iface.name").Default;
+				m_interfaceName = "Eddie";
 
 			m_configStartup = new ConfigBuilder.WireGuard();
 
@@ -180,6 +180,12 @@ namespace Eddie.Core.ConnectionTypes
 					log = false;
 					Engine.Instance.Logs.Log(LogType.Verbose, "WireGuard > " + LanguageManager.GetText("WireGuardSetupComplete"));
 				}
+				else if (messageLower == "setup-interface")
+				{
+					log = false;
+					Engine.Instance.Logs.Log(LogType.Verbose, "WireGuard > " + LanguageManager.GetText("WireGuardSetupInterface"));
+					SearchTunNetworkInterfaceByName(m_interfaceName);
+				}
 				else if (messageLower == "handshake-first")
 				{
 					log = false;
@@ -187,11 +193,9 @@ namespace Eddie.Core.ConnectionTypes
 
 					if (Session.GetConnected() == false)
 					{
-						SearchTunNetworkInterfaceByName(m_interfaceName);
-
 						// Forced because actually exists only one version of WireGuard protocol, maybe in future detected based on protocol version
-						DataChannel = "WireGuard Data Channel"; // TOFIX?
-						ControlChannel = "WireGuard Control Channel"; // TOFIX?
+						DataChannel = "WireGuard Data Channel"; // Need better description?
+						ControlChannel = "WireGuard Control Channel"; // Need better description?
 
 						Session.ConnectedStep();
 					}

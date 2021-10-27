@@ -110,12 +110,12 @@ namespace Eddie.UI.Cocoa.Osx
 
 			if (tableColumn.Identifier == "List")
 			{
-				if (a.UserList == AreaInfo.UserListType.Whitelist)
-					return NSImage.ImageNamed("blacklist_0.png");
-				else if (a.UserList == AreaInfo.UserListType.Blacklist)
-					return NSImage.ImageNamed("blacklist_1.png");
+				if (a.UserList == AreaInfo.UserListType.Allowlist)
+					return NSImage.ImageNamed("denylist_0.png");
+				else if (a.UserList == AreaInfo.UserListType.Denylist)
+					return NSImage.ImageNamed("denylist_1.png");
 				else
-					return NSImage.ImageNamed("blacklist_2.png");
+					return NSImage.ImageNamed("denylist_2.png");
 			}
 			else if (tableColumn.Identifier == "Flag")
 			{

@@ -210,9 +210,9 @@ namespace Eddie.Platform.MacOS
 					pf += "pass quick proto icmp6 all\n"; // 2.14.0
 			}
 
-			IpAddresses ipsWhiteListIncoming = GetIpsWhiteListIncoming();
+			IpAddresses ipsAllowlistIncoming = GetIpsAllowlistIncoming();
 			pf += "# Specific ranges - incoming\n";
-			foreach (IpAddress ip in ipsWhiteListIncoming.IPs)
+			foreach (IpAddress ip in ipsAllowlistIncoming.IPs)
 			{
 				if (ip.IsV4)
 					pf += "pass in quick inet from " + ip.ToCIDR() + " to any\n";
@@ -220,9 +220,9 @@ namespace Eddie.Platform.MacOS
 					pf += "pass in quick inet6 from " + ip.ToCIDR() + " to any\n";
 			}
 
-			IpAddresses ipsWhiteListOutgoing = GetIpsWhiteListOutgoing(true);
+			IpAddresses ipsAllowlistOutgoing = GetIpsAllowlistOutgoing(true);
 			pf += "# Specific ranges - outgoing\n";
-			foreach (IpAddress ip in ipsWhiteListOutgoing.IPs)
+			foreach (IpAddress ip in ipsAllowlistOutgoing.IPs)
 			{
 				if (ip.IsV4)
 					pf += "pass out quick inet from any to " + ip.ToCIDR() + "\n";

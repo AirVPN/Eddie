@@ -110,19 +110,22 @@ namespace Eddie.Core
 			return System.Text.Encoding.UTF8.GetBytes(str);
 		}
 
+		public static string HashSHA256(this string str)
+		{
+			return Core.Crypto.Manager.HashSHA256(str);
+		}
+
 		// StringSafe* set of functions are NOT used to prune/escape values destinated to exec execution. Use SystemExec class instead.
 		public static string Safe(this string str)
 		{
 			return str.PruneCharsNotIn("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 -_");
 		}
 
-		// StringSafe* set of functions are NOT used to prune/escape values destinated to exec execution. Use SystemExec class instead.
-		/*
+		// StringSafe* set of functions are NOT used to prune/escape values destinated to exec execution. Use SystemExec class instead.		
 		public static string SafeAlphaNumeric(this string str)
 		{
 			return str.PruneCharsNotIn("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
 		}
-		*/
 
 		// Used when need "\"" + mystr.EscapeQuote() + "\"".
 		public static string EscapeQuote(this string str)

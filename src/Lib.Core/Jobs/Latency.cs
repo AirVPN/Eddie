@@ -173,16 +173,7 @@ namespace Eddie.Core.Jobs
 					infoServer.InvalidatePingResults();
 			}
 		}
-
-		// TOCLEAN
-		/*
-		private static void DoPing(object o)
-		{
-			PingerJob job = o as PingerJob;
-			job.Run();
-		}
-		*/
-
+				
 		public void PingResult(ConnectionInfo infoServer, PingReply reply)
 		{
 			Int64 result = 0;

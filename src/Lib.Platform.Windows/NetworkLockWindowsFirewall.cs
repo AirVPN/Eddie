@@ -173,7 +173,7 @@ namespace Eddie.Platform.Windows
 		private List<NetworkLockWindowsFirewallProfile> Profiles = new List<NetworkLockWindowsFirewallProfile>();
 		//private bool m_serviceStatus = false;
 		private bool m_activated = false;
-		private IpAddresses m_lastestIpsWhiteListOutgoing = new IpAddresses();
+		private IpAddresses m_lastestIpsAllowlistOutgoing = new IpAddresses();
 
 		public override string GetCode()
 		{
@@ -413,32 +413,28 @@ namespace Eddie.Platform.Windows
 			}
 			*/
 
-			m_lastestIpsWhiteListOutgoing.Clear();
+			m_lastestIpsAllowlistOutgoing.Clear();
 		}
 
-		public override void AllowProgram(string path, string name, string guid)
+		public override void AllowProgram(string path)
 		{
-			base.AllowProgram(path, name, guid);
+			base.AllowProgram(path);
 
-			if (Platform.Instance.FetchUrlInternal() == false)
-				if (path == Software.GetTool("curl").Path)
-					return;
+			string hash = path.HashSHA256();
 
 			// Windows Firewall don't work with logical path (a path that contain hardlink)
 			string physicalPath = Platform.Instance.FileGetPhysicalPath(path);
 
-			NetShAdvFirewall("firewall add rule name=\"Eddie - Out - AllowProgram - " + guid + "\" dir=out action=allow program=\"" + SystemExec.EscapePath(physicalPath) + "\" enable=yes");
+			NetShAdvFirewall("firewall add rule name=\"Eddie - Out - AllowProgram - " + hash + "\" dir=out action=allow program=\"" + SystemExec.EscapePath(physicalPath) + "\" enable=yes");
 		}
 
-		public override void DeallowProgram(string path, string name, string guid)
+		public override void DeallowProgram(string path)
 		{
-			base.DeallowProgram(path, name, guid);
+			base.DeallowProgram(path);
 
-			if (Platform.Instance.FetchUrlInternal() == false)
-				if (path == Software.GetTool("curl").Path)
-					return;
+			string hash = path.HashSHA256();
 
-			NetShAdvFirewall("firewall delete rule name=\"Eddie - Out - AllowProgram - " + guid + "\"");
+			NetShAdvFirewall("firewall delete rule name=\"Eddie - Out - AllowProgram - " + hash + "\"");
 		}
 
 		public override void OnUpdateIps()
@@ -446,13 +442,13 @@ namespace Eddie.Platform.Windows
 			if (m_activated == false)
 				return;
 
-			IpAddresses ipsWhiteListOutgoing = GetIpsWhiteListOutgoing(false);
+			IpAddresses ipsAllowlistOutgoing = GetIpsAllowlistOutgoing(false);
 
-			if (ipsWhiteListOutgoing.ToString() != m_lastestIpsWhiteListOutgoing.ToString())
+			if (ipsAllowlistOutgoing.ToString() != m_lastestIpsAllowlistOutgoing.ToString())
 			{
 				string ipv4 = "";
 				string ipv6 = "";
-				foreach (IpAddress ip in ipsWhiteListOutgoing.IPs)
+				foreach (IpAddress ip in ipsAllowlistOutgoing.IPs)
 				{
 					if (ip.IsV4)
 					{
@@ -469,7 +465,7 @@ namespace Eddie.Platform.Windows
 				}
 
 				// TOFIX: If these list are too big, exec to netsh throw an error (too long). But must be a list of four hundred ips.
-				if (m_lastestIpsWhiteListOutgoing.Count != 0)
+				if (m_lastestIpsAllowlistOutgoing.Count != 0)
 				{
 					NetShAdvFirewall("firewall set rule name=\"Eddie - Out - Allow IPv4 IPs\" dir=out new action=allow remoteip=\"" + ipv4 + "\"");
 					NetShAdvFirewall("firewall set rule name=\"Eddie - Out - Allow IPv6 IPs\" dir=out new action=allow remoteip=\"" + ipv6 + "\"");
@@ -480,7 +476,7 @@ namespace Eddie.Platform.Windows
 					NetShAdvFirewall("firewall add rule name=\"Eddie - Out - Allow IPv6 IPs\" dir=out action=allow remoteip=\"" + ipv6 + "\"");
 				}
 
-				m_lastestIpsWhiteListOutgoing = ipsWhiteListOutgoing;
+				m_lastestIpsAllowlistOutgoing = ipsAllowlistOutgoing;
 			}
 		}
 

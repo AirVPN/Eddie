@@ -936,31 +936,19 @@ namespace Eddie.Platform.Linux
 			return true;
 		}
 
-		public override void OnJsonNetworkInfo(Json jNetworkInfo)
+		public override void OnJsonNetworkInterfaceInfo(NetworkInterface networkInterface, Json jNetworkInterface)
 		{
-			base.OnJsonNetworkInfo(jNetworkInfo);
-			if (Conversions.ToBool(jNetworkInfo["support_ipv6"].Value) == true)
-			{
-				if (Conversions.ToInt32(GetSysCtl("/net/ipv6/conf/all/disable_ipv6")) != 0)
-					jNetworkInfo["support_ipv6"].Value = false;
-				else if (Conversions.ToInt32(GetSysCtl("/net/ipv6/conf/default/disable_ipv6")) != 0)
-					jNetworkInfo["support_ipv6"].Value = false;
-				else if (FileExists("/proc/net/if_inet6") == false) // Disabled via Grub for example
-					jNetworkInfo["support_ipv6"].Value = false;
-			}
+			base.OnJsonNetworkInterfaceInfo(networkInterface, jNetworkInterface);
 
-			foreach (Json jNetworkInterface in jNetworkInfo["interfaces"].Json.GetArray())
-			{
-				string id = jNetworkInterface["id"].Value as string;
+			string id = jNetworkInterface["id"].Value as string;
 
-				// Base virtual always 'false'. Missing Mono implementation?
-				jNetworkInterface["support_ipv6"].Value = true;
-				{
-					if (Conversions.ToBool(jNetworkInfo["support_ipv6"].Value) == false)
-						jNetworkInterface["support_ipv6"].Value = false;
-					else if (Conversions.ToInt32(GetSysCtl("/net/ipv6/conf/" + SystemExec.EscapeAlphaNumeric(id) + "/disable_ipv6")) != 0)
-						jNetworkInterface["support_ipv6"].Value = false;
-				}
+			// Base virtual always 'false'. Missing Mono implementation?
+			jNetworkInterface["support_ipv6"].Value = true;
+			{
+				if (GetSupportIPv6() == false)
+					jNetworkInterface["support_ipv6"].Value = false;
+				else if (Conversions.ToInt32(GetSysCtl("/net/ipv6/conf/" + id.SafeAlphaNumeric() + "/disable_ipv6")) != 0)
+					jNetworkInterface["support_ipv6"].Value = false;
 			}
 		}
 
@@ -1029,6 +1017,18 @@ namespace Eddie.Platform.Linux
 			list.Add("/root/bin");
 
 			return list;
+		}
+
+		public override bool GetSupportIPv6()
+		{
+			if (Conversions.ToInt32(GetSysCtl("/net/ipv6/conf/all/disable_ipv6")) != 0)
+				return false;
+			else if (Conversions.ToInt32(GetSysCtl("/net/ipv6/conf/default/disable_ipv6")) != 0)
+				return false;
+			else if (FileExists("/proc/net/if_inet6") == false) // Disabled via Grub for example
+				return false;
+			else
+				return true;
 		}
 
 		public override string OpenVpnGetDriverVersion(string driver)

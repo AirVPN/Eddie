@@ -43,7 +43,9 @@ private:
 	int FileImmutableSet(const std::string& path, const int flag);
 	int FileGetFlags(const std::string& path);
 
+	std::string GetRoutesAsJson();	
 	std::vector<std::string> GetNetworkInterfaces();
+	std::string GetNetworkInterfaceInfoAsJson(const std::string& id);
 	unsigned long WireGuardLastHandshake(const std::string& wgPath, const std::string& interfaceId);
 };
 
