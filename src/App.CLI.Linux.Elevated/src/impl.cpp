@@ -445,7 +445,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 	{
 		std::string nft = FsLocateExecutable("nft");
 
-		ExecResult execRulesList = ExecEx4(nft, "list", "ruleset", "-n", "-a"); // To obtain handles for insert/delete
+		ExecResult execRulesList = ExecEx4(nft, "-n", "-a", "list", "ruleset"); // To obtain handles for insert/delete
 		if (execRulesList.exit != 0)
 			ThrowException("nft issue: " + GetExecResultDump(execRulesList));
 		
