@@ -18,9 +18,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Text;
-using System.Threading;
 
 /*
 This is the interface class for communication with helper executable that require root/admin privileges.
@@ -137,7 +134,7 @@ namespace Eddie.Core.Elevated
 
 			c.Parameters["_id"] = c.Id.ToString();
 			c.Parameters["_token"] = m_sessionKey;
-			c.Parameters["_debug"] = ((Engine.Instance != null) && (Engine.Instance.Storage != null) && (Engine.Instance.Options.GetBool("log.level.debug")) ? "1" : "0");
+			c.Parameters["_debug"] = ((Engine.Instance != null) && (Engine.Instance.Options != null) && (Engine.Instance.Options.GetBool("log.level.debug")) ? "1" : "0");
 			string line = "";
 			foreach (KeyValuePair<string, string> kp in c.Parameters)
 			{

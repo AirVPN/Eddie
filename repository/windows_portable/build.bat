@@ -65,6 +65,10 @@ rem Resources
 echo Step: Resources
 copy %VARSCRIPTDIR%\..\..\deploy\%VAROS%_%VARARCH%\* %VARTARGETDIR% || goto :error
 robocopy %VARSCRIPTDIR%\..\..\common %VARTARGETDIR%\res /E
+
+IF "%VARPROJECT%"=="ui3" (
+	robocopy %VARSCRIPTDIR%\..\..\src\UI.WPF.Windows\bin\%VARARCHCOMPILE%\%VARCONFIG%\runtimes %VARTARGETDIR%\runtimes /E
+)
  
 rem Cleanup
 echo Step: Cleanup
@@ -74,6 +78,7 @@ del %VARTARGETDIR%\*.config 2> nul
 del %VARTARGETDIR%\temp.* 2> nul
 del %VARTARGETDIR%\Recovery.xml 2> nul
 del %VARTARGETDIR%\mono_crash.* 2> nul
+del %VARTARGETDIR%\*.xml 2> nul
 rem rmdir /s /q %VARTARGETDIR%\res\providers
 
 IF "%VARPROJECT%"=="cli" (

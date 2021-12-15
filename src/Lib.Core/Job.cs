@@ -17,14 +17,7 @@
 // </eddie_source_header>
 
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading;
-using System.IO;
-using System.Net;
-using System.Net.NetworkInformation;
-using System.Xml;
-using System.Text;
 
 namespace Eddie.Core
 {
@@ -45,7 +38,7 @@ namespace Eddie.Core
 
 		public virtual bool GetSync()
 		{
-			return true;
+			return false;
 		}
 
 		public virtual void OnRun()

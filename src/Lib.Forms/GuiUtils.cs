@@ -16,14 +16,12 @@
 // along with Eddie. If not, see <http://www.gnu.org/licenses/>.
 // </eddie_source_header>
 
+using Eddie.Core;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Reflection;
 using System.Windows.Forms;
-using System.Text;
-using Eddie.Core;
 
 namespace Eddie.Forms
 {
@@ -33,7 +31,7 @@ namespace Eddie.Forms
 
 		public static Image GetResourceImage(string name)
 		{
-			// Accessing Properties.Resources.xxx is a lot cpu extensive, probabily conversions every time. We cache image resources.
+			// Accessing Properties.Resources.xxx is a lot cpu extensive, probably conversions every time. We cache image resources.
 			if (ImageResourceCache.ContainsKey(name))
 				return ImageResourceCache[name];
 			else

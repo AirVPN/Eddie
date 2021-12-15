@@ -23,14 +23,10 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Net;
 using System.Net.NetworkInformation;
-using System.Security.Principal;
 using System.Xml;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 #if NETSTANDARD
 #else
-using System.ServiceProcess;
 #endif
 using Microsoft.Win32;
 
@@ -921,7 +917,7 @@ namespace Eddie.Platform.Windows
 			{
 				if (Engine.Instance.GetOpenVpnTool().VersionAboveOrEqual("2.5"))
 				{
-					if (Engine.Instance.Options.GetBool("windows.wintun"))
+					if (Engine.Instance.Options.GetBool("windows.force_old_driver") == false)
 					{
 						config.AppendDirectives("windows-driver wintun", "OS");
 						if (Core.Engine.Instance.Options.Get("network.iface.name") != "")
@@ -1284,11 +1280,11 @@ namespace Eddie.Platform.Windows
 							}
 							m_oldMetricIPv6 = -1;
 						}
-
-						m_oldMetricInterface = "";
 						break;
 					}
 				}
+
+				m_oldMetricInterface = ""; // Do anyway, even if interface not found
 			}
 			return base.OnInterfaceRestore();
 		}
@@ -1557,24 +1553,26 @@ namespace Eddie.Platform.Windows
 			return available;
 		}
 
-		public override string OpenVpnGetTunDriverReport()
+		public override NetworkInterface SearchAdapter(string driver)
 		{
-			string result = "";
-
-			List<string> drivers = new List<string>();
-			drivers.Add(OpenVpnDriverTapId);
-			//drivers.Add(OpenVpnDriverWintunId);
-
-			foreach (string driver in drivers)
+			NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
+			foreach (NetworkInterface adapter in interfaces)
 			{
-				string driverResult = OpenVpnGetDriverVersion(driver);
-				if (driverResult == "")
-					driverResult = "Not found";
-				if (result != "")
-					result += "; ";
-				result += driver + ": " + driverResult;
+				if (adapter.OperationalStatus != OperationalStatus.Down)
+					continue;
+
+				if ((driver == OpenVpnDriverWintunId) && (adapter.Description.ToLowerInvariant().StartsWith("wintun")))
+				{
+					return adapter;
+				}
+
+				if ((driver == OpenVpnDriverTapId) && (adapter.Description.ToLowerInvariant().StartsWith("tap-win")))
+				{
+					return adapter;
+				}
 			}
-			return result;
+
+			return null;
 		}
 
 		/*
@@ -1586,11 +1584,15 @@ namespace Eddie.Platform.Windows
 		}
 		*/
 
-		public override string OpenVpnGetDriverVersion(string driver)
+		public override string GetDriverVersion(string driver)
 		{
 			try
 			{
-				if (driver == "0901")
+				if (driver == "wintun")
+				{
+					return "Automatic";
+				}
+				else if (driver == "0901")
 				{
 					string sysPath = "";
 
@@ -1619,16 +1621,8 @@ namespace Eddie.Platform.Windows
 						return result;
 					}
 				}
-				else if (driver == "wintun")
-				{
-					object wintunVersion = Registry.GetValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\Wintun", "Version", "");
-					if (wintunVersion != null)
-						return wintunVersion as string;
-				}
 				else
 					throw new Exception("Unknown driver " + driver);
-
-
 			}
 			catch (Exception ex)
 			{
@@ -1638,81 +1632,87 @@ namespace Eddie.Platform.Windows
 			return "";
 		}
 
-		public override void OpenVpnEnsureDriverAndAdapterAvailable(string driver)
+		public override void OpenVpnEnsureDriverAndAdapterAvailable(string driver, string ifaceName)
 		{
-			string version = OpenVpnGetDriverVersion(driver);
+			if (driver == OpenVpnDriverTapId)				
+			{
+				if (Engine.Instance.GetOpenVpnTool().VersionAboveOrEqual("2.5"))
+				{
+					Engine.Instance.Logs.LogWarning("Deprecated: please uncheck Preferences > Advanced > Force usage of old Tap driver");
+				}
+			}
 
-			string bundleVersion = OpenVpnDriverTapVersion;
+			// Need driver install?
 			if (driver == OpenVpnDriverTapId)
 			{
-				bundleVersion = OpenVpnDriverTapVersion;
+				string version = GetDriverVersion(OpenVpnDriverTapId);
+
+				string bundleVersion = OpenVpnDriverTapVersion;
 				if (IsWin8OrNewer() == false) // Win7
 					bundleVersion = OpenVpnDriverTapWin7Version;
+
+				bool needInstall = false;
+
+				if (version == "")
+				{
+					needInstall = true;
+					Engine.Instance.Logs.Log(LogType.InfoImportant, LanguageManager.GetText("OsDriverInstall", driver));
+				}
+				else if ((Engine.Instance.Options.GetBool("windows.disable_driver_upgrade") == false) && (version.VersionCompare(bundleVersion) == -1))
+				{
+					Engine.Instance.Logs.Log(LogType.Warning, LanguageManager.GetText("OsDriverNeedUpgrade", driver, version, bundleVersion));
+					needInstall = true;
+				}
+
+				if (needInstall)
+				{
+					string driverPath = GetDriverInstallerPath(driver);
+
+					if (driverPath == "")
+						throw new Exception(LanguageManager.GetText("OsDriverInstallerNotAvailable", driver));
+
+					if (driver == OpenVpnDriverTapId)
+						ExecWithUAC(driverPath, "/S");
+
+					if (GetDriverVersion(OpenVpnDriverTapId) == "")
+						throw new Exception(LanguageManager.GetText("OsDriverFailed", driver));
+				}
 			}
-			else
-				return;
 
-			bool needInstall = false;
-
-			if (version == "")
-			{
-				needInstall = true;
-				Engine.Instance.Logs.Log(LogType.InfoImportant, LanguageManager.GetText("OsDriverInstall", driver));
-			}
-			else if ((Engine.Instance.Options.GetBool("windows.disable_driver_upgrade") == false) && (version.VersionCompare(bundleVersion) == -1))
-			{
-				Engine.Instance.Logs.Log(LogType.Warning, LanguageManager.GetText("OsDriverNeedUpgrade", driver, version, bundleVersion));
-				needInstall = true;
-			}
-
-			if (needInstall)
-			{
-				string driverPath = GetDriverInstallerPath(driver);
-
-				if (driverPath == "")
-					throw new Exception(LanguageManager.GetText("OsDriverInstallerNotAvailable", driver));
-
-				if (driver == OpenVpnDriverTapId)
-					ExecWithUAC(driverPath, "/S");
-
-				if (OpenVpnGetDriverVersion(driver) == "")
-					throw new Exception(LanguageManager.GetText("OsDriverFailed", driver));
-			}
 
 			bool adapterFound = false;
-			NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
-			foreach (NetworkInterface adapter in interfaces)
+			for (int lap = 0; lap < 2; lap++)
 			{
-				if ((driver == OpenVpnDriverTapId) && (adapter.Description.ToLowerInvariant().StartsWith("tap-win")))
+				NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
+				foreach (NetworkInterface adapter in interfaces)
 				{
-					adapterFound = true;
-					break;
+					if ((driver == OpenVpnDriverWintunId) && (adapter.Description.ToLowerInvariant().StartsWith("wintun")) && (adapter.Name == ifaceName))
+					{
+						adapterFound = true;
+						break;
+					}
+
+					if ((driver == OpenVpnDriverTapId) && (adapter.Description.ToLowerInvariant().StartsWith("tap-win")) && (adapter.Name == ifaceName))
+					{
+						adapterFound = true;
+						break;
+					}
 				}
 
-				if ((driver == OpenVpnDriverWintunId) && (adapter.Description.ToLowerInvariant().StartsWith("wintun")))
+				if( (lap == 0) && (adapterFound == false) )
 				{
-					adapterFound = true;
-					break;
-				}
-			}
-
-			if (adapterFound == false)
-			{
-				Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("OsDriverNoAdapterFound", driver));
-				if (driver == OpenVpnDriverTapId)
-				{
-					ExecWithUAC(Software.FindResource("tapctl"), "create --hwid root\\tap0901");
-				}
-			}
-
-			adapterFound = false;
-			interfaces = NetworkInterface.GetAllNetworkInterfaces();
-			foreach (NetworkInterface adapter in interfaces)
-			{
-				if ((driver == OpenVpnDriverTapId) && (adapter.Description.ToLowerInvariant().StartsWith("tap-win")))
-				{
-					adapterFound = true;
-					break;
+					// Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("OsDriverNoAdapterFound", driver));
+					
+					if (driver == OpenVpnDriverWintunId)
+					{
+						string wintunVersion = Core.Engine.Instance.Elevated.DoCommandSync("wintun-adapter-ensure", "pool", Constants.WintunPool, "name", ifaceName);
+						float wintunVersionN = Conversions.ToFloat(wintunVersion) / 100;
+						Engine.Instance.Logs.LogVerbose("Wintun version " + Conversions.ToString(wintunVersionN) + " for network interface '" + ifaceName + "'");
+					}
+					else if (driver == OpenVpnDriverTapId)
+					{
+						ExecWithUAC(Software.FindResource("tapctl"), "create --hwid \"root\\tap0901\" --name \"" + ifaceName + "\"");
+					}
 				}
 			}
 
@@ -1866,21 +1866,22 @@ namespace Eddie.Platform.Windows
 			string driverPath = GetDriverUninstallPath(driver);
 			if (driverPath == "")
 				return false;
-
-			if (driver == OpenVpnDriverTapId)
+			
+			if (driver == OpenVpnDriverWintunId)
+			{
+				// Latest version automatically uninstall driver when latest adapter deleted.
+				//SystemExec.ExecUserEvent("msiexec", "/x \"" + driverPath + "\" /quiet /norestart", true);
+				//ExecWithUAC("msiexec", "/x \"" + driverPath + "\" /passive");
+			}
+			else if (driver == OpenVpnDriverTapId)
 			{
 				ExecWithUAC(driverPath, "/S");
-			}
-			else if (driver == OpenVpnDriverWintunId)
-			{
-				//SystemExec.ExecUserEvent("msiexec", "/x \"" + driverPath + "\" /quiet /norestart", true);
-				ExecWithUAC("msiexec", "/x \"" + driverPath + "\" /passive");
 			}
 
 
 			System.Threading.Thread.Sleep(3000);
 
-			return (OpenVpnGetDriverVersion(driver) == "");
+			return (GetDriverVersion(driver) == "");
 		}
 
 		public bool ExecWithUAC(string filename, string arguments)

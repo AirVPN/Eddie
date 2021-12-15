@@ -17,9 +17,7 @@
 // </eddie_source_header>
 
 using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Text;
 using System.Windows.Forms;
 
 namespace Eddie.Forms.Skin

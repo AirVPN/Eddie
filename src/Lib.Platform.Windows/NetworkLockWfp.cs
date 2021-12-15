@@ -16,14 +16,11 @@
 // along with Eddie. If not, see <http://www.gnu.org/licenses/>.
 // </eddie_source_header>
 
+using Eddie.Core;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Net.NetworkInformation;
-using System.Text;
 using System.Xml;
-using Eddie.Core;
-using Microsoft.Win32;
 
 namespace Eddie.Platform.Windows
 {
@@ -411,9 +408,14 @@ namespace Eddie.Platform.Windows
 			lock (m_rules)
 			{
 				if (m_rules.ContainsKey(code))
-					throw new Exception("Unexpected: NetLock WFP rule '" + code + "' already exists");
-				WfpItem item = Wfp.AddItem(code, xmlRule);
-				m_rules[code] = item;
+				{
+					Engine.Instance.Logs.LogVerbose("NetLock WFP rule '" + code + "' already exists");
+				}
+				else
+				{
+					WfpItem item = Wfp.AddItem(code, xmlRule);
+					m_rules[code] = item;
+				}
 			}
 		}
 

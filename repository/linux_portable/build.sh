@@ -74,15 +74,21 @@ cp ${HOME}/.mono/targets/${MKBUNDLECROSSTARGET}/etc/mono/config ${SCRIPTDIR}/mkb
 sed -i 's/\$mono_libdir\///g' ${SCRIPTDIR}/mkbundle.config
 
 echo mkbundle run
+# Remember: libMonoPosixHelper.so and libmono-native.so are required for System.IO.File operations
 if [ $PROJECT = "cli" ]; then
-	#mkbundle eddie-${PROJECTP}.exe -o eddie-${PROJECTP} --cross ${MKBUNDLECROSSTARGET} --i18n all -L /usr/local/lib/mono/4.5 --config ${SCRIPTDIR}/mkbundle.config --library ${TARGETDIR}/bundle/libMonoPosixHelper.so
-    mkbundle eddie-${PROJECTP}.exe -o eddie-${PROJECTP} --cross ${MKBUNDLECROSSTARGET} --i18n all -L /usr/local/lib/mono/4.5 --config ${SCRIPTDIR}/mkbundle.config
+    if [ $ARCH = "armv7l" ]; then
+        mkbundle eddie-${PROJECTP}.exe -o eddie-${PROJECTP} --cross ${MKBUNDLECROSSTARGET} --i18n all -L /usr/local/lib/mono/4.5 --config ${SCRIPTDIR}/mkbundle.config --library ${TARGETDIR}/bundle/libMonoPosixHelper.so
+    else
+        mkbundle eddie-${PROJECTP}.exe -o eddie-${PROJECTP} --cross ${MKBUNDLECROSSTARGET} --i18n all -L /usr/local/lib/mono/4.5 --config ${SCRIPTDIR}/mkbundle.config --library ${TARGETDIR}/bundle/libMonoPosixHelper.so --library /usr/lib/libmono-native.so
+    fi
 elif [ $PROJECT = "ui" ]; then
-	#mkbundle eddie-${PROJECTP}.exe -o eddie-${PROJECTP} --cross ${MKBUNDLECROSSTARGET} --i18n all -L /usr/local/lib/mono/4.5 --config ${SCRIPTDIR}/mkbundle.config --library ${TARGETDIR}/bundle/libMonoPosixHelper.so --library ${TARGETDIR}/bundle/libgdiplus.so.0
-    mkbundle eddie-${PROJECTP}.exe -o eddie-${PROJECTP} --cross ${MKBUNDLECROSSTARGET} --i18n all -L /usr/local/lib/mono/4.5 --config ${SCRIPTDIR}/mkbundle.config --library ${TARGETDIR}/bundle/libgdiplus.so.0
+    if [ $ARCH = "armv7l" ]; then
+        mkbundle eddie-${PROJECTP}.exe -o eddie-${PROJECTP} --cross ${MKBUNDLECROSSTARGET} --i18n all -L /usr/local/lib/mono/4.5 --config ${SCRIPTDIR}/mkbundle.config --library ${TARGETDIR}/bundle/libMonoPosixHelper.so --library ${TARGETDIR}/bundle/libgdiplus.so.0
+    else
+        mkbundle eddie-${PROJECTP}.exe -o eddie-${PROJECTP} --cross ${MKBUNDLECROSSTARGET} --i18n all -L /usr/local/lib/mono/4.5 --config ${SCRIPTDIR}/mkbundle.config --library ${TARGETDIR}/bundle/libMonoPosixHelper.so --library ${TARGETDIR}/bundle/libgdiplus.so.0 --library /usr/lib/libmono-native.so
+    fi
 elif [ $PROJECT = "ui3" ]; then
-	#mkbundle eddie-${PROJECTP}.exe -o eddie-${PROJECTP} --cross ${MKBUNDLECROSSTARGET} --i18n all -L /usr/local/lib/mono/4.5 --config ${SCRIPTDIR}/mkbundle.config --library ${TARGETDIR}/bundle/libMonoPosixHelper.so
-    mkbundle eddie-${PROJECTP}.exe -o eddie-${PROJECTP} --cross ${MKBUNDLECROSSTARGET} --i18n all -L /usr/local/lib/mono/4.5 --config ${SCRIPTDIR}/mkbundle.config
+	mkbundle eddie-${PROJECTP}.exe -o eddie-${PROJECTP} --cross ${MKBUNDLECROSSTARGET} --i18n all -L /usr/local/lib/mono/4.5 --config ${SCRIPTDIR}/mkbundle.config --library ${TARGETDIR}/bundle/libMonoPosixHelper.so --library /usr/lib/libmono-native.so
 fi
 
 # Remove unneed

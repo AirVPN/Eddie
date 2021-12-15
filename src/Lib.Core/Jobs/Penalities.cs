@@ -16,11 +16,7 @@
 // along with Eddie. If not, see <http://www.gnu.org/licenses/>.
 // </eddie_source_header>
 
-using System;
-using System.Collections.Generic;
 using System.Threading;
-using System.Text;
-using Eddie.Core;
 
 namespace Eddie.Core.Jobs
 {
@@ -31,6 +27,11 @@ namespace Eddie.Core.Jobs
 		public override ThreadPriority GetPriority()
 		{
 			return ThreadPriority.Lowest;
+		}
+
+		public override bool GetSync()
+		{
+			return true;
 		}
 
 		public override void OnRun()

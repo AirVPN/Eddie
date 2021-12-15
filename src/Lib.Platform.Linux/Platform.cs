@@ -45,6 +45,8 @@ namespace Eddie.Platform.Linux
 		private string m_systemdUnitsPath = "/usr/lib/systemd/system";
 		private string m_systemdUnitPath = "/usr/lib/systemd/system/eddie-elevated.service";
 
+		private string m_dnsSwitchRenameBody = "";
+
 		private NetworkLockIptables m_netlockPluginIptables;
 		private NetworkLockNftables m_netlockPluginNftables;
 
@@ -778,6 +780,11 @@ namespace Eddie.Platform.Linux
 			return true;
 		}
 
+		public override void OnCheckUpMonitor()
+		{
+			DnsSwitchRenameCheck();
+		}
+
 		public override bool OnCheckSingleInstance()
 		{
 			try
@@ -904,6 +911,22 @@ namespace Eddie.Platform.Linux
 			return true;
 		}
 
+		public void DnsSwitchRenameCheck()
+		{
+			if (GetDnsSwitchMode() == "rename")
+			{
+				if (m_dnsSwitchRenameBody != "")
+				{
+					string result = Engine.Instance.Elevated.DoCommandSync("dns-switch-rename-do", "text", m_dnsSwitchRenameBody);
+
+					if (result == "1")
+					{
+						Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("OsLinuxDnsRenameDone"));
+					}
+				}
+			}
+		}
+
 		public override bool OnDnsSwitchDo(Core.ConnectionTypes.IConnectionType connection, IpAddresses dns)
 		{
 			if (GetDnsSwitchMode() == "rename")
@@ -913,9 +936,9 @@ namespace Eddie.Platform.Linux
 				foreach (IpAddress dnsSingle in dns.IPs)
 					text += "nameserver " + dnsSingle.Address + EndOfLineSep;
 
-				Engine.Instance.Elevated.DoCommandSync("dns-switch-rename-do", "text", text);
+				m_dnsSwitchRenameBody = text;
 
-				Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("OsLinuxDnsRenameDone"));
+				DnsSwitchRenameCheck();
 			}
 
 			base.OnDnsSwitchDo(connection, dns);
@@ -925,11 +948,13 @@ namespace Eddie.Platform.Linux
 
 		public override bool OnDnsSwitchRestore()
 		{
-			// Cleaning rename method if pending
-			if (FileExists("/etc/resolv.conf.eddie") == true)
+			// Cleaning rename method if pending			
+			string result = Engine.Instance.Elevated.DoCommandSync("dns-switch-rename-restore");
+			if(result == "1")
+			{
 				Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("OsLinuxDnsRenameRestored"));
-
-			Engine.Instance.Elevated.DoCommandSync("dns-switch-rename-restore");
+			}
+			m_dnsSwitchRenameBody = "";
 
 			base.OnDnsSwitchRestore();
 
@@ -1031,7 +1056,7 @@ namespace Eddie.Platform.Linux
 				return true;
 		}
 
-		public override string OpenVpnGetDriverVersion(string driver)
+		public override string GetDriverVersion(string driver)
 		{
 			if (Platform.Instance.FileExists("/dev/net/tun"))
 				return "/dev/net/tun";

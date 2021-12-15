@@ -19,7 +19,6 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Text;
 
 namespace Eddie.Core
 {
@@ -173,7 +172,7 @@ namespace Eddie.Core
 
 			if (WaitEnd)
 			{
-				bool log = ((NoDebugLog == false) && (Engine.Instance != null) && (Engine.Instance.Storage != null) && (Engine.Instance.Options.GetBool("log.level.debug")));
+				bool log = ((NoDebugLog == false) && (Engine.Instance != null) && (Engine.Instance.Options != null) && (Engine.Instance.Options.GetBool("log.level.debug")));
 
 				if (log)
 				{

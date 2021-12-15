@@ -18,14 +18,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
 using System.IO;
-using System.Net;
 using System.Net.NetworkInformation;
-using System.Threading;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Xml;
 
 namespace Eddie.Core
@@ -270,6 +265,22 @@ namespace Eddie.Core
 					return false;
 				}
 
+				GenerateManifest();
+
+				// Init WebServer
+				if (Webserver.GetPath() != "")
+				{
+					//if (Options.GetBool("webui.enabled") == true)
+					{
+						m_webserver = new Webserver();
+						m_webserver.Start();
+
+						UiManager.Broadcast("webui.init", "url", m_webserver.ListenUrl + "/?app=" + Platform.Instance.GetCode());
+
+						UiManager.Broadcast("init.step", "message", LanguageManager.GetText("InitStepStartingWebserver"));
+					}
+				}
+
 				Logs.Log(LogType.Verbose, "Eddie version: " + GetVersionShow() + " / " + Platform.Instance.GetSystemCode() + ", System: " + Platform.Instance.GetCode() + ", Name: " + Platform.Instance.GetName() + ", Version: " + Platform.Instance.GetVersion() + ", Mono/.Net: " + Platform.Instance.GetNetFrameworkVersion());
 				if (StartCommandLine.Params.Count != 0)
 					Logs.Log(LogType.Verbose, "Command line arguments (" + StartCommandLine.Params.Count.ToString() + "): " + StartCommandLine.GetFull());
@@ -402,29 +413,7 @@ namespace Eddie.Core
 
 				m_providersManager.Load();
 
-				/* // TOCLEAN - Moved at top (2.21)
-				if (Options.GetBool("os.single_instance") == true)
-				{
-					if (Platform.Instance.OnCheckSingleInstance() == false)
-					{
-						Logs.Log(LogType.Fatal, LanguageManager.GetText("OsInstanceAlreadyRunning"));
-						return false;
-					}
-				}
-				*/
-
-				if (Webserver.GetPath() != "")
-				{
-					if (Options.GetBool("webui.enabled") == true)
-					{
-						UiManager.Broadcast("init.step", "message", LanguageManager.GetText("InitStepStartingWebserver"));
-
-						m_webserver = new Webserver();
-						m_webserver.Start();
-					}
-				}
-
-				GenerateManifest();
+				GenerateManifest2();
 				Json j = Manifest.Clone();
 				j["command"].Value = "ui.manifest";
 				UiManager.Broadcast(j);
@@ -484,6 +473,8 @@ namespace Eddie.Core
 
 				Logs.Log(LogType.Info, LanguageManager.GetText("Ready"));
 				UiManager.Broadcast("engine.ready");
+
+				UiManager.Broadcast("webui.ready");				
 
 				RaiseMainStatus();
 
@@ -649,12 +640,6 @@ namespace Eddie.Core
 				m_pingManager = null;
 			}
 
-			if (m_webserver != null)
-			{
-				m_webserver.Stop();
-				m_webserver = null;
-			}
-
 			TemporaryFiles.Clean();
 
 			Platform.Instance.OnCheckSingleInstanceClear();
@@ -665,6 +650,12 @@ namespace Eddie.Core
 			{
 				m_elevated.Stop();
 				m_elevated = null;
+			}
+
+			if (m_webserver != null)
+			{
+				m_webserver.Stop();
+				m_webserver = null;
 			}
 		}
 
@@ -1554,12 +1545,11 @@ namespace Eddie.Core
 			}
 		}
 
-		public XmlDocument FetchUrlXml(HttpRequest request)
+		public Json FetchUrlJson(HttpRequest request)
 		{
 			HttpResponse response = FetchUrl(request);
-			XmlDocument doc = new XmlDocument();
-			doc.LoadXml(response.GetBodyAscii().Trim());
-			return doc;
+			Json j = Json.Parse(response.GetBodyAscii().Trim());
+			return j;
 		}
 
 		public HttpResponse FetchUrl(HttpRequest request)
@@ -1943,6 +1933,26 @@ namespace Eddie.Core
 			return m_jobsManager.Discover.DiscoverExit();
 		}
 
+		public string UploadReport(string body)
+		{
+			try
+			{
+				HttpRequest request = new HttpRequest();
+				request.Url = "https://eddie.website/report/new/";
+				request.Parameters["body"] = body;
+				Json jResponse = Engine.Instance.FetchUrlJson(request);
+				if (jResponse == null)
+					throw new Exception("Unexpected server response");
+				if (jResponse.HasKey("url") == false)
+					throw new Exception("Unexpected server response");
+				return jResponse["url"].ValueString;
+			}
+			catch (Exception)
+			{
+				return "";
+			}
+		}
+
 		public int GetElevatedServicePort()
 		{
 			return Conversions.ToInt32(StartCommandLine.Get("elevated.service.port", Constants.ElevatedServicePort.ToString()));
@@ -2036,19 +2046,23 @@ namespace Eddie.Core
 				jVersion["text"].Value = GetVersionShow();
 				jVersion["int"].Value = Constants.VersionInt;
 
+				/* // TOCLEAN
 				Json jUI = new Json();
 				Manifest["ui"].Value = jUI;
 				if (m_webserver != null)
 					jUI["url"].Value = m_webserver.ListenUrl;
+				*/ 
 
-				Manifest["options"].Value = Options.GetJsonForManifest();
+				//Manifest["options"].Value = Options.GetJsonForManifest();
 
 				Manifest["languages"].Value = LanguageManager.GetJsonForManifest();
-
-				UiManager.Broadcast("init.step", "message", LanguageManager.GetText("InitStepCollectNetworkInfo"));
-
-				Manifest["network_info"].Value = JsonNetworkInfo();
 			}
+		}
+
+		public void GenerateManifest2()
+		{
+			UiManager.Broadcast("init.step", "message", LanguageManager.GetText("InitStepCollectNetworkInfo"));
+			Manifest["network_info"].Value = JsonNetworkInfo();
 		}
 
 		public Json GenerateStatus(string logMessage)

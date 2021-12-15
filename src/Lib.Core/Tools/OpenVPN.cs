@@ -17,11 +17,6 @@
 // </eddie_source_header>
 
 using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Xml;
-using Eddie.Core;
 
 namespace Eddie.Core.Tools
 {

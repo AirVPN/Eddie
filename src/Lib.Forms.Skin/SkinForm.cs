@@ -17,25 +17,24 @@
 // </eddie_source_header>
 
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
-using System.Text;
-using Eddie.Core;
 
 namespace Eddie.Forms.Skin
 {
 	public class SkinForm : System.Windows.Forms.Form
 	{
+		public static string InternalName = "Eddie";
+
 		public static Skin.SkinReference Skin = new Eddie.Forms.Skin.SkinReference();
 
 		public bool MinimizeInTray = false;
 
 		public SkinForm()
 		{
-			if ((Core.Platform.Instance != null) && (Core.Platform.Instance.IsLinuxSystem()))
+			if (SkinUtilsCore.IsUnix())
 			{
-				this.HandleCreated += (sender, ex) => Mono.XWindowManagers.SetWmClass(Constants.Name, Constants.Name, this.Handle);
+				this.HandleCreated += (sender, ex) => Mono.XWindowManagers.SetWmClass(InternalName, InternalName, this.Handle);
 			}
 		}
 
@@ -43,7 +42,7 @@ namespace Eddie.Forms.Skin
 		{
 			if (Title != "")
 			{
-				Text = Constants.Name + " - " + Title;
+				Text = InternalName + " - " + Title;
 			}
 
 			Icon = global::Eddie.Forms.Skin.Properties.Resources.icon;

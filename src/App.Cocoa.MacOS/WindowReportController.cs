@@ -89,6 +89,22 @@ namespace Eddie.UI.Cocoa.Osx
 				GuiUtils.MessageBoxInfo(LanguageManager.GetText("LogsCopyClipboardDone"));
 			};
 
+			CmdUpload.Activated += (object sender, EventArgs e) =>
+			{
+				TxtUpload.Value = "Uploading...";
+				string url = Engine.Instance.UploadReport(TxtBody.Value);
+				TxtUpload.Value = url;
+				if (url == "")
+					GuiUtils.MessageBoxError("Failed to upload, please retry");
+				else
+                {
+					string[] pboardTypes = new string[] { "NSStringPboardType" };
+					NSPasteboard.GeneralPasteboard.DeclareTypes(pboardTypes, null);
+					NSPasteboard.GeneralPasteboard.SetStringForType(url, pboardTypes[0]);
+					GuiUtils.MessageBoxInfo(LanguageManager.GetText("LogsCopyClipboardDone"));
+				}
+			};
+
 			CmdSave.Activated += (object sender, EventArgs e) =>
 			{
 				string t = TxtBody.Value;

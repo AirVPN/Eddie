@@ -18,12 +18,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 #if NETSTANDARD
 #else
-using System.ServiceProcess;
 #endif
-using System.Text;
 using System.Xml;
 using Eddie.Core;
 

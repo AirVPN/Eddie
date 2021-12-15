@@ -16,14 +16,10 @@
 // along with Eddie. If not, see <http://www.gnu.org/licenses/>.
 // </eddie_source_header>
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.IO;
-using System.Text;
-using System.Windows.Forms;
 using Eddie.Core;
+using System;
+using System.IO;
+using System.Windows.Forms;
 
 namespace Eddie.Forms.Forms
 {
@@ -120,6 +116,19 @@ namespace Eddie.Forms.Forms
 		private void cmdOk_Click(object sender, EventArgs e)
 		{
 			Close();
+		}
+
+		private void cmdUpload_Click(object sender, EventArgs e)
+		{
+			txtUploadUrl.Text = "Uploading...";
+			string url = Engine.Instance.UploadReport(txtBody.Text);
+			txtUploadUrl.Text = url;
+			if (url == "")
+				GuiUtils.MessageBoxError(this, "Failed to upload, please retry");
+			else
+			{
+				GuiUtils.ClipboardSetText(this, url);
+			}
 		}
 	}
 }

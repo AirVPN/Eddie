@@ -43,7 +43,7 @@ namespace Eddie.Core
 		public void Log(LogType type, Exception ex)
 		{
 			string msg = ex.Message;
-			if ((Engine.Instance.Storage != null) && (Engine.Instance.Options.GetBool("log.level.debug")))
+			if ((Engine.Instance.Options != null) && (Engine.Instance.Options.GetBool("log.level.debug")))
 				msg += " - Stack: " + ex.StackTrace.ToString();
 			Log(type, msg, ex);
 		}
@@ -94,7 +94,7 @@ namespace Eddie.Core
 		public void Log(LogType type, string message, Exception ex)
 		{
 			// Avoid repetition
-			if ((type != LogType.Fatal) && (Engine.Instance.Storage != null) && (Engine.Instance.Options.GetBool("log.repeat") == false))
+			if ((type != LogType.Fatal) && (Engine.Instance.Options != null) && (Engine.Instance.Options.GetBool("log.repeat") == false))
 			{
 				string logRepetitionNormalized = message;
 				logRepetitionNormalized = System.Text.RegularExpressions.Regex.Replace(logRepetitionNormalized, "#\\d+", "#n");
@@ -145,7 +145,7 @@ namespace Eddie.Core
 		public string GetLogDetailTitle()
 		{
 			string output = "";
-			if ((Engine.Instance.Storage != null) && (Engine.Instance.Options.GetBool("advanced.expert")))
+			if ((Engine.Instance.Options != null) && (Engine.Instance.Options.GetBool("advanced.expert")))
 			{
 				if (Engine.Instance.WaitMessage == m_lastLogMessage)
 					output = "";

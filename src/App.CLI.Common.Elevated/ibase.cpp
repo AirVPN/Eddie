@@ -529,7 +529,10 @@ int IBase::Main()
 							}
 							else if (command != "")
 							{
-								if (command != "ping")
+								bool logDebug = true;
+								if (command == "ping") logDebug = false; // Too much
+								if (command == "dns-switch-rename-do") logDebug = false; // Too much
+								if(logDebug)
 									LogDebug("Command:" + command);
 
 								std::thread t = std::thread(ThreadCommand, this, id, command, params);

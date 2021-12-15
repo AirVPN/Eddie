@@ -16,20 +16,10 @@
 // along with Eddie. If not, see <http://www.gnu.org/licenses/>.
 // </eddie_source_header>
 
+using Eddie.Core;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Runtime.InteropServices;
-using System.Net;
-using System.Net.NetworkInformation;
-using System.Management;
-using System.Security.Principal;
 using System.Xml;
-using System.Text;
-using System.Threading;
-using Microsoft.Win32;
-using Eddie.Core;
 
 namespace Eddie.Platform.Windows
 {

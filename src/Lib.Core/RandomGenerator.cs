@@ -17,7 +17,6 @@
 // </eddie_source_header>
 
 using System;
-using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -46,11 +45,9 @@ namespace Eddie.Core
 			}
 			finally
 			{
-#if !EDDIENET2
 				// RNGCryptoServiceProvider doesn't implement the IDisposable interface
 				if (rng != null)
 					rng.Dispose();
-#endif
 			}
 		}
 

@@ -18,10 +18,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
 using System.Net.Sockets;
-using System.Text;
 
 namespace Eddie.Core
 {

@@ -18,13 +18,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Xml;
+using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
-
-using Eddie.Core;
-using System.Diagnostics;
-using System.Net.NetworkInformation;
 
 namespace Eddie.Core.ConnectionTypes
 {
@@ -180,7 +176,7 @@ namespace Eddie.Core.ConnectionTypes
 							m_fileAuthProxy = new TemporaryFile("ppw");
 							fileNameAuthOvpn = m_fileAuthProxy.Path;
 							string fileNameData = options.Get("proxy.login") + "\n" + options.Get("proxy.password") + "\n";
-							Platform.Instance.FileContentsWriteText(m_fileAuthProxy.Path, fileNameData, Encoding.Default); // TOFIX: Check if OpenVPN expect UTF-8
+							Platform.Instance.FileContentsWriteText(m_fileAuthProxy.Path, fileNameData, Encoding.Default);
 							Platform.Instance.FileEnsurePermission(m_fileAuthProxy.Path, "600");
 						}
 						proxyDirectiveArgs += " " + m_configStartup.EncodePath(fileNameAuthOvpn) + " " + options.Get("proxy.auth").ToLowerInvariant(); // 2.6 Auth Fix
@@ -304,17 +300,6 @@ namespace Eddie.Core.ConnectionTypes
 
 		public override void OnStart()
 		{
-			if (m_configStartup.ExistsDirective("windows-driver"))
-			{
-				string ifaceName = Core.Engine.Instance.Options.Get("network.iface.name");
-				if ((m_configStartup.GetOneDirectiveText("windows-driver") == "wintun") && (ifaceName != ""))
-				{
-					string wintunVersion = Core.Engine.Instance.Elevated.DoCommandSync("wintun-adapter-ensure", "pool", Constants.WintunPool, "name", ifaceName);
-					float wintunVersionN = Conversions.ToFloat(wintunVersion) / 100;
-					Engine.Instance.Logs.LogVerbose("Wintun version " + Conversions.ToString(wintunVersionN) + " for network interface '" + ifaceName + "'");
-				}
-			}
-
 			if (Transport == "SSH")
 			{
 				TransportStartProcessSSH();
@@ -967,11 +952,26 @@ namespace Eddie.Core.ConnectionTypes
 
 		public override void EnsureDriver()
 		{
+			// Remember: WireGuard ALWAYS create and destroy adapter, for this the code below is OpenVPN-specific.
 			if (Engine.Instance.Options.GetBool("advanced.skip_tun_detect") == false)
 			{
 				string driverRequested = Platform.Instance.GetConnectionTunDriver(this);
+
 				Engine.Instance.WaitMessageSet(LanguageManager.GetText("OsDriverInstall", driverRequested), false);
-				Platform.Instance.OpenVpnEnsureDriverAndAdapterAvailable(driverRequested);
+				
+				string interfaceName = Core.Engine.Instance.Options.Get("network.iface.name");
+				if(interfaceName == "")
+				{
+					System.Net.NetworkInformation.NetworkInterface adapter = Platform.Instance.SearchAdapter(driverRequested);
+					if (adapter != null)
+						interfaceName = adapter.Name;
+				}
+				if(interfaceName == "")
+				{
+					interfaceName = "Eddie";
+				}
+				
+				Platform.Instance.OpenVpnEnsureDriverAndAdapterAvailable(driverRequested, interfaceName);
 			}
 		}
 

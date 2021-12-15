@@ -18,11 +18,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Net;
-using System.Threading;
-using System.Text;
 using System.IO;
-using System.Xml;
+using System.Net;
+using System.Text;
+using System.Threading;
 
 // ClodoTemp: Missing feature, a token access. Webserver not yet used anyway.
 
@@ -159,16 +158,14 @@ namespace Eddie.Core
 
 		public void Start()
 		{
-			ListenUrl = "http://" + Engine.Instance.Options.Get("webui.ip") + ":" + Engine.Instance.Options.Get("webui.port");
+			//ListenUrl = "http://" + Engine.Instance.Options.Get("webui.ip") + ":" + Engine.Instance.Options.Get("webui.port");			
+			ListenUrl = "http://localhost:4649"; // Note: no 127.0.0.1, otherwise throw "Access is denied".
 			Init(ListenUrl + "/");
 			Run();
 		}
 
 		public void SendResponse(HttpListenerContext context)
 		{
-			if (Engine.Instance.Manifest == null)
-				return; // Not ready... do better
-
 			// string physicalPath = GetPath() + request.RawUrl;
 			string bodyResponse = ""; // If valorized, always a dynamic response
 			Dictionary<string, string> requestHeaders = new Dictionary<string, string>();

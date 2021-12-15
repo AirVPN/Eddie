@@ -16,11 +16,7 @@
 // along with Eddie. If not, see <http://www.gnu.org/licenses/>.
 // </eddie_source_header>
 
-using System;
 using System.Collections.Generic;
-using System.Net;
-using System.Text;
-using System.Xml;
 
 namespace Eddie.Core
 {

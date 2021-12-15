@@ -17,9 +17,6 @@
 // </eddie_source_header>
 
 using System;
-using System.Collections.Generic;
-using System.Text;
-using Eddie.Core;
 
 namespace Eddie.Core.ConsoleEdition
 {

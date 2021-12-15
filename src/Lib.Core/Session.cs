@@ -18,16 +18,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Net;
-using System.Net.NetworkInformation;
-using System.Net.Sockets;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading;
 using System.Xml;
-using Eddie.Core;
 
 namespace Eddie.Core
 {
@@ -610,13 +601,8 @@ namespace Eddie.Core
 
 			foreach (SessionLogEvent logEvent in events)
 			{
-				ProcessLogEvent(logEvent);
+				ProcessLogEvent(logEvent.Source, logEvent.Message);
 			}
-		}
-
-		void ProcessLogEvent(SessionLogEvent logEvent)
-		{
-			ProcessLogEvent(logEvent.Source, logEvent.Message);
 		}
 
 		void ProcessLogEvent(string source, string message)
@@ -635,8 +621,6 @@ namespace Eddie.Core
 				SetReset("ERROR");
 			}
 		}
-
-
 
 		public void RoutesApply(string phase)
 		{

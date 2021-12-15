@@ -16,14 +16,9 @@
 // along with Eddie. If not, see <http://www.gnu.org/licenses/>.
 // </eddie_source_header>
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading;
-using System.Text;
-using System.Windows.Forms;
-using System.Xml;
 using Eddie.Core;
+using System;
+using System.Windows.Forms;
 
 namespace Eddie.Forms
 {
@@ -49,14 +44,15 @@ namespace Eddie.Forms
 				Skin.SkinUtils.Init();
 
 				SplashWindow = new Forms.WindowSplash();
-				SplashWindow.Show();
+
+				if (environmentCommandLine.Contains("nosplash") == false) // No, crash, TOFIX
+					SplashWindow.Show();
 			}
 			catch (Exception ex)
 			{
 				Engine.Instance.Logs.LogFatal("Cannot initialize UI. Probably a DISPLAY issue, ensure your are not running as root. Error:" + ex.Message);
 				return false;
 			}
-
 
 			if (Engine == null)
 				Engine = new Eddie.Forms.Engine(environmentCommandLine);
@@ -108,7 +104,7 @@ namespace Eddie.Forms
 		{
 			base.OnReceive(data);
 
-			string cmd = data["command"].Value as string;
+			string cmd = data["command"].ValueString;
 
 			if (cmd == "log")
 			{

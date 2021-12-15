@@ -19,7 +19,6 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Text;
 using System.Windows.Forms;
 
 namespace Eddie.Forms.Skin
@@ -78,7 +77,7 @@ namespace Eddie.Forms.Skin
 
 		public Image GetResourceImage(string name)
 		{
-			// Accessing Properties.Resources.xxx is a lot cpu extensive, probabily conversions every time. We cache image resources.
+			// Accessing Properties.Resources.xxx is a lot cpu extensive, probably conversions every time. We cache image resources.
 			if (m_imageResourceCache.ContainsKey(name))
 				return m_imageResourceCache[name];
 			else

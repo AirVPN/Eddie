@@ -16,21 +16,17 @@
 // along with Eddie. If not, see <http://www.gnu.org/licenses/>.
 // </eddie_source_header>
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Drawing;
-using System.Globalization;
-using System.IO;
-using System.Reflection;
-using System.Text;
-using System.Threading;
-using System.Windows.Forms;
-using System.Xml;
 using Eddie.Core;
 using Eddie.Forms.Controls;
 using Eddie.Forms.Skin;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
+using System.IO;
+using System.Text;
+using System.Windows.Forms;
+using System.Xml;
 
 namespace Eddie.Forms.Forms
 {
@@ -79,8 +75,6 @@ namespace Eddie.Forms.Forms
 
 		public Main()
 		{
-			// Eddie.Forms.Skin.SkinReference.Load("Light");
-
 			OnPreInitializeComponent();
 			InitializeComponent();
 			OnInitializeComponent();
@@ -121,6 +115,8 @@ namespace Eddie.Forms.Forms
 		public override void OnApplySkin()
 		{
 			base.OnApplySkin();
+
+			ApplySkinSettings();
 
 			Skin.Apply(mnuMain);
 			Skin.Apply(mnuServers);
@@ -1217,6 +1213,15 @@ namespace Eddie.Forms.Forms
 		public bool AllowMinimizeInTray()
 		{
 			return (m_windowsNotifyIcon != null);
+		}
+
+		public void ApplySkinSettings()
+		{
+			if (Engine.Instance.Options == null)
+				return;
+
+			SkinReference.FontName = Engine.Instance.Options.Get("gui.font.normal.name");
+			SkinReference.FontSize = Engine.Instance.Options.GetFloat("gui.font.normal.size");
 		}
 
 		public void Resizing()
@@ -2318,6 +2323,7 @@ namespace Eddie.Forms.Forms
 
 					EnabledUi();
 					Resizing();
+					ApplySkinSettings();
 				}
 			}
 			catch (Exception ex)
@@ -2353,7 +2359,7 @@ namespace Eddie.Forms.Forms
 
 		private delegate void OnShowAboutDelegate();
 		public void OnShowAbout()
-		{
+		{			
 			try
 			{
 				if (UiClient.Instance.Data == null)

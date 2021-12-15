@@ -1,4 +1,4 @@
-﻿// WARNING
+// WARNING
 //
 // This file has been generated automatically by Visual Studio to store outlets and
 // actions made in the UI designer. If it is removed, they will be lost.
@@ -22,6 +22,9 @@ namespace Eddie.UI.Cocoa.Osx
 		AppKit.NSButton CmdSave { get; set; }
 
 		[Outlet]
+		AppKit.NSButton CmdUpload { get; set; }
+
+		[Outlet]
 		AppKit.NSTextField LblStep { get; set; }
 
 		[Outlet]
@@ -29,6 +32,9 @@ namespace Eddie.UI.Cocoa.Osx
 
 		[Outlet]
 		AppKit.NSTextView TxtBody { get; set; }
+
+		[Outlet]
+		AppKit.NSTextView TxtUpload { get; set; }
 		
 		void ReleaseDesignerOutlets ()
 		{
@@ -47,9 +53,9 @@ namespace Eddie.UI.Cocoa.Osx
 				CmdSave = null;
 			}
 
-			if (TxtBody != null) {
-				TxtBody.Dispose ();
-				TxtBody = null;
+			if (CmdUpload != null) {
+				CmdUpload.Dispose ();
+				CmdUpload = null;
 			}
 
 			if (LblStep != null) {
@@ -60,6 +66,16 @@ namespace Eddie.UI.Cocoa.Osx
 			if (PgrStep != null) {
 				PgrStep.Dispose ();
 				PgrStep = null;
+			}
+
+			if (TxtBody != null) {
+				TxtBody.Dispose ();
+				TxtBody = null;
+			}
+
+			if (TxtUpload != null) {
+				TxtUpload.Dispose ();
+				TxtUpload = null;
 			}
 		}
 	}

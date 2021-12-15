@@ -16,13 +16,6 @@
 // along with Eddie. If not, see <http://www.gnu.org/licenses/>.
 // </eddie_source_header>
 
-using System;
-using System.Collections.Generic;
-using System.Xml;
-using System.Text;
-using Eddie.Core;
-using System.Net.NetworkInformation;
-
 namespace Eddie.Core.ConnectionTypes
 {
 	public class WireGuard : IConnectionType
@@ -44,9 +37,7 @@ namespace Eddie.Core.ConnectionTypes
 		public override void Build()
 		{
 			base.Build();
-
-			// With OpenVPN can be empty (no manual adapter creation).
-			// With WireGuard, must exists (WG create the adapter).
+			
 			m_interfaceName = Engine.Instance.Options.Get("network.iface.name");
 			if (m_interfaceName == "")
 				m_interfaceName = "Eddie";
@@ -183,8 +174,9 @@ namespace Eddie.Core.ConnectionTypes
 				else if (messageLower == "setup-interface")
 				{
 					log = false;
-					Engine.Instance.Logs.Log(LogType.Verbose, "WireGuard > " + LanguageManager.GetText("WireGuardSetupInterface"));
+					Engine.Instance.Logs.Log(LogType.Verbose, "WireGuard > " + LanguageManager.GetText("WireGuardSetupInterface"));					
 					SearchTunNetworkInterfaceByName(m_interfaceName);
+					
 				}
 				else if (messageLower == "handshake-first")
 				{

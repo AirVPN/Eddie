@@ -18,11 +18,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Net.NetworkInformation;
 using System.Threading;
-using System.Text;
-using Eddie.Core;
 
 namespace Eddie.Core.Jobs
 {
@@ -31,11 +28,6 @@ namespace Eddie.Core.Jobs
 		public override ThreadPriority GetPriority()
 		{
 			return ThreadPriority.Normal;
-		}
-
-		public override bool GetSync()
-		{
-			return false;
 		}
 
 		public override void OnRun()
@@ -173,7 +165,7 @@ namespace Eddie.Core.Jobs
 					infoServer.InvalidatePingResults();
 			}
 		}
-				
+
 		public void PingResult(ConnectionInfo infoServer, PingReply reply)
 		{
 			Int64 result = 0;

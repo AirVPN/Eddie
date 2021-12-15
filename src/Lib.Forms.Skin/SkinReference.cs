@@ -16,19 +16,18 @@
 // along with Eddie. If not, see <http://www.gnu.org/licenses/>.
 // </eddie_source_header>
 
-using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
-using System.Text;
 using System.Windows.Forms;
-using Eddie.Core;
 
 namespace Eddie.Forms.Skin
 {
 	public class SkinReference
 	{
-		private static Json m_jsonSkin;
+		public static string FontName = "";
+		public static float FontSize = 0;
+		private static SkinJson m_jsonSkin;
 
 		private static Dictionary<string, Font> GdiCacheFonts = new Dictionary<string, Font>();
 		private static Dictionary<string, Brush> GdiCacheBrushes = new Dictionary<string, Brush>();
@@ -37,7 +36,7 @@ namespace Eddie.Forms.Skin
 
 		public static void Load()
 		{
-			m_jsonSkin = Json.Parse(System.Text.Encoding.UTF8.GetString(Eddie.Forms.Skin.Properties.Resources.skin));
+			m_jsonSkin = SkinJson.Parse(System.Text.Encoding.UTF8.GetString(Eddie.Forms.Skin.Properties.Resources.skin));
 		}
 
 		public string GetItem(string name)
@@ -97,9 +96,7 @@ namespace Eddie.Forms.Skin
 					fontSize = name.Substring(name.IndexOf(',') + 1).Trim();
 				}
 
-				double userBaseSize = 0;
-				if ((Engine.Instance != null) && (Engine.Instance.Storage != null))
-					userBaseSize = Engine.Instance.Options.GetFloat("gui.font.normal.size");
+				double userBaseSize = FontSize;
 				if (userBaseSize == 0)
 				{
 					string systemFont = SkinUtils.GetSystemFont();
@@ -118,8 +115,8 @@ namespace Eddie.Forms.Skin
 					string systemFont = "";
 					if (fontName == "System")
 					{
-						if ((Engine.Instance != null) && (Engine.Instance.Options != null) && (Engine.Instance.Options.Get("gui.font.normal.name") != ""))
-							systemFont = Engine.Instance.Options.Get("gui.font.normal.name");
+						if (FontName != "")
+							systemFont = FontName;
 						else
 							systemFont = SkinUtils.GetSystemFont();
 					}
@@ -298,7 +295,7 @@ namespace Eddie.Forms.Skin
 				System.Windows.Forms.ContextMenuStrip c2 = c as System.Windows.Forms.ContextMenuStrip;
 				foreach (System.Windows.Forms.ToolStripItem i in c2.Items)
 				{
-					if (Platform.IsUnix())
+					if (SkinUtilsCore.IsUnix())
 					{
 						// Fix Mono colors issue (for example Arch with dark theme)						
 						if (i.ForeColor == SystemColors.ControlText)

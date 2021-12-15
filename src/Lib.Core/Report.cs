@@ -18,9 +18,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Net;
-using System.Net.NetworkInformation;
-using System.Text;
 
 namespace Eddie.Core
 {
@@ -179,7 +176,6 @@ namespace Eddie.Core
 			Add("OS architecture", Platform.Instance.GetOsArchitecture());
 			Add("Mono /.Net Framework", Platform.Instance.GetNetFrameworkVersion());
 
-			Add("TUN drivers", Platform.Instance.OpenVpnGetTunDriverReport());
 			Add("OpenVPN", Software.GetTool("openvpn").GetVersionDesc());
 			Add("Hummingbird", Software.GetTool("hummingbird").GetVersionDesc());
 			Add("WireGuard", Platform.Instance.GetWireGuardVersionShow());

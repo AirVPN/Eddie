@@ -16,13 +16,6 @@
 // along with Eddie. If not, see <http://www.gnu.org/licenses/>.
 // </eddie_source_header>
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Xml;
-
 namespace Eddie.Core.ConfigBuilder
 {
 	public class Hummingbird : OpenVPN

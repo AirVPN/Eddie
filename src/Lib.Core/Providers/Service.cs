@@ -21,8 +21,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Security.Cryptography;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Xml;
 
 namespace Eddie.Core.Providers
@@ -294,21 +292,27 @@ namespace Eddie.Core.Providers
 							{
 								string checkProtocol = GetKeyValue("check_protocol", "https"); // 2.21.2
 								string checkDomain = session.Connection.Info.ProviderName.ToLowerInvariant() + "_exit." + GetKeyValue("check_domain", "");
-								string checkUrl = checkProtocol + "://" + checkDomain + "/check_tun/";
+								string checkUrl = checkProtocol + "://" + checkDomain + "/check/tun/";
 
 								HttpRequest httpRequest = new HttpRequest();
 								httpRequest.Url = checkUrl;
 								httpRequest.BypassProxy = true;
 								httpRequest.IpLayer = "4";
 								httpRequest.ForceResolve = checkDomain + ":" + session.Connection.Info.IpsExit.OnlyIPv4.First.Address;
-								XmlDocument xmlDoc = Engine.Instance.FetchUrlXml(httpRequest);
 
-								string answer = xmlDoc.DocumentElement.Attributes["ip"].Value;
+								string ip = "";
+								string ts = "";
+								Json j = Engine.Instance.FetchUrlJson(httpRequest);
+								if ((j != null) && (j.HasKey("ip")))
+								{
+									ip = j["ip"].ValueString;
+									ts = j["ts"].ValueString;
+								}
 
-								if (session.Connection.GetVpnIPs().OnlyIPv4.ContainsAddress(answer) == false)
-									throw new Exception(LanguageManager.GetText("ConnectionCheckingTryRouteFail", answer));
+								if (session.Connection.GetVpnIPs().OnlyIPv4.ContainsAddress(ip) == false)
+									throw new Exception(LanguageManager.GetText("ConnectionCheckingTryRouteFail", ip));
 
-								session.Connection.TimeServer = Conversions.ToInt64(xmlDoc.DocumentElement.Attributes["time"].Value);
+								session.Connection.TimeServer = Conversions.ToInt64(ts);
 								session.Connection.TimeClient = Utils.UnixTimeStamp();
 
 								ok = true;
@@ -348,21 +352,27 @@ namespace Eddie.Core.Providers
 							{
 								string checkProtocol = GetKeyValue("check_protocol", "https"); // 2.21.2
 								string checkDomain = session.Connection.Info.ProviderName.ToLowerInvariant() + "_exit." + GetKeyValue("check_domain", "");
-								string checkUrl = checkProtocol + "://" + checkDomain + "/check_tun/";
+								string checkUrl = checkProtocol + "://" + checkDomain + "/check/tun/";
 
 								HttpRequest httpRequest = new HttpRequest();
 								httpRequest.Url = checkUrl;
 								httpRequest.BypassProxy = true;
 								httpRequest.IpLayer = "6";
 								httpRequest.ForceResolve = checkDomain + ":" + session.Connection.Info.IpsExit.OnlyIPv6.First.Address;
-								XmlDocument xmlDoc = Engine.Instance.FetchUrlXml(httpRequest);
 
-								string answer = xmlDoc.DocumentElement.Attributes["ip"].Value;
+								string ip = "";
+								string ts = "";
+								Json j = Engine.Instance.FetchUrlJson(httpRequest);
+								if ((j != null) && (j.HasKey("ip")))
+								{
+									ip = j["ip"].ValueString;
+									ts = j["ts"].ValueString;
+								}
 
-								if (session.Connection.GetVpnIPs().OnlyIPv6.ContainsAddress(answer) == false)
-									throw new Exception(LanguageManager.GetText("ConnectionCheckingTryRouteFail", answer));
+								if (session.Connection.GetVpnIPs().OnlyIPv6.ContainsAddress(ip) == false)
+									throw new Exception(LanguageManager.GetText("ConnectionCheckingTryRouteFail", ip));
 
-								session.Connection.TimeServer = Conversions.ToInt64(xmlDoc.DocumentElement.Attributes["time"].Value);
+								session.Connection.TimeServer = Conversions.ToInt64(ts);
 								session.Connection.TimeClient = Utils.UnixTimeStamp();
 
 								ok = true;
@@ -398,7 +408,7 @@ namespace Eddie.Core.Providers
 							{
 								string checkProtocol = GetKeyValue("check_protocol", "https"); // 2.21.2
 								string checkDomain = session.Connection.Info.ProviderName.ToLowerInvariant() + "." + GetKeyValue("check_domain", "");
-								string checkUrl = checkProtocol + "://" + checkDomain + "/check_tun/";
+								string checkUrl = checkProtocol + "://" + checkDomain + "/check/tun/";
 								HttpRequest httpRequest = new HttpRequest();
 								httpRequest.Url = checkUrl;
 								httpRequest.BypassProxy = true;
@@ -407,12 +417,19 @@ namespace Eddie.Core.Providers
 								else
 									httpRequest.IpLayer = "6";
 								httpRequest.ForceResolve = checkDomain + ":" + session.Connection.EntryIP;
-								XmlDocument xmlDoc = Engine.Instance.FetchUrlXml(httpRequest);
 
-								session.Connection.TimeServer = Conversions.ToInt64(xmlDoc.DocumentElement.Attributes["time"].Value);
+								string ip = "";
+								string ts = "";
+								Json j = Engine.Instance.FetchUrlJson(httpRequest);
+								if ((j != null) && (j.HasKey("ts")))
+								{
+									ip = j["ip"].ValueString;
+									ts = j["ts"].ValueString;
+								}
+
+								session.Connection.TimeServer = Conversions.ToInt64(ts);
 								session.Connection.TimeClient = Utils.UnixTimeStamp();
-
-								session.Connection.RealIp = xmlDoc.DocumentElement.Attributes["ip"].Value;
+								session.Connection.RealIp = ip;
 							}
 							catch (Exception ex)
 							{
@@ -475,7 +492,7 @@ namespace Eddie.Core.Providers
 							// Check if the server has received the above DNS query
 							string checkProtocol = GetKeyValue("check_protocol", "https"); // 2.21.2
 							string checkDomain = session.Connection.Info.ProviderName.ToLowerInvariant() + "_exit." + GetKeyValue("check_domain", "");
-							string checkUrl = checkProtocol + "://" + checkDomain + "/check_dns/";
+							string checkUrl = checkProtocol + "://" + checkDomain + "/check/dns/";
 							HttpRequest httpRequest = new HttpRequest();
 							httpRequest.Url = checkUrl;
 							httpRequest.BypassProxy = true;
@@ -489,9 +506,11 @@ namespace Eddie.Core.Providers
 								httpRequest.IpLayer = "4";
 								httpRequest.ForceResolve = checkDomain + ":" + session.Connection.Info.IpsExit.OnlyIPv4.First;
 							}
-							XmlDocument xmlDoc = Engine.Instance.FetchUrlXml(httpRequest);
 
-							string answer = xmlDoc.DocumentElement.Attributes["hash"].Value;
+							string answer = "";
+							Json j = Engine.Instance.FetchUrlJson(httpRequest);
+							if ((j != null) && (j.HasKey("dns")))
+								answer = j["dns"].ValueString;
 
 							if (hash != answer)
 								throw new Exception(LanguageManager.GetText("ConnectionCheckingTryDNSFail", answer));

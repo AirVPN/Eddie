@@ -40,7 +40,8 @@ call %basepath%\Lib.Platform.Windows.Native\build.bat Release %arch% || GOTO err
 copy %basepath%\Lib.Platform.Windows.Native\bin\%arch%\Release\Lib.Platform.Windows.Native.dll "%targetdir%" /Y /V || GOTO error
 
 echo Copy WireGuard library
-copy %basepath%\..\dependencies\wireguard\bin\windows_%arch%\tunnel.dll "%targetdir%\wireguard.dll" /Y /V || GOTO error
+copy %basepath%\..\deploy\windows_%arch%\wgtunnel.dll "%targetdir%\wgtunnel.dll" /Y /V || GOTO error
+copy %basepath%\..\deploy\windows_%arch%\wireguard.dll "%targetdir%\wireguard.dll" /Y /V || GOTO error
 echo Copy Wintun library
 copy %basepath%\..\deploy\windows_%arch%\wintun.dll "%targetdir%\wintun.dll" /Y /V || GOTO error
 

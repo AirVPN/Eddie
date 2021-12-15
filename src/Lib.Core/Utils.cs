@@ -16,17 +16,9 @@
 // along with Eddie. If not, see <http://www.gnu.org/licenses/>.
 // </eddie_source_header>
 
-#if !EDDIENET2
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.NetworkInformation;
 using System.Reflection;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace Eddie.Core
 {
@@ -100,4 +92,3 @@ namespace Eddie.Core
 		}
 	}
 }
-#endif

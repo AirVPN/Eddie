@@ -102,6 +102,7 @@
     <Compile Include="IpAddresses.cs" />
     <Compile Include="HttpRequest.cs" />
     <Compile Include="DnsManager.cs" />
+    <Compile Include="Jobs\UpMonitor.cs" />
     <Compile Include="Ping.cs" />
     <Compile Include="PingManager.cs" />
     <Compile Include="JobsManager.cs" />

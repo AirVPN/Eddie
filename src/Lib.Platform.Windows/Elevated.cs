@@ -16,8 +16,8 @@
 // along with Eddie. If not, see <http://www.gnu.org/licenses/>.
 // </eddie_source_header>
 
-using System;
 using Eddie.Core;
+using System;
 
 namespace Eddie.Platform.Windows
 {
@@ -56,7 +56,6 @@ namespace Eddie.Platform.Windows
 
 						System.Threading.Thread.Sleep(100);
 					}
-
 					connectResult = Connect(Engine.Instance.GetElevatedServicePort());
 					if (connectResult != "Ok")
 						throw new Exception("Unable to start (" + connectResult + ")");

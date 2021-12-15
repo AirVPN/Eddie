@@ -16,15 +16,7 @@
 // along with Eddie. If not, see <http://www.gnu.org/licenses/>.
 // </eddie_source_header>
 
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Threading;
-using System.IO;
-using System.Net;
-using System.Net.NetworkInformation;
-using System.Xml;
-using System.Text;
 
 namespace Eddie.Core
 {
@@ -38,6 +30,7 @@ namespace Eddie.Core
 		public Jobs.Discover Discover;
 		public Jobs.ProvidersRefresh ProvidersRefresh;
 		public Jobs.RealtimeNetworkStats RealtimeNetworkStats;
+		public Jobs.UpMonitor UpMonitor;
 
 		public JobsManager()
 		{
@@ -47,6 +40,7 @@ namespace Eddie.Core
 			Jobs.Add(Discover = new Jobs.Discover());
 			Jobs.Add(ProvidersRefresh = new Jobs.ProvidersRefresh());
 			Jobs.Add(RealtimeNetworkStats = new Jobs.RealtimeNetworkStats());
+			Jobs.Add(UpMonitor = new Jobs.UpMonitor());
 		}
 
 		public void Check()

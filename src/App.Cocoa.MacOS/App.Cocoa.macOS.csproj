@@ -59,7 +59,7 @@
     <CodeSignEntitlements>Entitlements.plist</CodeSignEntitlements>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(RunConfiguration)' == 'Default' ">
-    <StartArguments>path.tools="../../../../../../../../deploy/macos_arm64" path.resources="../../../../../../../../common"</StartArguments>
+    <StartArguments>path.tools="../../../../../../../../deploy/macos_arm64" path.resources="../../../../../../../../common" nosplash</StartArguments>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />

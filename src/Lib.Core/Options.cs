@@ -18,9 +18,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Xml;
-using System.Text;
 using System.Globalization;
+using System.Text;
 
 namespace Eddie.Core
 {
@@ -514,9 +513,11 @@ namespace Eddie.Core
 
 			SetDefaultInt("http.timeout", 20, NotInMan);
 
+			/*
 			SetDefaultBool("webui.enabled", true, NotInMan); // WebUI it's a Eddie 3.* feature not yet committed on GitHub.
 			SetDefault("webui.ip", "text", "localhost", NotInMan);
 			SetDefaultInt("webui.port", 4649, NotInMan);
+			*/
 
 			SetDefaultBool("external.rules.recommended", true, NotInMan);
 			SetDefault("external.rules", "json", "[]", NotInMan);
@@ -592,6 +593,7 @@ namespace Eddie.Core
 			SetDefaultBool("windows.workarounds", false, NotInMan); // If true, some variants to identify issues
 			SetDefaultBool("windows.ipv6.bypass_dns", false, NotInMan); // 2.14: Workaround, skip DNS6.
 			SetDefaultBool("windows.ssh.plink.force", true, NotInMan); // Switch to false when stable/tested.
+			SetDefaultBool("windows.force_old_driver", false, NotInMan);
 			SetDefaultBool("windows.wintun", true, NotInMan);
 
 			// Linux only

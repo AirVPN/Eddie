@@ -16,13 +16,9 @@
 // along with Eddie. If not, see <http://www.gnu.org/licenses/>.
 // </eddie_source_header>
 
-#if !EDDIENET2
-#define EDDIE_HAS_DYNAMIC
-using System.Dynamic;
-#endif
-
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Globalization;
 using System.Text;
 
@@ -158,10 +154,7 @@ namespace Eddie.Core
 		}
 	}
 
-	public class Json
-#if EDDIE_HAS_DYNAMIC
-		: DynamicObject
-#endif
+	public class Json : DynamicObject
 	{
 		public object m_value = null;
 
@@ -616,7 +609,6 @@ namespace Eddie.Core
 		#endregion
 		#region Overrides, Operators
 
-#if EDDIE_HAS_DYNAMIC
 		public override bool TryGetMember(GetMemberBinder binder, out object result)
 		{
 			if (!IsDictionary())
@@ -634,7 +626,7 @@ namespace Eddie.Core
 			SetKey(binder.Name, value);
 			return true;
 		}
-#endif
+
 		public override string ToString()
 		{
 			return ToJson();

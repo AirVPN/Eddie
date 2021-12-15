@@ -22,8 +22,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.NetworkInformation;
-using System.Xml;
 using System.Text;
+using System.Xml;
 
 namespace Eddie.Core
 {
@@ -1075,6 +1075,11 @@ namespace Eddie.Core
 			return true;
 		}
 
+		public virtual void OnCheckUpMonitor()
+		{
+
+		}
+
 		public virtual void OnElevated()
 		{
 		}
@@ -1284,20 +1289,19 @@ namespace Eddie.Core
 			return (GetWireGuardVersion() != "");
 		}
 
-		// OpenVPN Driver
-		public virtual string OpenVpnGetTunDriverReport()
+		public virtual NetworkInterface SearchAdapter(string driver)
 		{
-			return OpenVpnGetDriverVersion("");
+			return null;
 		}
 
-		public virtual string OpenVpnGetDriverVersion(string driver)
+		public virtual string GetDriverVersion(string driver)
 		{
 			return LanguageManager.GetText("NotImplemented");
 		}
 
-		public virtual void OpenVpnEnsureDriverAndAdapterAvailable(string driver)
+		public virtual void OpenVpnEnsureDriverAndAdapterAvailable(string driver, string ifaceName)
 		{
-			if (OpenVpnGetDriverVersion(driver) != "")
+			if (GetDriverVersion(driver) != "")
 				return;
 
 			throw new Exception(LanguageManager.GetText("OsDriverCannotInstall"));

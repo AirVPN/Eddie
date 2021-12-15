@@ -17,9 +17,9 @@
 // </eddie_source_header>
 
 using System;
-using System.Text;
-using System.Security.Cryptography;
 using System.IO;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Eddie.Core.Crypto
 {

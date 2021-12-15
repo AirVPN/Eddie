@@ -41,9 +41,13 @@ namespace Eddie.UI.Cocoa.Osx
             Instance = this;
 
             base.Init(environmentCommandLine);
-
-            SplashWindow = new WindowSplashController();
-            SplashWindow.Window.MakeKeyAndOrderFront(AppDelegate);
+                        
+            //if (environmentCommandLine.Contains("nosplash") == false) // crash, TOFIX
+            if(true)
+            {
+                SplashWindow = new WindowSplashController();
+                SplashWindow.Window.MakeKeyAndOrderFront(AppDelegate);
+            }
 
             Engine = new Engine(environmentCommandLine);
             Engine.UiManager.Add(this);

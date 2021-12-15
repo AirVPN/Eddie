@@ -1092,7 +1092,7 @@ namespace Eddie.Platform.MacOS
 				return base.FileGetSignedId(path);
 		}
 
-		public override string OpenVpnGetDriverVersion(string driver)
+		public override string GetDriverVersion(string driver)
 		{
 			return "Expected";
 		}

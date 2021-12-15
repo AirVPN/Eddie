@@ -16,14 +16,11 @@
 // along with Eddie. If not, see <http://www.gnu.org/licenses/>.
 // </eddie_source_header>
 
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Text;
-using System.Threading;
-using System.Windows.Forms;
 using Eddie.Core;
 using Eddie.Core.UI;
+using System;
+using System.Drawing;
+using System.Windows.Forms;
 
 namespace Eddie.Forms.Controls
 {

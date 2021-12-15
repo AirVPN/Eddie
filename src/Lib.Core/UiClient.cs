@@ -16,12 +16,7 @@
 // along with Eddie. If not, see <http://www.gnu.org/licenses/>.
 // </eddie_source_header>
 
-using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Xml;
 
 namespace Eddie.Core
 {
@@ -50,33 +45,14 @@ namespace Eddie.Core
 
 		public Json Command(string command)
 		{
-			command = command.Trim();
-
 			Json j = new Json();
-
-			if (command.StartsWith("openvpn "))
-			{
-				string openvpnManagementCommand = command.Substring(8).Trim();
-
-				j["command"].Value = "openvpn_management";
-				j["management_command"].Value = openvpnManagementCommand;
-			}
-			else if (command.StartsWith("tor "))
-			{
-				string torControlCommand = command.Substring(4).Trim();
-
-				j["command"].Value = "tor_control";
-				j["control_command"].Value = torControlCommand;
-			}
-			else
-			{
-				CommandLine cmd = new CommandLine(command, false, true);
-				j["command"].Value = cmd.Get("action", "");
-				foreach (KeyValuePair<string, string> kp in cmd.Params)
-					if (kp.Key != "action")
-						j[kp.Key].Value = kp.Value;
-			}
-
+			
+			CommandLine cmd = new CommandLine(command.Trim(), false, true);
+			j["command"].Value = cmd.Get("action", "");
+			foreach (KeyValuePair<string, string> kp in cmd.Params)
+				if (kp.Key != "action")
+					j[kp.Key].Value = kp.Value;
+			
 			return Command(j);
 		}
 	}

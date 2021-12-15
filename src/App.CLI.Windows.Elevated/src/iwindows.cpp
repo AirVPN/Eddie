@@ -396,7 +396,7 @@ void IWindows::Do(const std::string& commandId, const std::string& command, std:
 	{
 		std::string version = "";
 		if (IsWin8OrGreater()) // see WintunEnsureLibrary
-			version = "0.3.11"; // Embedded, wireguard.dll
+			version = "0.3.11"; // Embedded, wgtunnel.dll
 		ReplyCommand(commandId, version);
 	}
 	else if (command == "wireguard")
@@ -447,7 +447,7 @@ void IWindows::Do(const std::string& commandId, const std::string& command, std:
 					configPath = tempPath + FsPathSeparator + interfaceId + ".conf";
 
 					if (FsFileWriteText(configPath, config) == false)
-						ThrowException("Unable to clean previous ring file (" + GetLastErrorAsString() + ")");
+						ThrowException("Unable to write config file (" + GetLastErrorAsString() + ")");
 
 					ringPath = tempPath + FsPathSeparator + "log.bin";
 
@@ -455,7 +455,7 @@ void IWindows::Do(const std::string& commandId, const std::string& command, std:
 						if (FsFileDelete(ringPath) == false)
 							ThrowException("Unable to clean previous ring file (" + GetLastErrorAsString() + ")");
 
-					// Start an ad-hoc service (cannot call wireguard.dll directly here), required by current Windows WireGuard code.
+					// Start an ad-hoc service (cannot call wgtunnel.dll directly here), required by current Windows WireGuard code.
 					serviceControlManager = OpenSCManager(0, 0, SC_MANAGER_ALL_ACCESS); // GENERIC_WRITE is not enough
 					if (!serviceControlManager)
 						ThrowException("Services management failed (" + GetLastErrorAsString() + ")");
@@ -491,7 +491,7 @@ void IWindows::Do(const std::string& commandId, const std::string& command, std:
 								else
 									ThrowException("Failed to start: " + GetLastErrorAsString());
 							}
-
+							
 							// Wait running
 							bool waitSuccess = false;
 							SERVICE_STATUS serviceStatusWait;
@@ -587,83 +587,102 @@ void IWindows::Do(const std::string& commandId, const std::string& command, std:
 
 							ReplyCommand(commandId, "log:setup-complete");
 
+							std::vector<std::string> logs;
+
 							unsigned long handshakeStart = GetTimestampUnix();
 							unsigned long handshakeLast = 0;
 
 							DWORD ringCursor = 0;
-							bool ringStop = false;
+							DWORD ringCurrent = 0;
+							bool stop = false;
 							for (;;)
 							{
-								if (ringStop)
-								{
+								if (stop)
 									break;
-								}
 
-								bool ringReadAll = (ringCursor == 0);
-								DWORD ringNextIndex = 0;
-								SetFilePointer(hRingFile, ringPositionNextIndex, NULL, FILE_BEGIN);
-								if (!ReadFile(hRingFile, &ringNextIndex, 4, &ringReaded, NULL))
-									ThrowException("Unable to read log ring (" + GetLastErrorAsString() + ")");
-
-								if (ringReadAll)
-									ringCursor = ringNextIndex;
-
-								for (DWORD l = 0; l < ringMaxLines; l++)
+								// Ring read
+								if (true)
 								{
-									if (ringReadAll == false)
+									DWORD ringNextIndex = 0;
+									SetFilePointer(hRingFile, ringPositionNextIndex, NULL, FILE_BEGIN);
+									if (!ReadFile(hRingFile, &ringNextIndex, 4, &ringReaded, NULL))
+										ThrowException("Unable to read log ring (" + GetLastErrorAsString() + ")");
+
+									for (;;)
 									{
-										if (ringCursor == ringNextIndex)
+										if (ringCurrent == ringNextIndex)
 											break;
+
+										if (ringCurrent > ringNextIndex) // Never occur unless unexpected situation
+											break;
+										
+										DWORD ringCursor = ringCurrent % ringMaxLines;
+
+										DWORD readOffset = (ringHeaderBytes + ringCursor * ringLineBytes);
+
+										SetFilePointer(hRingFile, readOffset + 8, NULL, FILE_BEGIN);
+										bool readResult = ReadFile(hRingFile, &ringBufLine[0], ringMaxLineLength, &ringReaded, NULL);
+
+										if (ringBufLine[0] != 0)
+										{
+											std::string line = ringBufLine;
+
+											logs.push_back(line);
+										}
+
+										ringCurrent++;
 									}
+								}								
 
-									DWORD readOffset = (ringHeaderBytes + ringCursor * ringLineBytes);
+								for (std::vector<std::string>::const_iterator i = logs.begin(); i != logs.end(); ++i)
+								{
+									std::string line = *i;
 
-									SetFilePointer(hRingFile, readOffset + 8, NULL, FILE_BEGIN);
-									bool readResult = ReadFile(hRingFile, &ringBufLine[0], ringMaxLineLength, &ringReaded, NULL);
+									// Normalize
+									line = StringReplaceAll(line, "[TUN]", "");
+									line = StringReplaceAll(line, "[" + interfaceId + "]", "");
+									line = StringTrim(line);
 
-									if (ringBufLine[0] != 0)
+									bool skip = false;
+									//if (StringStartsWith(line, "Routine:")) skip = true; // pre WireGuard-NT
+
+									if (StringStartsWith(line, "Receiving handshake response from peer")) skip = true; // Useless, too much
+									if (StringStartsWith(line, "Receiving keepalive packet from peer")) skip = true; // Useless, too much
+									if (StringStartsWith(line, "Sending keepalive packet to peer")) skip = true; // Useless, too much
+									if (StringStartsWith(line, "Sending handshake initiation to peer")) skip = true; // Useless, too much
+									if (StringContain(line, "created for peer")) skip = true; // Useless, too much // 'Keypair 1 created for peer 1'
+									if (StringContain(line, "destroyed for peer")) skip = true; // Useless, too much // 'Keypair 1 destroyed for peer 1'
+
+									//if (StringContain(line, "Bringing peers up")) // pre WireGuard-NT						
+									if (StringStartsWith(line, "Setting interface configuration"))
+										ReplyCommand(commandId, "log:setup-interface");
+
+									//if (StringContain(line, "Shutting down")) stop = true; // pre WireGuard-NT
+									if (StringStartsWith(line, "Completed")) stop = true;
+
+									// Note: the exact handshake can be obtained with pipe (the only info we need), but not implemented to avoid complexity
+									// Note: there is also "Received first handshake" from WireGuard-NT, not used.
+									//if (StringStartsWith(line, "Received handshake response")) // pre WireGuard-NT
+									if (StringStartsWith(line, "Receiving handshake response")) // WireGuard-NT
 									{
-										std::string line = ringBufLine;
+										unsigned long handshakeNow = GetTimestampUnix();
 
-										// Normalize
-										line = StringReplaceAll(line, "[TUN]", "");
-										line = StringReplaceAll(line, "[" + interfaceId + "]", "");
-										line = StringTrim(line);
-
-										bool skip = false;
-										if (StringStartsWith(line, "Routine:"))
-											skip = true;
-
-										if (StringContain(line, "Bringing peers up"))
-											ReplyCommand(commandId, "log:setup-interface");
-
-										// Note: the exact handshake can be obtained with pipe (the only info we need), but not implemented to avoid complexity
-										if (StringContain(line, "Received handshake response"))
+										if (handshakeLast != handshakeNow)
 										{
-											unsigned long handshakeNow = GetTimestampUnix();
+											if (handshakeLast == 0)
+												ReplyCommand(commandId, "log:handshake-first");
 
-											if (handshakeLast != handshakeNow)
-											{
-												if (handshakeLast == 0)
-													ReplyCommand(commandId, "log:handshake-first");
-
-												//ReplyCommand(commandId, "log:last-handshake:" + StringFrom(handshakeNow));
-												handshakeLast = handshakeNow;
-											}
-										}
-
-										if (skip == false)
-										{
-											ReplyCommand(commandId, "log:" + line);
-
-											if (StringContain(line, "Shutting down"))
-												ringStop = true;
+											//ReplyCommand(commandId, "log:last-handshake:" + StringFrom(handshakeNow));
+											handshakeLast = handshakeNow;
 										}
 									}
 
-									ringCursor++;
-									ringCursor = ringCursor % ringMaxLines;
+									if (skip == false)
+									{
+										ReplyCommand(commandId, "log:" + line);
+									}
 								}
+								logs.clear();
 
 								unsigned long timeNow = GetTimestampUnix();
 								if (handshakeLast > 0)
@@ -718,6 +737,7 @@ void IWindows::Do(const std::string& commandId, const std::string& command, std:
 
 				// Stop and delete service
 				ServiceDelete(serviceId);
+				
 
 				// Stop and delete temp files
 				FsFileDelete(configPath);
@@ -1887,10 +1907,10 @@ void IWindows::WintunAdapterRemovePool(const std::wstring& pool)
 	// TOFIX, the code above don't compile on x86
 	WintunAdapterRemove(pool, StringUTF8ToWString("Eddie OpenVPN"));
 #endif
-	}
+}
 
 // Note 2021-05-06:
-// It's not possible to call directly the wireguard.dll entrypoint, because throw
+// It's not possible to call directly the wgtunnel.dll entrypoint, because throw
 // "Service run error: An instance of the service is already running."
 // seem WG code try to manage the service itself.
 // Maybe in future we can submit a patch to WireGuard to establish a tunnel directly from C++ here,
@@ -1900,14 +1920,14 @@ int IWindows::WireGuardTunnel(const std::string& configName)
 	// Write a file for any fatal error
 	std::string error = "";
 
-	HINSTANCE hInstanceTunnel = LoadLibrary(TEXT("wireguard.dll"));
+	HINSTANCE hInstanceTunnel = LoadLibrary(TEXT("wgtunnel.dll"));
 	if (hInstanceTunnel != NULL)
 	{
 		typedef int(__cdecl* WGTUNNELPROC)(LPWSTR);
 		WGTUNNELPROC procWgTunnel = (WGTUNNELPROC)GetProcAddress(hInstanceTunnel, "WireGuardTunnelService");
 		if (procWgTunnel != NULL)
 		{
-			// The entrypoint "WireGuardTunnelService" of "wireguard.dll" from WireGuard dump directly errors in stderr (not a best practice..).
+			// The entrypoint "WireGuardTunnelService" of "tunnel.dll" from WireGuard dump directly errors in stderr (not a best practice..).
 			// We need to override standard output handle to catch it.
 			DWORD pipeMode = PIPE_READMODE_BYTE | PIPE_NOWAIT;
 			DWORD pipeMaxCollectionCount = 0;
@@ -1972,7 +1992,7 @@ int IWindows::WireGuardTunnel(const std::string& configName)
 	}
 	else
 	{
-		error += "\r\nmodule 'wireguard.dll' not found";
+		error += "\r\nmodule 'wgtunnel.dll' not found";
 	}
 
 	error = StringTrim(error);

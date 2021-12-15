@@ -16,15 +16,12 @@
 // along with Eddie. If not, see <http://www.gnu.org/licenses/>.
 // </eddie_source_header>
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Text;
-using System.Windows.Forms;
-using System.Xml;
 using Eddie.Core;
 using Eddie.Forms.Skin;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Windows.Forms;
 
 namespace Eddie.Forms.Forms
 {
@@ -128,7 +125,7 @@ namespace Eddie.Forms.Forms
 			lblSystemService.Text = Platform.Instance.AllowServiceUserDescription();
 			pnlAdvancedGeneralWindowsOnly.Visible = Platform.Instance.IsWindowsSystem();
 			pnlDnsWindowsOnly.Visible = Platform.Instance.IsWindowsSystem();
-			chkWindowsWintun.Visible = Platform.Instance.IsWindowsSystem();
+			chkWindowsForceOldTunDriver.Visible = Platform.Instance.IsWindowsSystem();
 			chkWindowsDebugWorkaround.Visible = Platform.Instance.IsWindowsSystem();
 			lblHummingbirdPrefer.Visible = (Platform.Instance.IsWindowsSystem() == false);
 			chkHummingbirdPrefer.Visible = (Platform.Instance.IsWindowsSystem() == false);
@@ -214,6 +211,12 @@ namespace Eddie.Forms.Forms
 			lstRoutes.ResizeColumnString(1, "Outside the VPN tunnel");
 			lstRoutes.ResizeColumnMax(2);
 
+			// Networking
+			lblNetworkIfaceName.Visible = Platform.Instance.IsWindowsSystem();
+			txtNetworkIfaceName.Visible = Platform.Instance.IsWindowsSystem();
+			lblWindowsAdaptersCleanup.Visible = Platform.Instance.IsWindowsSystem();
+			chkWindowsAdaptersCleanup.Visible = Platform.Instance.IsWindowsSystem();
+
 			cboLockMode.Items.Clear();
 			cboLockMode.Items.Add("None");
 			cboLockMode.Items.Add("Automatic");
@@ -298,7 +301,7 @@ namespace Eddie.Forms.Forms
 			if (Platform.IsWindows())
 			{
 				cmdAdvancedUninstallDriverTap.Visible = true;
-				cmdAdvancedUninstallDriverTap.Enabled = (Platform.Instance.OpenVpnGetDriverVersion("0901") != "");
+				cmdAdvancedUninstallDriverTap.Enabled = (Platform.Instance.GetDriverVersion("0901") != "");
 				cmdAdvancedUninstallDriverWintun.Visible = false;
 				//cmdAdvancedUninstallDriverWintun.Visible = true;
 				//cmdAdvancedUninstallDriverWintun.Enabled = (Platform.Instance.OpenVpnGetDriverVersion("wintun") != "");
@@ -624,7 +627,7 @@ namespace Eddie.Forms.Forms
 			chkAdvancedProviders.Checked = o.GetBool("advanced.providers");
 			chkHummingbirdPrefer.Checked = o.GetBool("tools.hummingbird.preferred");
 
-			chkWindowsWintun.Checked = o.GetBool("windows.wintun");
+			chkWindowsForceOldTunDriver.Checked = o.GetBool("windows.force_old_driver");
 			chkWindowsAdaptersCleanup.Checked = o.GetBool("windows.adapters.cleanup");
 			chkWindowsDisableDriverUpgrade.Checked = o.GetBool("windows.disable_driver_upgrade");
 			chkWindowsDebugWorkaround.Checked = o.GetBool("windows.workarounds");
@@ -1001,7 +1004,7 @@ namespace Eddie.Forms.Forms
 			o.SetBool("advanced.providers", chkAdvancedProviders.Checked);
 			o.SetBool("tools.hummingbird.preferred", chkHummingbirdPrefer.Checked);
 
-			o.SetBool("windows.wintun", chkWindowsWintun.Checked);
+			o.SetBool("windows.force_old_driver", chkWindowsForceOldTunDriver.Checked);
 			o.SetBool("windows.adapters.cleanup", chkWindowsAdaptersCleanup.Checked);
 			o.SetBool("windows.disable_driver_upgrade", chkWindowsDisableDriverUpgrade.Checked);
 			o.SetBool("windows.workarounds", chkWindowsDebugWorkaround.Checked);

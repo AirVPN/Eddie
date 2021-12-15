@@ -11,7 +11,8 @@ IF "%~2"=="" (
 	GOTO error
 )
 
-set VARMSBUILD="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin\msbuild.exe"
+rem set VARMSBUILD="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin\msbuild.exe"
+set VARMSBUILD="C:\Program Files\Microsoft Visual Studio\2022\Community\Msbuild\Current\Bin\MSBuild.exe"
 
 set VARSCRIPTDIR=%~dp0
 

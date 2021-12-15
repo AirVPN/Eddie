@@ -18,11 +18,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
-using System.Xml;
 
 namespace Eddie.Core
 {
@@ -77,6 +73,14 @@ namespace Eddie.Core
 			{
 				Engine.Instance.Exit();
 			}
+			else if (cmd == "ui.start")
+			{
+				Json result = new Json();
+				result["manifest"].Value = Engine.Instance.Manifest;
+				result["main_status"].Value = Engine.Instance.JsonMainStatus();
+				result["logs"].Value = Engine.Instance.Logs.GetJson();
+				return result;
+			}
 			else if (cmd == "mainaction.connect")
 			{
 				Engine.Instance.Connect();
@@ -91,9 +95,9 @@ namespace Eddie.Core
 
 				report.Start(sender);
 			}
-			else if (cmd == "tor_control")
+			else if (cmd == "tor.control")
 			{
-				string resultC = TorControl.SendCommand(data["control_command"].Value as string);
+				string resultC = TorControl.SendCommand(data["command"].Value as string);
 				foreach (string line in resultC.Split('\n'))
 				{
 					string l = line.Trim();
@@ -119,15 +123,7 @@ namespace Eddie.Core
 			else if (cmd == "ui.stats.pathapp")
 			{
 				Platform.Instance.OpenDirectoryInFileManager(Engine.Instance.Stats.Get("PathApp").Value);
-			}
-			else if (cmd == "ui.start")
-			{
-				Json result = new Json();
-				result["manifest"].Value = Engine.Instance.Manifest;
-				result["main_status"].Value = Engine.Instance.JsonMainStatus();
-				result["logs"].Value = Engine.Instance.Logs.GetJson();
-				return result;
-			}
+			}			
 			else if (cmd == "man")
 			{
 				string format = "text";

@@ -18,12 +18,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
-using System.Reflection;
 using System.Windows.Forms;
-using System.Text;
-using Eddie.Core;
 
 namespace Eddie.Forms.Skin
 {
@@ -81,23 +77,23 @@ namespace Eddie.Forms.Skin
 				m_unixFontMonoSpaceName = "Monospace";
 				m_unixFontMonoSpaceSize = SystemFonts.MenuFont.Size;
 
-				string gsettingsPath = Eddie.Core.Platform.Instance.LocateExecutable("gsettings"); // gnome
+				string gsettingsPath = SkinUtilsCore.LocateExecutable("gsettings"); // gnome
 				if (gsettingsPath != "")
 				{
-					string uFontSystem = SystemExec.Exec1(gsettingsPath, "get org.gnome.desktop.interface font-name").Trim('\'');
+					string uFontSystem = SkinUtilsCore.Exec(gsettingsPath, "get org.gnome.desktop.interface font-name").Trim('\'');
 					int uFontSystemSep = uFontSystem.LastIndexOf(" ");
 					if (uFontSystemSep != -1)
 					{
 						m_unixFontSystemName = uFontSystem.Substring(0, uFontSystemSep).TrimChars(",; \n\r");
-						m_unixFontSystemSize = Conversions.ToInt32(uFontSystem.Substring(uFontSystemSep + 1).TrimChars(",; \n\r"));
+						m_unixFontSystemSize = SkinUtilsCore.ToInt32(uFontSystem.Substring(uFontSystemSep + 1).TrimChars(",; \n\r"));
 					}
 
-					string uFontMono = SystemExec.Exec1(gsettingsPath, "get org.gnome.desktop.interface monospace-font-name").Trim('\'');
+					string uFontMono = SkinUtilsCore.Exec(gsettingsPath, "get org.gnome.desktop.interface monospace-font-name").Trim('\'');
 					int uFontMonoSep = uFontMono.LastIndexOf(" ");
 					if (uFontMonoSep != -1)
 					{
 						m_unixFontMonoSpaceName = uFontMono.Substring(0, uFontMonoSep).TrimChars(",; \n\r");
-						m_unixFontMonoSpaceSize = Conversions.ToInt32(uFontMono.Substring(uFontMonoSep + 1).TrimChars(",; \n\r"));
+						m_unixFontMonoSpaceSize = SkinUtilsCore.ToInt32(uFontMono.Substring(uFontMonoSep + 1).TrimChars(",; \n\r"));
 					}
 				}
 
@@ -182,7 +178,7 @@ namespace Eddie.Forms.Skin
 
 		public static Image GetSkinResourceImage(string name)
 		{
-			// Accessing Properties.Resources.xxx is a lot cpu extensive, probabily conversions every time. We cache image resources.
+			// Accessing Properties.Resources.xxx is a lot cpu extensive, probably conversions every time. We cache image resources.
 			if (ImageResourceCache.ContainsKey(name))
 				return ImageResourceCache[name];
 			else

@@ -18,18 +18,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Runtime.InteropServices;
-using System.Net;
-using System.Net.NetworkInformation;
-using System.Management;
-using System.Security.Principal;
-using System.Xml;
-using System.Text;
-using System.Threading;
-using Eddie.Core;
-using Microsoft.Win32;
 
 namespace Eddie.Platform.Windows
 {

@@ -17,12 +17,7 @@
 // </eddie_source_header>
 
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Net;
-using System.Net.NetworkInformation;
 using System.Xml;
-using System.Text;
 
 namespace Eddie.Core
 {

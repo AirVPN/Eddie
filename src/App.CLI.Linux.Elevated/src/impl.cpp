@@ -191,19 +191,37 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 	}
 	else if (command == "dns-switch-rename-do")
 	{
-		std::string resolvconf = params["text"];
+		if (FsFileExists("/etc/resolv.conf") == false)
+			ThrowException("/etc/resolv.conf missing, unexpected.");
+		
+		std::string expected = params["text"];
 
+		bool update = false;
 		if (FsFileExists("/etc/resolv.conf.eddie") == false)
+			update = true;
+		else
 		{
-			if (FsFileExists("/etc/resolv.conf"))
+			std::string current = FsFileReadText("/etc/resolv.conf");
+			if (current != expected)
+				update = true;
+		}
+
+		if (update)
+		{
+			if (FsFileExists("/etc/resolv.conf.eddie") == false)
 			{
 				if (FsFileMove("/etc/resolv.conf", "/etc/resolv.conf.eddie") == false)
 					ThrowException("Move fail");
 			}
+
+			if (FsFileWriteText("/etc/resolv.conf", expected) == false)
+				ThrowException("Write fail");
+			chmod("/etc/resolv.conf", S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+
+			ReplyCommand(commandId, "1");
 		}
-		if (FsFileWriteText("/etc/resolv.conf", resolvconf) == false)
-			ThrowException("Write fail");
-		chmod("/etc/resolv.conf", S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+		else
+			ReplyCommand(commandId, "0");
 	}
 	else if (command == "dns-switch-rename-restore")
 	{
@@ -302,7 +320,11 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 			{
 				ExecResult modprobeResult = ExecEx1(modprobePath, "nf_tables");
 				if (modprobeResult.exit != 0)
-					ThrowException("Unable to initialize nf_tables module");
+				{
+					// An user report that if module is embedded in kernel, the above modprobe fail.
+					// Commented, if module are not available, anyway will throw error in successive step				
+					//ThrowException("Unable to initialize nf_tables module");
+				}
 			}
 			/*
 			#endif
@@ -569,7 +591,11 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 				{
 					ExecResult modprobeIptable4FilterResult = ExecEx1(modprobePath, "iptable_filter");
 					if (modprobeIptable4FilterResult.exit != 0)
-						ThrowException("Unable to initialize iptable_filter module");
+					{
+						// An user report that if module is embedded in kernel, the above modprobe fail.
+						// Commented, if module are not available, anyway will throw error in successive step				
+						//ThrowException("Unable to initialize iptable_filter module");
+					}
 				}
 				/*
 				#endif
@@ -591,7 +617,11 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 				{
 					ExecResult modprobeIptable6FilterResult = ExecEx1(modprobePath, "ip6table_filter");
 					if (modprobeIptable6FilterResult.exit != 0)
-						ThrowException("Unable to initialize ip6table_filter module");
+					{
+						// An user report that if module is embedded in kernel, the above modprobe fail.
+						// Commented, if module are not available, anyway will throw error in successive step				
+						//ThrowException("Unable to initialize ip6table_filter module");
+					}
 				}
 				/*
 				#endif
@@ -605,14 +635,14 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 			{
 				std::string backupIPv4 = IptablesExec(IptablesExecutable("ipv4", "save"), args, false, "");
 				if (StringContain(backupIPv4, "*filter") == false)
-					ThrowException("iptables don't reply, probabily kernel modules issue");
+					ThrowException("iptables don't reply, probably kernel modules issue");
 				FsFileWriteText(pathIPv4, backupIPv4);
 			}
 			if (params.count("rules-ipv6") > 0)
 			{
 				std::string backupIPv6 = IptablesExec(IptablesExecutable("ipv6", "save"), args, false, "");
 				if (StringContain(backupIPv6, "*filter") == false)
-					ThrowException("ip6tables don't reply, probabily kernel modules issue");
+					ThrowException("ip6tables don't reply, probably kernel modules issue");
 				FsFileWriteText(pathIPv6, backupIPv6);
 			}
 
@@ -858,7 +888,15 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 			// Try to up
 			std::string modprobePath = FsLocateExecutable("modprobe");
 			if (modprobePath != "")
+			{
 				ExecResult modprobeResult = ExecEx1(modprobePath, "wireguard");
+				if (modprobeResult.exit != 0)
+				{
+					// An user report that if module is embedded in kernel, the above modprobe fail.
+					// Commented, if module are not available, anyway will throw error in successive step				
+					//ThrowException("Unable to initialize wireguard module");
+				}
+			}
 		}
 
 		std::string version = "";

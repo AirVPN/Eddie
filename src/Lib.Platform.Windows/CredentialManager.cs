@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Microsoft.Win32.SafeHandles;
+using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using Microsoft.Win32.SafeHandles;
-using System.Text;
 using System.ComponentModel;
+using System.Runtime.InteropServices;
+using System.Text;
 
 public static class CredentialManager
 {

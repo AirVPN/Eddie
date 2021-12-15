@@ -19,8 +19,6 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using System.Text;
-using Eddie.Core;
 
 namespace Eddie.Core.Jobs
 {
@@ -31,11 +29,6 @@ namespace Eddie.Core.Jobs
 		public override ThreadPriority GetPriority()
 		{
 			return ThreadPriority.Lowest;
-		}
-
-		public override bool GetSync()
-		{
-			return false;
 		}
 
 		public override void OnRun()
