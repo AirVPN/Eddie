@@ -137,20 +137,3 @@ tests/**/*.dll
 tests/**/FakesAssemblies/*.*
 tests/**/bin/**/*.Fakes.*
 tests/**/bin/**/*.xml
-
-# NodeJS modules directory
-node_modules
-/work
-/users
-/tmp
-/tests
-/src
-/resources
-/repository
-/old
-/deploy
-/dependencies
-/common
-/.vscode
-/.gitignore
-/.gitattributes
