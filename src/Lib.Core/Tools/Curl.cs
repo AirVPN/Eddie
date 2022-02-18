@@ -165,7 +165,7 @@ namespace Eddie.Core.Tools
 			{
 				using (Process p = new Process())
 				{
-					p.StartInfo.FileName = SystemExec.EscapePath(this.GetPath());
+					p.StartInfo.FileName = Platform.Instance.FileAdaptProcessExec(this.GetPath());
 					p.StartInfo.Arguments = args;
 					p.StartInfo.WorkingDirectory = "";
 

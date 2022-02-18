@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Net.NetworkInformation;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -114,9 +115,60 @@ namespace Eddie.Core.ConnectionTypes
 			if (options.Get("openvpn.dev_node") != "")
 				m_configStartup.AppendDirective("dev-node", options.Get("openvpn.dev_node"), "");
 
+			// Find bind IP
+			string bindIP = "";
 			if (options.Get("network.entry.iface") != "")
 			{
-				m_configStartup.AppendDirective("local", options.Get("network.entry.iface"), "");
+				if (IsPreviewMode() == false) // Only to avoid NetworkInterface.GetAllNetworkInterfaces
+				{
+					string v = options.Get("network.entry.iface");
+
+					NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
+					foreach (NetworkInterface adapter in interfaces)
+					{
+						IpAddresses ips = new IpAddresses();
+						try
+						{
+							foreach (UnicastIPAddressInformation ip in adapter.GetIPProperties().UnicastAddresses)
+							{
+								IpAddress ip2 = new IpAddress(ip.Address.ToString());
+								if (ip2.Valid)
+									ips.Add(ip2);
+							}
+						}
+						catch
+						{
+						}
+
+						if (options.Get("network.entry.iplayer") == "ipv4-only")
+							ips = ips.OnlyIPv4;
+						else if (options.Get("network.entry.iplayer") == "ipv6-only")
+							ips = ips.OnlyIPv6;
+
+						if ((IpAddress.IsIP(v)) && (ips.Contains(new IpAddress(v))))
+						{
+							bindIP = v;
+							break;
+						}
+						else if (adapter.Id == v)
+						{
+							if ((options.Get("network.entry.iplayer") == "ipv4-ipv6") && (ips.CountIPv4 > 0))
+								ips = ips.OnlyIPv4;
+							else if ((options.Get("network.entry.iplayer") == "ipv6-ipv4") && (ips.CountIPv6 > 0))
+								ips = ips.OnlyIPv6;
+							if (ips.Count > 0)
+							{
+								bindIP = ips.First.ToString();
+								break;
+							}
+						}
+					}
+				}
+			}
+
+			if (bindIP != "")
+			{
+				m_configStartup.AppendDirective("local", bindIP, "");
 				m_configStartup.RemoveDirective("nobind");
 			}
 			else
@@ -958,19 +1010,19 @@ namespace Eddie.Core.ConnectionTypes
 				string driverRequested = Platform.Instance.GetConnectionTunDriver(this);
 
 				Engine.Instance.WaitMessageSet(LanguageManager.GetText("OsDriverInstall", driverRequested), false);
-				
+
 				string interfaceName = Core.Engine.Instance.Options.Get("network.iface.name");
-				if(interfaceName == "")
+				if (interfaceName == "")
 				{
 					System.Net.NetworkInformation.NetworkInterface adapter = Platform.Instance.SearchAdapter(driverRequested);
 					if (adapter != null)
 						interfaceName = adapter.Name;
 				}
-				if(interfaceName == "")
+				if (interfaceName == "")
 				{
 					interfaceName = "Eddie";
 				}
-				
+
 				Platform.Instance.OpenVpnEnsureDriverAndAdapterAvailable(driverRequested, interfaceName);
 			}
 		}
@@ -1187,10 +1239,10 @@ namespace Eddie.Core.ConnectionTypes
 
 			arguments += " -N -T -v";
 
-			SetNetworkLockSoftwareExceptionPath(Software.GetTool("ssh").Path);
+			SetNetworkLockSoftwareExceptionPath(sshToolPath);
 
 			m_processTransport = new Process();
-			m_processTransport.StartInfo.FileName = sshToolPath;
+			m_processTransport.StartInfo.FileName = Platform.Instance.FileAdaptProcessExec(sshToolPath);
 			m_processTransport.StartInfo.Arguments = arguments;
 			m_processTransport.StartInfo.WorkingDirectory = Platform.Instance.DirectoryTemp();
 
@@ -1251,7 +1303,7 @@ namespace Eddie.Core.ConnectionTypes
 			SetNetworkLockSoftwareExceptionPath(Software.GetTool("ssl").Path);
 
 			m_processTransport = new Process();
-			m_processTransport.StartInfo.FileName = Software.GetTool("ssl").Path;
+			m_processTransport.StartInfo.FileName = Platform.Instance.FileAdaptProcessExec(Software.GetTool("ssl").Path);
 			m_processTransport.StartInfo.Arguments = "\"" + Encoding.Default.GetString(Encoding.UTF8.GetBytes(sslConfigPath)).EscapeQuote() + "\""; // encoding workaround, stunnel expect utf8
 			m_processTransport.StartInfo.WorkingDirectory = Platform.Instance.DirectoryTemp();
 

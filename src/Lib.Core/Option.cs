@@ -42,8 +42,7 @@ namespace Eddie.Core
 			j["omissis"].Value = Omissis;
 			j["internalonly"].Value = InternalOnly;
 			j["dontuserreset"].Value = DontUserReset;
-			//j["value"].Value = Value;
-
+			
 			return j;
 		}
 	}

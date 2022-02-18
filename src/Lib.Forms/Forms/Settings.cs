@@ -133,6 +133,7 @@ namespace Eddie.Forms.Forms
 			cmdHummingbirdPathBrowse.Visible = (Platform.Instance.IsWindowsSystem() == false);
 
 			// Disabled
+			lblOsSingleInstance.Visible = false;
 			chkOsSingleInstance.Visible = false;
 
 			cboStorageMode.Items.Add(LanguageManager.GetText("WindowsSettingsStorageModeNone"));
@@ -284,11 +285,18 @@ namespace Eddie.Forms.Forms
 			{
 				if ((bool)jNetworkInterface["bind"].Value)
 				{
+					// Interface
+					string ifaceId = jNetworkInterface["id"].ValueString;
+					string desc = jNetworkInterface["friendly"].ValueString;
+					m_mapNetworkEntryIFace[ifaceId] = desc;
+					cboNetworkEntryInterface.Items.Add(desc);
+
+					// Specific IP
 					foreach (string ip in jNetworkInterface["ips"].Json.GetArray())
 					{
-						string desc = jNetworkInterface["friendly"].ValueString + " - " + ip;
-						m_mapNetworkEntryIFace[ip] = desc;
-						cboNetworkEntryInterface.Items.Add(desc);
+						string desc2 = desc + " - " + ip;
+						m_mapNetworkEntryIFace[ip] = desc2;
+						cboNetworkEntryInterface.Items.Add(desc2);
 					}
 				}
 			}
@@ -301,15 +309,13 @@ namespace Eddie.Forms.Forms
 			if (Platform.IsWindows())
 			{
 				cmdAdvancedUninstallDriverTap.Visible = true;
-				cmdAdvancedUninstallDriverTap.Enabled = (Platform.Instance.GetDriverVersion("0901") != "");
-				cmdAdvancedUninstallDriverWintun.Visible = false;
-				//cmdAdvancedUninstallDriverWintun.Visible = true;
-				//cmdAdvancedUninstallDriverWintun.Enabled = (Platform.Instance.OpenVpnGetDriverVersion("wintun") != "");
+				cmdAdvancedUninstallDriverTap.Enabled = (Platform.Instance.OpenVpnCanUninstallDriver("0901"));
+				cmdAdvancedDeleteOldTapAdapter.Visible = true;								
 			}
 			else
 			{
 				cmdAdvancedUninstallDriverTap.Visible = false;
-				cmdAdvancedUninstallDriverWintun.Visible = false;
+				cmdAdvancedDeleteOldTapAdapter.Visible = false;
 			}
 
 
@@ -452,7 +458,7 @@ namespace Eddie.Forms.Forms
 			}
 
 			// Proxy
-			cboProxyMode.Text = o.Get("proxy.mode");
+			cboProxyMode.Text = o.GetLower("proxy.mode");
 			if (o.Get("proxy.when") == "always")
 				cboProxyWhen.Text = LanguageManager.GetText("WindowsSettingsProxyWhenAlways");
 			else if (o.Get("proxy.when") == "web")
@@ -841,7 +847,7 @@ namespace Eddie.Forms.Forms
 			}
 
 			// Proxy
-			o.Set("proxy.mode", cboProxyMode.Text);
+			o.Set("proxy.mode", cboProxyMode.Text.ToLowerInv());
 			if (cboProxyWhen.Text == LanguageManager.GetText("WindowsSettingsProxyWhenAlways"))
 				o.Set("proxy.when", "always");
 			else if (cboProxyWhen.Text == LanguageManager.GetText("WindowsSettingsProxyWhenWeb"))
@@ -872,8 +878,6 @@ namespace Eddie.Forms.Forms
 			o.Set("routes.custom", routes);
 
 			// DNS
-			o.Set("dns.mode", cboDnsSwitchMode.Text);
-
 			string dnsMode = cboDnsSwitchMode.Text;
 			if (dnsMode == "Disabled")
 				o.Set("dns.mode", "none");
@@ -1036,9 +1040,10 @@ namespace Eddie.Forms.Forms
 				o.Set("updater.channel", "stable");
 
 			// Advanced - Lock
-			string lockMode = cboLockMode.Text;
-			o.Set("netlock.mode", "none");
-			if (lockMode == "Automatic")
+			string lockMode = cboLockMode.Text;			
+			if (lockMode == "None")
+				o.Set("netlock.mode", "none");
+			else if (lockMode == "Automatic")
 				o.Set("netlock.mode", "auto");
 			else
 			{
@@ -1664,6 +1669,9 @@ namespace Eddie.Forms.Forms
 			GuiUtils.MessageBoxInfo(this, "Done.");
 		}
 
-
+		private void cmdAdvancedDeleteOldTapAdapter_Click(object sender, EventArgs e)
+		{
+			Platform.Instance.OpenVpnDeleteOldTapAdapter();				
+		}
 	}
 }

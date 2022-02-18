@@ -64,8 +64,8 @@ namespace Eddie.Platform.Linux
 		{
 			base.Activation();
 
-			m_supportIPv4 = true; // IPv4 assumed, if not available, will throw a fatal exception.
-			m_supportIPv6 = Conversions.ToBool(Engine.Instance.Manifest["network_info"]["support_ipv6"].Value);
+			m_supportIPv4 = Platform.Instance.GetSupportIPv4();
+			m_supportIPv6 = Platform.Instance.GetSupportIPv6();
 
 			if (m_supportIPv6 == false)
 				Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("NetworkLockLinuxIPv6NotAvailable"));

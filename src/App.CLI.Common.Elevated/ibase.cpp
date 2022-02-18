@@ -532,7 +532,7 @@ int IBase::Main()
 								bool logDebug = true;
 								if (command == "ping") logDebug = false; // Too much
 								if (command == "dns-switch-rename-do") logDebug = false; // Too much
-								if(logDebug)
+								if (logDebug)
 									LogDebug("Command:" + command);
 
 								std::thread t = std::thread(ThreadCommand, this, id, command, params);
@@ -1170,7 +1170,7 @@ std::string IBase::StringIpRemoveInterface(const std::string& ip)
 
 std::string IBase::JsonEncode(const std::string& v)
 {
-	return StringReplaceAll(v, "\"","\\\"");
+	return StringReplaceAll(v, "\"", "\\\"");
 }
 
 std::string IBase::JsonFromKeyPairs(std::map<std::string, std::string>& kp)
@@ -1474,6 +1474,12 @@ std::string IBase::GetExecResultDump(const ExecResult& result)
 	if (StringTrim(result.err) != "")
 		final += "; err:" + StringTrim(result.err);
 	return final;
+}
+
+ExecResult IBase::ExecEx0(const std::string& path)
+{
+	std::vector<std::string> args;
+	return ExecEx(path, args);
 }
 
 ExecResult IBase::ExecEx1(const std::string& path, const std::string& arg1)

@@ -53,7 +53,6 @@ namespace Eddie.Forms.Forms
 			this.cboAdvancedManifestRefresh = new Eddie.Forms.Skin.ComboBox();
 			this.pnlAdvancedGeneralWindowsOnly = new System.Windows.Forms.GroupBox();
 			this.chkWindowsForceOldTunDriver = new Eddie.Forms.Skin.CheckBox();
-			this.cmdAdvancedUninstallDriverWintun = new Eddie.Forms.Skin.Button();
 			this.chkWindowsSshPlinkForce = new Eddie.Forms.Skin.CheckBox();
 			this.chkWindowsDisableDriverUpgrade = new Eddie.Forms.Skin.CheckBox();
 			this.chkWindowsDebugWorkaround = new Eddie.Forms.Skin.CheckBox();
@@ -128,7 +127,7 @@ namespace Eddie.Forms.Forms
 			this.lblStorageMode = new Eddie.Forms.Skin.Label();
 			this.cboStorageMode = new Eddie.Forms.Skin.ComboBox();
 			this.chkSystemStart = new Eddie.Forms.Skin.CheckBox();
-			this.label13 = new Eddie.Forms.Skin.Label();
+			this.lblOsSingleInstance = new Eddie.Forms.Skin.Label();
 			this.chkOsSingleInstance = new Eddie.Forms.Skin.CheckBox();
 			this.cmdResetToDefault = new Eddie.Forms.Skin.Button();
 			this.lblConnect = new Eddie.Forms.Skin.Label();
@@ -252,6 +251,7 @@ namespace Eddie.Forms.Forms
 			this.lblLogPath = new Eddie.Forms.Skin.Label();
 			this.chkLoggingEnabled = new Eddie.Forms.Skin.CheckBox();
 			this.tabExperimentals = new System.Windows.Forms.TabPage();
+			this.cmdAdvancedDeleteOldTapAdapter = new Eddie.Forms.Skin.Button();
 			tabAdvanced = new Eddie.Forms.Skin.TabPage();
 			tabDirectives = new Eddie.Forms.Skin.TabPage();
 			tabEvents = new Eddie.Forms.Skin.TabPage();
@@ -519,8 +519,8 @@ namespace Eddie.Forms.Forms
 			// pnlAdvancedGeneralWindowsOnly
 			// 
 			this.pnlAdvancedGeneralWindowsOnly.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.cmdAdvancedDeleteOldTapAdapter);
 			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsForceOldTunDriver);
-			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.cmdAdvancedUninstallDriverWintun);
 			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsSshPlinkForce);
 			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsDisableDriverUpgrade);
 			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsDebugWorkaround);
@@ -545,22 +545,6 @@ namespace Eddie.Forms.Forms
 			this.chkWindowsForceOldTunDriver.TabIndex = 90;
 			this.chkWindowsForceOldTunDriver.Text = "Force usage of old Tap driver";
 			this.chkWindowsForceOldTunDriver.UseVisualStyleBackColor = false;
-			// 
-			// cmdAdvancedUninstallDriverWintun
-			// 
-			this.cmdAdvancedUninstallDriverWintun.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-			this.cmdAdvancedUninstallDriverWintun.Cursor = System.Windows.Forms.Cursors.Hand;
-			this.cmdAdvancedUninstallDriverWintun.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-			this.cmdAdvancedUninstallDriverWintun.FlatAppearance.BorderSize = 0;
-			this.cmdAdvancedUninstallDriverWintun.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdAdvancedUninstallDriverWintun.Location = new System.Drawing.Point(24, 296);
-			this.cmdAdvancedUninstallDriverWintun.Margin = new System.Windows.Forms.Padding(4);
-			this.cmdAdvancedUninstallDriverWintun.Name = "cmdAdvancedUninstallDriverWintun";
-			this.cmdAdvancedUninstallDriverWintun.Size = new System.Drawing.Size(356, 40);
-			this.cmdAdvancedUninstallDriverWintun.TabIndex = 89;
-			this.cmdAdvancedUninstallDriverWintun.Text = "Uninstall wintun driver";
-			this.cmdAdvancedUninstallDriverWintun.UseVisualStyleBackColor = true;
-			this.cmdAdvancedUninstallDriverWintun.Click += new System.EventHandler(this.cmdAdvancedUninstallDriverWintun_Click);
 			// 
 			// chkWindowsSshPlinkForce
 			// 
@@ -1437,7 +1421,7 @@ namespace Eddie.Forms.Forms
 			this.tabGeneral.Controls.Add(this.lblStorageMode);
 			this.tabGeneral.Controls.Add(this.cboStorageMode);
 			this.tabGeneral.Controls.Add(this.chkSystemStart);
-			this.tabGeneral.Controls.Add(this.label13);
+			this.tabGeneral.Controls.Add(this.lblOsSingleInstance);
 			this.tabGeneral.Controls.Add(this.chkOsSingleInstance);
 			this.tabGeneral.Controls.Add(this.cmdResetToDefault);
 			this.tabGeneral.Controls.Add(this.lblConnect);
@@ -1582,17 +1566,17 @@ namespace Eddie.Forms.Forms
 			this.chkSystemStart.Text = "Start with System";
 			this.chkSystemStart.UseVisualStyleBackColor = false;
 			// 
-			// label13
+			// lblOsSingleInstance
 			// 
-			this.label13.BackColor = System.Drawing.Color.Transparent;
-			this.label13.ForeColor = System.Drawing.Color.Black;
-			this.label13.Location = new System.Drawing.Point(26, 162);
-			this.label13.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-			this.label13.Name = "label13";
-			this.label13.Size = new System.Drawing.Size(398, 34);
-			this.label13.TabIndex = 90;
-			this.label13.Text = "Single instance:";
-			this.label13.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			this.lblOsSingleInstance.BackColor = System.Drawing.Color.Transparent;
+			this.lblOsSingleInstance.ForeColor = System.Drawing.Color.Black;
+			this.lblOsSingleInstance.Location = new System.Drawing.Point(26, 162);
+			this.lblOsSingleInstance.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.lblOsSingleInstance.Name = "lblOsSingleInstance";
+			this.lblOsSingleInstance.Size = new System.Drawing.Size(398, 34);
+			this.lblOsSingleInstance.TabIndex = 90;
+			this.lblOsSingleInstance.Text = "Single instance:";
+			this.lblOsSingleInstance.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			// 
 			// chkOsSingleInstance
 			// 
@@ -3172,6 +3156,22 @@ namespace Eddie.Forms.Forms
 			this.tabExperimentals.Text = "Experimentals";
 			this.tabExperimentals.UseVisualStyleBackColor = true;
 			// 
+			// cmdAdvancedDeleteOldTapAdapter
+			// 
+			this.cmdAdvancedDeleteOldTapAdapter.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.cmdAdvancedDeleteOldTapAdapter.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.cmdAdvancedDeleteOldTapAdapter.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+			this.cmdAdvancedDeleteOldTapAdapter.FlatAppearance.BorderSize = 0;
+			this.cmdAdvancedDeleteOldTapAdapter.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.cmdAdvancedDeleteOldTapAdapter.Location = new System.Drawing.Point(24, 296);
+			this.cmdAdvancedDeleteOldTapAdapter.Margin = new System.Windows.Forms.Padding(4);
+			this.cmdAdvancedDeleteOldTapAdapter.Name = "cmdAdvancedDeleteOldTapAdapter";
+			this.cmdAdvancedDeleteOldTapAdapter.Size = new System.Drawing.Size(356, 40);
+			this.cmdAdvancedDeleteOldTapAdapter.TabIndex = 91;
+			this.cmdAdvancedDeleteOldTapAdapter.Text = "Delete old Tap adapter";
+			this.cmdAdvancedDeleteOldTapAdapter.UseVisualStyleBackColor = true;
+			this.cmdAdvancedDeleteOldTapAdapter.Click += new System.EventHandler(this.cmdAdvancedDeleteOldTapAdapter_Click);
+			// 
 			// Settings
 			// 
 			this.AcceptButton = this.cmdOk;
@@ -3351,7 +3351,7 @@ namespace Eddie.Forms.Forms
 		private Skin.Label lblProxyWhen;
 		private Skin.ComboBox cboProxyWhen;
 		private Skin.Label lblProtocolsAvailable;
-		private Skin.Label label13;
+		private Skin.Label lblOsSingleInstance;
 		private Skin.TabPage tabNetworking;
 		private Skin.Label lblNetworkEntryInterface;
 		private Skin.ComboBox cboNetworkEntryInterface;
@@ -3427,7 +3427,6 @@ namespace Eddie.Forms.Forms
 		private Skin.CheckBox chkUiSkipPromotional;
 		private Skin.Label lblHummingbirdPrefer;
 		private Skin.CheckBox chkHummingbirdPrefer;
-		private Skin.Button cmdAdvancedUninstallDriverWintun;
 		private Skin.Button cmdHummingbirdPathBrowse;
 		private Skin.TextBox txtHummingbirdPath;
 		private Skin.CheckBox chkOpenVpnDirectivesDataCiphersChaCha;
@@ -3436,5 +3435,6 @@ namespace Eddie.Forms.Forms
 		private Skin.Label lblWindowsAdaptersCleanup;
 		private Skin.CheckBox chkWindowsAdaptersCleanup;
 		private Skin.CheckBox chkWindowsForceOldTunDriver;
+		private Skin.Button cmdAdvancedDeleteOldTapAdapter;
 	}
 }

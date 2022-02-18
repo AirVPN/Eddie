@@ -52,5 +52,7 @@ private:
 	int GetRoutesAsJsonConvertHexPrefixToCidrNetMask(const std::string& v);
 	unsigned long WireGuardLastHandshake(const std::string& interfaceId);
 	void WireGuardParseAllowedIPs(const char *allowed_ips, wg_peer *peer);
+	
+	std::string m_iptablesSuffix = "?";
 };
 

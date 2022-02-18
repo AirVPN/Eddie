@@ -396,7 +396,7 @@ void IWindows::Do(const std::string& commandId, const std::string& command, std:
 	{
 		std::string version = "";
 		if (IsWin8OrGreater()) // see WintunEnsureLibrary
-			version = "0.3.11"; // Embedded, wgtunnel.dll
+			version = "0.5.2"; // Embedded, wgtunnel.dll
 		ReplyCommand(commandId, version);
 	}
 	else if (command == "wireguard")
@@ -463,7 +463,7 @@ void IWindows::Do(const std::string& commandId, const std::string& command, std:
 					{
 						std::string elevatedPath = GetProcessPathCurrent();
 						std::string path = FsFileGetDirectory(GetProcessPathCurrent()) + FsPathSeparator + "Eddie-CLI-Elevated.exe";
-						std::string pathWithArgs = path + " mode=wireguard config=\"" + configPath + "\"";
+						std::string pathWithArgs = "\"" + path + "\" mode=wireguard config=\"" + configPath + "\"";
 
 						std::wstring serviceIdW = StringUTF8ToWString(serviceId);
 						std::wstring serviceNameW = TEXT("WireGuard Eddie - Interface ") + StringUTF8ToWString(interfaceId);
@@ -491,7 +491,7 @@ void IWindows::Do(const std::string& commandId, const std::string& command, std:
 								else
 									ThrowException("Failed to start: " + GetLastErrorAsString());
 							}
-							
+
 							// Wait running
 							bool waitSuccess = false;
 							SERVICE_STATUS serviceStatusWait;
@@ -615,7 +615,7 @@ void IWindows::Do(const std::string& commandId, const std::string& command, std:
 
 										if (ringCurrent > ringNextIndex) // Never occur unless unexpected situation
 											break;
-										
+
 										DWORD ringCursor = ringCurrent % ringMaxLines;
 
 										DWORD readOffset = (ringHeaderBytes + ringCursor * ringLineBytes);
@@ -632,7 +632,7 @@ void IWindows::Do(const std::string& commandId, const std::string& command, std:
 
 										ringCurrent++;
 									}
-								}								
+								}
 
 								for (std::vector<std::string>::const_iterator i = logs.begin(); i != logs.end(); ++i)
 								{
@@ -737,7 +737,7 @@ void IWindows::Do(const std::string& commandId, const std::string& command, std:
 
 				// Stop and delete service
 				ServiceDelete(serviceId);
-				
+
 
 				// Stop and delete temp files
 				FsFileDelete(configPath);
@@ -804,7 +804,7 @@ bool IWindows::ServiceInstall()
 	{
 		std::wstring serviceServiceNameW = StringUTF8ToWString(GetServiceId());
 		std::wstring serviceDisplayNameW = StringUTF8ToWString(GetServiceName());
-		std::wstring servicePathW = StringUTF8ToWString(path);
+		std::wstring servicePathW = StringUTF8ToWString("\"" + path + "\"");
 		LPCWSTR serviceDependsW = TEXT("nsi\0Tcpip\0"); // Added in 2.21.0
 		SC_HANDLE service = CreateService(serviceControlManager, serviceServiceNameW.c_str(), serviceDisplayNameW.c_str(), SC_MANAGER_ALL_ACCESS, SERVICE_WIN32_OWN_PROCESS, SERVICE_DEMAND_START, SERVICE_ERROR_NORMAL, servicePathW.c_str(), NULL, NULL, serviceDependsW, NULL, NULL);
 		if (service)
@@ -1570,7 +1570,8 @@ IWindows::t_shellinfo IWindows::ExecStart(const std::string& path, const std::ve
 
 	std::wstring pathW = StringUTF8ToWString(path);
 
-	std::wstring cmdline = L"";
+	//std::wstring cmdline = L""; // <2.21.4
+	std::wstring cmdline = L"\"" + pathW + L"\""; // >2.21.4
 	for (std::vector<std::string>::const_iterator i = args.begin(); i != args.end(); ++i)
 		cmdline += L" " + StringUTF8ToWString(*i);
 
@@ -1808,6 +1809,7 @@ void IWindows::WintunAdapterAdd(const std::wstring& pool, const std::wstring& na
 		BOOL needReboot = false;
 
 		WINTUN_ADAPTER_HANDLE hAdapter = funcWintunCreateAdapter(pool.c_str(), name.c_str(), NULL, &needReboot);
+
 		if (hAdapter == 0)
 			ThrowException("wintun.dll WintunCreateAdapter fail");
 		else

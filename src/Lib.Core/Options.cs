@@ -306,7 +306,7 @@ namespace Eddie.Core
 		public void Set(string name, string val)
 		{
 			if (Exists(name) == false)
-				Engine.Instance.Logs.Log(LogType.Warning, LanguageManager.GetText("OptionsUnknown", name));
+				Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("OptionsUnknown", name));
 			else
 			{
 				string oldValue = "";
@@ -344,7 +344,7 @@ namespace Eddie.Core
 			if (m_options[name].Type == "text")
 				Set(name, s);
 			else if (m_options[name].Type.StartsWith("choice:"))
-				Set(name, s);
+				Set(name, s.ToLowerInv());
 			else if (m_options[name].Type.StartsWith("path_file"))
 				Set(name, s);
 			else if (m_options[name].Type == "bool")
@@ -380,6 +380,11 @@ namespace Eddie.Core
 			option.Man = man;
 			option.Important = important;
 			m_options[option.Code] = option;
+		}
+
+		public void SetDefaultChoice(string name, string values, string val, string man)
+		{
+			SetDefault(name, "choice:" + values, val, man);
 		}
 
 		public void SetDefaultInt(string name, int val, string man)
@@ -427,21 +432,21 @@ namespace Eddie.Core
 			SetDefaultBool("connect", false, LanguageManager.GetText("ManOptionConnect"));
 			SetDefaultBool("netlock", false, LanguageManager.GetText("ManOptionNetLock"));
 
-			SetDefault("updater.channel", "choice:stable,beta,internal,none", "stable", LanguageManager.GetText("ManOptionUpdaterChannel"));
+			SetDefaultChoice("updater.channel", "stable,beta,internal,none", "stable", LanguageManager.GetText("ManOptionUpdaterChannel"));
 
 			SetDefault("servers.last", "text", "", NotInMan, false);
 			SetDefault("servers.allowlist", "text", "", LanguageManager.GetText("ManOptionServersAllowlist"));
 			SetDefault("servers.denylist", "text", "", LanguageManager.GetText("ManOptionServersDenylist"));
 			SetDefaultBool("servers.startlast", false, LanguageManager.GetText("ManOptionServersStartLast"));
 			SetDefaultBool("servers.locklast", false, LanguageManager.GetText("ManOptionServersLockLast"));
-			SetDefault("servers.scoretype", "choice:Speed,Latency", "Speed", LanguageManager.GetText("ManOptionServersScoreType"));
+			SetDefaultChoice("servers.scoretype", "Speed,Latency", "Speed", LanguageManager.GetText("ManOptionServersScoreType"));
 
 			SetDefault("areas.allowlist", "text", "", LanguageManager.GetText("ManOptionAreasAllowlist"));
 			SetDefault("areas.denylist", "text", "", LanguageManager.GetText("ManOptionAreasDenylist"));
 
 			SetDefault("discover.ip_webservice.list", "text", "https://ipleak.net/json/{@ip};https://freegeoip.net/json/{@ip};http://ip-api.com/json/{@ip}", NotInMan);
 			SetDefaultBool("discover.ip_webservice.first", true, NotInMan);
-			SetDefaultInt("discover.interval", 60 * 60 * 24, NotInMan); // Delta between refresh discover data (country and other data) for OpenVPN connections.
+			SetDefaultInt("discover.interval", 60 * 60 * 24, NotInMan); // Delta between refresh discover data (country and other data) for non-service connections.
 			SetDefaultBool("discover.exit", true, NotInMan);
 
 			SetDefaultBool("log.file.enabled", false, NotInMan);
@@ -461,7 +466,7 @@ namespace Eddie.Core
 			SetDefaultInt("mode.alt", 0, LanguageManager.GetText("ManOptionModeAlt"));
 
 			SetDefault("proxy.mode", "text", "None", LanguageManager.GetText("ManOptionProxyMode"));
-			SetDefault("proxy.when", "choice:always/web/openvpn/none", "always", NotInMan);
+			SetDefaultChoice("proxy.when", "always/web/openvpn/none", "always", NotInMan);
 			SetDefault("proxy.host", "ip", "127.0.0.1", LanguageManager.GetText("ManOptionProxyHost"));
 			SetDefaultInt("proxy.port", 8080, LanguageManager.GetText("ManOptionProxyPort"));
 			SetDefault("proxy.auth", "text", "None", LanguageManager.GetText("ManOptionProxyAuth"));
@@ -489,15 +494,15 @@ namespace Eddie.Core
 			SetDefaultBool("netlock.allow_dhcp", true, LanguageManager.GetText("ManOptionNetLockAllowDHCP")); // Win only
 			SetDefaultBool("netlock.allow_ping", true, LanguageManager.GetText("ManOptionNetLockAllowPing"));
 			SetDefaultBool("netlock.allow_dns", false, LanguageManager.GetText("ManOptionNetLockAllowDNS"));
-			SetDefault("netlock.incoming", "choice:allow,block", "block", NotInMan);
-			SetDefault("netlock.outgoing", "choice:allow,block", "block", NotInMan);
+			SetDefaultChoice("netlock.incoming", "allow,block", "block", NotInMan);
+			SetDefaultChoice("netlock.outgoing", "allow,block", "block", NotInMan);
 			SetDefault("netlock.allowlist.incoming.ips", "text", "", LanguageManager.GetText("ManOptionNetLockAllowlistIncomingIps"));
 			SetDefault("netlock.allowlist.outgoing.ips", "text", "", LanguageManager.GetText("ManOptionNetLockAllowlistOutgoingIps"));
 
 			SetDefault("network.entry.iface", "text", "", NotInMan);
 			SetDefault("network.entry.iplayer", "text", "ipv4-ipv6", NotInMan); // ipv6-ipv4;ipv4-ipv6;ipv4-only;ipv6-only;
-			SetDefault("network.ipv4.mode", "choice:in,in-out,in-block,out,block", "in", NotInMan);
-			SetDefault("network.ipv6.mode", "choice:in,in-out,in-block,out,block", "in-block", NotInMan);
+			SetDefaultChoice("network.ipv4.mode", "in,in-out,in-block,out,block", "in", NotInMan);
+			SetDefaultChoice("network.ipv6.mode", "in,in-out,in-block,out,block", "in-block", NotInMan);
 			SetDefaultBool("network.ipv4.autoswitch", false, NotInMan);
 			SetDefaultBool("network.ipv6.autoswitch", true, NotInMan);
 			SetDefault("network.gateways.default_skip_types", "text", "Loopback;Tunnel", NotInMan);
@@ -594,7 +599,7 @@ namespace Eddie.Core
 			SetDefaultBool("windows.ipv6.bypass_dns", false, NotInMan); // 2.14: Workaround, skip DNS6.
 			SetDefaultBool("windows.ssh.plink.force", true, NotInMan); // Switch to false when stable/tested.
 			SetDefaultBool("windows.force_old_driver", false, NotInMan);
-			SetDefaultBool("windows.wintun", true, NotInMan);
+			//SetDefaultBool("windows.wintun", true, NotInMan); // 2.21.4 deprecated
 
 			// Linux only
 			SetDefault("linux.dns.services", "text", "nscd;dnsmasq;named;bind9;systemd-resolved", NotInMan);
@@ -676,9 +681,15 @@ namespace Eddie.Core
 			{
 				Software.Checking();
 			}
+
+			Json j = new Json();
+			j["command"].Value = "option.change";
+			j["name"].Value = name;
+			j["value"].Value = Get(name);
+			Engine.Instance.UiManager.Broadcast(j);
 		}
 
-		public Json GetJsonForManifest()
+		public Json GetJson()
 		{
 			Json j = new Json();
 			j.EnsureDictionary();
@@ -686,6 +697,7 @@ namespace Eddie.Core
 			foreach (KeyValuePair<string, Option> kp in m_options)
 			{
 				Json jOption = kp.Value.GetJson();
+				jOption["value"].Value = Get(kp.Key);
 				j[kp.Key].Value = jOption;
 			}
 

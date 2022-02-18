@@ -504,7 +504,7 @@ namespace Eddie.Platform.Windows
 			try
 			{
 				ProcessStartInfo processStart = new ProcessStartInfo();
-				processStart.FileName = GetElevatedHelperPath();
+				processStart.FileName = "\"" + GetElevatedHelperPath() + "\"";
 				processStart.Arguments = "";
 				processStart.Verb = "runas";
 				processStart.CreateNoWindow = true;
@@ -582,6 +582,12 @@ namespace Eddie.Platform.Windows
 			SystemExec.Exec1(Platform.Instance.LocateExecutable("icacls.exe"), "\"" + SystemExec.EscapePath(path).EscapeQuote() + "\" /c /t /remove Administrator \"BUILTIN\\Administrators\" \"NT AUTHORITY\\Authenticated Users\" \"BUILTIN\\Users\" BUILTIN Everyone System Users");
 
 			return true;
+		}
+
+		public override string FileAdaptProcessExec(string path)
+		{
+			// Under Windows, better to escape a specific path. Under other OS don't work.
+			return "\"" + base.FileAdaptProcessExec(path) + "\"";
 		}
 
 		public override string GetExecutablePathEx()
@@ -1558,15 +1564,18 @@ namespace Eddie.Platform.Windows
 			NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
 			foreach (NetworkInterface adapter in interfaces)
 			{
+				if ((int)adapter.NetworkInterfaceType != 53) // Not virtual
+					continue;
 				if (adapter.OperationalStatus != OperationalStatus.Down)
 					continue;
 
-				if ((driver == OpenVpnDriverWintunId) && (adapter.Description.ToLowerInvariant().StartsWith("wintun")))
+				if ((driver == OpenVpnDriverTapId) && (adapter.Description.ToLowerInvariant().StartsWith("tap-win")))
 				{
 					return adapter;
 				}
 
-				if ((driver == OpenVpnDriverTapId) && (adapter.Description.ToLowerInvariant().StartsWith("tap-win")))
+				// There is nothing to identify if is a wintun interface, Description maybe simple "Eddie Tunnel" is some Win10...
+				if ((driver == OpenVpnDriverWintunId) && (adapter.Description.ToLowerInvariant().StartsWith("tap-win") == false))
 				{
 					return adapter;
 				}
@@ -1634,7 +1643,7 @@ namespace Eddie.Platform.Windows
 
 		public override void OpenVpnEnsureDriverAndAdapterAvailable(string driver, string ifaceName)
 		{
-			if (driver == OpenVpnDriverTapId)				
+			if (driver == OpenVpnDriverTapId)
 			{
 				if (Engine.Instance.GetOpenVpnTool().VersionAboveOrEqual("2.5"))
 				{
@@ -1684,44 +1693,99 @@ namespace Eddie.Platform.Windows
 			for (int lap = 0; lap < 2; lap++)
 			{
 				NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
+
 				foreach (NetworkInterface adapter in interfaces)
 				{
-					if ((driver == OpenVpnDriverWintunId) && (adapter.Description.ToLowerInvariant().StartsWith("wintun")) && (adapter.Name == ifaceName))
+					if ((int)adapter.NetworkInterfaceType != 53) // Not virtual
+						continue;
+					if (adapter.OperationalStatus != OperationalStatus.Down)
+						continue;
+
+					// There is nothing to identify if is a wintun interface, Description maybe simple "Eddie Tunnel" is some Win10...
+					if ((driver == OpenVpnDriverWintunId) && (adapter.Description.ToLowerInvariant().StartsWith("tap-win") == false) && (adapter.Name == ifaceName))
 					{
+						Engine.Instance.Logs.LogVerbose("Using WinTun network interface \"" + adapter.Name + " (" + adapter.Description + ")\"");
 						adapterFound = true;
 						break;
 					}
 
 					if ((driver == OpenVpnDriverTapId) && (adapter.Description.ToLowerInvariant().StartsWith("tap-win")) && (adapter.Name == ifaceName))
 					{
+						Engine.Instance.Logs.LogVerbose("Using Tap0901 network interface \"" + adapter.Name + " (" + adapter.Description + ")\"");
 						adapterFound = true;
 						break;
 					}
 				}
 
-				if( (lap == 0) && (adapterFound == false) )
+				if (adapterFound == false)
 				{
-					// Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("OsDriverNoAdapterFound", driver));
-					
-					if (driver == OpenVpnDriverWintunId)
+					if (lap == 0)
 					{
-						string wintunVersion = Core.Engine.Instance.Elevated.DoCommandSync("wintun-adapter-ensure", "pool", Constants.WintunPool, "name", ifaceName);
-						float wintunVersionN = Conversions.ToFloat(wintunVersion) / 100;
-						Engine.Instance.Logs.LogVerbose("Wintun version " + Conversions.ToString(wintunVersionN) + " for network interface '" + ifaceName + "'");
+						// Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("OsDriverNoAdapterFound", driver));
+
+						if (driver == OpenVpnDriverWintunId)
+						{
+							string wintunVersion = Core.Engine.Instance.Elevated.DoCommandSync("wintun-adapter-ensure", "pool", Constants.WintunPool, "name", ifaceName);
+							float wintunVersionN = Conversions.ToFloat(wintunVersion) / 100;
+							Engine.Instance.Logs.LogVerbose("Added new network interface \"" + ifaceName + "\", Wintun version " + Conversions.ToString(wintunVersionN));
+						}
+						else if (driver == OpenVpnDriverTapId)
+						{
+							ExecWithUAC(Software.FindResource("tapctl"), "create --hwid \"root\\tap0901\" --name \"" + ifaceName + "\"");
+							Engine.Instance.Logs.LogVerbose("Added new network interface \"" + ifaceName + "\", Tap0901");
+						}
 					}
-					else if (driver == OpenVpnDriverTapId)
-					{
-						ExecWithUAC(Software.FindResource("tapctl"), "create --hwid \"root\\tap0901\" --name \"" + ifaceName + "\"");
-					}
+				}
+				else
+				{
+					break;
 				}
 			}
 
 			if (adapterFound == false)
 				throw new Exception(LanguageManager.GetText("OsDriverAdapterNotAvailable", driver));
 		}
+
+		public override bool OpenVpnCanUninstallDriver(string driver)
+		{
+			string driverPath = GetDriverUninstallPath(driver);
+			if (driverPath == "")
+				return false;
+
+			return true;
+		}
 		public override bool OpenVpnUninstallDriver(string driver)
 		{
-			return DriverUninstall(driver);
+			string driverPath = GetDriverUninstallPath(driver);
+			if (driverPath == "")
+				return false;
+
+			if (driver == OpenVpnDriverWintunId)
+			{
+				// Latest version automatically uninstall driver when latest adapter deleted.
+				//SystemExec.ExecUserEvent("msiexec", "/x \"" + driverPath + "\" /quiet /norestart", true);
+				//ExecWithUAC("msiexec", "/x \"" + driverPath + "\" /passive");
+			}
+			else if (driver == OpenVpnDriverTapId)
+			{
+				ExecWithUAC(driverPath, "/S");
+			}
+
+			System.Threading.Thread.Sleep(3000);
+
+			return (GetDriverVersion(driver) == "");
+		}
+
+		public override void OpenVpnDeleteOldTapAdapter()
+		{
+			NetworkInterface[] adapters = NetworkInterface.GetAllNetworkInterfaces();
+			foreach (NetworkInterface adapter in adapters)
+			{
+				if (adapter.Description.ToLowerInvariant().StartsWith("tap-win"))
+				{
+					ExecWithUAC(Software.FindResource("tapctl"), "delete \"" + adapter.Id + "\"");
+				}
+			}
 		}
 
 		// Specific
@@ -1859,29 +1923,6 @@ namespace Eddie.Platform.Windows
 			}
 
 			return "";
-		}
-
-		public bool DriverUninstall(string driver)
-		{
-			string driverPath = GetDriverUninstallPath(driver);
-			if (driverPath == "")
-				return false;
-			
-			if (driver == OpenVpnDriverWintunId)
-			{
-				// Latest version automatically uninstall driver when latest adapter deleted.
-				//SystemExec.ExecUserEvent("msiexec", "/x \"" + driverPath + "\" /quiet /norestart", true);
-				//ExecWithUAC("msiexec", "/x \"" + driverPath + "\" /passive");
-			}
-			else if (driver == OpenVpnDriverTapId)
-			{
-				ExecWithUAC(driverPath, "/S");
-			}
-
-
-			System.Threading.Thread.Sleep(3000);
-
-			return (GetDriverVersion(driver) == "");
 		}
 
 		public bool ExecWithUAC(string filename, string arguments)

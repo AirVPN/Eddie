@@ -64,7 +64,7 @@ namespace Eddie.Forms.Linux
 					Process processTray;
 					processTray = new Process();
 
-					processTray.StartInfo.FileName = SystemExec.EscapePath(pathExe);
+					processTray.StartInfo.FileName = Core.Platform.Instance.FileAdaptProcessExec(pathExe);
 					processTray.StartInfo.Arguments = String.Join(" ", arguments2);
 					processTray.StartInfo.WorkingDirectory = "";
 

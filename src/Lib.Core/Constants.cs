@@ -29,9 +29,9 @@ namespace Eddie.Core
 		public static byte[] NotSecretPayload = Encoding.UTF8.GetBytes("4af85e84255b077ad890dba297e811b7d016add1");
 		public static string PasswordIfEmpty = "e6552ddf3ac5c8755a82870d91273a63eab0da1e";
 		public static string WintunPool = "Eddie";
-		public static string Thanks = "Clodo, PJ, Berserker, ProMIND, zhang888, LZ1, giganerd, Uncle Hunto, go558a83nk, sheivoko, NaDre, pfSense_fan, x0wllaar, reiandrea";
-		public static int VersionInt = 278;
-		public static string VersionDesc = "2.21.3"; // Used by deploy system also to generate filenames
+		public static string Thanks = "Clodo, PJ, Berserker, ProMIND, OpenSourcerer, zhang888, LZ1, giganerd, Uncle Hunto, go558a83nk, sheivoko, NaDre, pfSense_fan, x0wllaar, reiandrea";
+		public static int VersionInt = 279;
+		public static string VersionDesc = "2.21.4"; // Used by deploy system also to generate filenames
 		public static bool VersionBeta = true;
 		public static string Domain = "eddie.website";
 		public static string WebSite = "https://eddie.website";

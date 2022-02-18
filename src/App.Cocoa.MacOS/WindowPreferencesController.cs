@@ -289,11 +289,18 @@ namespace Eddie.UI.Cocoa.Osx
 			{
 				if ((bool)jNetworkInterface["bind"].Value)
 				{
+					// Interface
+					string ifaceId = jNetworkInterface["id"].ValueString;
+					string desc = jNetworkInterface["friendly"].ValueString;
+					m_mapNetworkEntryIFace[ifaceId] = desc;
+					CboNetworkEntryInterface.AddItem(desc);
+					
+					// Specific IP
 					foreach (string ip in jNetworkInterface["ips"].Json.GetArray())
 					{
-						string desc = jNetworkInterface["friendly"].Value as string + " - " + ip;
-						m_mapNetworkEntryIFace[ip] = desc;
-						CboNetworkEntryInterface.AddItem(desc);
+						string desc2 = desc + " - " + ip;
+						m_mapNetworkEntryIFace[ip] = desc2;
+						CboNetworkEntryInterface.AddItem(desc2);
 					}
 				}
 			}

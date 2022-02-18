@@ -129,6 +129,11 @@ namespace Eddie.Core
 			Flush(client);
 		}
 
+		public static string Test()
+		{
+			return Test(Engine.Instance.Options.Get("proxy.host"), Engine.Instance.Options.GetInt("proxy.tor.control.port"), Engine.Instance.Options.Get("proxy.tor.control.password"));
+		}
+
 		public static string Test(string host, int controlPort, string controlPassword)
 		{
 			string result = "";

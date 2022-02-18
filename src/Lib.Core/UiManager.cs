@@ -79,6 +79,18 @@ namespace Eddie.Core
 				result["manifest"].Value = Engine.Instance.Manifest;
 				result["main_status"].Value = Engine.Instance.JsonMainStatus();
 				result["logs"].Value = Engine.Instance.Logs.GetJson();
+				result["options"].Value = Engine.Instance.Options.GetJson();
+
+				Json jNetlockModes = new Json();
+				foreach (NetworkLockPlugin lockPlugin in Engine.Instance.NetworkLockManager.Modes)
+				{
+					Json jNetlockMode = new Json();
+					jNetlockMode["code"].Value = lockPlugin.GetCode();
+					jNetlockMode["title"].Value = lockPlugin.GetTitleForList();
+					jNetlockModes.Append(jNetlockMode);
+				}
+				result["netlock_modes"].Value = jNetlockModes;
+
 				return result;
 			}
 			else if (cmd == "mainaction.connect")
@@ -94,6 +106,12 @@ namespace Eddie.Core
 				Report report = new Report();
 
 				report.Start(sender);
+			}
+			else if (cmd == "tor.test")
+			{
+				Json result = new Json();
+				result["result"].Value = TorControl.Test();
+				return result;
 			}
 			else if (cmd == "tor.control")
 			{
@@ -156,6 +174,10 @@ namespace Eddie.Core
 				Engine.Instance.Logs.Log(LogType.Warning, "Test log\nWarning\n" + DateTime.Now.ToString());
 				Engine.Instance.Logs.Log(LogType.Error, "Test log\nError");
 				//Engine.Instance.Logs.Log(LogType.Fatal, "Test log\nFatal");
+			}
+			else if (cmd == "url.open")
+			{
+				Platform.Instance.OpenUrl(data["uri"].ValueString);
 			}
 
 			return null;

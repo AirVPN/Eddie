@@ -33,6 +33,9 @@ namespace Eddie.Forms.Skin
 
 		public static string Exec(string path, string arguments)
 		{
+			if (IsUnix() == false) // Used only in Unix
+				return "";
+
 			try
 			{
 				Process p = new Process();

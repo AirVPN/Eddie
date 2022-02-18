@@ -535,6 +535,11 @@ namespace Eddie.Core
 			return false;
 		}
 
+		public virtual string FileAdaptProcessExec(string path)
+		{
+			return path;
+		}
+
 		public virtual bool FileRunAsRoot(string path)
 		{
 			return false;
@@ -657,7 +662,7 @@ namespace Eddie.Core
 			{
 				using (Process p = new Process())
 				{
-					p.StartInfo.FileName = path;
+					p.StartInfo.FileName = FileAdaptProcessExec(path);
 					p.StartInfo.Arguments = String.Join(" ", arguments);
 					p.StartInfo.WorkingDirectory = "";
 					p.StartInfo.CreateNoWindow = true;
@@ -697,7 +702,7 @@ namespace Eddie.Core
 			{
 				using (Process p = new Process())
 				{
-					p.StartInfo.FileName = path;
+					p.StartInfo.FileName = FileAdaptProcessExec(path);
 					p.StartInfo.Arguments = String.Join(" ", arguments);
 					p.StartInfo.WorkingDirectory = "";
 					p.StartInfo.CreateNoWindow = true;
@@ -718,7 +723,7 @@ namespace Eddie.Core
 		{
 			try
 			{
-				System.Diagnostics.Process p = System.Diagnostics.Process.Start(filename, arguments);
+				System.Diagnostics.Process p = System.Diagnostics.Process.Start(FileAdaptProcessExec(filename), arguments);
 				if (waitEnd)
 					p.WaitForExit();
 				return true;
@@ -1307,9 +1312,18 @@ namespace Eddie.Core
 			throw new Exception(LanguageManager.GetText("OsDriverCannotInstall"));
 		}
 
+		public virtual bool OpenVpnCanUninstallDriver(string driver)
+		{
+			return false;
+		}
+
 		public virtual bool OpenVpnUninstallDriver(string driver)
 		{
 			return false;
+		}
+
+		public virtual void OpenVpnDeleteOldTapAdapter()
+		{
 		}
 	}
 }

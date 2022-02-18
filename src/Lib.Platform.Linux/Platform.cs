@@ -441,7 +441,7 @@ namespace Eddie.Platform.Linux
 			process = new System.Diagnostics.Process();
 			if (canRunAsRoot)
 			{
-				process.StartInfo.FileName = path;
+				process.StartInfo.FileName = FileAdaptProcessExec(path);
 				process.StartInfo.Arguments = String.Join(" ", arguments);
 			}
 			else
@@ -450,7 +450,7 @@ namespace Eddie.Platform.Linux
 				{
 					if (IsElevatedPrivileges())
 					{
-						process.StartInfo.FileName = path;
+						process.StartInfo.FileName = FileAdaptProcessExec(path);
 						process.StartInfo.Arguments = String.Join(" ", arguments);
 					}
 					else
@@ -510,7 +510,7 @@ namespace Eddie.Platform.Linux
 			{
 				using (System.Diagnostics.Process p = new System.Diagnostics.Process())
 				{
-					p.StartInfo.FileName = path;
+					p.StartInfo.FileName = FileAdaptProcessExec(path);
 					p.StartInfo.Arguments = String.Join(" ", arguments);
 					p.StartInfo.WorkingDirectory = "";
 					p.StartInfo.CreateNoWindow = true;

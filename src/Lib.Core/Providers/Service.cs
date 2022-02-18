@@ -211,9 +211,12 @@ namespace Eddie.Core.Providers
 			if (connection.IsPreviewMode() == false)
 			{
 				// Compatibility: if are logged before the WireGuard activation, don't have keys, reauth to obtain.
-				if (User.GetAttributeString("wg_public_key", "") == "")
+				if (connection is ConnectionTypes.WireGuard)
 				{
-					Engine.Instance.ReAuth();
+					if (User.GetAttributeString("wg_public_key", "") == "")
+					{
+						Engine.Instance.ReAuth();
+					}
 				}
 			}
 
@@ -1034,9 +1037,9 @@ namespace Eddie.Core.Providers
 				catch (Exception ex)
 				{
 					string info = ex.Message;
-					string proxyMode = Engine.Instance.Options.Get("proxy.mode").ToLowerInvariant();
-					string proxyWhen = Engine.Instance.Options.Get("proxy.when").ToLowerInvariant();
-					string proxyAuth = Engine.Instance.Options.Get("proxy.auth").ToLowerInvariant();
+					string proxyMode = Engine.Instance.Options.GetLower("proxy.mode");
+					string proxyWhen = Engine.Instance.Options.GetLower("proxy.when");
+					string proxyAuth = Engine.Instance.Options.GetLower("proxy.auth");
 					if (proxyMode != "none")
 						info += " - with '" + proxyMode + "' (" + proxyWhen + ") proxy and '" + proxyAuth + "' auth";
 

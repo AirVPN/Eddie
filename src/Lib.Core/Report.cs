@@ -46,49 +46,42 @@ namespace Eddie.Core
 		}
 
 		public void Start2(UiClient client)
-		{
-			Json jReport = new Json();
-			jReport["command"].Value = "system.report.progress";
-			jReport["step"].Value = LanguageManager.GetText("ReportStepCollectEnvironmentInfo");
-			jReport["body"].Value = LanguageManager.GetText("PleaseWait");
-			jReport["perc"].Value = 0;
-			client.OnReceive(jReport);
+		{			
+			Send(client, LanguageManager.GetText("ReportStepCollectEnvironmentInfo"), 0);
 
 			Environment();
-
-			jReport["step"].Value = LanguageManager.GetText("ReportStepTests");
-			jReport["body"].Value = ToString();
-			jReport["perc"].Value = 10;
-			client.OnReceive(jReport);
+						
+			Send(client, LanguageManager.GetText("ReportStepTests"), 10);
 
 			Tests();
 
-			jReport["step"].Value = LanguageManager.GetText("ReportStepLogs");
-			jReport["body"].Value = ToString();
-			jReport["perc"].Value = 50;
-			client.OnReceive(jReport);
-
+			Send(client, LanguageManager.GetText("ReportStepLogs"), 50);
+			
 			Add(LanguageManager.GetText("ReportOptions"), Engine.Instance.Options.GetReportForSupport().PruneForReport());
 
 			Add(LanguageManager.GetText("ReportLogs"), Engine.Instance.Logs.ToString().PruneForReport());
-
-			jReport["step"].Value = LanguageManager.GetText("ReportStepLogs");
-			jReport["body"].Value = ToString();
-			jReport["perc"].Value = 60;
-			client.OnReceive(jReport);
-
-			jReport["step"].Value = LanguageManager.GetText("ReportStepPlatform");
-			jReport["body"].Value = ToString();
-			jReport["perc"].Value = 70;
-			client.OnReceive(jReport);
+						
+			Send(client, LanguageManager.GetText("ReportStepLogs"), 60);
+						
+			Send(client, LanguageManager.GetText("ReportStepPlatform"), 70);
 
 			NetworkInfo();
 
 			Platform.Instance.OnReport(this);
 
-			jReport["step"].Value = LanguageManager.GetText("ReportStepDone");
-			jReport["body"].Value = ToString();
-			jReport["perc"].Value = 100;
+			Send(client, LanguageManager.GetText("ReportStepDone"), 100);
+		}
+
+		public void Send(UiClient client, string step, int perc)
+		{
+			Json jReport = new Json();
+			jReport["command"].Value = "system.report.progress";
+			jReport["step"].Value = step;
+			if (Items.Count == 0)
+				jReport["body"].Value = LanguageManager.GetText("PleaseWait");
+			else
+				jReport["body"].Value = ToString();
+			jReport["perc"].Value = perc;
 			client.OnReceive(jReport);
 		}
 
@@ -204,6 +197,8 @@ namespace Eddie.Core
 				Add("Connected to VPN", cn);
 			}
 
+			Add("OS support IPv4", Platform.Instance.GetSupportIPv4() ? LanguageManager.GetText("Yes") : LanguageManager.GetText("No"));
+			Add("OS support IPv6", Platform.Instance.GetSupportIPv6() ? LanguageManager.GetText("Yes") : LanguageManager.GetText("No"));
 			Add("Detected DNS", Platform.Instance.DetectDNS().ToString());
 			//Add("Detected Exit", Engine.Instance.DiscoverExit().ToString());
 		}

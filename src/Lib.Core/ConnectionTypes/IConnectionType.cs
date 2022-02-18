@@ -342,8 +342,9 @@ namespace Eddie.Core.ConnectionTypes
 		{
 			OnCleanAfterStart();
 
-			if (Engine.Instance.NetworkLockManager != null)
-				Engine.Instance.NetworkLockManager.DeallowInterface(Interface);
+			if(Interface != null)
+				if (Engine.Instance.NetworkLockManager != null)
+					Engine.Instance.NetworkLockManager.DeallowInterface(Interface);
 		}
 
 		public virtual void OnLogEvent(string source, string message)

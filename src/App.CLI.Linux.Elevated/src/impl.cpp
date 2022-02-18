@@ -566,7 +566,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 	{
 		std::string pathIPv4 = GetTempPath("netlock_iptables_backup_ipv4.txt");
 		std::string pathIPv6 = GetTempPath("netlock_iptables_backup_ipv6.txt");
-
+		
 		std::string result = "";
 
 		if ((FsFileExists(pathIPv4)) || (FsFileExists(pathIPv6)))
@@ -627,7 +627,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 				#endif
 				*/
 			}
-
+			
 			// Backup of current
 			std::vector<std::string> args;
 
@@ -645,7 +645,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 					ThrowException("ip6tables don't reply, probably kernel modules issue");
 				FsFileWriteText(pathIPv6, backupIPv6);
 			}
-
+			
 			// Apply new
 			if (params.count("rules-ipv4") > 0)
 				result += IptablesExec(IptablesExecutable("ipv4", "restore"), args, true, params["rules-ipv4"]);
@@ -679,7 +679,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 
 			FsFileDelete(pathIPv6);
 		}
-
+		
 		ReplyCommand(commandId, StringTrim(result));
 	}
 	else if (command == "netlock-iptables-accept-ip")
@@ -1357,11 +1357,23 @@ std::string Impl::IptablesExecutable(const std::string& layer, const std::string
 
 	if (action != "")
 		name += "-" + action;
-
-	std::string legacyName = StringReplaceAll(name, "tables", "tables-legacy");
-	std::string legacyPath = FsLocateExecutable(legacyName);
-	if (legacyPath != "")
-		return legacyPath;
+	
+	if(m_iptablesSuffix == "?")
+	{
+		// 2022-01-24: We discover different implementation between distro, so we can only try to detect with below method.
+		if(StringContain(ExecEx0("iptables-save").out, "*filter"))
+			m_iptablesSuffix = "";
+		else if(StringContain(ExecEx0("iptables-nft-save").out, "*filter"))
+			m_iptablesSuffix = "nft";
+		else if(StringContain(ExecEx0("iptables-legacy-save").out, "*filter"))
+			m_iptablesSuffix = "legacy";
+		else
+			m_iptablesSuffix = ""; // Will fail after
+	}
+	
+	if(m_iptablesSuffix != "")
+		name = StringReplaceAll(name, "tables", "tables-" + m_iptablesSuffix);
+		
 	std::string path = FsLocateExecutable(name);
 	return path;
 }

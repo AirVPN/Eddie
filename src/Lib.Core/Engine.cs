@@ -474,7 +474,7 @@ namespace Eddie.Core
 				Logs.Log(LogType.Info, LanguageManager.GetText("Ready"));
 				UiManager.Broadcast("engine.ready");
 
-				UiManager.Broadcast("webui.ready");				
+				UiManager.Broadcast("webui.ready");
 
 				RaiseMainStatus();
 
@@ -1997,13 +1997,8 @@ namespace Eddie.Core
 		public string GetNetworkIPv6Mode()
 		{
 			string mode = Engine.Instance.Options.GetLower("network.ipv6.mode");
-			lock (Engine.Instance.Manifest)
-			{
-				bool support = Conversions.ToBool(Engine.Instance.Manifest["network_info"]["support_ipv6"].Value);
-				if (support == false)
-					mode = "block";
-			}
-
+			if (Platform.Instance.GetSupportIPv6() == false)
+				mode = "block";
 			return mode;
 		}
 
@@ -2051,7 +2046,7 @@ namespace Eddie.Core
 				Manifest["ui"].Value = jUI;
 				if (m_webserver != null)
 					jUI["url"].Value = m_webserver.ListenUrl;
-				*/ 
+				*/
 
 				//Manifest["options"].Value = Options.GetJsonForManifest();
 
@@ -2229,9 +2224,6 @@ namespace Eddie.Core
 			Json jRouteList = JsonRouteList();
 
 			Json jNetworkInfo = new Json();
-
-			jNetworkInfo["support_ipv4"].Value = Platform.Instance.GetSupportIPv4();
-			jNetworkInfo["support_ipv6"].Value = Platform.Instance.GetSupportIPv6();
 
 			jNetworkInfo["routes"].Value = jRouteList;
 

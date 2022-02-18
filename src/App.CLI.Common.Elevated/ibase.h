@@ -246,6 +246,7 @@ protected:
 	std::string GetExecResultDump(const ExecResult& result);
 
 	// Helper to avoid use of variadic
+	ExecResult ExecEx0(const std::string& path);
 	ExecResult ExecEx1(const std::string& path, const std::string& arg1);
 	ExecResult ExecEx2(const std::string& path, const std::string& arg1, const std::string& arg2);
 	ExecResult ExecEx3(const std::string& path, const std::string& arg1, const std::string& arg2, const std::string& arg3);

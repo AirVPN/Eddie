@@ -226,7 +226,7 @@ namespace Eddie.Core
 
 					if (Engine.CurrentServer.SupportIPv4)
 					{
-						bool osSupport = Conversions.ToBool(Engine.Instance.Manifest["network_info"]["support_ipv4"].Value);
+						bool osSupport = Platform.Instance.GetSupportIPv4();
 						if ((osSupport == false) && (Engine.Instance.Options.GetLower("network.ipv4.mode") != "block"))
 						{
 							Engine.Instance.Logs.LogWarning(LanguageManager.GetText("IPv4NotSupportedByOS"));
@@ -240,7 +240,7 @@ namespace Eddie.Core
 
 					if (Engine.CurrentServer.SupportIPv6)
 					{
-						bool osSupport = Conversions.ToBool(Engine.Instance.Manifest["network_info"]["support_ipv6"].Value);
+						bool osSupport = Platform.Instance.GetSupportIPv6();
 						if ((osSupport == false) && (Engine.Instance.Options.GetLower("network.ipv6.mode") != "block"))
 						{
 							Engine.Instance.Logs.LogWarning(LanguageManager.GetText("IPv6NotSupportedByOS"));
