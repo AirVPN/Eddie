@@ -100,6 +100,9 @@ namespace Eddie.Core
 					{
 						if (plugin.GetSupport())
 						{
+							if (requestedMode == "")
+								requestedMode = plugin.GetCode();
+
 							if (requestedMode == plugin.GetCode())
 							{
 								nextCurrent = plugin;

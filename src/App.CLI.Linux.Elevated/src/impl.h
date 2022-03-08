@@ -42,7 +42,7 @@ protected:
 private:
 	// Private
 	int FileImmutableSet(const std::string& path, const int flag);
-	std::string IptablesExecutable(const std::string& layer, const std::string& action);
+	std::string IptablesExecutable(const std::string& compatibility, const std::string& layer, const std::string& action);
 	std::string IptablesExec(const std::string& path, const std::vector<std::string>& args, const bool stdinWrite, const std::string stdinBody);
 	std::string NftablesSearchHandle(const std::string& rulesList, const std::string& comment);
 	std::string GetRoutesAsJson();
@@ -52,7 +52,5 @@ private:
 	int GetRoutesAsJsonConvertHexPrefixToCidrNetMask(const std::string& v);
 	unsigned long WireGuardLastHandshake(const std::string& interfaceId);
 	void WireGuardParseAllowedIPs(const char *allowed_ips, wg_peer *peer);
-	
-	std::string m_iptablesSuffix = "?";
 };
 

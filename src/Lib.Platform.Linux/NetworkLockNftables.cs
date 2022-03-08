@@ -47,7 +47,7 @@ namespace Eddie.Platform.Linux
 
 		public override void Init()
 		{
-			base.Init();
+			base.Init(); 
 		}
 
 		public void AddRule(System.Text.StringBuilder rules, string layer, string rule)
@@ -176,10 +176,16 @@ namespace Eddie.Platform.Linux
 				foreach (IpAddress ip in ipsAllowlistIncoming.IPs)
 				{
 					if (ip.IsV4)
-						AddRule(rules, "ipv4", "add rule ip filter INPUT ip saddr " + ip.ToCIDR() + " counter accept");
+					{
+						string comment = "eddie_ip_" + Core.Crypto.Manager.HashSHA256("ipv4_in_" + ip.ToCIDR() + "_1");
+						AddRule(rules, "ipv4", "add rule ip filter INPUT ip saddr " + ip.ToCIDR() + " counter accept comment " + comment);
+					}
 
 					if (ip.IsV6)
-						AddRule(rules, "ipv6", "add rule ip6 filter INPUT ip6 saddr " + ip.ToCIDR() + " counter accept");
+					{
+						string comment = "eddie_ip_" + Core.Crypto.Manager.HashSHA256("ipv6_in_" + ip.ToCIDR() + "_1");
+						AddRule(rules, "ipv6", "add rule ip6 filter INPUT ip6 saddr " + ip.ToCIDR() + " counter accept comment " + comment);
+					}
 				}
 
 				// Input - Redundand, equal to default policy
@@ -260,18 +266,32 @@ namespace Eddie.Platform.Linux
 				foreach (IpAddress ip in ipsAllowlistIncoming.IPs)
 				{
 					if (ip.IsV4)
-						AddRule(rules, "ipv4", "add rule ip filter OUTPUT ip daddr " + ip.ToCIDR() + " ct state established  counter accept");
-					if (ip.IsV6)
-						AddRule(rules, "ipv6", "add rule ip6 filter OUTPUT ip6 daddr " + ip.ToCIDR() + " ct state established  counter accept");
+					{
+						Engine.Instance.Logs.LogVerbose("c#p:" + "ipv4_in_" + ip.ToCIDR() + "_2");
+						Engine.Instance.Logs.LogVerbose("c#e:" + Core.Crypto.Manager.HashSHA256("ipv4_in_" + ip.ToCIDR() + "_2"));
+						string comment = "eddie_ip_" + Core.Crypto.Manager.HashSHA256("ipv4_in_" + ip.ToCIDR() + "_2");
+						AddRule(rules, "ipv4", "add rule ip filter OUTPUT ip daddr " + ip.ToCIDR() + " ct state established counter accept comment " + comment);
+					}
+					else if (ip.IsV6)
+					{
+						string comment = "eddie_ip_" + Core.Crypto.Manager.HashSHA256("ipv6_in_" + ip.ToCIDR() + "_2");
+						AddRule(rules, "ipv6", "add rule ip6 filter OUTPUT ip6 daddr " + ip.ToCIDR() + " ct state established counter accept comment " + comment);
+					}
 				}
 
 				// Allowlist outgoing
 				foreach (IpAddress ip in ipsAllowlistOutgoing.IPs)
 				{
 					if (ip.IsV4)
-						AddRule(rules, "ipv4", "add rule ip filter OUTPUT ip daddr " + ip.ToCIDR() + " counter accept");
-					if (ip.IsV6)
-						AddRule(rules, "ipv6", "add rule ip6 filter OUTPUT ip6 daddr " + ip.ToCIDR() + " counter accept");
+					{
+						string comment = "eddie_ip_" + Core.Crypto.Manager.HashSHA256("ipv4_out_" + ip.ToCIDR() + "_1");
+						AddRule(rules, "ipv4", "add rule ip filter OUTPUT ip daddr " + ip.ToCIDR() + " counter accept comment " + comment);
+					}
+					else if (ip.IsV6)
+					{
+						string comment = "eddie_ip_" + Core.Crypto.Manager.HashSHA256("ipv6_out_" + ip.ToCIDR() + "_1");
+						AddRule(rules, "ipv6", "add rule ip6 filter OUTPUT ip6 daddr " + ip.ToCIDR() + " counter accept comment " + comment);
+					}
 				}
 
 				// Redundand, equal to default policy
@@ -308,7 +328,7 @@ namespace Eddie.Platform.Linux
 			if (result != "")
 				throw new Exception("Unexpected result: " + result);
 
-			// IPS
+			// IPS 
 			m_ipsAllowlistIncoming.Clear();
 			m_ipsAllowlistOutgoing.Clear();
 		}

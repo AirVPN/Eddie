@@ -21,7 +21,6 @@ if sysctl -a | grep ARM64 >/dev/null; then
     VARARCH=arm64
 fi
 
-# Dynamic edition
 g++ -mmacosx-version-min=10.9 -arch ${VARARCH} -o "$BASEPATH/bin/eddie-cli-elevated" "$BASEPATH/src/main.cpp" "$BASEPATH/src/impl.cpp" "$BASEPATH/../App.CLI.Common.Elevated/iposix.cpp" "$BASEPATH/../App.CLI.Common.Elevated/ibase.cpp" "$BASEPATH/../App.CLI.Common.Elevated/ping.cpp" "$BASEPATH/../App.CLI.Common.Elevated/sha256.cpp" -Wall -std=c++11 -O3 -pthread -lpthread -D$1
 
 chmod a+x "$BASEPATH/bin/eddie-cli-elevated"

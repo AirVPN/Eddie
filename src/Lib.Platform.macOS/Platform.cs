@@ -76,6 +76,18 @@ namespace Eddie.Platform.MacOS
 		{
 			base.OnInit();
 
+			// Clean mono_crash files, otherwise Elevated can't run (fail codesign bundle verification)
+            {
+				string resPath = "../Resources";
+				resPath = FileGetAbsolutePath(resPath, GetApplicationPath());
+				resPath = FileGetPhysicalPath(resPath);
+				if (DirectoryExists(resPath))
+                {
+					foreach (string file in Directory.GetFiles(resPath, "mono_crash*"))
+						FileDelete(file);
+                }
+            }
+
 			if (Engine.Instance.ConsoleMode)
 			{
 				NSApplication.Init(); // Requested in CLI edition to call NSPipe, NSTask etc.
@@ -746,11 +758,6 @@ namespace Eddie.Platform.MacOS
 			base.OnNetworkLockManagerInit();
 
 			Engine.Instance.NetworkLockManager.AddPlugin(new NetworkLockOsxPf());
-		}
-
-		public override string OnNetworkLockRecommendedMode()
-		{
-			return "osx_pf";
 		}
 
 		public override void OnRecoveryLoad(XmlElement root)

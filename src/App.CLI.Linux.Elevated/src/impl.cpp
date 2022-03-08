@@ -287,24 +287,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 	}
 	else if (command == "netlock-nftables-available")
 	{
-		std::string nft = FsLocateExecutable("nft", false);
-
-		bool available = (nft != "");
-		ReplyCommand(commandId, available ? "1" : "0");
-	}
-	else if (command == "netlock-nftables-activate")
-	{
-		std::string nft = FsLocateExecutable("nft");
-
-		std::string pathBackup = GetTempPath("netlock_nftables_backup.nft");
-
-		std::string result = "";
-
-		if (FsFileExists(pathBackup))
-		{
-			ThrowException("Unexpected: Already active");
-		}
-		else
+		if(true)
 		{
 			/*
 			// Try to up kernel module
@@ -329,6 +312,42 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 			/*
 			#endif
 			*/
+		}
+
+		bool available = true;
+
+		std::string path = FsLocateExecutable("nft", false);
+
+		if(path == "")
+			available = false;
+
+		if(available)
+		{
+			// Test
+			ExecResult result = ExecEx2(path, "list", "ruleset");
+			if (result.exit != 0)
+				available = false;
+
+			if(StringTrim(result.err) != "")
+				available = false;
+		}
+
+		ReplyCommand(commandId, available ? "1" : "0");
+	}
+	else if (command == "netlock-nftables-activate")
+	{
+		std::string nft = FsLocateExecutable("nft");
+
+		std::string pathBackup = GetTempPath("netlock_nftables_backup.nft");
+
+		std::string result = "";
+
+		if (FsFileExists(pathBackup))
+		{
+			ThrowException("Unexpected: Already active");
+		}
+		else
+		{
 			// Backup of current
 			std::vector<std::string> args;
 
@@ -367,21 +386,13 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 				ThrowException("nft issue: " + GetExecResultDump(execResultRestore));
 		}
 	}
-	else if (command == "netlock-nftables-accept-ip")
+	/* if (command == "netlock-nftables-accept-ip") // Pre 2.21.5
 	{
 		std::string nft = FsLocateExecutable("nft");
 
-		std::string path = "";
 		std::vector<std::string> args1;
 		std::vector<std::string> args2;
 		int nCommands = 1;
-
-		if (params["layer"] == "ipv4")
-			path = IptablesExecutable("ipv4", "");
-		else if (params["layer"] == "ipv6")
-			path = IptablesExecutable("ipv6", "");
-		else
-			ThrowException("Unknown layer");
 
 		if (params["action"] == "add")
 		{
@@ -460,6 +471,164 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 
 			output += GetExecResultDump(execResultRule) + "\n";
 		}
+
+		ReplyCommand(commandId, StringTrim(output));
+	}*/
+	else if (command == "netlock-nftables-accept-ip")
+	{
+		std::string nft = FsLocateExecutable("nft");
+
+		std::string layer = "";
+		if (params["layer"] == "ipv4")
+			layer = "ip";
+		else if (params["layer"] == "ipv6")
+			layer = "ip6";
+		else
+			ThrowException("Unknown layer");
+
+		std::string filter = "";
+		if (params["direction"] == "in")
+			filter = "INPUT";
+		else if (params["direction"] == "out")
+			filter = "OUTPUT";
+		else
+			ThrowException("Unknown direction");
+
+		ExecResult execRulesList = ExecEx4(nft, "-n", "-a", "list", "ruleset"); // To obtain handles for insert/delete
+		if (execRulesList.exit != 0)
+			ThrowException("nft issue: " + GetExecResultDump(execRulesList));
+
+		std::string output = "";
+
+		if (params["action"] == "add")
+		{
+			if(true)
+			{
+				std::string commentSearch = "eddie_" + layer + "_filter_" + filter + "_latest_rule";
+				std::string handle = NftablesSearchHandle(execRulesList.out, commentSearch);
+				if(handle == "")
+					ThrowException("nft issue: expected rule with comment '" + commentSearch + "' not found");
+
+				std::vector<std::string> args;
+				args.push_back("insert");
+				args.push_back("rule");
+				args.push_back(layer);			
+				args.push_back("filter");
+				args.push_back(filter);
+				args.push_back("position");
+				args.push_back(handle);	
+				args.push_back(layer);		
+
+				if (params["direction"] == "in")
+					args.push_back("saddr");
+				else if (params["direction"] == "out")
+					args.push_back("daddr");
+				else
+					ThrowException("Unknown direction");
+
+				args.push_back(StringEnsureCidr(params["cidr"]));
+
+				args.push_back("counter");
+				args.push_back("accept");
+
+				std::string comment = params["layer"] + "_" + params["direction"] + "_" + params["cidr"] + "_1";
+				args.push_back("comment");
+				args.push_back("eddie_ip_" + StringSHA256(comment));
+
+				ExecResult execResultRule = ExecEx(nft, args);
+				if (execResultRule.exit != 0)
+					ThrowException("nft issue: " + GetExecResultDump(execResultRule));
+
+				output += GetExecResultDump(execResultRule) + "\n";
+			}			
+
+			// Additional rule for incoming
+			if (params["direction"] == "in")
+			{
+				std::string commentSearch = "eddie_" + layer + "_filter_OUTPUT_latest_rule";
+				std::string handle = NftablesSearchHandle(execRulesList.out, commentSearch);
+				if(handle == "")
+					ThrowException("nft issue: expected rule with comment '" + commentSearch + "' not found");
+
+				std::vector<std::string> args;
+				args.push_back("insert");
+				args.push_back("rule");
+				args.push_back(layer);				
+				args.push_back("filter");
+				args.push_back("OUTPUT");
+				args.push_back("position");
+				args.push_back(handle);
+				args.push_back(layer);
+
+				if (params["direction"] == "in")
+					args.push_back("saddr");
+				else if (params["direction"] == "out")
+					args.push_back("daddr");
+				else
+					ThrowException("Unknown direction");
+
+				args.push_back(StringEnsureCidr(params["cidr"]));
+
+				args.push_back("ct");
+				args.push_back("state");
+				args.push_back("established");
+				args.push_back("counter");
+				args.push_back("accept");
+
+				std::string comment = params["layer"] + "_" + params["direction"] + "_" + params["cidr"] + "_2";
+				args.push_back("comment");
+				args.push_back("eddie_ip_" + StringSHA256(comment));	
+
+				ExecResult execResultRule = ExecEx(nft, args);
+				if (execResultRule.exit != 0)
+					ThrowException("nft issue: " + GetExecResultDump(execResultRule));
+
+				output += GetExecResultDump(execResultRule) + "\n";			
+			}
+		}
+		else if (params["action"] == "del")
+		{
+			if(true)
+			{
+				std::string commentSearch = params["layer"] + "_" + params["direction"] + "_" + params["cidr"] + "_1";
+				std::string handle = NftablesSearchHandle(execRulesList.out, "eddie_ip_" + StringSHA256(commentSearch));
+				if(handle != "") // Already removed?
+				{
+					std::vector<std::string> args;
+					args.push_back("delete");
+					args.push_back("rule");
+					args.push_back(layer);
+					args.push_back("filter");
+					args.push_back(filter);
+					args.push_back("handle");
+					args.push_back(handle);	
+					ExecResult execResultRule = ExecEx(nft, args); // Ignore if fail								
+					output += GetExecResultDump(execResultRule) + "\n";
+				}				
+			}
+						
+			// Additional rule for incoming
+			if (params["direction"] == "in")
+			{
+				std::string commentSearch = params["layer"] + "_" + params["direction"] + "_" + params["cidr"] + "_2";
+				std::string handle = NftablesSearchHandle(execRulesList.out, "eddie_ip_" + StringSHA256(commentSearch));
+				if(handle != "") // Already removed?
+				{
+					std::vector<std::string> args;
+					args.push_back("delete");
+					args.push_back("rule");
+					args.push_back(layer);					
+					args.push_back("filter");
+					args.push_back("OUTPUT");
+					args.push_back("handle");
+					args.push_back(handle);									
+					ExecResult execResultRule = ExecEx(nft, args); // Ignore if fail								
+					output += GetExecResultDump(execResultRule) + "\n";
+				}				
+			}
+		}
+		else
+			ThrowException("Unknown action");
 
 		ReplyCommand(commandId, StringTrim(output));
 	}
@@ -547,23 +716,135 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 	}
 	else if (command == "netlock-iptables-available")
 	{
+		std::string compatibility = params["compatibility"];
+
+		std::vector<std::string> layers;
+		layers.push_back("ipv4");
+		layers.push_back("ipv6");
+		std::vector<std::string> actions;
+		actions.push_back("");
+		actions.push_back("save");
+		actions.push_back("restore");
+
+		// Try to up kernel module - Some distro don't have it loaded by default
+		if(true)
+		{
+			/*
+#ifndef EDDIE_NOLZMA
+			int ret = load_kernel_module("iptable_filter", "");
+			if ((ret != MODULE_LOAD_SUCCESS) && (ret != MODULE_ALREADY_LOADED))
+				ThrowException("Unable to initialize iptable_filter module");
+#else
+			*/
+			// Exec version, used under Linux Arch, for issue with link LZMA
+			std::string modprobePath = FsLocateExecutable("modprobe");
+			if (modprobePath != "")
+			{
+				ExecResult modprobeIptable4FilterResult = ExecEx1(modprobePath, "iptable_filter");
+				if (modprobeIptable4FilterResult.exit != 0)
+				{
+					// An user report that if module is embedded in kernel, the above modprobe fail.
+					// Commented, if module are not available, anyway will throw error in successive step				
+					//ThrowException("Unable to initialize iptable_filter module");
+				}
+			}
+			/*
+#endif
+			*/
+		}
+
+		if(true)
+		{
+			/*
+#ifndef EDDIE_NOLZMA
+			int ret = load_kernel_module("ip6table_filter", "");
+			if ((ret != MODULE_LOAD_SUCCESS) && (ret != MODULE_ALREADY_LOADED))
+				ThrowException("Unable to initialize iptable_filter module");
+#else
+			*/
+			// Exec version, used under Linux Arch, for issue with link LZMA
+			std::string modprobePath = FsLocateExecutable("modprobe");
+			if (modprobePath != "")
+			{
+				ExecResult modprobeIptable6FilterResult = ExecEx1(modprobePath, "ip6table_filter");
+				if (modprobeIptable6FilterResult.exit != 0)
+				{
+					// An user report that if module is embedded in kernel, the above modprobe fail.
+					// Commented, if module are not available, anyway will throw error in successive step				
+					//ThrowException("Unable to initialize ip6table_filter module");
+				}
+			}
+			/*
+#endif
+			*/
+		}
+
 		bool available = true;
-		if (IptablesExecutable("ipv4", "") == "")
-			available = false;
-		if (IptablesExecutable("ipv4", "save") == "")
-			available = false;
-		if (IptablesExecutable("ipv4", "restore") == "")
-			available = false;
-		if (IptablesExecutable("ipv6", "") == "")
-			available = false;
-		if (IptablesExecutable("ipv6", "save") == "")
-			available = false;
-		if (IptablesExecutable("ipv6", "restore") == "")
-			available = false;
+
+		for (std::vector<std::string>::const_iterator l = layers.begin(); l != layers.end(); ++l)
+		{
+			std::string layer = *l;
+
+			for (std::vector<std::string>::const_iterator a = actions.begin(); a != actions.end(); ++a)
+			{
+				std::string action = *a;
+
+				std::string path = IptablesExecutable(compatibility, layer, action);
+				if(path == "")
+					available = false;
+			}
+
+			if(available)
+			{
+				if(true)
+				{
+					// In some distro, for example Pop, even modprobe don't load module, so the iptables-save below return empty.
+					// Test insert/delete a useless rule.
+					std::vector<std::string> args;
+					args.resize(10);
+					args[0] = "-A";
+					args[1] = "INPUT";
+					args[2] = "-s";
+					if(layer == "ipv4")
+						args[3] = "127.0.0.1";
+					else if(layer == "ipv6")
+						args[3] = "::1";
+					args[4] = "-p";
+					args[5] = "tcp";
+					args[6] = "--dport";
+					args[7] = "59126";
+					args[8] = "-j";
+					args[9] = "ACCEPT";
+					
+					ExecResult resultI = ExecEx(IptablesExecutable(compatibility, layer, ""), args);
+					if(resultI.exit != 0)
+						available = false;
+					args[0] = "-D";
+					ExecResult resultD = ExecEx(IptablesExecutable(compatibility, layer, ""), args);
+					if(resultD.exit != 0)
+						available = false;
+				}
+				
+				// Test save
+				ExecResult result = ExecEx0(IptablesExecutable(compatibility, layer, "save"));
+				if(result.exit != 0)
+					available = false;
+
+				// ex. -legacy tables present
+				if(StringTrim(result.err) != "")
+					available = false;
+								
+				if(StringContain(result.out, "*filter") == false)
+					available = false;
+			}
+		}
+
 		ReplyCommand(commandId, available ? "1" : "0");
 	}
 	else if (command == "netlock-iptables-activate")
 	{
+		std::string compatibility = params["compatibility"];
+
 		std::string pathIPv4 = GetTempPath("netlock_iptables_backup_ipv4.txt");
 		std::string pathIPv6 = GetTempPath("netlock_iptables_backup_ipv6.txt");
 		
@@ -575,72 +856,19 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 		}
 		else
 		{
-			// Try to up kernel module - For example standard Debian 8 KDE don't have it at boot
-			if (params.count("rules-ipv4") > 0)
-			{
-				/*
-				#ifndef EDDIE_NOLZMA
-								int ret = load_kernel_module("iptable_filter", "");
-								if ((ret != MODULE_LOAD_SUCCESS) && (ret != MODULE_ALREADY_LOADED))
-									ThrowException("Unable to initialize iptable_filter module");
-				#else
-				*/
-				// Exec version, used under Linux Arch, for issue with link LZMA
-				std::string modprobePath = FsLocateExecutable("modprobe");
-				if (modprobePath != "")
-				{
-					ExecResult modprobeIptable4FilterResult = ExecEx1(modprobePath, "iptable_filter");
-					if (modprobeIptable4FilterResult.exit != 0)
-					{
-						// An user report that if module is embedded in kernel, the above modprobe fail.
-						// Commented, if module are not available, anyway will throw error in successive step				
-						//ThrowException("Unable to initialize iptable_filter module");
-					}
-				}
-				/*
-				#endif
-				*/
-			}
-
-			if (params.count("rules-ipv6") > 0)
-			{
-				/*
-				#ifndef EDDIE_NOLZMA
-								int ret = load_kernel_module("ip6table_filter", "");
-								if ((ret != MODULE_LOAD_SUCCESS) && (ret != MODULE_ALREADY_LOADED))
-									ThrowException("Unable to initialize iptable_filter module");
-				#else
-				*/
-				// Exec version, used under Linux Arch, for issue with link LZMA
-				std::string modprobePath = FsLocateExecutable("modprobe");
-				if (modprobePath != "")
-				{
-					ExecResult modprobeIptable6FilterResult = ExecEx1(modprobePath, "ip6table_filter");
-					if (modprobeIptable6FilterResult.exit != 0)
-					{
-						// An user report that if module is embedded in kernel, the above modprobe fail.
-						// Commented, if module are not available, anyway will throw error in successive step				
-						//ThrowException("Unable to initialize ip6table_filter module");
-					}
-				}
-				/*
-				#endif
-				*/
-			}
-			
 			// Backup of current
 			std::vector<std::string> args;
 
 			if (params.count("rules-ipv4") > 0)
 			{
-				std::string backupIPv4 = IptablesExec(IptablesExecutable("ipv4", "save"), args, false, "");
+				std::string backupIPv4 = IptablesExec(IptablesExecutable(compatibility, "ipv4", "save"), args, false, "");
 				if (StringContain(backupIPv4, "*filter") == false)
 					ThrowException("iptables don't reply, probably kernel modules issue");
 				FsFileWriteText(pathIPv4, backupIPv4);
 			}
 			if (params.count("rules-ipv6") > 0)
 			{
-				std::string backupIPv6 = IptablesExec(IptablesExecutable("ipv6", "save"), args, false, "");
+				std::string backupIPv6 = IptablesExec(IptablesExecutable(compatibility, "ipv6", "save"), args, false, "");
 				if (StringContain(backupIPv6, "*filter") == false)
 					ThrowException("ip6tables don't reply, probably kernel modules issue");
 				FsFileWriteText(pathIPv6, backupIPv6);
@@ -648,15 +876,17 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 			
 			// Apply new
 			if (params.count("rules-ipv4") > 0)
-				result += IptablesExec(IptablesExecutable("ipv4", "restore"), args, true, params["rules-ipv4"]);
+				result += IptablesExec(IptablesExecutable(compatibility, "ipv4", "restore"), args, true, params["rules-ipv4"]);
 			if (params.count("rules-ipv6") > 0)
-				result += IptablesExec(IptablesExecutable("ipv6", "restore"), args, true, params["rules-ipv6"]);
+				result += IptablesExec(IptablesExecutable(compatibility, "ipv6", "restore"), args, true, params["rules-ipv6"]);
 		}
 
 		ReplyCommand(commandId, StringTrim(result));
 	}
 	else if (command == "netlock-iptables-deactivate")
 	{
+		std::string compatibility = params["compatibility"];
+
 		std::string pathIPv4 = GetTempPath("netlock_iptables_backup_ipv4.txt");
 		std::string pathIPv6 = GetTempPath("netlock_iptables_backup_ipv6.txt");
 
@@ -666,7 +896,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 		{
 			std::vector<std::string> args;
 			std::string body = FsFileReadText(pathIPv4);
-			result += IptablesExec(IptablesExecutable("ipv4", "restore"), args, true, body);
+			result += IptablesExec(IptablesExecutable(compatibility, "ipv4", "restore"), args, true, body);
 
 			FsFileDelete(pathIPv4);
 		}
@@ -675,7 +905,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 		{
 			std::vector<std::string> args;
 			std::string body = FsFileReadText(pathIPv6);
-			result += IptablesExec(IptablesExecutable("ipv6", "restore"), args, true, body);
+			result += IptablesExec(IptablesExecutable(compatibility, "ipv6", "restore"), args, true, body);
 
 			FsFileDelete(pathIPv6);
 		}
@@ -684,6 +914,8 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 	}
 	else if (command == "netlock-iptables-accept-ip")
 	{
+		std::string compatibility = params["compatibility"];
+
 		std::string path = "";
 		std::vector<std::string> args1;
 		std::vector<std::string> args2;
@@ -692,9 +924,9 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 		int nCommands = 1;
 
 		if (params["layer"] == "ipv4")
-			path = IptablesExecutable("ipv4", "");
+			path = IptablesExecutable(compatibility, "ipv4", "");
 		else if (params["layer"] == "ipv6")
-			path = IptablesExecutable("ipv6", "");
+			path = IptablesExecutable(compatibility, "ipv6", "");
 		else
 			ThrowException("Unknown layer");
 
@@ -782,6 +1014,8 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 	}
 	else if (command == "netlock-iptables-interface")
 	{
+		std::string compatibility = params["compatibility"];
+
 		std::string id = StringEnsureInterfaceName(params["id"]);
 		std::string action = params["action"];
 		
@@ -807,15 +1041,15 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 				
 				args[1] = "INPUT";
 				args[3] = "-i";
-				IptablesExec(IptablesExecutable(layer,""), args, false, "");
+				IptablesExec(IptablesExecutable(compatibility, layer,""), args, false, "");
 				
 				args[1] = "FORWARD";
 				args[3] = "-i";
-				IptablesExec(IptablesExecutable(layer,""), args, false, "");
+				IptablesExec(IptablesExecutable(compatibility, layer,""), args, false, "");
 				
 				args[1] = "OUTPUT";
 				args[3] = "-o";
-				IptablesExec(IptablesExecutable(layer,""), args, false, "");
+				IptablesExec(IptablesExecutable(compatibility, layer,""), args, false, "");
 			}
 			else if(action == "del")
 			{
@@ -829,15 +1063,15 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 				
 				args[1] = "INPUT";
 				args[2] = "-i";
-				IptablesExec(IptablesExecutable(layer,""), args, false, "");
+				IptablesExec(IptablesExecutable(compatibility, layer,""), args, false, "");
 				
 				args[1] = "FORWARD";
 				args[2] = "-i";
-				IptablesExec(IptablesExecutable(layer,""), args, false, "");
+				IptablesExec(IptablesExecutable(compatibility, layer,""), args, false, "");
 				
 				args[1] = "OUTPUT";
 				args[2] = "-o";
-				IptablesExec(IptablesExecutable(layer,""), args, false, "");
+				IptablesExec(IptablesExecutable(compatibility, layer,""), args, false, "");
 			}
 		}
 	}
@@ -1344,7 +1578,7 @@ int Impl::FileImmutableSet(const std::string& path, const int flag)
 	return result;
 }
 
-std::string Impl::IptablesExecutable(const std::string& layer, const std::string& action)
+std::string Impl::IptablesExecutable(const std::string& compatibility, const std::string& layer, const std::string& action)
 {
 	std::string name = "";
 
@@ -1355,25 +1589,12 @@ std::string Impl::IptablesExecutable(const std::string& layer, const std::string
 	else
 		return "";
 
+	if(compatibility != "") // can be "" or "nft" or "legacy"
+		name += "-" + compatibility;
+
 	if (action != "")
 		name += "-" + action;
 	
-	if(m_iptablesSuffix == "?")
-	{
-		// 2022-01-24: We discover different implementation between distro, so we can only try to detect with below method.
-		if(StringContain(ExecEx0("iptables-save").out, "*filter"))
-			m_iptablesSuffix = "";
-		else if(StringContain(ExecEx0("iptables-nft-save").out, "*filter"))
-			m_iptablesSuffix = "nft";
-		else if(StringContain(ExecEx0("iptables-legacy-save").out, "*filter"))
-			m_iptablesSuffix = "legacy";
-		else
-			m_iptablesSuffix = ""; // Will fail after
-	}
-	
-	if(m_iptablesSuffix != "")
-		name = StringReplaceAll(name, "tables", "tables-" + m_iptablesSuffix);
-		
 	std::string path = FsLocateExecutable(name);
 	return path;
 }

@@ -95,7 +95,7 @@ private:
 	std::mutex m_mutex;
 	std::map<int, PingRequest*> m_requests;
 	std::vector<int> m_done;
-	bool m_debug;
+	bool m_debug = false;
 
 	int m_socket4 = -1;
 	int m_socket6 = -1;

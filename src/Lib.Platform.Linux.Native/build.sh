@@ -2,8 +2,12 @@
 
 set -e
 
+if [ "$1" == "" ]; then
+    echo First arg must be Config, 'Debug' or 'Release'
+    exit 1
+fi
+
 CONFIG=$1
-MODE=$2
 
 BASEPATH=$(dirname $(realpath -s $0))
 mkdir -p "$BASEPATH/bin"
@@ -21,6 +25,9 @@ else
 	echo $ARCHOS
 fi
 
+
+echo "Building UI linux native"
+echo "Config: $CONFIG"
 
 # Dynamic edition
 

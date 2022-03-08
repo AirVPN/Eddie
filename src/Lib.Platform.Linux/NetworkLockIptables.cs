@@ -29,6 +29,11 @@ namespace Eddie.Platform.Linux
 		private bool m_supportIPv4 = true;
 		private bool m_supportIPv6 = true;
 
+		public virtual string GetCompatibility()
+		{
+			return "";
+		}
+
 		public override string GetCode()
 		{
 			return "linux_iptables";
@@ -41,7 +46,10 @@ namespace Eddie.Platform.Linux
 
 		public override bool GetSupport()
 		{
-			string result = Engine.Instance.Elevated.DoCommandSync("netlock-iptables-available");
+			Core.Elevated.Command c = new Core.Elevated.Command();
+			c.Parameters["command"] = "netlock-iptables-available";
+			c.Parameters["compatibility"] = GetCompatibility();
+			string result = Engine.Instance.Elevated.DoCommandSync(c);
 			return (result == "1");
 		}
 
@@ -348,6 +356,7 @@ namespace Eddie.Platform.Linux
 
 				Core.Elevated.Command c = new Core.Elevated.Command();
 				c.Parameters["command"] = "netlock-iptables-activate";
+				c.Parameters["compatibility"] = GetCompatibility();
 				if (m_supportIPv4)
 					c.Parameters["rules-ipv4"] = rulesIPv4.ToString();
 				if (m_supportIPv6)
@@ -372,7 +381,10 @@ namespace Eddie.Platform.Linux
 		{
 			base.Deactivation();
 
-			string result = Engine.Instance.Elevated.DoCommandSync("netlock-iptables-deactivate");
+			Core.Elevated.Command c = new Core.Elevated.Command();
+			c.Parameters["command"] = "netlock-iptables-deactivate";
+			c.Parameters["compatibility"] = GetCompatibility();
+			string result = Engine.Instance.Elevated.DoCommandSync(c);
 			if (result != "")
 				throw new Exception("Unexpected result: " + result);
 
@@ -396,7 +408,14 @@ namespace Eddie.Platform.Linux
 
 				if (ipsAllowlistIncoming.Contains(ip) == false)
 				{
-					Engine.Instance.Elevated.DoCommandSync("netlock-iptables-accept-ip", "layer", (ip.IsV4 ? "ipv4" : "ipv6"), "direction", "in", "action", "del", "cidr", ip.ToCIDR());
+					Core.Elevated.Command c = new Core.Elevated.Command();
+					c.Parameters["command"] = "netlock-iptables-accept-ip";
+					c.Parameters["compatibility"] = GetCompatibility();
+					c.Parameters["action"] = "del";
+					c.Parameters["direction"] = "in";
+					c.Parameters["layer"] = (ip.IsV4 ? "ipv4" : "ipv6");
+					c.Parameters["cidr"] = ip.ToCIDR();
+					Engine.Instance.Elevated.DoCommandSync(c);
 				}
 			}
 
@@ -408,7 +427,14 @@ namespace Eddie.Platform.Linux
 
 				if (m_ipsAllowlistIncoming.Contains(ip) == false)
 				{
-					Engine.Instance.Elevated.DoCommandSync("netlock-iptables-accept-ip", "layer", (ip.IsV4 ? "ipv4" : "ipv6"), "direction", "in", "action", "add", "cidr", ip.ToCIDR());
+					Core.Elevated.Command c = new Core.Elevated.Command();
+					c.Parameters["command"] = "netlock-iptables-accept-ip";
+					c.Parameters["compatibility"] = GetCompatibility();
+					c.Parameters["action"] = "add";
+					c.Parameters["direction"] = "in";
+					c.Parameters["layer"] = (ip.IsV4 ? "ipv4" : "ipv6");
+					c.Parameters["cidr"] = ip.ToCIDR();
+					Engine.Instance.Elevated.DoCommandSync(c);
 				}
 			}
 
@@ -420,7 +446,14 @@ namespace Eddie.Platform.Linux
 
 				if (ipsAllowlistOutgoing.Contains(ip) == false)
 				{
-					Engine.Instance.Elevated.DoCommandSync("netlock-iptables-accept-ip", "layer", (ip.IsV4 ? "ipv4" : "ipv6"), "direction", "out", "action", "del", "cidr", ip.ToCIDR());
+					Core.Elevated.Command c = new Core.Elevated.Command();
+					c.Parameters["command"] = "netlock-iptables-accept-ip";
+					c.Parameters["compatibility"] = GetCompatibility();
+					c.Parameters["action"] = "del";
+					c.Parameters["direction"] = "out";
+					c.Parameters["layer"] = (ip.IsV4 ? "ipv4" : "ipv6");
+					c.Parameters["cidr"] = ip.ToCIDR();
+					Engine.Instance.Elevated.DoCommandSync(c);
 				}
 			}
 
@@ -432,7 +465,14 @@ namespace Eddie.Platform.Linux
 
 				if (m_ipsAllowlistOutgoing.Contains(ip) == false)
 				{
-					Engine.Instance.Elevated.DoCommandSync("netlock-iptables-accept-ip", "layer", (ip.IsV4 ? "ipv4" : "ipv6"), "direction", "out", "action", "add", "cidr", ip.ToCIDR());
+					Core.Elevated.Command c = new Core.Elevated.Command();
+					c.Parameters["command"] = "netlock-iptables-accept-ip";
+					c.Parameters["compatibility"] = GetCompatibility();
+					c.Parameters["action"] = "add";
+					c.Parameters["direction"] = "out";
+					c.Parameters["layer"] = (ip.IsV4 ? "ipv4" : "ipv6");
+					c.Parameters["cidr"] = ip.ToCIDR();
+					Engine.Instance.Elevated.DoCommandSync(c);
 				}
 			}
 
@@ -444,14 +484,28 @@ namespace Eddie.Platform.Linux
 		{
 			base.AllowInterface(networkInterface);
 
-			Engine.Instance.Elevated.DoCommandSync("netlock-iptables-interface", "id", networkInterface.Id, "ipv4", m_supportIPv4 ? "1":"0", "ipv6", m_supportIPv6 ? "1" : "0", "action", "add");
+			Core.Elevated.Command c = new Core.Elevated.Command();
+			c.Parameters["command"] = "netlock-iptables-interface";
+			c.Parameters["compatibility"] = GetCompatibility();
+			c.Parameters["action"] = "add";
+			c.Parameters["id"] = networkInterface.Id;
+			c.Parameters["ipv4"] = m_supportIPv4 ? "1" : "0";
+			c.Parameters["ipv6"] = m_supportIPv6 ? "1" : "0";
+			Engine.Instance.Elevated.DoCommandSync(c);
 		}
 
 		public override void DeallowInterface(NetworkInterface networkInterface)
 		{
 			base.DeallowInterface(networkInterface);
 
-			Engine.Instance.Elevated.DoCommandSync("netlock-iptables-interface", "id", networkInterface.Id, "ipv4", m_supportIPv4 ? "1" : "0", "ipv6", m_supportIPv6 ? "1" : "0", "action", "del");
+			Core.Elevated.Command c = new Core.Elevated.Command();
+			c.Parameters["command"] = "netlock-iptables-interface";
+			c.Parameters["compatibility"] = GetCompatibility();
+			c.Parameters["action"] = "del";
+			c.Parameters["id"] = networkInterface.Id;
+			c.Parameters["ipv4"] = m_supportIPv4 ? "1" : "0";
+			c.Parameters["ipv6"] = m_supportIPv6 ? "1" : "0";
+			Engine.Instance.Elevated.DoCommandSync(c);
 		}
 	}
 }

@@ -47,8 +47,11 @@ namespace Eddie.Platform.Linux
 
 		private string m_dnsSwitchRenameBody = "";
 
-		private NetworkLockIptables m_netlockPluginIptables;
+
 		private NetworkLockNftables m_netlockPluginNftables;
+		private NetworkLockIptablesLegacy m_netlockPluginIptablesLegacy;
+		private NetworkLockIptablesNFT m_netlockPluginIptablesNFT;
+		private NetworkLockIptables m_netlockPluginIptables;
 
 		// Override
 		public Platform()
@@ -851,19 +854,15 @@ namespace Eddie.Platform.Linux
 		{
 			base.OnNetworkLockManagerInit();
 
-			m_netlockPluginIptables = new NetworkLockIptables();
 			m_netlockPluginNftables = new NetworkLockNftables();
+			m_netlockPluginIptablesLegacy = new NetworkLockIptablesLegacy();
+			m_netlockPluginIptablesNFT = new NetworkLockIptablesNFT();
+			m_netlockPluginIptables = new NetworkLockIptables();
 
 			Engine.Instance.NetworkLockManager.AddPlugin(m_netlockPluginNftables);
+			Engine.Instance.NetworkLockManager.AddPlugin(m_netlockPluginIptablesLegacy);
+			Engine.Instance.NetworkLockManager.AddPlugin(m_netlockPluginIptablesNFT);
 			Engine.Instance.NetworkLockManager.AddPlugin(m_netlockPluginIptables);
-		}
-
-		public override string OnNetworkLockRecommendedMode()
-		{
-			if (m_netlockPluginNftables.GetSupport())
-				return m_netlockPluginNftables.GetCode();
-			else
-				return m_netlockPluginIptables.GetCode();
 		}
 
 		public override bool OnIPv6Block()

@@ -128,7 +128,7 @@ namespace Eddie.Core
 				foreach (string host in hosts)
 				{
 					string host2 = host;
-					int posComment = host2.IndexOf("#");
+					int posComment = host2.IndexOfInv("#");
 					if (posComment != -1)
 						host2 = host2.Substring(0, posComment).Trim();
 
@@ -151,7 +151,7 @@ namespace Eddie.Core
 				foreach (string host in hosts)
 				{
 					string host2 = host;
-					int posComment = host2.IndexOf("#");
+					int posComment = host2.IndexOfInv("#");
 					if (posComment != -1)
 						host2 = host2.Substring(0, posComment).Trim();
 

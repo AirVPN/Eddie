@@ -217,6 +217,7 @@ protected:
 	std::string StringHexEncode(const unsigned char* buf, const size_t s);
 	std::string StringHexEncode(const std::vector<char>& bytes);
 	std::string StringHexEncode(const int v, const int chars);
+	std::string StringSHA256(const std::string& str);
 	bool StringIsIPv4(const std::string& ip);
 	bool StringIsIPv6(const std::string& ip);
 	std::string StringIpNormalize(const std::string& ip);
@@ -227,6 +228,7 @@ protected:
 	std::string JsonFromKeyPairs(std::map<std::string, std::string>& kp);
 
 	// Utils other
+	std::string SHA256(const unsigned char* pBuf, const unsigned long s);
 	unsigned long GetTimestampUnix();
 	std::map<std::string, std::string> IniConfigToMap(const std::string& ini, std::string sectionKeySeparator = ".", bool convertKeyToLower = true);
 	std::map<std::string, std::string> ParseCommandLine(const std::vector<std::string>& args);

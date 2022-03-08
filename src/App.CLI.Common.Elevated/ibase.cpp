@@ -842,14 +842,7 @@ std::string IBase::FsFileSHA256Sum(const std::string& path)
 	if (FsFileExists(path) == false)
 		ThrowException("Unable to find for sha256 hash, path: " + path);
 	std::vector<char> buf = FsFileReadBytes(path);
-
-	sha256_context ctx;
-	sha256_starts(&ctx);
-	sha256_update(&ctx, (unsigned char*)buf.data(), (unsigned long)buf.size());
-	unsigned char sha256sum[32];
-	sha256_finish(&ctx, sha256sum);
-	std::string final = StringHexEncode(&sha256sum[0], 32);
-	return final;
+	return SHA256((unsigned char*)buf.data(), (unsigned long)buf.size());	
 }
 
 std::string IBase::FsLocateExecutable(const std::string& name, const bool throwException)
@@ -1126,6 +1119,11 @@ std::string IBase::StringHexEncode(const int v, const int chars)
 	return ss.str();
 }
 
+std::string IBase::StringSHA256(const std::string& str)
+{
+	return SHA256((const unsigned char*) str.c_str(), str.length());
+}
+
 bool IBase::StringIsIPv4(const std::string& ip) // TOFIX: can be better
 {
 	return ip.find('.') != std::string::npos;
@@ -1192,6 +1190,16 @@ std::string IBase::JsonFromKeyPairs(std::map<std::string, std::string>& kp)
 // --------------------------
 // Utils other
 // --------------------------
+
+std::string IBase::SHA256(const unsigned char* pBuf, const unsigned long s)
+{
+	sha256_context ctx;
+	sha256_starts(&ctx);
+	sha256_update(&ctx, (unsigned char*) pBuf, s);
+	unsigned char sha256sum[32];
+	sha256_finish(&ctx, sha256sum);
+	return StringHexEncode(&sha256sum[0], 32);
+}
 
 unsigned long IBase::GetTimestampUnix()
 {
