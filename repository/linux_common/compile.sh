@@ -20,7 +20,7 @@ CONFIG="Release"
 
 SCRIPTDIR=$(dirname $(realpath -s $0))
 ARCH=$($SCRIPTDIR/../linux_common/get-arch.sh)
-TARGETFRAMEWORK="v4.5";
+TARGETFRAMEWORK="v4.8";
 SOLUTIONPATH="";
 if [ $PROJECT = "cli" ]; then
     SOLUTIONPATH="${SCRIPTDIR}/../../src/eddie.linux.cli.sln"

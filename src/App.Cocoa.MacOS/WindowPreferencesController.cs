@@ -74,12 +74,12 @@ namespace Eddie.UI.Cocoa.Osx
 
 			{
 				// Deprecated, controls in xcode interface can be removed
-				LblIPv6.Hidden = true;
-				CboIpV6.Hidden = true;
-				LblRoutesOtherwise.Hidden = true;
-				CboRoutesOtherwise.Hidden = true;
-				LblLockRoutingOutWarning.Hidden = true;
-				CmdGeneralTos.Hidden = true;
+				GuiUtils.SetHidden(LblIPv6, true);
+				GuiUtils.SetHidden(CboIpV6, true);
+				GuiUtils.SetHidden(LblRoutesOtherwise, true);
+				GuiUtils.SetHidden(CboRoutesOtherwise, true);
+				GuiUtils.SetHidden(LblLockRoutingOutWarning, true);
+				GuiUtils.SetHidden(CmdGeneralTos, true);
 			}
 
 			Window.Title = Constants.Name + " - " + LanguageManager.GetText("WindowsSettingsTitle");
@@ -438,15 +438,15 @@ namespace Eddie.UI.Cocoa.Osx
                 Engine.Instance.Options.Set("external.rules", Engine.Instance.Options.Dict["external.rules"].Default);
                 GuiUtils.MessageBoxInfo("Done.");
             };
-						
-            // Disabled in this version
-            LblSystemStart.Hidden = true;
-            ChkSystemStart.Hidden = true;
-            LblShellExternal.Hidden = true;
-            ChkShellExternalRecommended.Hidden = true;
-            CmdShellExternalClear.Hidden = true;
-            CmdShellExternalView.Hidden = true;
-            ChkOpenVpnDirectivesAllowScriptSecurity.Hidden = true;
+
+			// Disabled in this version
+			GuiUtils.SetHidden(LblSystemStart, true);
+			GuiUtils.SetHidden(ChkSystemStart, true);
+			GuiUtils.SetHidden(LblShellExternal, true);
+			GuiUtils.SetHidden(ChkShellExternalRecommended, true);
+			GuiUtils.SetHidden(CmdShellExternalClear, true);
+			GuiUtils.SetHidden(CmdShellExternalView, true);
+			GuiUtils.SetHidden(ChkOpenVpnDirectivesAllowScriptSecurity, true);
 
             ReadOptions();
 
@@ -935,7 +935,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 			if (Core.Platform.Instance.GetVersion().VersionUnder("10.14")) // Hummingbird require Mojave
 			{
-				ChkHummingbirdPrefer.Enabled = false;
+				GuiUtils.SetEnabled(ChkHummingbirdPrefer, false);
 				GuiUtils.SetCheck(ChkHummingbirdPrefer, false);
 			}
 
@@ -1339,40 +1339,40 @@ namespace Eddie.UI.Cocoa.Osx
 
 		public void EnableIde()
 		{
-            // General
-            TxtStoragePassword.Enabled = (GuiUtils.GetSelected(CboStorageMode) == LanguageManager.GetText("WindowsSettingsStorageModePassword"));            
-            TxtStoragePasswordConfirm.Enabled = TxtStoragePassword.Enabled;
+			// General
+			GuiUtils.SetEnabled(TxtStoragePassword, (GuiUtils.GetSelected(CboStorageMode) == LanguageManager.GetText("WindowsSettingsStorageModePassword")));
+			GuiUtils.SetEnabled(TxtStoragePasswordConfirm, TxtStoragePassword.Enabled);
 
 			// Protocols
-			TableProtocols.Enabled = (GuiUtils.GetCheck(ChkProtocolsAutomatic) == false);
+			GuiUtils.SetEnabled(TableProtocols, (GuiUtils.GetCheck(ChkProtocolsAutomatic) == false));
 
 			// Proxy
 			bool proxy = (GuiUtils.GetSelected(CboProxyType) != "None");
 			bool tor = (GuiUtils.GetSelected(CboProxyType) == "Tor");
 
-			TxtProxyHost.Enabled = proxy;
-			TxtProxyPort.Enabled = proxy;
-			CboProxyWhen.Enabled = proxy;
-			CboProxyAuthentication.Enabled = (proxy && !tor);
-			TxtProxyLogin.Enabled = ((proxy) && (!tor) && (GuiUtils.GetSelected(CboProxyAuthentication) != "None"));
-			TxtProxyPassword.Enabled = TxtProxyLogin.Enabled;
-			TxtProxyTorControlPort.Enabled = tor;
-			TxtProxyTorControlPassword.Enabled = tor;
-			CmdProxyTorTest.Enabled = tor;
+			GuiUtils.SetEnabled(TxtProxyHost, proxy);
+			GuiUtils.SetEnabled(TxtProxyPort, proxy);
+			GuiUtils.SetEnabled(CboProxyWhen, proxy);
+			GuiUtils.SetEnabled(CboProxyAuthentication, (proxy && !tor));
+			GuiUtils.SetEnabled(TxtProxyLogin, ((proxy) && (!tor) && (GuiUtils.GetSelected(CboProxyAuthentication) != "None")));
+			GuiUtils.SetEnabled(TxtProxyPassword, TxtProxyLogin.Enabled);
+			GuiUtils.SetEnabled(TxtProxyTorControlPort, tor);
+			GuiUtils.SetEnabled(TxtProxyTorControlPassword, tor);
+			GuiUtils.SetEnabled(CmdProxyTorTest, tor);
 
 			// Routing
-			CmdRouteAdd.Enabled = true;
-			CmdRouteRemove.Enabled = (TableRoutes.SelectedRowCount > 0);
-			CmdRouteEdit.Enabled = (TableRoutes.SelectedRowCount == 1);
+			GuiUtils.SetEnabled(CmdRouteAdd, true);
+			GuiUtils.SetEnabled(CmdRouteRemove, (TableRoutes.SelectedRowCount > 0));
+			GuiUtils.SetEnabled(CmdRouteEdit, (TableRoutes.SelectedRowCount == 1));
 
 			// DNS
-			CmdDnsAdd.Enabled = true;
-			CmdDnsRemove.Enabled = (TableDnsServers.SelectedRowCount > 0);
-			CmdDnsEdit.Enabled = (TableDnsServers.SelectedRowCount == 1);
+			GuiUtils.SetEnabled(CmdDnsAdd, true);
+			GuiUtils.SetEnabled(CmdDnsRemove, (TableDnsServers.SelectedRowCount > 0));
+			GuiUtils.SetEnabled(CmdDnsEdit, (TableDnsServers.SelectedRowCount == 1));
 
 			// Events
-			CmdAdvancedEventsClear.Enabled = (TableAdvancedEvents.SelectedRowCount == 1);
-			CmdAdvancedEventsEdit.Enabled = (TableAdvancedEvents.SelectedRowCount == 1);
+			GuiUtils.SetEnabled(CmdAdvancedEventsClear, (TableAdvancedEvents.SelectedRowCount == 1));
+			GuiUtils.SetEnabled(CmdAdvancedEventsEdit, (TableAdvancedEvents.SelectedRowCount == 1));
 		}
 	}
 }

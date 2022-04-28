@@ -34,7 +34,7 @@ namespace Eddie.Core
 			*/
 		}
 
-		private static bool AllowPath(string path)
+		private static bool AllowPathX(string path)
 		{
 			string sha256 = "";
 			string signId = "";
@@ -121,7 +121,7 @@ namespace Eddie.Core
 				rulesCustom.Append(replyUi);
 				Engine.Instance.Options.SetJson("external.rules", rulesCustom);
 
-				return AllowPath(path);
+				return AllowPathX(path);
 			}
 
 			if (replyUi.HasKey("allow"))

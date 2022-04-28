@@ -1,4 +1,4 @@
-// <eddie_source_header>
+﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
 // Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org )
 //
@@ -97,8 +97,8 @@ namespace Eddie.UI.Cocoa.Osx
 			CreateMenuBarIcon();
 
 			LblVersion.StringValue = "Version " + Constants.VersionDesc;
-            CmdUpdater.Hidden = true;
-            MnuTrayUpdate.Hidden = true;
+            GuiUtils.SetHidden(CmdUpdater, true);
+			GuiUtils.SetHidden(MnuTrayUpdate, true);
 
 			ChkRemember.State = Engine.Options.GetBool("remember") ? NSCellStateValue.On : NSCellStateValue.Off;
 			ChkServersShowAll.State = NSCellStateValue.Off;
@@ -140,7 +140,7 @@ namespace Eddie.UI.Cocoa.Osx
 			if (Engine.Options.GetBool("remember"))
 			{
 				ChkRemember.State = NSCellStateValue.On;
-				TxtLogin.StringValue = Engine.Options.Get("login");
+				TxtAirU.StringValue = Engine.Options.Get("login");
 				TxtPassword.StringValue = Engine.Options.Get("password");
 
 			}
@@ -170,12 +170,12 @@ namespace Eddie.UI.Cocoa.Osx
 					Logout();
 			};
 
-			TxtLogin.Activated += (object sender, EventArgs e) =>
+			TxtAirU.Activated += (object sender, EventArgs e) =>
 			{
 				EnabledUI();
 			};
 
-			TxtLogin.Changed += (object sender, EventArgs e) =>
+			TxtAirU.Changed += (object sender, EventArgs e) =>
 			{
 				EnabledUI();
 			};
@@ -569,9 +569,9 @@ namespace Eddie.UI.Cocoa.Osx
 
 						TabOverview.SelectAt(1);
 
-						CmdCancel.Hidden = (Engine.IsWaitingCancelAllowed() == false);
-						CmdCancel.Enabled = (Engine.IsWaitingCancelPending() == false);
-						MnuTrayConnect.Enabled = CmdCancel.Enabled;
+						GuiUtils.SetHidden(CmdCancel, (Engine.IsWaitingCancelAllowed() == false));
+						GuiUtils.SetEnabled(CmdCancel, (Engine.IsWaitingCancelPending() == false));
+						GuiUtils.SetEnabled(MnuTrayConnect, CmdCancel.Enabled);
 					}
 					else if (Engine.IsConnected())
 					{
@@ -709,7 +709,7 @@ namespace Eddie.UI.Cocoa.Osx
 			}
 
             MnuTrayConnect.Title = mainActionText;
-            MnuTrayConnect.Enabled = (mainActionCommand != "");
+			GuiUtils.SetEnabled(MnuTrayConnect, (mainActionCommand != ""));
 
             m_mainActionCommand = mainActionCommand;
 		}
@@ -782,8 +782,8 @@ namespace Eddie.UI.Cocoa.Osx
 
         public void ShowUpdater()
         {
-            CmdUpdater.Hidden = false;
-            MnuTrayUpdate.Hidden = false;
+			GuiUtils.SetHidden(CmdUpdater, false);
+			GuiUtils.SetHidden(MnuTrayUpdate, false);
 
             CoreGraphics.CGSize s = LblVersion.Frame.Size;
             s.Width -= CmdUpdater.Frame.Width;
@@ -811,13 +811,13 @@ namespace Eddie.UI.Cocoa.Osx
 
 			if (Engine.Instance.AirVPN != null)
 			{
-				LblLoginIcon.Hidden = false;
-				LblLogin.Hidden = false;
-				TxtLogin.Hidden = false;
-				LblPassword.Hidden = false;
-				TxtPassword.Hidden = false;
-				CmdLogin.Hidden = false;
-				ChkRemember.Hidden = false;
+				GuiUtils.SetHidden(LblLoginIcon, false);
+				GuiUtils.SetHidden(LblLogin, false);
+				GuiUtils.SetHidden(TxtAirU, false);
+				GuiUtils.SetHidden(LblPassword, false);
+				GuiUtils.SetHidden(TxtPassword, false);
+				GuiUtils.SetHidden(CmdLogin, false);
+				GuiUtils.SetHidden(ChkRemember, false);
 
 				bool airvpnLogged = Engine.IsLogged();
 
@@ -826,62 +826,61 @@ namespace Eddie.UI.Cocoa.Osx
 				else
 					CmdLogin.Title = LanguageManager.GetText("CommandLogout");
 
-				CmdLogin.Enabled = ((waiting == false) && (connected == false) && (TxtLogin.StringValue.Trim() != "") && (TxtPassword.StringValue.Trim() != ""));
-
-				TxtLogin.Enabled = (airvpnLogged == false);
-				TxtPassword.Enabled = (airvpnLogged == false);
-				LblKey.Hidden = ((airvpnLogged == false) || (CboKey.ItemCount < 2));
-				CboKey.Hidden = LblKey.Hidden;
+				GuiUtils.SetEnabled(CmdLogin,((waiting == false) && (connected == false) && (TxtAirU.StringValue.Trim() != "") && (TxtPassword.StringValue.Trim() != "")));
+				GuiUtils.SetEnabled(TxtAirU, (airvpnLogged == false));
+				GuiUtils.SetEnabled(TxtPassword, (airvpnLogged == false));
+				GuiUtils.SetHidden(LblKey, ((airvpnLogged == false) || (CboKey.ItemCount < 2)));
+				GuiUtils.SetHidden(CboKey, LblKey.Hidden);
 			}
 			else
 			{
-				LblLoginIcon.Hidden = true;
-				LblLogin.Hidden = true;
-				TxtLogin.Hidden = true;
-				LblPassword.Hidden = true;
-				TxtPassword.Hidden = true;
-				CmdLogin.Hidden = true;
-				LblKey.Hidden = true;
-				CboKey.Hidden = true;
-				ChkRemember.Hidden = true;
+				GuiUtils.SetHidden(LblLoginIcon, true);
+				GuiUtils.SetHidden(LblLogin, true);
+				GuiUtils.SetHidden(TxtAirU, true);
+				GuiUtils.SetHidden(LblPassword, true);
+				GuiUtils.SetHidden(TxtPassword, true);
+				GuiUtils.SetHidden(CmdLogin, true);
+				GuiUtils.SetHidden(LblKey, true);
+				GuiUtils.SetHidden(CboKey, true);
+				GuiUtils.SetHidden(ChkRemember, true);
 			}
 
             ChangeVisibility(this.Window.IsVisible);
 
-			CmdConnect.Enabled = Engine.Instance.CanConnect();
+			GuiUtils.SetEnabled(CmdConnect, Engine.Instance.CanConnect());
 
-			CmdProviderAdd.Enabled = true;
-			CmdProviderRemove.Enabled = (TableProviders.SelectedRowCount > 0);
-			CmdProviderEdit.Enabled = (TableProviders.SelectedRowCount > 0);
+			GuiUtils.SetEnabled(CmdProviderAdd, true);
+			GuiUtils.SetEnabled(CmdProviderRemove, (TableProviders.SelectedRowCount > 0));
+			GuiUtils.SetEnabled(CmdProviderEdit, (TableProviders.SelectedRowCount > 0));
 
-			CmdServersConnect.Enabled = ((selectedConnection != null) && (selectedConnection.CanConnect()));
-			CmdServersAllowlist.Enabled = (TableServers.SelectedRowCount > 0);
-			CmdServersDenylist.Enabled = CmdServersAllowlist.Enabled;
-			CmdServersUndefined.Enabled = CmdServersAllowlist.Enabled;
-			MnuServersConnect.Enabled = CmdServersConnect.Enabled;
-			MnuServersAllowlist.Enabled = CmdServersAllowlist.Enabled;
-			MnuServersDenylist.Enabled = CmdServersDenylist.Enabled;
-			MnuServersUndefined.Enabled = CmdServersUndefined.Enabled;
+			GuiUtils.SetEnabled(CmdServersConnect, ((selectedConnection != null) && (selectedConnection.CanConnect())));
+			GuiUtils.SetEnabled(CmdServersAllowlist, (TableServers.SelectedRowCount > 0));
+			GuiUtils.SetEnabled(CmdServersDenylist, CmdServersAllowlist.Enabled);
+			GuiUtils.SetEnabled(CmdServersUndefined, CmdServersAllowlist.Enabled);
+			GuiUtils.SetEnabled(MnuServersConnect, CmdServersConnect.Enabled);
+			GuiUtils.SetEnabled(MnuServersAllowlist, CmdServersAllowlist.Enabled);
+			GuiUtils.SetEnabled(MnuServersDenylist, CmdServersDenylist.Enabled);
+			GuiUtils.SetEnabled(MnuServersUndefined, CmdServersUndefined.Enabled);
 
-			CmdServersMore.Enabled = (TableServers.SelectedRowCount == 1);
-			MnuServersMore.Enabled = CmdServersMore.Enabled;
+			GuiUtils.SetEnabled(CmdServersMore, (TableServers.SelectedRowCount == 1));
+			GuiUtils.SetEnabled(MnuServersMore, CmdServersMore.Enabled);
 
-			CmdServersRename.Enabled = ((selectedConnection != null) && (selectedConnection.Provider is Core.Providers.OpenVPN));
-			MnuServersRename.Enabled = CmdServersRename.Enabled;
+			GuiUtils.SetEnabled(CmdServersRename, ((selectedConnection != null) && (selectedConnection.Provider is Core.Providers.OpenVPN)));
+			GuiUtils.SetEnabled(MnuServersRename, CmdServersRename.Enabled);
 
-			CmdAreasAllowlist.Enabled = (TableAreas.SelectedRowCount > 0);
-			CmdAreasDenylist.Enabled = CmdAreasAllowlist.Enabled;
-			CmdAreasUndefined.Enabled = CmdAreasAllowlist.Enabled;
-			MnuAreasAllowlist.Enabled = CmdAreasAllowlist.Enabled;
-			MnuAreasDenylist.Enabled = CmdAreasDenylist.Enabled;
-			MnuAreasUndefined.Enabled = CmdAreasUndefined.Enabled;
+			GuiUtils.SetEnabled(CmdAreasAllowlist, (TableAreas.SelectedRowCount > 0));
+			GuiUtils.SetEnabled(CmdAreasDenylist, CmdAreasAllowlist.Enabled);
+			GuiUtils.SetEnabled(CmdAreasUndefined, CmdAreasAllowlist.Enabled);
+			GuiUtils.SetEnabled(MnuAreasAllowlist, CmdAreasAllowlist.Enabled);
+			GuiUtils.SetEnabled(MnuAreasDenylist, CmdAreasDenylist.Enabled);
+			GuiUtils.SetEnabled(MnuAreasUndefined, CmdAreasUndefined.Enabled);
 
-			CmdLogsCommand.Hidden = (Engine.Options.GetBool("advanced.expert") == false);
+			GuiUtils.SetHidden(CmdLogsCommand, (Engine.Options.GetBool("advanced.expert") == false));
 
 			if (Engine.Instance.NetworkLockManager != null)
 			{
-				CmdNetworkLock.Hidden = (Engine.Instance.NetworkLockManager.CanEnabled() == false);
-				ImgNetworkLock.Hidden = CmdNetworkLock.Hidden;
+				GuiUtils.SetHidden(CmdNetworkLock, (Engine.Instance.NetworkLockManager.CanEnabled() == false));
+				GuiUtils.SetHidden(ImgNetworkLock, CmdNetworkLock.Hidden);
 				if (Engine.Instance.NetworkLockManager.IsActive())
 				{
 					CmdNetworkLock.Title = LanguageManager.GetText("NetworkLockButtonActive");
@@ -942,8 +941,8 @@ namespace Eddie.UI.Cocoa.Osx
 
 		public void PostManifestUpdate()
 		{
-			MnuServersRefresh.Enabled = true;
-			CmdServersRefresh.Enabled = true;
+			GuiUtils.SetEnabled(MnuServersRefresh, true);
+			GuiUtils.SetEnabled(CmdServersRefresh, true);
 		}
 
 		public void RequestAttention()
@@ -971,7 +970,7 @@ namespace Eddie.UI.Cocoa.Osx
 
         void Login()
 		{
-			Engine.Options.Set("login", TxtLogin.StringValue);
+			Engine.Options.Set("login", TxtAirU.StringValue);
 			Engine.Options.Set("password", TxtPassword.StringValue);
 
 			Engine.Login();
@@ -1003,8 +1002,8 @@ namespace Eddie.UI.Cocoa.Osx
 
 		void Disconnect()
 		{
-			CmdCancel.Enabled = false;
-			MnuTrayConnect.Enabled = false;
+			GuiUtils.SetEnabled(CmdCancel, false);
+			GuiUtils.SetEnabled(MnuTrayConnect, false);
 
 			Engine.Disconnect();
 		}
@@ -1160,8 +1159,8 @@ namespace Eddie.UI.Cocoa.Osx
 
 		void ServersRefresh()
 		{
-			MnuServersRefresh.Enabled = false;
-			CmdServersRefresh.Enabled = false;
+			GuiUtils.SetEnabled(MnuServersRefresh, false);
+			GuiUtils.SetEnabled(CmdServersRefresh, false);
 
 			Engine.Instance.RefreshProvidersInvalidateConnections();
 		}

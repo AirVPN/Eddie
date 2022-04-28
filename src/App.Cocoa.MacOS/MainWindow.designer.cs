@@ -34,13 +34,13 @@ namespace Eddie.UI.Cocoa.Osx
 		AppKit.NSButton ChkServersShowAll { get; set; }
 
 		[Outlet]
+		AppKit.NSButton CmdAreasAllowlist { get; set; }
+
+		[Outlet]
 		AppKit.NSButton CmdAreasDenylist { get; set; }
 
 		[Outlet]
 		AppKit.NSButton CmdAreasUndefined { get; set; }
-
-		[Outlet]
-		AppKit.NSButton CmdAreasAllowlist { get; set; }
 
 		[Outlet]
 		AppKit.NSButton CmdCancel { get; set; }
@@ -88,10 +88,13 @@ namespace Eddie.UI.Cocoa.Osx
 		AppKit.NSButton CmdProviderRemove { get; set; }
 
 		[Outlet]
-		AppKit.NSButton CmdServersDenylist { get; set; }
+		AppKit.NSButton CmdServersAllowlist { get; set; }
 
 		[Outlet]
 		AppKit.NSButton CmdServersConnect { get; set; }
+
+		[Outlet]
+		AppKit.NSButton CmdServersDenylist { get; set; }
 
 		[Outlet]
 		AppKit.NSButton CmdServersMore { get; set; }
@@ -104,9 +107,6 @@ namespace Eddie.UI.Cocoa.Osx
 
 		[Outlet]
 		AppKit.NSButton CmdServersUndefined { get; set; }
-
-		[Outlet]
-		AppKit.NSButton CmdServersAllowlist { get; set; }
 
 		[Outlet]
 		AppKit.NSButton CmdUpdater { get; set; }
@@ -166,13 +166,13 @@ namespace Eddie.UI.Cocoa.Osx
 		AppKit.NSTextField LblWaiting2 { get; set; }
 
 		[Outlet]
+		AppKit.NSMenuItem MnuAreasAllowlist { get; set; }
+
+		[Outlet]
 		AppKit.NSMenuItem MnuAreasDenylist { get; set; }
 
 		[Outlet]
 		AppKit.NSMenuItem MnuAreasUndefined { get; set; }
-
-		[Outlet]
-		AppKit.NSMenuItem MnuAreasAllowlist { get; set; }
 
 		[Outlet]
 		AppKit.NSMenuItem MnuLogsCopyAll { get; set; }
@@ -187,10 +187,13 @@ namespace Eddie.UI.Cocoa.Osx
 		AppKit.NSMenuItem MnuLogsSaveSelected { get; set; }
 
 		[Outlet]
-		AppKit.NSMenuItem MnuServersDenylist { get; set; }
+		AppKit.NSMenuItem MnuServersAllowlist { get; set; }
 
 		[Outlet]
 		AppKit.NSMenuItem MnuServersConnect { get; set; }
+
+		[Outlet]
+		AppKit.NSMenuItem MnuServersDenylist { get; set; }
 
 		[Outlet]
 		AppKit.NSMenuItem MnuServersMore { get; set; }
@@ -203,9 +206,6 @@ namespace Eddie.UI.Cocoa.Osx
 
 		[Outlet]
 		AppKit.NSMenuItem MnuServersUndefined { get; set; }
-
-		[Outlet]
-		AppKit.NSMenuItem MnuServersAllowlist { get; set; }
 
 		[Outlet]
 		AppKit.NSMenu MnuTray { get; set; }
@@ -280,6 +280,9 @@ namespace Eddie.UI.Cocoa.Osx
 		AppKit.NSTabView TabOverview { get; set; }
 
 		[Outlet]
+		AppKit.NSTextField TxtAirU { get; set; }
+
+		[Outlet]
 		AppKit.NSTextField TxtCommand { get; set; }
 
 		[Outlet]
@@ -293,9 +296,6 @@ namespace Eddie.UI.Cocoa.Osx
 
 		[Outlet]
 		AppKit.NSTextField TxtConnectedUpload { get; set; }
-
-		[Outlet]
-		AppKit.NSTextField TxtLogin { get; set; }
 
 		[Outlet]
 		AppKit.NSSecureTextField TxtPassword { get; set; }
@@ -337,6 +337,11 @@ namespace Eddie.UI.Cocoa.Osx
 				ChkServersShowAll = null;
 			}
 
+			if (CmdAreasAllowlist != null) {
+				CmdAreasAllowlist.Dispose ();
+				CmdAreasAllowlist = null;
+			}
+
 			if (CmdAreasDenylist != null) {
 				CmdAreasDenylist.Dispose ();
 				CmdAreasDenylist = null;
@@ -345,11 +350,6 @@ namespace Eddie.UI.Cocoa.Osx
 			if (CmdAreasUndefined != null) {
 				CmdAreasUndefined.Dispose ();
 				CmdAreasUndefined = null;
-			}
-
-			if (CmdAreasAllowlist != null) {
-				CmdAreasAllowlist.Dispose ();
-				CmdAreasAllowlist = null;
 			}
 
 			if (CmdCancel != null) {
@@ -427,14 +427,19 @@ namespace Eddie.UI.Cocoa.Osx
 				CmdProviderRemove = null;
 			}
 
-			if (CmdServersDenylist != null) {
-				CmdServersDenylist.Dispose ();
-				CmdServersDenylist = null;
+			if (CmdServersAllowlist != null) {
+				CmdServersAllowlist.Dispose ();
+				CmdServersAllowlist = null;
 			}
 
 			if (CmdServersConnect != null) {
 				CmdServersConnect.Dispose ();
 				CmdServersConnect = null;
+			}
+
+			if (CmdServersDenylist != null) {
+				CmdServersDenylist.Dispose ();
+				CmdServersDenylist = null;
 			}
 
 			if (CmdServersMore != null) {
@@ -457,9 +462,9 @@ namespace Eddie.UI.Cocoa.Osx
 				CmdServersUndefined = null;
 			}
 
-			if (CmdServersAllowlist != null) {
-				CmdServersAllowlist.Dispose ();
-				CmdServersAllowlist = null;
+			if (CmdUpdater != null) {
+				CmdUpdater.Dispose ();
+				CmdUpdater = null;
 			}
 
 			if (ImgConnectedCountry != null) {
@@ -552,6 +557,11 @@ namespace Eddie.UI.Cocoa.Osx
 				LblWaiting2 = null;
 			}
 
+			if (MnuAreasAllowlist != null) {
+				MnuAreasAllowlist.Dispose ();
+				MnuAreasAllowlist = null;
+			}
+
 			if (MnuAreasDenylist != null) {
 				MnuAreasDenylist.Dispose ();
 				MnuAreasDenylist = null;
@@ -560,11 +570,6 @@ namespace Eddie.UI.Cocoa.Osx
 			if (MnuAreasUndefined != null) {
 				MnuAreasUndefined.Dispose ();
 				MnuAreasUndefined = null;
-			}
-
-			if (MnuAreasAllowlist != null) {
-				MnuAreasAllowlist.Dispose ();
-				MnuAreasAllowlist = null;
 			}
 
 			if (MnuLogsCopyAll != null) {
@@ -587,14 +592,19 @@ namespace Eddie.UI.Cocoa.Osx
 				MnuLogsSaveSelected = null;
 			}
 
-			if (MnuServersDenylist != null) {
-				MnuServersDenylist.Dispose ();
-				MnuServersDenylist = null;
+			if (MnuServersAllowlist != null) {
+				MnuServersAllowlist.Dispose ();
+				MnuServersAllowlist = null;
 			}
 
 			if (MnuServersConnect != null) {
 				MnuServersConnect.Dispose ();
 				MnuServersConnect = null;
+			}
+
+			if (MnuServersDenylist != null) {
+				MnuServersDenylist.Dispose ();
+				MnuServersDenylist = null;
 			}
 
 			if (MnuServersMore != null) {
@@ -615,11 +625,6 @@ namespace Eddie.UI.Cocoa.Osx
 			if (MnuServersUndefined != null) {
 				MnuServersUndefined.Dispose ();
 				MnuServersUndefined = null;
-			}
-
-			if (MnuServersAllowlist != null) {
-				MnuServersAllowlist.Dispose ();
-				MnuServersAllowlist = null;
 			}
 
 			if (MnuTray != null) {
@@ -767,19 +772,14 @@ namespace Eddie.UI.Cocoa.Osx
 				TxtConnectedUpload = null;
 			}
 
-			if (TxtLogin != null) {
-				TxtLogin.Dispose ();
-				TxtLogin = null;
-			}
-
 			if (TxtPassword != null) {
 				TxtPassword.Dispose ();
 				TxtPassword = null;
 			}
 
-			if (CmdUpdater != null) {
-				CmdUpdater.Dispose ();
-				CmdUpdater = null;
+			if (TxtAirU != null) {
+				TxtAirU.Dispose ();
+				TxtAirU = null;
 			}
 		}
 	}

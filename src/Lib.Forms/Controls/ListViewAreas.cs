@@ -22,6 +22,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 
+#pragma warning disable CA1416 // Windows only
+
 namespace Eddie.Forms.Controls
 {
 	public class ListViewAreas : Skin.ListView
@@ -261,3 +263,5 @@ namespace Eddie.Forms.Controls
 		}
 	}
 }
+
+#pragma warning restore CA1416 // Windows only

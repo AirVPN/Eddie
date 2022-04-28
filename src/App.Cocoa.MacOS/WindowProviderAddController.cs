@@ -112,7 +112,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 		public void EnableIde()
 		{
-			CmdOk.Enabled = (CboProvider.SelectedItem != null);
+			GuiUtils.SetEnabled(CmdOk, (CboProvider.SelectedItem != null));
 		}
 	}
 }

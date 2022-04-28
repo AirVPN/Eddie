@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="17701" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="20037" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="17701"/>
+        <deployment identifier="macosx"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="20037"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -13,9 +14,9 @@
                 <outlet property="ChkRemember" destination="JjC-fn-XbM" id="mNC-2n-VpW"/>
                 <outlet property="ChkServersLockCurrent" destination="BT7-WG-1wD" id="sjS-gb-yfg"/>
                 <outlet property="ChkServersShowAll" destination="rgn-cW-L4n" id="ff9-xl-Ieh"/>
+                <outlet property="CmdAreasAllowlist" destination="XeD-zu-9dZ" id="My4-ZX-b9z"/>
                 <outlet property="CmdAreasDenylist" destination="TmP-bW-Iij" id="VIP-wL-LwP"/>
                 <outlet property="CmdAreasUndefined" destination="vwU-Fi-AJc" id="QmR-bO-Zef"/>
-                <outlet property="CmdAreasAllowlist" destination="XeD-zu-9dZ" id="My4-ZX-b9z"/>
                 <outlet property="CmdCancel" destination="oP0-Xw-dSn" id="HZ8-df-KT1"/>
                 <outlet property="CmdConnect" destination="QGJ-5B-Agr" id="p3b-jn-kJF"/>
                 <outlet property="CmdDisconnect" destination="k3b-dA-5fh" id="KZT-kV-0lN"/>
@@ -30,13 +31,13 @@
                 <outlet property="CmdProviderAdd" destination="f5H-SH-IFI" id="dMx-r7-TNE"/>
                 <outlet property="CmdProviderEdit" destination="NIa-9W-aP0" id="JtB-II-lSe"/>
                 <outlet property="CmdProviderRemove" destination="7kQ-mM-d61" id="2Ur-5K-fL4"/>
-                <outlet property="CmdServersDenylist" destination="22y-2n-gzu" id="dLF-U3-1uJ"/>
+                <outlet property="CmdServersAllowlist" destination="6GG-GT-Cy4" id="2aL-ue-mdi"/>
                 <outlet property="CmdServersConnect" destination="lZp-Qp-Qf3" id="yVK-F8-GSZ"/>
+                <outlet property="CmdServersDenylist" destination="22y-2n-gzu" id="dLF-U3-1uJ"/>
                 <outlet property="CmdServersMore" destination="RL9-Yd-l7P" id="rUC-nW-R7c"/>
                 <outlet property="CmdServersRefresh" destination="I4b-oW-5pb" id="Mbu-WJ-CxG"/>
                 <outlet property="CmdServersRename" destination="i0R-O4-nuU" id="6oo-Wd-6pM"/>
                 <outlet property="CmdServersUndefined" destination="0dd-OC-eGN" id="vwc-ne-5QU"/>
-                <outlet property="CmdServersAllowlist" destination="6GG-GT-Cy4" id="2aL-ue-mdi"/>
                 <outlet property="CmdUpdater" destination="Xye-Sa-FcZ" id="MRD-qN-qqt"/>
                 <outlet property="ImgConnectedCountry" destination="Ozh-Vi-DHT" id="tUG-DG-1lf"/>
                 <outlet property="ImgNetworkLock" destination="ons-kJ-mAk" id="c1g-C0-TMb"/>
@@ -56,20 +57,20 @@
                 <outlet property="LblVersion" destination="KQJ-fY-w9r" id="nbE-Mv-HOP"/>
                 <outlet property="LblWaiting1" destination="TxA-1y-Zx4" id="MBl-E8-jXk"/>
                 <outlet property="LblWaiting2" destination="rGP-dy-qN2" id="Cu7-96-5BM"/>
+                <outlet property="MnuAreasAllowlist" destination="pym-DI-K1T" id="ZJg-Ug-llK"/>
                 <outlet property="MnuAreasDenylist" destination="uId-gT-4uA" id="QRp-IV-7dt"/>
                 <outlet property="MnuAreasUndefined" destination="0dA-Gd-pTt" id="ZAP-Yd-IlZ"/>
-                <outlet property="MnuAreasAllowlist" destination="pym-DI-K1T" id="ZJg-Ug-llK"/>
                 <outlet property="MnuLogsCopyAll" destination="pzM-ZI-Aha" id="X9L-f9-eWU"/>
                 <outlet property="MnuLogsCopySelected" destination="HNy-Yd-WZW" id="zFs-uQ-v7f"/>
                 <outlet property="MnuLogsSaveAll" destination="bCA-eZ-7V1" id="gsx-bM-q3g"/>
                 <outlet property="MnuLogsSaveSelected" destination="1mX-5K-etL" id="vME-bK-734"/>
-                <outlet property="MnuServersDenylist" destination="MmQ-pB-59L" id="kbw-hG-iTY"/>
+                <outlet property="MnuServersAllowlist" destination="NU4-s6-XgY" id="Imd-Sw-GAs"/>
                 <outlet property="MnuServersConnect" destination="fNR-2w-1MT" id="urv-Ni-pGF"/>
+                <outlet property="MnuServersDenylist" destination="MmQ-pB-59L" id="kbw-hG-iTY"/>
                 <outlet property="MnuServersMore" destination="xeZ-mn-eys" id="hof-9c-rca"/>
                 <outlet property="MnuServersRefresh" destination="hW5-pl-1cB" id="x9O-Fz-RTY"/>
                 <outlet property="MnuServersRename" destination="PWu-bK-RJA" id="oRU-O2-RlF"/>
                 <outlet property="MnuServersUndefined" destination="Lsg-wR-Ixf" id="A8y-Qs-5tB"/>
-                <outlet property="MnuServersAllowlist" destination="NU4-s6-XgY" id="Imd-Sw-GAs"/>
                 <outlet property="MnuTray" destination="2Bv-yX-Px1" id="Y9R-1z-B3f"/>
                 <outlet property="MnuTrayAbout" destination="83q-TJ-BhH" id="fCh-Tc-a98"/>
                 <outlet property="MnuTrayClientArea" destination="ajm-ap-TIo" id="8Fa-pj-sGp"/>
@@ -90,11 +91,11 @@
                 <outlet property="TableProviders" destination="toH-LP-UgC" id="Obf-2g-9Jv"/>
                 <outlet property="TableServers" destination="Y9F-5S-1r4" id="bvs-cM-Udj"/>
                 <outlet property="TableStats" destination="mTK-AK-d0A" id="TI2-zt-I4G"/>
+                <outlet property="TxtAirU" destination="grN-wD-djz" id="Zmp-4f-Dek"/>
                 <outlet property="TxtConnectedDownload" destination="CKr-uQ-DZL" id="iqo-Pr-7on"/>
                 <outlet property="TxtConnectedExitIp" destination="8g0-4E-PKY" id="QE5-Wn-onO"/>
                 <outlet property="TxtConnectedSince" destination="QXH-2a-IWh" id="xrj-qW-fKx"/>
                 <outlet property="TxtConnectedUpload" destination="rVM-DZ-8ca" id="mnV-Wf-0S0"/>
-                <outlet property="TxtLogin" destination="grN-wD-djz" id="Zmp-4f-Dek"/>
                 <outlet property="TxtPassword" destination="oCu-XC-l8c" id="OLm-qk-Ue6"/>
                 <outlet property="window" destination="2" id="6"/>
             </connections>
@@ -311,7 +312,7 @@
                                                         <rect key="frame" x="0.0" y="0.0" width="554" height="311"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                         <subviews>
-                                                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="k3b-dA-5fh">
+                                                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="k3b-dA-5fh">
                                                                 <rect key="frame" x="31" y="53" width="492" height="41"/>
                                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                                                                 <buttonCell key="cell" type="bevel" title="Textured Button" bezelStyle="regularSquare" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="eZ7-om-aky">
@@ -319,14 +320,14 @@
                                                                     <font key="font" metaFont="system" size="16"/>
                                                                 </buttonCell>
                                                             </button>
-                                                            <box autoresizesSubviews="NO" boxType="custom" borderType="bezel" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="mwr-RB-xWx">
+                                                            <box autoresizesSubviews="NO" fixedFrame="YES" boxType="custom" borderType="bezel" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="mwr-RB-xWx">
                                                                 <rect key="frame" x="20" y="108" width="514" height="176"/>
                                                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                                                                 <view key="contentView" id="V1Y-iV-VEG">
                                                                     <rect key="frame" x="1" y="1" width="512" height="174"/>
                                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                     <subviews>
-                                                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Biv-ln-Hjf">
+                                                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Biv-ln-Hjf">
                                                                             <rect key="frame" x="13" y="71" width="94" height="17"/>
                                                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Download:" id="Nhc-9z-nSU">
@@ -335,7 +336,7 @@
                                                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                                                             </textFieldCell>
                                                                         </textField>
-                                                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="zuy-Oy-K5S">
+                                                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="zuy-Oy-K5S">
                                                                             <rect key="frame" x="-3" y="136" width="122" height="17"/>
                                                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Connected to:" id="Qbf-hW-29M">
@@ -344,7 +345,7 @@
                                                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                                                             </textFieldCell>
                                                                         </textField>
-                                                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="T8o-9L-CMg">
+                                                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="T8o-9L-CMg">
                                                                             <rect key="frame" x="134" y="130" width="363" height="29"/>
                                                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" borderStyle="bezel" alignment="center" title="Server Name" drawsBackground="YES" id="Ldh-Xx-p60">
@@ -353,7 +354,7 @@
                                                                                 <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                                             </textFieldCell>
                                                                         </textField>
-                                                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="1af-qK-ccZ">
+                                                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1af-qK-ccZ">
                                                                             <rect key="frame" x="132" y="111" width="367" height="17"/>
                                                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Location" id="ijH-Yk-oqx">
@@ -362,7 +363,7 @@
                                                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                                                             </textFieldCell>
                                                                         </textField>
-                                                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="CKr-uQ-DZL">
+                                                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="CKr-uQ-DZL">
                                                                             <rect key="frame" x="113" y="63" width="130" height="32"/>
                                                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" borderStyle="bezel" alignment="center" title="14322 kb/s" drawsBackground="YES" id="gRN-HH-6jf">
@@ -371,7 +372,7 @@
                                                                                 <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                                             </textFieldCell>
                                                                         </textField>
-                                                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="9Az-HK-5yB">
+                                                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="9Az-HK-5yB">
                                                                             <rect key="frame" x="259" y="71" width="94" height="17"/>
                                                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Upload:" id="39u-f7-G7E">
@@ -380,7 +381,7 @@
                                                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                                                             </textFieldCell>
                                                                         </textField>
-                                                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="rVM-DZ-8ca">
+                                                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="rVM-DZ-8ca">
                                                                             <rect key="frame" x="359" y="63" width="130" height="32"/>
                                                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" borderStyle="bezel" alignment="center" title="14322 kb/s" drawsBackground="YES" id="akK-GU-yCU">
@@ -389,7 +390,7 @@
                                                                                 <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                                             </textFieldCell>
                                                                         </textField>
-                                                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="t7a-JF-3JL">
+                                                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="t7a-JF-3JL">
                                                                             <rect key="frame" x="13" y="30" width="120" height="17"/>
                                                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Public Exit IP:" id="3zc-cB-B4L">
@@ -398,7 +399,7 @@
                                                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                                                             </textFieldCell>
                                                                         </textField>
-                                                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="u4e-W4-RCD">
+                                                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="u4e-W4-RCD">
                                                                             <rect key="frame" x="13" y="16" width="120" height="14"/>
                                                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Connected since:" id="0qS-R2-POS">
@@ -407,7 +408,7 @@
                                                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                                                             </textFieldCell>
                                                                         </textField>
-                                                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="8g0-4E-PKY">
+                                                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="8g0-4E-PKY">
                                                                             <rect key="frame" x="137" y="30" width="354" height="17"/>
                                                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" sendsActionOnEndEditing="YES" alignment="left" title="1.2.3.4.5" id="Gef-K2-8y2">
@@ -416,7 +417,7 @@
                                                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                                                             </textFieldCell>
                                                                         </textField>
-                                                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="QXH-2a-IWh">
+                                                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="QXH-2a-IWh">
                                                                             <rect key="frame" x="137" y="16" width="362" height="14"/>
                                                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="left" title="VPN Time" id="vOw-gI-DLV">
@@ -425,7 +426,7 @@
                                                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                                                             </textFieldCell>
                                                                         </textField>
-                                                                        <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Ozh-Vi-DHT">
+                                                                        <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Ozh-Vi-DHT">
                                                                             <rect key="frame" x="134" y="130" width="28" height="29"/>
                                                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                                             <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" id="jPf-UY-N6L"/>
@@ -503,7 +504,7 @@
                                                 <autoresizingMask key="autoresizingMask"/>
                                                 <subviews>
                                                     <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" alternatingRowBackgroundColors="YES" autosaveColumns="NO" rowHeight="15" headerView="D3j-zI-rTy" id="toH-LP-UgC">
-                                                        <rect key="frame" x="0.0" y="0.0" width="541" height="288"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="512" height="288"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                         <size key="intercellSpacing" width="3" height="2"/>
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -518,7 +519,7 @@
                                                                 <imageCell key="dataCell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" id="acI-iy-atw"/>
                                                                 <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                             </tableColumn>
-                                                            <tableColumn identifier="Title" width="124" minWidth="10" maxWidth="1000" id="W3i-q3-mEO">
+                                                            <tableColumn identifier="Title" width="114" minWidth="10" maxWidth="1000" id="W3i-q3-mEO">
                                                                 <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Name">
                                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                                     <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
@@ -530,7 +531,7 @@
                                                                 </textFieldCell>
                                                                 <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                             </tableColumn>
-                                                            <tableColumn identifier="DefinitionTitle" width="55" minWidth="10" maxWidth="1000" id="qDV-vC-QMg">
+                                                            <tableColumn identifier="DefinitionTitle" width="45" minWidth="10" maxWidth="1000" id="qDV-vC-QMg">
                                                                 <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Provider">
                                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                                     <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
@@ -542,7 +543,7 @@
                                                                 </textFieldCell>
                                                                 <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                             </tableColumn>
-                                                            <tableColumn identifier="DefinitionSubTitle" width="174" minWidth="10" maxWidth="1000" id="lVa-il-Gu9">
+                                                            <tableColumn identifier="DefinitionSubTitle" width="164" minWidth="10" maxWidth="1000" id="lVa-il-Gu9">
                                                                 <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Provider Description">
                                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                                     <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
@@ -554,7 +555,7 @@
                                                                 </textFieldCell>
                                                                 <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                             </tableColumn>
-                                                            <tableColumn identifier="DefinitionHref" width="124" minWidth="50" maxWidth="200" id="atT-8y-PqJ">
+                                                            <tableColumn identifier="DefinitionHref" width="116" minWidth="50" maxWidth="200" id="atT-8y-PqJ">
                                                                 <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="center" title="Website">
                                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                                     <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
@@ -574,7 +575,7 @@
                                                     </tableView>
                                                 </subviews>
                                             </clipView>
-                                            <scroller key="horizontalScroller" wantsLayer="YES" verticalHuggingPriority="750" horizontal="YES" id="B31-Uq-Y9v">
+                                            <scroller key="horizontalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" horizontal="YES" id="B31-Uq-Y9v">
                                                 <rect key="frame" x="1" y="296" width="512" height="16"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </scroller>
@@ -583,7 +584,7 @@
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </scroller>
                                             <tableHeaderView key="headerView" id="D3j-zI-rTy">
-                                                <rect key="frame" x="0.0" y="0.0" width="541" height="23"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="512" height="23"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </tableHeaderView>
                                         </scrollView>
@@ -595,7 +596,7 @@
                                     <rect key="frame" x="10" y="33" width="588" height="331"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
-                                        <scrollView autohidesScrollers="YES" horizontalLineScroll="17" horizontalPageScroll="10" verticalLineScroll="17" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2Hc-nh-2u9">
+                                        <scrollView fixedFrame="YES" autohidesScrollers="YES" horizontalLineScroll="17" horizontalPageScroll="10" verticalLineScroll="17" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2Hc-nh-2u9">
                                             <rect key="frame" x="17" y="44" width="514" height="284"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <clipView key="contentView" id="V73-Q0-b5H">
@@ -603,7 +604,7 @@
                                                 <autoresizingMask key="autoresizingMask"/>
                                                 <subviews>
                                                     <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" alternatingRowBackgroundColors="YES" autosaveColumns="NO" rowHeight="15" headerView="rKQ-rO-RJl" id="Y9F-5S-1r4">
-                                                        <rect key="frame" x="0.0" y="0.0" width="561" height="265"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="541" height="265"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                         <size key="intercellSpacing" width="3" height="2"/>
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -718,12 +719,12 @@
                                                 <rect key="frame" x="224" y="17" width="15" height="102"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </scroller>
-                                            <tableHeaderView key="headerView" id="rKQ-rO-RJl">
-                                                <rect key="frame" x="0.0" y="0.0" width="561" height="17"/>
+                                            <tableHeaderView key="headerView" wantsLayer="YES" id="rKQ-rO-RJl">
+                                                <rect key="frame" x="0.0" y="0.0" width="541" height="17"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </tableHeaderView>
                                         </scrollView>
-                                        <button toolTip="Clean the selected server from allowlist and denylist" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="0dd-OC-eGN">
+                                        <button toolTip="Clean the selected server from allowlist and denylist" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="0dd-OC-eGN">
                                             <rect key="frame" x="537" y="174" width="36" height="34"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                                             <buttonCell key="cell" type="bevel" bezelStyle="regularSquare" image="denylist_2" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="3Fb-WR-GGO">
@@ -731,7 +732,7 @@
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
                                         </button>
-                                        <button toolTip="Clean the selected server from allowlist and denylist" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="i0R-O4-nuU">
+                                        <button toolTip="Clean the selected server from allowlist and denylist" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="i0R-O4-nuU">
                                             <rect key="frame" x="537" y="118" width="36" height="34"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                                             <buttonCell key="cell" type="bevel" bezelStyle="regularSquare" image="rename_16" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="yZ6-45-TZt">
@@ -739,7 +740,7 @@
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
                                         </button>
-                                        <button toolTip="Add the selected server to denylist" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="22y-2n-gzu">
+                                        <button toolTip="Add the selected server to denylist" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="22y-2n-gzu">
                                             <rect key="frame" x="537" y="211" width="36" height="34"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                                             <buttonCell key="cell" type="bevel" bezelStyle="regularSquare" image="denylist_1" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Sca-5i-omL">
@@ -750,7 +751,7 @@
                                                 <outlet property="nextKeyView" destination="0dd-OC-eGN" id="Yap-Eg-fne"/>
                                             </connections>
                                         </button>
-                                        <button toolTip="Add the selected server to allowlist" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="6GG-GT-Cy4">
+                                        <button toolTip="Add the selected server to allowlist" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="6GG-GT-Cy4">
                                             <rect key="frame" x="537" y="248" width="36" height="34"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                                             <buttonCell key="cell" type="bevel" bezelStyle="regularSquare" image="denylist_0" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="FXN-Hm-daB">
@@ -761,7 +762,7 @@
                                                 <outlet property="nextKeyView" destination="22y-2n-gzu" id="fQS-Kw-QGQ"/>
                                             </connections>
                                         </button>
-                                        <button toolTip="Connect to the selected server now" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="lZp-Qp-Qf3">
+                                        <button toolTip="Connect to the selected server now" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="lZp-Qp-Qf3">
                                             <rect key="frame" x="537" y="296" width="36" height="34"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                                             <buttonCell key="cell" type="bevel" bezelStyle="regularSquare" image="connect" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="tM1-dT-S0R">
@@ -772,7 +773,7 @@
                                                 <outlet property="nextKeyView" destination="6GG-GT-Cy4" id="6GS-ns-54G"/>
                                             </connections>
                                         </button>
-                                        <button translatesAutoresizingMaskIntoConstraints="NO" id="rgn-cW-L4n">
+                                        <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="rgn-cW-L4n">
                                             <rect key="frame" x="15" y="14" width="127" height="18"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                             <buttonCell key="cell" type="check" title="Show All" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="CJL-ld-XVJ">
@@ -783,7 +784,7 @@
                                                 <outlet property="nextKeyView" destination="cws-s1-1nn" id="ngK-rI-2sd"/>
                                             </connections>
                                         </button>
-                                        <popUpButton verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="cws-s1-1nn">
+                                        <popUpButton verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="cws-s1-1nn">
                                             <rect key="frame" x="318" y="10" width="82" height="26"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                                             <popUpButtonCell key="cell" type="push" title="Latency" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="y5Q-dU-gae" id="rDO-ih-rc7">
@@ -800,7 +801,7 @@
                                                 <outlet property="nextKeyView" destination="BT7-WG-1wD" id="t07-3y-Xef"/>
                                             </connections>
                                         </popUpButton>
-                                        <button translatesAutoresizingMaskIntoConstraints="NO" id="BT7-WG-1wD">
+                                        <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="BT7-WG-1wD">
                                             <rect key="frame" x="434" y="15" width="99" height="18"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                                             <buttonCell key="cell" type="check" title="Lock Current" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="TRW-vH-rcI">
@@ -808,7 +809,7 @@
                                                 <font key="font" metaFont="label"/>
                                             </buttonCell>
                                         </button>
-                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Ysj-Z8-bsl">
+                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Ysj-Z8-bsl">
                                             <rect key="frame" x="220" y="13" width="94" height="17"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Scoring Rule:" id="Vjn-2o-Xx2">
@@ -817,7 +818,7 @@
                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
                                         </textField>
-                                        <button toolTip="Refresh the servers list" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="I4b-oW-5pb">
+                                        <button toolTip="Refresh the servers list" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="I4b-oW-5pb">
                                             <rect key="frame" x="537" y="41" width="36" height="34"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                                             <buttonCell key="cell" type="bevel" bezelStyle="regularSquare" image="reload" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="sZU-Cf-o8o">
@@ -825,7 +826,7 @@
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
                                         </button>
-                                        <button toolTip="Clean the selected server from allowlist and denylist" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="RL9-Yd-l7P">
+                                        <button toolTip="Clean the selected server from allowlist and denylist" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="RL9-Yd-l7P">
                                             <rect key="frame" x="537" y="81" width="36" height="34"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                                             <buttonCell key="cell" type="bevel" bezelStyle="regularSquare" image="more_16" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="nHO-ct-IdY">
@@ -849,7 +850,7 @@
                                                 <autoresizingMask key="autoresizingMask"/>
                                                 <subviews>
                                                     <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" alternatingRowBackgroundColors="YES" autosaveColumns="NO" headerView="Iry-n4-YEX" id="w3Z-Uc-XBk">
-                                                        <rect key="frame" x="0.0" y="0.0" width="530" height="292"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="512" height="292"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                         <size key="intercellSpacing" width="3" height="2"/>
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -872,7 +873,7 @@
                                                                 <imageCell key="dataCell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="warning16" id="Lce-A5-cwL"/>
                                                                 <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                             </tableColumn>
-                                                            <tableColumn identifier="Name" width="130" minWidth="40" maxWidth="1000" id="IMs-fC-Neg">
+                                                            <tableColumn identifier="Name" width="120.5" minWidth="40" maxWidth="1000" id="IMs-fC-Neg">
                                                                 <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Name">
                                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                                     <color key="backgroundColor" white="0.33333298560000002" alpha="1" colorSpace="calibratedWhite"/>
@@ -884,7 +885,7 @@
                                                                 </textFieldCell>
                                                                 <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                             </tableColumn>
-                                                            <tableColumn identifier="Servers" width="50" minWidth="40" maxWidth="50" id="kN2-Pc-p75">
+                                                            <tableColumn identifier="Servers" width="40.5" minWidth="40" maxWidth="50" id="kN2-Pc-p75">
                                                                 <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="center" title="Servers">
                                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                                     <color key="backgroundColor" white="0.33333298560000002" alpha="1" colorSpace="calibratedWhite"/>
@@ -904,7 +905,7 @@
                                                                 <imageCell key="dataCell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" id="Nwk-7F-ZeD"/>
                                                                 <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                             </tableColumn>
-                                                            <tableColumn identifier="Load" width="200" minWidth="40" maxWidth="200" id="pFU-JZ-fNk">
+                                                            <tableColumn identifier="Load" width="190.5" minWidth="40" maxWidth="200" id="pFU-JZ-fNk">
                                                                 <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="center" title="Load">
                                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                                     <color key="backgroundColor" white="0.33333298560000002" alpha="1" colorSpace="calibratedWhite"/>
@@ -935,7 +936,7 @@
                                                     </tableView>
                                                 </subviews>
                                             </clipView>
-                                            <scroller key="horizontalScroller" wantsLayer="YES" verticalHuggingPriority="750" horizontal="YES" id="eek-mL-MeQ">
+                                            <scroller key="horizontalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" horizontal="YES" id="eek-mL-MeQ">
                                                 <rect key="frame" x="1" y="294" width="512" height="16"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </scroller>
@@ -944,7 +945,7 @@
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </scroller>
                                             <tableHeaderView key="headerView" id="Iry-n4-YEX">
-                                                <rect key="frame" x="0.0" y="0.0" width="530" height="17"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="512" height="17"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </tableHeaderView>
                                         </scrollView>
@@ -1018,7 +1019,7 @@
                                                 <autoresizingMask key="autoresizingMask"/>
                                                 <subviews>
                                                     <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" columnReordering="NO" columnSelection="YES" columnResizing="NO" multipleSelection="NO" autosaveColumns="NO" rowHeight="14" id="mTK-AK-d0A">
-                                                        <rect key="frame" x="0.0" y="0.0" width="1208" height="309"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="1188" height="309"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                         <size key="intercellSpacing" width="3" height="2"/>
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -1086,7 +1087,7 @@
                                                 <autoresizingMask key="autoresizingMask"/>
                                                 <subviews>
                                                     <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" columnReordering="NO" columnSelection="YES" autosaveColumns="NO" rowHeight="14" headerView="TIO-PH-Oac" id="q0u-aS-DHq">
-                                                        <rect key="frame" x="0.0" y="0.0" width="1208" height="292"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="1188" height="292"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                         <size key="intercellSpacing" width="3" height="2"/>
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -1141,7 +1142,7 @@
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </scroller>
                                             <tableHeaderView key="headerView" id="TIO-PH-Oac">
-                                                <rect key="frame" x="0.0" y="0.0" width="1208" height="17"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="1188" height="17"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </tableHeaderView>
                                         </scrollView>
@@ -1326,12 +1327,6 @@
     <resources>
         <image name="about_16" width="16.225351333618164" height="16.225351333618164"/>
         <image name="add_16" width="16.225351333618164" height="16.225351333618164"/>
-        <image name="denylist_0" width="128" height="128"/>
-        <image name="denylist_0_16" width="16.225351333618164" height="16.225351333618164"/>
-        <image name="denylist_1" width="128" height="128"/>
-        <image name="denylist_1_16" width="16.225351333618164" height="16.225351333618164"/>
-        <image name="denylist_2" width="128" height="128"/>
-        <image name="denylist_2_16" width="16.225351333618164" height="16.225351333618164"/>
         <image name="clear" width="129.80281066894531" height="129.80281066894531"/>
         <image name="command" width="129.80281066894531" height="129.80281066894531"/>
         <image name="connect" width="128" height="128"/>
@@ -1339,12 +1334,18 @@
         <image name="copy" width="128" height="128"/>
         <image name="copy_16" width="16.225351333618164" height="16.225351333618164"/>
         <image name="delete_16" width="16.225351333618164" height="16.225351333618164"/>
+        <image name="denylist_0" width="128" height="128"/>
+        <image name="denylist_0_16" width="16.225351333618164" height="16.225351333618164"/>
+        <image name="denylist_1" width="128" height="128"/>
+        <image name="denylist_1_16" width="16.225351333618164" height="16.225351333618164"/>
+        <image name="denylist_2" width="128" height="128"/>
+        <image name="denylist_2_16" width="16.225351333618164" height="16.225351333618164"/>
         <image name="edit_16" width="16.225351333618164" height="16.225351333618164"/>
         <image name="exit_16" width="16.225351333618164" height="16.225351333618164"/>
         <image name="home_16" width="16.225351333618164" height="16.225351333618164"/>
-        <image name="login" width="69" height="81"/>
+        <image name="login" width="82.140846252441406" height="82.140846252441406"/>
         <image name="more_16" width="16" height="16"/>
-        <image name="netlock_on" width="64" height="64"/>
+        <image name="netlock_on" width="64.901405334472656" height="64.901405334472656"/>
         <image name="netlock_status_off" width="128" height="128"/>
         <image name="ports_16" width="16.225351333618164" height="16.225351333618164"/>
         <image name="reload" width="129.80281066894531" height="129.80281066894531"/>

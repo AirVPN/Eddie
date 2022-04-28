@@ -29,16 +29,40 @@ namespace Eddie.UI.Cocoa.Osx
 {
 	public static class GuiUtils
 	{
-		/*
-		public static NSColor ConvertNSColor(System.Drawing.Color c)
+		public static void SetEnabled(NSControl control, bool value)
+        {
+			// 2022-04-22
+			// TxtAirU receive a .Enabled=true when it's already enabled, and for unknown reason
+			// cause issue with macOS AutoFill password
+			// (a transparent window, or a floating 'Passwords' window)
+			// This SetEnabled act as workaround.
+			// Other SetEnabled and SetHidden maded for coherence.
+			bool current = control.Enabled;
+			if (current != value)
+				control.Enabled = value;
+        }
+
+		public static void SetEnabled(NSMenuItem control, bool value)
 		{
-			return NSColor.FromSrgb(c.R / 255.0f, c.G / 255.0f, c.B / 255.0f, c.A / 255.0f);
+			bool current = control.Enabled;
+			if (current != value)
+				control.Enabled = value;
 		}
-		public static CGColor ConvertCGColor(System.Drawing.Color c)
+
+		public static void SetHidden(NSControl control, bool value)
+        {
+			bool current = control.Hidden;
+			if (current != value)
+				control.Hidden = value;
+		}
+
+		public static void SetHidden(NSMenuItem control, bool value)
 		{
-			return new CGColor(c.R / 255.0f, c.G / 255.0f, c.B / 255.0f, c.A / 255.0f);
+			bool current = control.Hidden;
+			if (current != value)
+				control.Hidden = value;
 		}
-		*/
+
 		public static void SetSelected(NSPopUpButton control, string value)
 		{
 			control.SelectItem(value);

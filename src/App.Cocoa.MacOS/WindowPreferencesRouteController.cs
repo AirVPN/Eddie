@@ -125,12 +125,12 @@ namespace Eddie.UI.Cocoa.Osx
 			if (ip.Count == 0)
 			{
 				LblHelp.StringValue = LanguageManager.GetText("WindowsSettingsRouteInvalid") + "\n" + LanguageManager.GetText("WindowsSettingsRouteEditIp");
-				CmdOk.Enabled = false;
+				GuiUtils.SetEnabled(CmdOk, false);
 			}
 			else
 			{
 				LblHelp.StringValue = ip.ToString() + "\n" + LanguageManager.GetText("WindowsSettingsRouteEditIp");
-				CmdOk.Enabled = true;
+				GuiUtils.SetEnabled(CmdOk, true);
 			}
 
 		}

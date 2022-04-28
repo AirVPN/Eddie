@@ -28,6 +28,8 @@ using System.Text;
 using System.Windows.Forms;
 using System.Xml;
 
+#pragma warning disable CA1416 // Windows only
+
 namespace Eddie.Forms.Forms
 {
 	public partial class Main : Eddie.Forms.Skin.SkinForm
@@ -2504,3 +2506,5 @@ namespace Eddie.Forms.Forms
 		}
 	}
 }
+
+#pragma warning restore CA1416 // Windows only

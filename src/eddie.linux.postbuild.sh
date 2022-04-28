@@ -40,14 +40,14 @@ OUTPATH=$1
 PROJECT=$2
 ARCH=$3
 CONFIG=$4
-MODE=static
+MODE=shared
 
 echo BasePath: $BASEPATH
 echo TargetDir: $OUTPATH
 echo Project: $PROJECT
 echo Arch: $ARCH
 echo Config: $CONFIG
-echo Mode: $MODE
+#echo Mode: $MODE # Not used anymore
 
 if [ $PROJECT = "ui" ]; then
     # Copy Tray

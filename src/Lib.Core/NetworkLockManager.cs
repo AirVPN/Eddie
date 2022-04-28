@@ -279,21 +279,6 @@ namespace Eddie.Core
 			}
 		}
 
-		// Not used
-		/*
-		public void XXX_AllowIP(IpAddress ip)
-		{
-			if (m_current != null)
-				m_current.AllowIP(ip);
-		}
-
-		public void XXX_DeallowIP(IpAddress ip)
-		{
-			if (m_current != null)
-				m_current.DeallowIP(ip);
-		}
-		*/
-
 		public virtual void AllowProgram(string path)
 		{
 			if (m_current != null)

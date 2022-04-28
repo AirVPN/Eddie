@@ -1,6 +1,6 @@
 @echo off
 
-rem This exists because mixing already-builded net4.5 and net5 cause issues, so we launch this between switch.
+rem This exists because mixing already-builded net4.8 and net6 cause issues, so we launch this between switch.
 
 RMDIR App.CLI.Windows\bin /S /Q
 RMDIR App.CLI.Windows\obj /S /Q
@@ -25,6 +25,9 @@ RMDIR Lib.Platform.Windows\obj /S /Q
 
 RMDIR Checking\bin /S /Q
 RMDIR Checking\obj /S /Q
+
+RMDIR UI.WPF.Windows\bin /S /Q
+RMDIR UI.WPF.Windows\obj /S /Q
 
 GOTO done
 

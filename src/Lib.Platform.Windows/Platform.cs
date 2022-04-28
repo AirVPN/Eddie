@@ -1762,9 +1762,7 @@ namespace Eddie.Platform.Windows
 
 			if (driver == OpenVpnDriverWintunId)
 			{
-				// Latest version automatically uninstall driver when latest adapter deleted.
-				//SystemExec.ExecUserEvent("msiexec", "/x \"" + driverPath + "\" /quiet /norestart", true);
-				//ExecWithUAC("msiexec", "/x \"" + driverPath + "\" /passive");
+				// Latest version automatically uninstall driver when latest adapter deleted.				
 			}
 			else if (driver == OpenVpnDriverTapId)
 			{

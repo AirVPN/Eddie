@@ -23,6 +23,8 @@ using System.Drawing;
 using System.Reflection;
 using System.Windows.Forms;
 
+#pragma warning disable CA1416 // Windows only
+
 namespace Eddie.Forms
 {
 	public static class GuiUtils
@@ -156,3 +158,5 @@ namespace Eddie.Forms
 		}
 	}
 }
+
+#pragma warning restore CA1416 // Windows only

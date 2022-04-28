@@ -37,7 +37,7 @@ namespace Eddie.UI.Cocoa.Osx
 			CmdYes.Title = LanguageManager.GetText("WindowsShellExternalPermissionYes");
 			CmdRuleSign.Title = LanguageManager.GetText("WindowsShellExternalPermissionRuleSign", Data["sign -id"].Value as string);
             if ((Data["sign-id"].Value as string).StartsWith("No: "))
-                CmdRuleSign.Enabled = false;
+                GuiUtils.SetEnabled(CmdRuleSign, false);
             CmdRuleHash.Title = LanguageManager.GetText("WindowsShellExternalPermissionRuleHash", Data["sha256"].Value as string);
             CmdRulePath.Title = LanguageManager.GetText("WindowsShellExternalPermissionRulePath", Data["path"].Value as string);
             CmdRuleAll.Title = LanguageManager.GetText("WindowsShellExternalPermissionRuleAll");

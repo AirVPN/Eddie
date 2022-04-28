@@ -229,7 +229,7 @@
 		File "{@resources}\VC_redist.{@arch}.exe"	
 		call CheckAndInstallVCRuntime
 
-		File "{@resources}\dotNetFx45_Full_setup.exe"		
+		File "{@resources}\ndp48-web.exe"		
 		call CheckAndInstallDotNet
 		
 		ExecWait '"$INSTDIR\Eddie-CLI-Elevated.exe" service=uninstall'		
@@ -375,20 +375,20 @@ Function CheckAndInstallDotNet
 
     IfErrors NotDetected
 
-    ${If} $0 >= 378389
-        DetailPrint "Microsoft .NET Framework 4.5 is installed ($0)"
+    ${If} $0 >= 528049
+        DetailPrint "Microsoft .NET Framework 4.8 is installed ($0)"
     ${Else}
     NotDetected:
-        DetailPrint "Installing Microsoft .NET Framework 4.5"
+        DetailPrint "Installing Microsoft .NET Framework 4.8"
         SetDetailsPrint listonly
-        ExecWait '"$INSTDIR\dotNetFx45_Full_setup.exe" /passive /norestart' $0
+        ExecWait '"$INSTDIR\ndp48-web.exe" /passive /norestart' $0
         ${If} $0 == 3010 
         ${OrIf} $0 == 1641
-            DetailPrint "Microsoft .NET Framework 4.5 installer requested reboot"
+            DetailPrint "Microsoft .NET Framework 4.8 installer requested reboot"
             SetRebootFlag true
         ${EndIf}
         SetDetailsPrint lastused
-        DetailPrint "Microsoft .NET Framework 4.5 installer returned $0"
+        DetailPrint "Microsoft .NET Framework 4.8 installer returned $0"
     ${EndIf}
 
 FunctionEnd

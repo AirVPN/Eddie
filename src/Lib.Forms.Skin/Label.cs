@@ -19,6 +19,8 @@
 using System.Drawing;
 using System.Windows.Forms;
 
+#pragma warning disable CA1416 // Windows only
+
 namespace Eddie.Forms.Skin
 {
 	public class Label : System.Windows.Forms.Label
@@ -65,3 +67,5 @@ namespace Eddie.Forms.Skin
 		}
 	}
 }
+
+#pragma warning restore CA1416 // Windows only

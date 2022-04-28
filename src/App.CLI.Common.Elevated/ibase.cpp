@@ -183,7 +183,7 @@ void IBase::LogDevDebug(const std::string& msg)
 	std::string logPath = FsGetTempPath() + FsPathSeparator + "eddie_elevated.log";
 	logPath = "C:\\elevated.log"; // Win temp
 	FILE* f = fopen(logPath.c_str(), "a");
-	fprintf(f, "PID: %d - %s%s", (int)GetCurrentProcessId(), msg.c_str(), FsEndLine.c_str());
+	fprintf(f, "%lu - PID: %d - %s%s", (unsigned long)GetTimestampUnix(), (int)GetCurrentProcessId(), msg.c_str(), FsEndLine.c_str());
 	fclose(f);
 	*/
 }
@@ -842,7 +842,7 @@ std::string IBase::FsFileSHA256Sum(const std::string& path)
 	if (FsFileExists(path) == false)
 		ThrowException("Unable to find for sha256 hash, path: " + path);
 	std::vector<char> buf = FsFileReadBytes(path);
-	return SHA256((unsigned char*)buf.data(), (unsigned long)buf.size());	
+	return SHA256((unsigned char*)buf.data(), (unsigned long)buf.size());
 }
 
 std::string IBase::FsLocateExecutable(const std::string& name, const bool throwException)
@@ -1121,7 +1121,7 @@ std::string IBase::StringHexEncode(const int v, const int chars)
 
 std::string IBase::StringSHA256(const std::string& str)
 {
-	return SHA256((const unsigned char*) str.c_str(), str.length());
+	return SHA256((const unsigned char*)str.c_str(), (unsigned long)str.length());
 }
 
 bool IBase::StringIsIPv4(const std::string& ip) // TOFIX: can be better
@@ -1195,7 +1195,7 @@ std::string IBase::SHA256(const unsigned char* pBuf, const unsigned long s)
 {
 	sha256_context ctx;
 	sha256_starts(&ctx);
-	sha256_update(&ctx, (unsigned char*) pBuf, s);
+	sha256_update(&ctx, (unsigned char*)pBuf, s);
 	unsigned char sha256sum[32];
 	sha256_finish(&ctx, sha256sum);
 	return StringHexEncode(&sha256sum[0], 32);

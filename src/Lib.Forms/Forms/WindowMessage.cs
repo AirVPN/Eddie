@@ -20,6 +20,8 @@ using Eddie.Core;
 using System;
 using System.Drawing;
 
+#pragma warning disable CA1416 // Windows only
+
 namespace Eddie.Forms.Forms
 {
 	public partial class WindowMessage : Eddie.Forms.Skin.SkinForm
@@ -118,3 +120,5 @@ namespace Eddie.Forms.Forms
 		}
 	}
 }
+
+#pragma warning restore CA1416 // Windows only

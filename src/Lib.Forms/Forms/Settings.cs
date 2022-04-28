@@ -23,6 +23,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 
+#pragma warning disable CA1416 // Windows only
+
 namespace Eddie.Forms.Forms
 {
 	public partial class Settings : Eddie.Forms.Skin.SkinForm
@@ -1675,3 +1677,5 @@ namespace Eddie.Forms.Forms
 		}
 	}
 }
+
+#pragma warning restore CA1416 // Windows only

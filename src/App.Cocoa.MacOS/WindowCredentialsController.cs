@@ -127,7 +127,7 @@ namespace Eddie.UI.Cocoa.Osx
 				acceptable = false;
 			if (TxtPassword.StringValue.Trim() == "")
 				acceptable = false;
-			CmdLogin.Enabled = acceptable;
+			GuiUtils.SetEnabled(CmdLogin, acceptable);
 		}
 	}
 }

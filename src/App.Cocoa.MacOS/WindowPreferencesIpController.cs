@@ -111,11 +111,11 @@ namespace Eddie.UI.Cocoa.Osx
 		{
 			if (new IpAddress(TxtIP.StringValue).Valid == false)
 			{
-				CmdOk.Enabled = false;
+				GuiUtils.SetEnabled(CmdOk, false);
 			}
 			else
 			{
-				CmdOk.Enabled = true;
+				GuiUtils.SetEnabled(CmdOk, true);
 			}
 
 		}

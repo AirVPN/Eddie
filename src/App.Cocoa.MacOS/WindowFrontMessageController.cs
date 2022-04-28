@@ -79,7 +79,7 @@ namespace Eddie.UI.Cocoa.Osx
             }
             else
             {
-                CmdMore.Hidden = true;
+				GuiUtils.SetHidden(CmdMore, true);
             }
 
 			CmdClose.Activated += (object sender, EventArgs e) =>

@@ -91,7 +91,7 @@ namespace Eddie.UI.Cocoa.Osx
 
         public void EnableIde()
         {
-            CmdOk.Enabled = (TxtPassword.StringValue != "");
+            GuiUtils.SetEnabled(CmdOk, (TxtPassword.StringValue != ""));
         }
     }
 }
