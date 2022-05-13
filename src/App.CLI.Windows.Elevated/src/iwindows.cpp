@@ -806,7 +806,7 @@ bool IWindows::ServiceInstall()
 		std::wstring serviceDisplayNameW = StringUTF8ToWString(GetServiceName());
 		std::wstring servicePathW = StringUTF8ToWString("\"" + path + "\"");
 		LPCWSTR serviceDependsW = TEXT("nsi\0Tcpip\0"); // Added in 2.21.0
-		SC_HANDLE service = CreateService(serviceControlManager, serviceServiceNameW.c_str(), serviceDisplayNameW.c_str(), SC_MANAGER_ALL_ACCESS, SERVICE_WIN32_OWN_PROCESS, SERVICE_DEMAND_START, SERVICE_ERROR_NORMAL, servicePathW.c_str(), NULL, NULL, serviceDependsW, NULL, NULL);
+		SC_HANDLE service = CreateService(serviceControlManager, serviceServiceNameW.c_str(), serviceDisplayNameW.c_str(), SC_MANAGER_ALL_ACCESS, SERVICE_WIN32_OWN_PROCESS, SERVICE_AUTO_START, SERVICE_ERROR_NORMAL, servicePathW.c_str(), NULL, NULL, serviceDependsW, NULL, NULL);
 		if (service)
 		{
 			if (success)

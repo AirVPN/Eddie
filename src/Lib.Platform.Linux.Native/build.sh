@@ -26,8 +26,7 @@ else
 fi
 
 
-echo "Building UI linux native"
-echo "Config: $CONFIG"
+echo "Building libLib.Platform.Linux.Native.so - Config: $CONFIG"
 
 # Dynamic edition
 
@@ -49,4 +48,5 @@ g++ -shared -fPIC -o "$BASEPATH/bin/libLib.Platform.Linux.Native.so" "$BASEPATH/
 strip -S --strip-unneeded "$BASEPATH/bin/libLib.Platform.Linux.Native.so"
 chmod a-x "$BASEPATH/bin/libLib.Platform.Linux.Native.so"
 
+echo "Building libLib.Platform.Linux.Native.so - Done"
 exit 0

@@ -52,6 +52,7 @@ namespace Eddie.Forms.Forms
 			this.lblAdvancedManifestRefresh = new Eddie.Forms.Skin.Label();
 			this.cboAdvancedManifestRefresh = new Eddie.Forms.Skin.ComboBox();
 			this.pnlAdvancedGeneralWindowsOnly = new System.Windows.Forms.GroupBox();
+			this.cmdAdvancedDeleteOldTapAdapter = new Eddie.Forms.Skin.Button();
 			this.chkWindowsForceOldTunDriver = new Eddie.Forms.Skin.CheckBox();
 			this.chkWindowsSshPlinkForce = new Eddie.Forms.Skin.CheckBox();
 			this.chkWindowsDisableDriverUpgrade = new Eddie.Forms.Skin.CheckBox();
@@ -251,7 +252,6 @@ namespace Eddie.Forms.Forms
 			this.lblLogPath = new Eddie.Forms.Skin.Label();
 			this.chkLoggingEnabled = new Eddie.Forms.Skin.CheckBox();
 			this.tabExperimentals = new System.Windows.Forms.TabPage();
-			this.cmdAdvancedDeleteOldTapAdapter = new Eddie.Forms.Skin.Button();
 			tabAdvanced = new Eddie.Forms.Skin.TabPage();
 			tabDirectives = new Eddie.Forms.Skin.TabPage();
 			tabEvents = new Eddie.Forms.Skin.TabPage();
@@ -533,6 +533,22 @@ namespace Eddie.Forms.Forms
 			this.pnlAdvancedGeneralWindowsOnly.TabIndex = 69;
 			this.pnlAdvancedGeneralWindowsOnly.TabStop = false;
 			this.pnlAdvancedGeneralWindowsOnly.Text = "Microsoft Windows Only";
+			// 
+			// cmdAdvancedDeleteOldTapAdapter
+			// 
+			this.cmdAdvancedDeleteOldTapAdapter.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.cmdAdvancedDeleteOldTapAdapter.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.cmdAdvancedDeleteOldTapAdapter.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+			this.cmdAdvancedDeleteOldTapAdapter.FlatAppearance.BorderSize = 0;
+			this.cmdAdvancedDeleteOldTapAdapter.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.cmdAdvancedDeleteOldTapAdapter.Location = new System.Drawing.Point(24, 296);
+			this.cmdAdvancedDeleteOldTapAdapter.Margin = new System.Windows.Forms.Padding(4);
+			this.cmdAdvancedDeleteOldTapAdapter.Name = "cmdAdvancedDeleteOldTapAdapter";
+			this.cmdAdvancedDeleteOldTapAdapter.Size = new System.Drawing.Size(356, 40);
+			this.cmdAdvancedDeleteOldTapAdapter.TabIndex = 91;
+			this.cmdAdvancedDeleteOldTapAdapter.Text = "Delete old Tap adapter";
+			this.cmdAdvancedDeleteOldTapAdapter.UseVisualStyleBackColor = true;
+			this.cmdAdvancedDeleteOldTapAdapter.Click += new System.EventHandler(this.cmdAdvancedDeleteOldTapAdapter_Click);
 			// 
 			// chkWindowsForceOldTunDriver
 			// 
@@ -1279,7 +1295,7 @@ namespace Eddie.Forms.Forms
 			this.lblNetworkEntryIpLayer.Name = "lblNetworkEntryIpLayer";
 			this.lblNetworkEntryIpLayer.Size = new System.Drawing.Size(422, 32);
 			this.lblNetworkEntryIpLayer.TabIndex = 95;
-			this.lblNetworkEntryIpLayer.Text = "Internet Protocol used for connection:";
+			this.lblNetworkEntryIpLayer.Text = "Protocol used for connection:";
 			this.lblNetworkEntryIpLayer.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			// 
 			// cboNetworkEntryIpLayer
@@ -3155,22 +3171,6 @@ namespace Eddie.Forms.Forms
 			this.tabExperimentals.TabIndex = 7;
 			this.tabExperimentals.Text = "Experimentals";
 			this.tabExperimentals.UseVisualStyleBackColor = true;
-			// 
-			// cmdAdvancedDeleteOldTapAdapter
-			// 
-			this.cmdAdvancedDeleteOldTapAdapter.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-			this.cmdAdvancedDeleteOldTapAdapter.Cursor = System.Windows.Forms.Cursors.Hand;
-			this.cmdAdvancedDeleteOldTapAdapter.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-			this.cmdAdvancedDeleteOldTapAdapter.FlatAppearance.BorderSize = 0;
-			this.cmdAdvancedDeleteOldTapAdapter.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdAdvancedDeleteOldTapAdapter.Location = new System.Drawing.Point(24, 296);
-			this.cmdAdvancedDeleteOldTapAdapter.Margin = new System.Windows.Forms.Padding(4);
-			this.cmdAdvancedDeleteOldTapAdapter.Name = "cmdAdvancedDeleteOldTapAdapter";
-			this.cmdAdvancedDeleteOldTapAdapter.Size = new System.Drawing.Size(356, 40);
-			this.cmdAdvancedDeleteOldTapAdapter.TabIndex = 91;
-			this.cmdAdvancedDeleteOldTapAdapter.Text = "Delete old Tap adapter";
-			this.cmdAdvancedDeleteOldTapAdapter.UseVisualStyleBackColor = true;
-			this.cmdAdvancedDeleteOldTapAdapter.Click += new System.EventHandler(this.cmdAdvancedDeleteOldTapAdapter_Click);
 			// 
 			// Settings
 			// 

@@ -76,47 +76,33 @@ sed -i 's/\$mono_libdir\///g' ${SCRIPTDIR}/mkbundle.config
 echo mkbundle run
 # Remember: libMonoPosixHelper.so and libmono-native.so are required for System.IO.File operations
 if [ $PROJECT = "cli" ]; then
-    if [ $ARCH = "armv7l" ]; then
-        mkbundle eddie-${PROJECTP}.exe -o eddie-${PROJECTP} --cross ${MKBUNDLECROSSTARGET} --i18n all -L /usr/local/lib/mono/4.5 --config ${SCRIPTDIR}/mkbundle.config --library ${TARGETDIR}/bundle/libMonoPosixHelper.so
-    else
+#    if [ $ARCH = "armv7l" ]; then
+#        mkbundle eddie-${PROJECTP}.exe -o eddie-${PROJECTP} --cross ${MKBUNDLECROSSTARGET} --i18n all -L /usr/local/lib/mono/4.5 --config ${SCRIPTDIR}/mkbundle.config --library ${TARGETDIR}/bundle/libMonoPosixHelper.so
+#    else
         mkbundle eddie-${PROJECTP}.exe -o eddie-${PROJECTP} --cross ${MKBUNDLECROSSTARGET} --i18n all -L /usr/local/lib/mono/4.5 --config ${SCRIPTDIR}/mkbundle.config --library ${TARGETDIR}/bundle/libMonoPosixHelper.so --library /usr/lib/libmono-native.so
-    fi
+#    fi
 elif [ $PROJECT = "ui" ]; then
-    if [ $ARCH = "armv7l" ]; then
-        mkbundle eddie-${PROJECTP}.exe -o eddie-${PROJECTP} --cross ${MKBUNDLECROSSTARGET} --i18n all -L /usr/local/lib/mono/4.5 --config ${SCRIPTDIR}/mkbundle.config --library ${TARGETDIR}/bundle/libMonoPosixHelper.so --library ${TARGETDIR}/bundle/libgdiplus.so.0
-    else
+#    if [ $ARCH = "armv7l" ]; then
+#        mkbundle eddie-${PROJECTP}.exe -o eddie-${PROJECTP} --cross ${MKBUNDLECROSSTARGET} --i18n all -L /usr/local/lib/mono/4.5 --config ${SCRIPTDIR}/mkbundle.config --library ${TARGETDIR}/bundle/libMonoPosixHelper.so --library ${TARGETDIR}/bundle/libgdiplus.so.0
+#    else
         mkbundle eddie-${PROJECTP}.exe -o eddie-${PROJECTP} --cross ${MKBUNDLECROSSTARGET} --i18n all -L /usr/local/lib/mono/4.5 --config ${SCRIPTDIR}/mkbundle.config --library ${TARGETDIR}/bundle/libMonoPosixHelper.so --library ${TARGETDIR}/bundle/libgdiplus.so.0 --library /usr/lib/libmono-native.so
-    fi
+#    fi
 elif [ $PROJECT = "ui3" ]; then
 	mkbundle eddie-${PROJECTP}.exe -o eddie-${PROJECTP} --cross ${MKBUNDLECROSSTARGET} --i18n all -L /usr/local/lib/mono/4.5 --config ${SCRIPTDIR}/mkbundle.config --library ${TARGETDIR}/bundle/libMonoPosixHelper.so --library /usr/lib/libmono-native.so
 fi
 
 # Remove unneed
-rm ${TARGETDIR}/bundle/*.exe # Linked with mkbundle
-rm ${TARGETDIR}/bundle/*.dll # Linked with mkbundle
-rm ${TARGETDIR}/bundle/*.pdb
-rm ${TARGETDIR}/bundle/*.config
-rm ${TARGETDIR}/bundle/libgdiplus.so.0 # Linked with mkbundle
-rm ${TARGETDIR}/bundle/libMonoPosixHelper.so # Linked with mkbundle
-if [ $PROJECT = "cli" ]; then
-    rm $TARGETDIR/bundle/eddie-tray
-    rm $TARGETDIR/bundle/libappindicator.so.1
-elif [ $PROJECT = "ui" ]; then
-    rm $TARGETDIR/bundle/libappindicator.so.1
-elif [ $PROJECT = "ui3" ]; then
-    rm $TARGETDIR/bundle/eddie-tray
-    rm $TARGETDIR/bundle/libappindicator.so.1
-else
-    echo "Unexpected"
-    exit 1
-fi
-
+rm -f ${TARGETDIR}/bundle/*.exe # Linked with mkbundle
+rm -f ${TARGETDIR}/bundle/*.dll # Linked with mkbundle
+rm -f ${TARGETDIR}/bundle/libgdiplus.so.0 # Linked with mkbundle
+rm -f ${TARGETDIR}/bundle/libMonoPosixHelper.so # Linked with mkbundle
 
 # Create Launcher
 echo Step: Launcher
 
-#printf "#!/bin/sh\nMAINDIR=\"\$(dirname \"\$(readlink -f \"\$0\")\")/\"\ncd \$MAINDIR/bundle/\nLD_LIBRARY_PATH=\"\$MAINDIR/bundle/lib\" MONO_PATH=\"\$MAINDIR/bundle/\" ./mono-sgen --config config \"eddie-${PROJECTP}.exe\" --path=\"\$MAINDIR\" \"\$@\"\n" > ${TARGETDIR}/eddie-${PROJECTP}
-printf "#!/bin/sh\nMAINDIR=\"\$(dirname \"\$(readlink -f \"\$0\")\")/\"\ncd \$MAINDIR/bundle/\nLD_LIBRARY_PATH=\"\$MAINDIR/bundle/\" MONO_PATH=\"\$MAINDIR/bundle/\" ./eddie-${PROJECTP} --path=\"\$MAINDIR\" \"\$@\"\n" > ${TARGETDIR}/eddie-${PROJECTP}
+# LD_LIBRARY_PATH removed in 2.21.7, issue with OpenSUSE
+#printf "#!/bin/sh\nMAINDIR=\"\$(dirname \"\$(readlink -f \"\$0\")\")/\"\ncd \$MAINDIR/bundle/\nLD_LIBRARY_PATH=\"\$MAINDIR/bundle/\" MONO_PATH=\"\$MAINDIR/bundle/\" ./eddie-${PROJECTP} --path=\"\$MAINDIR\" \"\$@\"\n" > ${TARGETDIR}/eddie-${PROJECTP}
+printf "#!/bin/sh\nMAINDIR=\"\$(dirname \"\$(readlink -f \"\$0\")\")/\"\ncd \$MAINDIR/bundle/\nMONO_PATH=\"\$MAINDIR/bundle/\" ./eddie-${PROJECTP} --path=\"\$MAINDIR\" \"\$@\"\n" > ${TARGETDIR}/eddie-${PROJECTP}
 
 # Owner and Permissions
 echo Step: Owner and Permissions

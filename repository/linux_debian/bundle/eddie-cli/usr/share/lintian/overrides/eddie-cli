@@ -1,15 +1,27 @@
+# -------------------
 # Use statically linked libc, to avoid issue with oldest distro
 # (at 2019-09, for example we compile from Debian8 and otherwise libc mismatch with CentOS7.6)
-eddie-cli binary: statically-linked-binary
+# 2022-05-05: removed
+# eddie-cli binary: statically-linked-binary
 
+# -------------------
 # Lintian 2.15.0 (Debian 10) throw
 # E: eddie-ui: misplaced-extra-member-in-deb _gpgbuilder (unexpected _member at position 3)
 # because it's signed with dpkg-sig.
 # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=758054
-eddie-cli binary: misplaced-extra-member-in-deb
+# 2022-05-05: removed
+# eddie-cli binary: misplaced-extra-member-in-deb
 
+# -------------------
 # libcurl static, see readme.txt in Lib.Platform.Linux.Native
 # eddie-cli binary: embedded-library usr/lib/eddie-cli/libLib.Platform.Linux.Native.so: curl
 
+# -------------------
 # Warning
-eddie-cli binary: hardening-no-relro usr/lib/eddie-cli/libLib.Platform.Linux.Native.so
+# 2022-05-05: removed
+# eddie-cli binary: hardening-no-relro usr/lib/eddie-cli/libLib.Platform.Linux.Native.so
+
+# -------------------
+# 2022-05-05: added
+eddie-cli binary: hardening-no-pie usr/lib/eddie-cli/eddie-cli-elevated
+eddie-cli binary: hardening-no-pie usr/lib/eddie-cli/eddie-tray

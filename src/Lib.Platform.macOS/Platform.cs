@@ -1103,7 +1103,18 @@ namespace Eddie.Platform.MacOS
 		{
 			return "Expected";
 		}
-	}
+
+        public override bool PreferHummingbirdIfAvailable()
+        {
+			return false;
+			/* // for 2.23.0
+			if (Core.Platform.Instance.GetVersion().VersionUnder("10.14")) // Hummingbird require Mojave
+				return false;
+
+			return true;
+			*/
+        }
+    }
 
 	public class DnsSwitchEntry
 	{

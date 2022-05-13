@@ -67,34 +67,25 @@ mono $TARGETDIR/usr/lib/eddie-${PROJECT}/eddie-${PROJECT}.exe --cli --path.resou
 gzip -n -9 $TARGETDIR/usr/share/man/man8/eddie-${PROJECT}.8
 
 # Remove unneed
-rm -f ${TARGETDIR}/usr/lib/eddie-${PROJECT}/openvpn
-rm -f ${TARGETDIR}/usr/lib/eddie-${PROJECT}/liblzo*
-rm -f ${TARGETDIR}/usr/lib/eddie-${PROJECT}/libcrypto*
-rm -f ${TARGETDIR}/usr/lib/eddie-${PROJECT}/libssl*
-rm -f ${TARGETDIR}/usr/lib/eddie-${PROJECT}/libpkcs*
-rm -f ${TARGETDIR}/usr/lib/eddie-${PROJECT}/hummingbird
-rm -f ${TARGETDIR}/usr/lib/eddie-${PROJECT}/stunnel
-rm ${TARGETDIR}/usr/lib/eddie-${PROJECT}/libgdiplus.so.0
-rm ${TARGETDIR}/usr/lib/eddie-${PROJECT}/libMonoPosixHelper.so
-if [ $PROJECT = "cli" ]; then
-    rm $TARGETDIR/usr/lib/eddie-${PROJECT}/eddie-tray
-    rm $TARGETDIR/usr/lib/eddie-${PROJECT}/libappindicator.so.1
-elif [ $PROJECT = "ui" ]; then
-    rm $TARGETDIR/usr/lib/eddie-${PROJECT}/libappindicator.so.1
-elif [ $PROJECT = "ui3" ]; then
-    rm $TARGETDIR/usr/lib/eddie-${PROJECT}/eddie-tray
-    rm $TARGETDIR/usr/lib/eddie-${PROJECT}/libappindicator.so.1
-else
-    echo "Unexpected"
-    exit 1
-fi
+rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/openvpn
+rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/liblzo*
+rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/libcrypto*
+rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/libssl*
+rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/libpkcs*
+rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/hummingbird
+rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/stunnel
+rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/libgdiplus.so.0
+rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/libMonoPosixHelper.so
+rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/libayatana-appindicator.so.1
+rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/libayatana-indicator.so.7
+rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/libdbusmenu-glib.so.4
+rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/libdbusmenu-gtk.so.4
 
 # Owner and Permissions
 echo Step: Owner and Permissions
 chmod +x ${TARGETDIR}/usr/bin/eddie-${PROJECT}
 
 # Permissions
-
 sudo chown -R root:root ${TARGETDIR}/usr
 
 # Debian control file

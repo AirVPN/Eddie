@@ -76,29 +76,20 @@ cp -r "${SCRIPTDIR}/../../common" "$TARGETDIR/bundle/res"
 
 # Cleanup
 echo Step: Cleanup
-rm -f "$TARGETDIR/bundle/*.profile"
-rm -f "$TARGETDIR/bundle/*.pdb"
-rm -f "$TARGETDIR/bundle/*.config"
-rm -f "$TARGETDIR/bundle/mscorlib.dll"
-rm -f $TARGETDIR/bundle/temp.*
-rm -f $TARGETDIR/bundle/mono_crash.*
-rm -f ${TARGETDIR}/bundle/Recovery.xml
+rm -f "${TARGETDIR}"/bundle/*.profile
+rm -f "${TARGETDIR}"/bundle/*.pdb
+rm -f "${TARGETDIR}"/bundle/*.config
+rm -f "${TARGETDIR}"/bundle/temp.*
+rm -f "${TARGETDIR}"/bundle/mono_crash.*
+rm -f "${TARGETDIR}"/bundle/mscorlib.dll
+rm -f "${TARGETDIR}"/bundle/Recovery.xml
 
-rm "$TARGETDIR/bundle/libgdiplus.so.0"
-rm "$TARGETDIR/bundle/libMonoPosixHelper.so"
+rm -f "${TARGETDIR}"/bundle/libgdiplus.so.0
+rm -f "${TARGETDIR}"/bundle/libMonoPosixHelper.so
 if [ $PROJECT = "cli" ]; then
-	rm -rf "$TARGETDIR/bundle/res/webui"
-	rm "$TARGETDIR/bundle/eddie-tray"
-	rm "$TARGETDIR/bundle/libappindicator.so.1"
+	rm -rf "${TARGETDIR}"/bundle/res/webui
 elif [ $PROJECT = "ui" ]; then
-	rm -rf "$TARGETDIR/bundle/res/webui"
-	rm "$TARGETDIR/bundle/libappindicator.so.1"
-elif [ $PROJECT = "ui3" ]; then
-	rm "$TARGETDIR/bundle/eddie-tray"
-	rm "$TARGETDIR/bundle/libappindicator.so.1"
-else
-	echo "Unexpected"
-	exit 1
+	rm -rf "${TARGETDIR}"/bundle/res/webui
 fi
 
 # Create Launcher
@@ -111,9 +102,11 @@ echo Step: Owner and Permissions
 
 chmod 755 -R "${TARGETDIR}"
 find "${TARGETDIR}" -type f -exec chmod 644 {} +;
-chmod 755 "${TARGETDIR}/eddie-${PROJECTP}"
-chmod 755 "${TARGETDIR}/bundle/eddie-cli-elevated"
-chmod 755 "${TARGETDIR}/bundle/openvpn"
+chmod 755 "${TARGETDIR}"/eddie-${PROJECTP}
+chmod 755 "${TARGETDIR}"/bundle/eddie-cli-elevated
+chmod 755 "${TARGETDIR}"/bundle/openvpn
+chmod 755 "${TARGETDIR}"/bundle/*.so # Not need? otherwise ldd report warning
+chmod 755 "${TARGETDIR}"/bundle/*.so.* # Not need? otherwise ldd report warning
 if test -f "${TARGETDIR}/bundle/hummingbird"; then
     chmod 755 "${TARGETDIR}/bundle/hummingbird"
 fi

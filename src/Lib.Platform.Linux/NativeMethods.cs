@@ -29,7 +29,7 @@ namespace Eddie.Platform.Linux
 
 		public enum FileMode
 		{
-			Mode0600 = 33152,
+			Mode0600 = 33152, 
 			Mode0644 = 33188
 		}
 

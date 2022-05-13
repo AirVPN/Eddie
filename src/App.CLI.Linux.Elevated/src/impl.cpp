@@ -287,6 +287,8 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 	}
 	else if (command == "netlock-nftables-available")
 	{
+		std::string result = "";
+		
 		if(true)
 		{
 			/*
@@ -717,6 +719,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 	else if (command == "netlock-iptables-available")
 	{
 		std::string compatibility = params["compatibility"];
+		std::string result = "";
 
 		std::vector<std::string> layers;
 		layers.push_back("ipv4");
@@ -779,16 +782,15 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 			*/
 		}
 
-		bool available = true;
-
 		for (std::vector<std::string>::const_iterator l = layers.begin(); l != layers.end(); ++l)
 		{
 			std::string layer = *l;
-
+			bool available = true;
+			
 			for (std::vector<std::string>::const_iterator a = actions.begin(); a != actions.end(); ++a)
 			{
 				std::string action = *a;
-
+				
 				std::string path = IptablesExecutable(compatibility, layer, action);
 				if(path == "")
 					available = false;
@@ -837,9 +839,12 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 				if(StringContain(result.out, "*filter") == false)
 					available = false;
 			}
+			
+			if(available)
+				result += layer + ";";
 		}
 
-		ReplyCommand(commandId, available ? "1" : "0");
+		ReplyCommand(commandId, result);
 	}
 	else if (command == "netlock-iptables-activate")
 	{

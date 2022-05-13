@@ -72,33 +72,20 @@ mono $TARGETDIR/usr/lib/eddie-${PROJECT}/eddie-${PROJECT}.exe --cli --path.resou
 gzip -n -9 $TARGETDIR/usr/share/man/man8/eddie-${PROJECT}.8
 
 # Remove unneed
-rm -f ${TARGETDIR}/usr/lib/eddie-${PROJECT}/openvpn
-rm -f ${TARGETDIR}/usr/lib/eddie-${PROJECT}/liblzo*
-rm -f ${TARGETDIR}/usr/lib/eddie-${PROJECT}/libcrypto*
-rm -f ${TARGETDIR}/usr/lib/eddie-${PROJECT}/libssl*
-rm -f ${TARGETDIR}/usr/lib/eddie-${PROJECT}/libpkcs*
-rm -f ${TARGETDIR}/usr/lib/eddie-${PROJECT}/hummingbird
-rm -f ${TARGETDIR}/usr/lib/eddie-${PROJECT}/stunnel
-rm ${TARGETDIR}/usr/lib/eddie-${PROJECT}/libgdiplus.so.0
-rm ${TARGETDIR}/usr/lib/eddie-${PROJECT}/libMonoPosixHelper.so
-if [ $PROJECT = "cli" ]; then
-    rm $TARGETDIR/usr/lib/eddie-${PROJECT}/eddie-tray
-    rm $TARGETDIR/usr/lib/eddie-${PROJECT}/libappindicator.so.1
-elif [ $PROJECT = "ui" ]; then
-    rm $TARGETDIR/usr/lib/eddie-${PROJECT}/libappindicator.so.1
-elif [ $PROJECT = "ui3" ]; then
-    rm $TARGETDIR/usr/lib/eddie-${PROJECT}/eddie-tray
-    rm $TARGETDIR/usr/lib/eddie-${PROJECT}/libappindicator.so.1
-else
-    echo "Unexpected"
-    exit 1
-fi
+rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/openvpn
+rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/liblzo*
+rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/libcrypto*
+rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/libssl*
+rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/libpkcs*
+rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/hummingbird
+rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/stunnel
+rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/libgdiplus.so.0
+rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/libMonoPosixHelper.so
+# Note: don't remove libayatana
 
 # Owner and Permissions
 echo Step: Owner and Permissions
 chmod +x ${TARGETDIR}/usr/bin/eddie-${PROJECT}
-
-
 
 # RPM spec file
 
@@ -110,9 +97,9 @@ REQUIRES="mono-core sudo openvpn stunnel curl libsecret-tools" # Diff between Op
 if [ $PROJECT = "cli" ]; then
     REQUIRES="${REQUIRES}"
 elif [ $PROJECT = "ui" ]; then
-    REQUIRES="${REQUIRES} mono-winforms libgdiplus-devel libnotify libappindicator1" # Diff between OpenSuse and Fedora
+    REQUIRES="${REQUIRES} mono-winforms libgdiplus-devel libnotify"
 elif [ $PROJECT = "ui3" ]; then
-    REQUIRES="${REQUIRES} gtk-sharp3 libnotify libappindicator1" # Diff between OpenSuse and Fedora
+    REQUIRES="${REQUIRES} gtk-sharp3 libnotify"
 fi
 sed -i "s/{@requires}/${REQUIRES}/g" ${TARGETDIR}/../rpmbuild.spec
 
@@ -122,19 +109,8 @@ cat ${TARGETDIR}/../rpmbuild.spec
 
 # RPM Build
 cd ${TARGETDIR} # Unable to specify an output path
-if test -f "${SCRIPTDIR}/../signing/eddie.gpg-signing.passphrase"; then # Staff AirVPN
-    echo if requested, enter $(cat "${SCRIPTDIR}/../signing/eddie.gpg-signing.passphrase") as passphrase
-    echo -e "%_signature gpg\n%_gpg_name Eddie <maintainer@eddie.website>\n%__gpg /usr/bin/gpg\n" >~/.rpmmacros
-    export GPG_TTY=$(tty) # Fix for gpg: signing failed: Inappropriate ioctl for device
-    rpmbuild -bb "${TARGETDIR}/../rpmbuild.spec" --buildroot "${TARGETDIR}" -sign
-else
-    # clodotemp rimuovere
-    echo "${SCRIPTDIR}/../signing/eddie.gpg-signing.passphrase" not found, unexpected, temp 
-    exit 1 # clodotemp rimuovere
+rpmbuild -bb "${TARGETDIR}/../rpmbuild.spec" --buildroot "${TARGETDIR}" 
 
-    rpmbuild -bb "${TARGETDIR}/../rpmbuild.spec" --buildroot "${TARGETDIR}" 
-    #--define "_rpmdir ${TARGETDIR}/../"
-fi
 cd ..
 ARCHRPM=${ARCH}
 if [ ${ARCH} = "armv7l" ]; then
@@ -144,6 +120,16 @@ elif [ ${ARCH} = "x86" ]; then
 elif [ ${ARCH} = "x64" ]; then
     ARCHRPM="x86_64"
 fi
+
+# Signing
+if test -f "${SCRIPTDIR}/../signing/eddie.gpg-signing.passphrase"; then # Staff AirVPN
+    echo if requested, enter $(cat "${SCRIPTDIR}/../signing/eddie.gpg-signing.passphrase") as passphrase
+    echo -e "%_signature gpg\n%_gpg_name Eddie <maintainer@eddie.website>\n%__gpg /usr/bin/gpg\n" >~/.rpmmacros
+    export GPG_TTY=$(tty) # Fix for gpg: signing failed: Inappropriate ioctl for device
+    rpmsign --addsign eddie-${PROJECT}-${VERSION}-0.${ARCHRPM}.rpm
+fi
+
+# Final move
 mv eddie-${PROJECT}-${VERSION}-0.${ARCHRPM}.rpm ${FINALPATH}
 
 # Deploy to eddie.website

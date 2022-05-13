@@ -49,10 +49,10 @@ echo Arch: $ARCH
 echo Config: $CONFIG
 #echo Mode: $MODE # Not used anymore
 
-if [ $PROJECT = "ui" ]; then
-    # Copy Tray
-    cp "$BASEPATH/../deploy/linux_$ARCH/eddie-tray" "$OUTPATH"
-fi
+#if [ $PROJECT = "ui" ]; then
+#    # Copy Tray
+#    cp "$BASEPATH/../deploy/linux_$ARCH/eddie-tray" "$OUTPATH"
+#fi
 
 # Adapt Elevated
 # Search 'expectedOpenvpnHash' in '/src/App.CLI.Common.Elevated/ibase.cpp' source for details
@@ -84,4 +84,14 @@ cp "$BASEPATH/App.CLI.Linux.Elevated/bin/eddie-cli-elevated" "$OUTPATH"
 chmod +x "${BASEPATH}/Lib.Platform.Linux.Native/build.sh"
 "${BASEPATH}/Lib.Platform.Linux.Native/build.sh" "$CONFIG" "$MODE"
 cp "$BASEPATH/Lib.Platform.Linux.Native/bin/libLib.Platform.Linux.Native.so" "$OUTPATH"
+
+# Compile and Copy eddie-tray
+if [ $PROJECT = "ui" ]; then
+    chmod +x "${BASEPATH}/UI.GTK.Linux.Tray/build.sh"
+    "${BASEPATH}/UI.GTK.Linux.Tray/build.sh" "$CONFIG"
+    # If not build (it's optional), skip 
+    if [ -f "$BASEPATH/UI.GTK.Linux.Tray/bin/eddie-tray" ]; then
+        cp "$BASEPATH/UI.GTK.Linux.Tray/bin/eddie-tray" "$OUTPATH"
+    fi
+fi
 

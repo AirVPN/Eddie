@@ -1,4 +1,4 @@
-﻿#!/bin/bash
+#!/bin/bash
 
 set -euo pipefail
 
@@ -15,7 +15,8 @@ ARCH=$($SCRIPTDIR/../linux_common/get-arch.sh)
 VERSION=$($SCRIPTDIR/../linux_common/get-version.sh)
 
 TARGETDIR=/tmp/eddie_deploy/eddie-${PROJECT}_${VERSION}_linux_${ARCH}_appimage
-DEPLOYPATH=${SCRIPTDIR}/../files/eddie-${PROJECT}_${VERSION}_linux_${ARCH}_appimage.AppImage
+#DEPLOYPATH=${SCRIPTDIR}/../files/eddie-${PROJECT}_${VERSION}_linux_${ARCH}_appimage.AppImage
+DEPLOYPATH=${SCRIPTDIR}/../files/eddie-${PROJECT}_${VERSION}_linux_${ARCH}_appimage.tar.gz
 
 if test -f "${DEPLOYPATH}"; then
     echo "Already builded: ${DEPLOYPATH}"
@@ -95,7 +96,10 @@ fi
 
 sudo ./appimagetool.AppImage AppDir
 
-mv Eddie*.AppImage ${DEPLOYPATH}
+#mv Eddie*.AppImage ${DEPLOYPATH}
+rm -rf Eddie
+mv Eddie*.AppImage Eddie
+tar cvfz "$DEPLOYPATH" "Eddie"
 
 sudo chown $USER ${DEPLOYPATH}
 

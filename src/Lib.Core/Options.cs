@@ -510,7 +510,7 @@ namespace Eddie.Core
 			SetDefault("network.iface.name", "text", "", LanguageManager.GetText("ManOptionNetworkIfaceName"));
 
 			SetDefault("tools.openvpn.path", "path_file", "", LanguageManager.GetText("ManOptionToolsOpenVpnPath"));
-			SetDefaultBool("tools.hummingbird.preferred", false, NotInMan);
+			SetDefaultBool("tools.hummingbird.preferred", Platform.Instance.PreferHummingbirdIfAvailable(), NotInMan);
 			SetDefault("tools.hummingbird.path", "path_file", "", NotInMan);
 			SetDefault("tools.ssh.path", "path_file", "", LanguageManager.GetText("ManOptionToolsSshPath"));
 			SetDefault("tools.ssl.path", "path_file", "", LanguageManager.GetText("ManOptionToolsSslPath"));

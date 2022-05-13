@@ -40,9 +40,9 @@ namespace Eddie.Forms.Forms
 			// 
 			// txtBody
 			// 
-			this.txtBody.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-			| System.Windows.Forms.AnchorStyles.Left)
-			| System.Windows.Forms.AnchorStyles.Right)));
+			this.txtBody.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.txtBody.BackColor = System.Drawing.Color.White;
 			this.txtBody.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
 			this.txtBody.Location = new System.Drawing.Point(9, 6);
@@ -115,8 +115,8 @@ namespace Eddie.Forms.Forms
 			// 
 			// lblStep
 			// 
-			this.lblStep.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
-			| System.Windows.Forms.AnchorStyles.Right)));
+			this.lblStep.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.lblStep.BackColor = System.Drawing.Color.Transparent;
 			this.lblStep.ForeColor = System.Drawing.Color.Black;
 			this.lblStep.Location = new System.Drawing.Point(478, 588);
@@ -129,7 +129,7 @@ namespace Eddie.Forms.Forms
 			// 
 			// cmdUpload
 			// 
-			this.cmdUpload.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+			this.cmdUpload.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this.cmdUpload.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
 			this.cmdUpload.Cursor = System.Windows.Forms.Cursors.Hand;
 			this.cmdUpload.DialogResult = System.Windows.Forms.DialogResult.OK;

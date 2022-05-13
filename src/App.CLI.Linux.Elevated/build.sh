@@ -39,9 +39,7 @@ FILES="${FILES} $BASEPATH/obj/wireguard.o"
 #	SHARED="no"
 #fi
 
-echo "Building eddie-cli-elevated"
-echo "Config: $CONFIG"
-echo "Shared: $SHARED"
+echo "Building eddie-cli-elevated - Config: $CONFIG, Shared: $SHARED"
 
 # WireGuard functions
 gcc -c "$BASEPATH/src/wireguard.c" -o "$BASEPATH/obj/wireguard.o"
@@ -55,5 +53,6 @@ fi
 
 strip -S --strip-unneeded "$BASEPATH/bin/eddie-cli-elevated" 
 chmod a+x "$BASEPATH/bin/eddie-cli-elevated"
-echo Done
+
+echo "Building eddie-cli-elevated - Done"
 exit 0

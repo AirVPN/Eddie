@@ -50,7 +50,11 @@ namespace Eddie.Platform.Linux
 			c.Parameters["command"] = "netlock-iptables-available";
 			c.Parameters["compatibility"] = GetCompatibility();
 			string result = Engine.Instance.Elevated.DoCommandSync(c);
-			return (result == "1");
+
+			m_supportIPv4 = (result.IndexOfInv("ipv4;") != -1);
+			m_supportIPv6 = (result.IndexOfInv("ipv6;") != -1);
+
+			return ((m_supportIPv4) || (m_supportIPv6));
 		}
 
 		public override void Init()
@@ -61,9 +65,6 @@ namespace Eddie.Platform.Linux
 		public override void Activation()
 		{
 			base.Activation();
-
-			m_supportIPv4 = Platform.Instance.GetSupportIPv4();
-			m_supportIPv6 = Platform.Instance.GetSupportIPv6();
 
 			if (m_supportIPv6 == false)
 				Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("NetworkLockLinuxIPv6NotAvailable"));

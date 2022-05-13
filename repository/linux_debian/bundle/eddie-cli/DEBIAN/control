@@ -6,7 +6,6 @@ Priority: optional
 Architecture: {@architecture}
 Installed-Size: 8192
 Depends: libc6 (>= 2.3.2), sudo, mono-runtime, mono-utils, libmono-system-core4.0-cil, openvpn, stunnel4, curl, libsecret-tools
-Bugs: https://eddie.website/support/
 Homepage: https://eddie.website/
 Description: Eddie - VPN Tunnel
  OpenVPN/WireGuard CLI with additional user-friendly features
