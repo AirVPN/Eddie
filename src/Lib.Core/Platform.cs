@@ -814,7 +814,7 @@ namespace Eddie.Core
 
 		public void Route(Json jRoute, string action)
 		{
-			string iface = jRoute["interface"].ValueString;
+			string iface = jRoute["interface"].ValueString;			
 			string ifaceFriendly = Platform.Instance.GetFriendlyInterfaceName(iface);
 			IpAddress ip = jRoute["destination"].ValueString;
 			if (ip.Valid == false)
@@ -860,11 +860,12 @@ namespace Eddie.Core
 					else
 						msg = LanguageManager.GetText("RouteDelFailed", ip.ToCIDR(true), ifaceFriendly, ex.Message);
 
-					throw new Exception(msg);
+					if (action == "add") // 2.21.8 - Throw exception only on ADD
+						throw new Exception(msg);
 				}
 			}
 
-			// Old Recovery // CLODOTEMP
+			// Old Recovery // WIP
 			/*
 			lock (m_routes)
 			{

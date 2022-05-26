@@ -1557,7 +1557,7 @@ std::string IWindows::GetLastErrorAsString()
 	FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), buf, (sizeof(buf) / sizeof(wchar_t)), NULL);
 	std::string message = StringWStringToUTF8(buf);
 
-	return message;
+	return StringTrim(message);
 }
 
 IWindows::t_shellinfo IWindows::ExecStart(const std::string& path, const std::vector<std::string>& args)
@@ -1809,9 +1809,11 @@ void IWindows::WintunAdapterAdd(const std::wstring& pool, const std::wstring& na
 		BOOL needReboot = false;
 
 		WINTUN_ADAPTER_HANDLE hAdapter = funcWintunCreateAdapter(pool.c_str(), name.c_str(), NULL, &needReboot);
-
+		
 		if (hAdapter == 0)
-			ThrowException("wintun.dll WintunCreateAdapter fail");
+		{
+			ThrowException("wintun.dll WintunCreateAdapter fail, pool:'" + StringWStringToUTF8(pool) +"', name:'" + StringWStringToUTF8(name) + "', nr:" + (needReboot ? "Y":"N") + ", error : '" + GetLastErrorAsString() + "'");
+		}
 		else
 			WintunAdapterClose(hAdapter);
 	}

@@ -279,7 +279,7 @@ namespace Eddie.Core.Providers
 			Storage.DocumentElement.SetAttributeString("password", "");
 		}
 
-		public virtual bool ApplyCredentials(ConnectionTypes.IConnectionType connectionActive) // ClodoTemp to move
+		public virtual bool ApplyCredentials(ConnectionTypes.IConnectionType connectionActive) // WIP to move
 		{
 			if (connectionActive.NeedCredentials())
 			{

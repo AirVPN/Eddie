@@ -848,7 +848,7 @@ namespace Eddie.Core
 
 		public void UpdateConnectedStatus(bool connected)
 		{
-			lock (this)
+			// lock (this)  // TOCLEAN, removed in 2.21.8
 			{
 				if (connected)
 					WaitMessageClear();
@@ -875,7 +875,7 @@ namespace Eddie.Core
 					throw new Exception("Unexpected status.");
 			}
 
-			lock (this)
+			// lock (this) // TOCLEAN, removed in 2.21.8
 			{
 				m_mainStatusMessage = message;
 				m_mainStatusCancel = allowCancel;
@@ -970,28 +970,25 @@ namespace Eddie.Core
 
 				if (Options != null)
 				{
-					lock (Options)
+					if (Options.GetBool("log.file.enabled"))
 					{
-						if (Options.GetBool("log.file.enabled"))
+						try
 						{
-							try
-							{
-								string logPath = Options.Get("log.file.path").Trim();
-								Encoding encoding = Options.GetEncoding("log.file.encoding");
+							string logPath = Options.Get("log.file.path").Trim();
+							Encoding encoding = Options.GetEncoding("log.file.encoding");
 
-								List<string> paths = Logs.ParseLogFilePath(logPath);
-								foreach (string path in paths)
-								{
-									Directory.CreateDirectory(Path.GetDirectoryName(path));
-									string text = Platform.Instance.NormalizeString(lines + "\n");
-									Platform.Instance.FileContentsAppendText(path, text, encoding);
-								}
-							}
-							catch (Exception ex)
+							List<string> paths = Logs.ParseLogFilePath(logPath);
+							foreach (string path in paths)
 							{
-								Logs.Log(LogType.Warning, LanguageManager.GetText("LogsDisabledForError", ex.Message));
-								Options.SetBool("log.file.enabled", false);
+								Directory.CreateDirectory(Path.GetDirectoryName(path));
+								string text = Platform.Instance.NormalizeString(lines + "\n");
+								Platform.Instance.FileContentsAppendText(path, text, encoding);
 							}
+						}
+						catch (Exception ex)
+						{
+							Logs.Log(LogType.Warning, LanguageManager.GetText("LogsDisabledForError", ex.Message));
+							Options.SetBool("log.file.enabled", false);
 						}
 					}
 				}
@@ -1454,10 +1451,10 @@ namespace Eddie.Core
 					if (s.DisplayName == name)
 						return s;
 				}
-
-				Engine.Instance.Logs.Log(LogType.Fatal, LanguageManager.GetText("ServerByNameNotFound", name));
-				return null;
 			}
+
+			Engine.Instance.Logs.Log(LogType.Fatal, LanguageManager.GetText("ServerByNameNotFound", name));
+			return null;
 		}
 
 		public ConnectionInfo PickConnection()
@@ -1474,11 +1471,11 @@ namespace Eddie.Core
 					if (m_connections.ContainsKey(preferred))
 						return m_connections[preferred];
 				}
-
-				List<ConnectionInfo> list = GetConnections(false);
-				if (list.Count > 0)
-					return list[0];
 			}
+
+			List<ConnectionInfo> list = GetConnections(false);
+			if (list.Count > 0)
+				return list[0];
 
 			return null;
 		}
@@ -2040,15 +2037,6 @@ namespace Eddie.Core
 				jVersion["name"].Value = Constants.Name;
 				jVersion["text"].Value = GetVersionShow();
 				jVersion["int"].Value = Constants.VersionInt;
-
-				/* // TOCLEAN
-				Json jUI = new Json();
-				Manifest["ui"].Value = jUI;
-				if (m_webserver != null)
-					jUI["url"].Value = m_webserver.ListenUrl;
-				*/
-
-				//Manifest["options"].Value = Options.GetJsonForManifest();
 
 				Manifest["languages"].Value = LanguageManager.GetJsonForManifest();
 			}

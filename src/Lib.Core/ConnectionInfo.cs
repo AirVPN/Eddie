@@ -154,6 +154,12 @@ namespace Eddie.Core
 			return false;
 		}
 
+		public bool HasWarnings()
+		{
+			lock (Warnings)
+				return Warnings.Count > 0;
+		}
+
 		public bool CanConnect()
 		{
 			if (Engine.Instance.Options.GetBool("connections.allow_anyway"))
@@ -205,40 +211,38 @@ namespace Eddie.Core
 
 		public int Score()
 		{
-			lock (Warnings)
+			if (HasWarningsErrors())
+				return 99998;
+			if (HasWarnings())
+				return 99997;
+
+			if (Ping == -1)
+				return 99995;
+			else
 			{
-				if (HasWarningsErrors())
-					return 99998;
-				else if (Warnings.Count > 0)
-					return 99997;
-				else if (Ping == -1)
-					return 99995;
-				else
+				string scoreType = Engine.Instance.Options.GetLower("servers.scoretype");
+
+				double x = Users;
+				double x2 = UsersPerc();
+
+				double PenalityB = Penality * Convert.ToDouble(Provider.GetKeyValue("penality_factor", "1000"));
+				double PingB = Ping * Convert.ToDouble(Provider.GetKeyValue("ping_factor", "1"));
+				double LoadB = LoadPerc() * Convert.ToDouble(Provider.GetKeyValue("load_factor", "1"));
+				double UsersB = UsersPerc() * Convert.ToDouble(Provider.GetKeyValue("users_factor", "1"));
+				double ScoreB = ScoreBase;
+				if (scoreType == "speed")
 				{
-					string scoreType = Engine.Instance.Options.GetLower("servers.scoretype");
-
-					double x = Users;
-					double x2 = UsersPerc();
-
-					double PenalityB = Penality * Convert.ToDouble(Provider.GetKeyValue("penality_factor", "1000"));
-					double PingB = Ping * Convert.ToDouble(Provider.GetKeyValue("ping_factor", "1"));
-					double LoadB = LoadPerc() * Convert.ToDouble(Provider.GetKeyValue("load_factor", "1"));
-					double UsersB = UsersPerc() * Convert.ToDouble(Provider.GetKeyValue("users_factor", "1"));
-					double ScoreB = ScoreBase;
-					if (scoreType == "speed")
-					{
-						ScoreB = ScoreB / Convert.ToDouble(Provider.GetKeyValue("speed_factor", "1"));
-						LoadB = LoadB / Convert.ToDouble(Provider.GetKeyValue("speed_load_factor", "1")); // 2.18.7
-						UsersB = UsersB / Convert.ToDouble(Provider.GetKeyValue("speed_users_factor", "1")); // 2.18.7
-					}
-					else if (scoreType == "latency")
-					{
-						ScoreB = ScoreB / Convert.ToDouble(Provider.GetKeyValue("latency_factor", "500"));
-						LoadB = LoadB / Convert.ToDouble(Provider.GetKeyValue("latency_load_factor", "10")); // 2.18.7
-						UsersB = UsersB / Convert.ToDouble(Provider.GetKeyValue("latency_users_factor", "10")); // 2.18.7
-					}
-					return Conversions.ToInt32(PenalityB + PingB + LoadB + ScoreB + UsersB);
+					ScoreB = ScoreB / Convert.ToDouble(Provider.GetKeyValue("speed_factor", "1"));
+					LoadB = LoadB / Convert.ToDouble(Provider.GetKeyValue("speed_load_factor", "1")); // 2.18.7
+					UsersB = UsersB / Convert.ToDouble(Provider.GetKeyValue("speed_users_factor", "1")); // 2.18.7
 				}
+				else if (scoreType == "latency")
+				{
+					ScoreB = ScoreB / Convert.ToDouble(Provider.GetKeyValue("latency_factor", "500"));
+					LoadB = LoadB / Convert.ToDouble(Provider.GetKeyValue("latency_load_factor", "10")); // 2.18.7
+					UsersB = UsersB / Convert.ToDouble(Provider.GetKeyValue("latency_users_factor", "10")); // 2.18.7
+				}
+				return Conversions.ToInt32(PenalityB + PingB + LoadB + ScoreB + UsersB);
 			}
 		}
 

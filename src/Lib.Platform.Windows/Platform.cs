@@ -719,7 +719,7 @@ namespace Eddie.Platform.Windows
 			IpAddress destination = jRoute["destination"].ValueString;
 			string iface = jRoute["interface"].ValueString;
 
-			NetworkInterface networkInterface = GetNetworkInterfaceFromGuid(jRoute["interface"].ValueString);
+			NetworkInterface networkInterface = GetNetworkInterfaceFromGuid(iface);
 
 			if (networkInterface == null)
 				throw new Exception(LanguageManager.GetText("NetworkInterfaceNotAvailable"));
@@ -1397,7 +1397,7 @@ namespace Eddie.Platform.Windows
 
 			jNetworkInterface["dns4"].Value = Registry.GetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\\" + id.ToLowerInvariant(), "NameServer", "") as string;
 			jNetworkInterface["dns6"].Value = Registry.GetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip6\\Parameters\\Interfaces\\" + id.ToLowerInvariant(), "NameServer", "") as string;
-			jNetworkInterface["dns6"].Value = null; // CLODOTEMP, re-check
+			jNetworkInterface["dns6"].Value = null; // WIP, re-check
 		}
 
 		public override void OnJsonRouteList(Json jRoutesList)
@@ -1530,7 +1530,9 @@ namespace Eddie.Platform.Windows
 			// In 2.21, we implement routes in Eddie,
 			// and use our system also in OpenVPN.
 			// But in Win7 don't work well.
-			return IsWin7();
+			if ((Constants.OurRoutesInWin7) && (IsWin7()))
+				return true;
+			return false;
 		}
 
 		public override bool GetSupportIPv4()

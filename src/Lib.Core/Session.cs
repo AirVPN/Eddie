@@ -722,7 +722,7 @@ namespace Eddie.Core
 			}
 			else
 			{
-				// ClodoTemp: Unsupported on Windows for now, we need the interface.
+				// WIP: Unsupported on Windows for now, we need the interface.
 				IpAddress ip = new IpAddress(route.Gateway);
 				if (ip.Valid == false)
 				{

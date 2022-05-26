@@ -76,10 +76,11 @@ rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/hummingbird
 rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/stunnel
 rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/libgdiplus.so.0
 rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/libMonoPosixHelper.so
-rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/libayatana-appindicator.so.1
-rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/libayatana-indicator.so.7
+rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/libayatana-appindicator3.so.1
+rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/libayatana-indicator3.so.7
 rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/libdbusmenu-glib.so.4
-rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/libdbusmenu-gtk.so.4
+rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/libdbusmenu-gtk3.so.4
+rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/libayatana-ido3-0.4.so.0
 
 # Owner and Permissions
 echo Step: Owner and Permissions

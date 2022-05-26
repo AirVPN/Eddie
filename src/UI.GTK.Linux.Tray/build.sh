@@ -29,28 +29,9 @@ FILES="${FILES} $BASEPATH/src/main.cpp"
 
 echo "Building eddie-tray - Config: $CONFIG"
 
-#if [ -f "/etc/arch-release" ]; then
-#	if pacman -Qs "libappindicator-gtk2" > /dev/null ; then
-#		echo "Building eddie-tray - Linux Arch detected, libappindicator-gtk2 present.";
-#	else
-#		echo "Building eddie-tray - Linux Arch detected, libappindicator-gtk2 NOT present, skip build.";
-#		exit 0
-#	fi
-#fi
-
-# gtk3
-# g++ "$BASEPATH/main.cpp" -o "$BASEPATH/bin/eddie-tray" `pkg-config --cflags gtk+-3.0 ayatana-appindicator3-0.1` `pkg-config --libs gtk+-3.0 ayatana-appindicator3-0.1` 
-
-# gtk2
-echo "Building eddie-tray - If compilation errors occur, remember libgtk2.0-dev and libayatana-appindicator-dev package are required."
+echo "Building eddie-tray - If compilation errors occur, remember libayatana-appindicator3-dev package is required."
 export LDFLAGS="-Wl,-rpath=."
-if [ -f "/etc/arch-release" ]; then
-	#2022-05-13: in Arch/Manjaro, the package is libappindicator-0.1
-	g++ "$BASEPATH/main.cpp" -fPIC -Dappindicatorpackage_libappindicator -o "$BASEPATH/bin/eddie-tray" `pkg-config --cflags gtk+-2.0 appindicator-0.1` `pkg-config --libs gtk+-2.0 appindicator-0.1` 
-else
-	#2022-05-13: recently in major distro, the package is ayatana-appindicator-0.1
-	g++ "$BASEPATH/main.cpp" -fPIC -Dappindicatorpackage_libayatanaappindicator -o "$BASEPATH/bin/eddie-tray" `pkg-config --cflags gtk+-2.0 ayatana-appindicator-0.1` `pkg-config --libs gtk+-2.0 ayatana-appindicator-0.1` 
-fi
+g++ "$BASEPATH/main.cpp" -fPIC -o "$BASEPATH/bin/eddie-tray" `pkg-config --cflags gtk+-3.0 ayatana-appindicator3-0.1` `pkg-config --libs gtk+-3.0 ayatana-appindicator3-0.1` 
 
 strip -S --strip-unneeded "$BASEPATH/bin/eddie-tray" 
 chmod a+x "$BASEPATH/bin/eddie-tray"

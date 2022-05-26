@@ -30,8 +30,8 @@ namespace Eddie.Core
 		public static string PasswordIfEmpty = "e6552ddf3ac5c8755a82870d91273a63eab0da1e";
 		public static string WintunPool = "Eddie";
 		public static string Thanks = "Clodo, PJ, reiandrea, ProMIND, Berserker, OpenSourcerer, zhang888, LZ1, giganerd, Uncle Hunto, go558a83nk, sheivoko, NaDre, pfSense_fan, x0wllaar";
-		public static int VersionInt = 282;
-		public static string VersionDesc = "2.21.7"; // Used by deploy system also to generate filenames
+		public static int VersionInt = 283;
+		public static string VersionDesc = "2.21.8"; // Used by deploy system also to generate filenames
 		public static bool VersionBeta = false;
 		public static string Domain = "eddie.website";
 		public static string WebSite = "https://eddie.website";
@@ -43,6 +43,7 @@ namespace Eddie.Core
 		public static int ElevatedServicePort = 9349;
 
 		// Feature activation at compilation-time
+		public static bool OurRoutesInWin7 = true;
 		public static bool FeatureAlpha = false; // Nothing here right now
 	}
 }

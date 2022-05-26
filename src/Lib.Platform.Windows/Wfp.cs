@@ -75,7 +75,11 @@ namespace Eddie.Platform.Windows
 			lock (Items)
 			{
 				if (Items.ContainsValue(item) == false)
-					throw new Exception("Windows WFP, unexpected: Rule '" + item.Code + "' not exists");
+				{
+					//throw new Exception("Windows WFP, unexpected: Rule '" + item.Code + "' not exists"); // Exception removed in 2.21.8
+					Engine.Instance.Logs.LogVerbose("Windows WFP, unexpected: Rule '" + item.Code + "' not exists");
+					return true;
+				}
 
 				foreach (UInt64 id in item.FirewallIds)
 				{
@@ -104,7 +108,11 @@ namespace Eddie.Platform.Windows
 			lock (Items)
 			{
 				if (Items.ContainsKey(code))
-					throw new Exception("Windows WFP, unexpected: Rule '" + code + "' already exists");
+				{
+					//throw new Exception("Windows WFP, unexpected: Rule '" + code + "' already exists"); // Exception removed in 2.21.8
+					Engine.Instance.Logs.LogVerbose("Windows WFP, unexpected: Rule '" + code + "' already exists");
+					return Items[code];
+				}
 
 				WfpItem item = new WfpItem();
 				item.Code = code;

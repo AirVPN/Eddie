@@ -567,7 +567,7 @@ namespace Eddie.Core
 			SetDefaultInt("advanced.manifest.refresh", -1, NotInMan);
 			SetDefaultBool("advanced.providers", false, NotInMan);
 
-			SetDefault("bootstrap.urls", "text", "", NotInMan); // ClodoTemp: move to provider level
+			SetDefault("bootstrap.urls", "text", "", NotInMan); // WIP: move to provider level
 
 			SetDefaultBool("advanced.skip_tun_detect", false, NotInMan); // Skip TUN driver detection.
 			SetDefaultBool("advanced.skip_alreadyrun", false, NotInMan); // Continue even if openvpn is already running.

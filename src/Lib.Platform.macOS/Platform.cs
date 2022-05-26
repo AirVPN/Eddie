@@ -1108,7 +1108,7 @@ namespace Eddie.Platform.MacOS
         {
 			return false;
 			/* // for 2.23.0
-			if (Core.Platform.Instance.GetVersion().VersionUnder("10.14")) // Hummingbird require Mojave
+			if (Core.Platform.Instance.GetVersion().VersionUnder("10.13")) // Hummingbird require High Sierra
 				return false;
 
 			return true;

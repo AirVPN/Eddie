@@ -22,7 +22,6 @@ CONFIG=Release
 SCRIPTDIR=$(dirname $(realpath -s $0))
 ARCH=$($SCRIPTDIR/../linux_common/get-arch.sh)
 VERSION=$($SCRIPTDIR/../linux_common/get-version.sh)
-#VERSIONSTABLE="2.18.9"
 VERSIONSTABLE=$(curl --silent "https://api.github.com/repos/AirVPN/Eddie/releases/latest" | grep -Po '"tag_name": "\K.*?(?=")')
 
 TARGETDIR=/tmp/eddie_deploy/eddie-${PROJECT}_${VERSION}_linux_${ARCH}_arch
@@ -51,7 +50,7 @@ function arch_env() {
 			sed -i "s|{@pkgdepends}|(mono openvpn sudo)|g" PKGBUILD
 		else
 			sed -i "s|{@pkgdesc}|Eddie - VPN tunnel - UI - prebuilt|g" PKGBUILD    
-			sed -i "s|{@pkgdepends}|(mono openvpn sudo desktop-file-utils libnotify libappindicator-gtk2 patchelf)|g" PKGBUILD
+			sed -i "s|{@pkgdepends}|(mono openvpn sudo desktop-file-utils libnotify libayatana-appindicator patchelf)|g" PKGBUILD
 		fi
 		sed -i "s|{@source}|git+file:///$2/|g" PKGBUILD    
 		sed -i "s|cd \"Eddie-\$pkgver\"|cd \"eddie-air\"|g" PKGBUILD
@@ -74,7 +73,7 @@ function arch_env() {
 				sed -i "s|{@pkgdepends}|(mono openvpn sudo)|g" PKGBUILD
 			else
 				sed -i "s|{@pkgdesc}|Eddie - VPN tunnel - UI - beta|g" PKGBUILD    
-				sed -i "s|{@pkgdepends}|(mono openvpn sudo desktop-file-utils libnotify libappindicator-gtk2 patchelf)|g" PKGBUILD
+				sed -i "s|{@pkgdepends}|(mono openvpn sudo desktop-file-utils libnotify libayatana-appindicator patchelf)|g" PKGBUILD
 			fi
 			sed -i "s|{@source}|git+https://github.com/AirVPN/Eddie.git|g" PKGBUILD    
 			sed -i "s|cd \"Eddie-\$pkgver\"|cd \"Eddie\"|g" PKGBUILD
@@ -97,7 +96,7 @@ function arch_env() {
 				sed -i "s|{@pkgdepends}|(mono openvpn sudo)|g" PKGBUILD
 			else
 				sed -i "s|{@pkgdesc}|Eddie - VPN tunnel - UI|g" PKGBUILD
-				sed -i "s|{@pkgdepends}|(mono openvpn sudo desktop-file-utils libnotify libappindicator-gtk2 patchelf)|g" PKGBUILD
+				sed -i "s|{@pkgdepends}|(mono openvpn sudo desktop-file-utils libnotify libayatana-appindicator patchelf)|g" PKGBUILD
 			fi
 			sed -i "s|{@source}|https://github.com/AirVPN/Eddie/archive/${VERSIONSTABLE}.tar.gz|g" PKGBUILD    
 			if test -f "${SCRIPTDIR}/../signing/aur.key.password.txt"; then # Staff AirVPN

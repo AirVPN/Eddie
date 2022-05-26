@@ -39,7 +39,7 @@ namespace Eddie.Core.UI
 			}
 			else if (key == "pinger")
 			{
-				// ClodoTemp must be InvalidatePinger(), but check Refresh.Full steps
+				// WIP must be InvalidatePinger(), but check Refresh.Full steps
 				Engine.Instance.InvalidateConnections();
 			}
 			else if (key == "discovery")

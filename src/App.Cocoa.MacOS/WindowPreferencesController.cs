@@ -933,7 +933,7 @@ namespace Eddie.UI.Cocoa.Osx
 			GuiUtils.SetCheck(ChkHummingbirdPrefer, o.GetBool("tools.hummingbird.preferred"));
 			TxtHummingbirdPath.StringValue = o.Get("tools.hummingbird.path");
 
-			if (Core.Platform.Instance.GetVersion().VersionUnder("10.14")) // Hummingbird require Mojave
+			if (Core.Platform.Instance.GetVersion().VersionUnder("10.13")) // Hummingbird require High Sierra
 			{
 				GuiUtils.SetEnabled(ChkHummingbirdPrefer, false);
 				GuiUtils.SetCheck(ChkHummingbirdPrefer, false);

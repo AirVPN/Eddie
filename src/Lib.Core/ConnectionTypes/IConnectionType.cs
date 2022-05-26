@@ -231,7 +231,7 @@ namespace Eddie.Core.ConnectionTypes
 						throw new Exception("Unsupported route catch-all mode");
 				}
 
-				AddRoute(EntryIP, "net_gateway", "EntryIP");
+				AddRoute(EntryIP, "net_gateway", "Entry IP");
 				RouteEntryIp = false;
 			}
 
@@ -243,9 +243,9 @@ namespace Eddie.Core.ConnectionTypes
 				AddRoute(ip, "vpn_gateway", "For Checking Route");
 			}
 
-			if (Platform.Instance.GetUseOpenVpnRoutes() == false)
+			if (Platform.Instance.GetUseOpenVpnRoutes() == false) // WIP, remove in 2.22.0
 				AddRoute(EntryIP, "net_gateway", "IP Entry");
-
+			
 			string routes = Engine.Instance.Options.Get("routes.custom");
 			string[] routes2 = routes.Split(';');
 			foreach (string route in routes2)

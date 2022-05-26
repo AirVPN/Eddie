@@ -23,7 +23,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 
-// ClodoTemp: Missing feature, a token access. Webserver not yet used anyway.
+// WIP: Missing feature, a token access. Webserver not yet used anyway.
 
 namespace Eddie.Core
 {

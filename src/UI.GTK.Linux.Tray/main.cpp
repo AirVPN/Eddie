@@ -29,16 +29,12 @@
 #include <thread>
 #include <vector>
 
+#include <libayatana-appindicator/app-indicator.h>
+
 #pragma GCC diagnostic push
+// GTK just doesn't intend to support image menu items going forward. They're considered bad practice in modern UI.
+// All deprecation warning are related to menu icons.
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#if defined(appindicatorpackage_libappindicator)
-	#include <libappindicator/app-indicator.h>
-#elif defined(appindicatorpackage_libayatanaappindicator)
-	#include <libayatana-appindicator/app-indicator.h>
-#else
-	#error Unexpected, missing define for appindicator package
-#endif
-#pragma GCC diagnostic pop
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -170,7 +166,7 @@ static GtkWidget * loadImage(const std::string &filename)
 
 static GtkWidget * getStockImage(const std::string &imageName)
 {
-    return gtk_image_new_from_stock(imageName.c_str(), GTK_ICON_SIZE_MENU);
+    return gtk_image_new_from_icon_name(imageName.c_str(), GTK_ICON_SIZE_MENU);
 }
 
 static GtkWidget * parseImageCommand(const std::string &args)
@@ -198,7 +194,7 @@ static void updateMenuItemImage(GtkWidget *menuItem, GtkWidget *icon)
     if(menuItem == nullptr || icon == nullptr)
         return;
 
-    gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menuItem), icon);
+    gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menuItem), icon);    
 }
 
 static void updateMenuItemEnable(GtkWidget *menuItem, bool enable)
@@ -254,6 +250,7 @@ static void onMenuItemClick(GtkWidget *widget, gpointer data)
     if(menuItemID != nullptr)
         writeOutput(menuItemID);
 }
+
 /*
 static void onExitCallback(GtkWidget *widget, gpointer data)
 {
@@ -262,6 +259,7 @@ static void onExitCallback(GtkWidget *widget, gpointer data)
     //doQuit();
 }
 */
+
 static void quitHandler(int e)
 {
     std::cout << "quitHandler" << std::endl;
@@ -279,15 +277,14 @@ static GtkWidget * createMenuItem(const std::string &id, const std::string &labe
     if(menuItem == nullptr)
         return nullptr;
 
-    //g_menusMap[id] = menuItem;
     std::pair<MenusMap::iterator, bool> ret = g_menusMap.insert(std::make_pair(id, menuItem));
     if(!ret.second)
         return nullptr;
 
-    gtk_image_menu_item_set_always_show_image(GTK_IMAGE_MENU_ITEM(menuItem), TRUE);
 
-    if(icon != nullptr)
-        gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menuItem), icon);
+    gtk_image_menu_item_set_always_show_image(GTK_IMAGE_MENU_ITEM(menuItem), TRUE);
+    
+    if(icon != nullptr) gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menuItem), icon);
 
     if(parent != nullptr)
         gtk_menu_shell_append(GTK_MENU_SHELL(parent), menuItem);
@@ -347,8 +344,6 @@ static void handleFifoCommandUI(const std::string &str)
     std::string cmd;
     std::string args;
     parseCommand(str, cmd, args);
-
-    //std::cout << cmd << " (" << args << ")" << std::endl;
 
     if(cmd == FIFO_TRAY_ACTIVE)
     {
@@ -481,16 +476,16 @@ static void runUI(int argc, char *argv[])
     app_indicator_set_icon(g_indicator, icon.c_str());
 
     GtkWidget *menu = gtk_menu_new();
-
-    createMenuItem(FIFO_MENU_STATUS, "", menu, getStockImage(GTK_STOCK_NO));
-    createMenuItem(FIFO_MENU_CONNECT, "", menu, getStockImage(GTK_STOCK_GO_FORWARD));
+    
+    createMenuItem(FIFO_MENU_STATUS, "", menu, getStockImage("gtk-no"));
+    createMenuItem(FIFO_MENU_CONNECT, "", menu, getStockImage("gtk-go-forward"));
     addMenuSeparator(menu);
-    createMenuItem(FIFO_MENU_PREFERENCES, "Preferences", menu, getStockImage(GTK_STOCK_PREFERENCES));
-    createMenuItem(FIFO_MENU_ABOUT, "About", menu, getStockImage(GTK_STOCK_INFO));
+    createMenuItem(FIFO_MENU_PREFERENCES, "Preferences", menu, getStockImage("gtk-preferences"));
+    createMenuItem(FIFO_MENU_ABOUT, "About", menu, getStockImage("gtk-info"));
     addMenuSeparator(menu);
-    createMenuItem(FIFO_MENU_RESTORE, "Restore", menu, getStockImage(GTK_STOCK_REDO));
+    createMenuItem(FIFO_MENU_RESTORE, "Restore", menu, getStockImage("gtk-redo"));
     //addMenuSeparator(menu);
-    createMenuItem(FIFO_MENU_EXIT, "Exit", menu, getStockImage(GTK_STOCK_QUIT));
+    createMenuItem(FIFO_MENU_EXIT, "Exit", menu, getStockImage("gtk-quit"));
 
     app_indicator_set_menu(g_indicator, GTK_MENU(menu));
 
@@ -632,3 +627,5 @@ int main(int argc, char *argv[])
 
     return 0;
 }
+
+#pragma GCC diagnostic pop
