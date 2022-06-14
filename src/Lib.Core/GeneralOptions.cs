@@ -1,4 +1,4 @@
-// <eddie_source_header>
+﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
 // Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
@@ -16,15 +16,19 @@
 // along with Eddie. If not, see <http://www.gnu.org/licenses/>.
 // </eddie_source_header>
 
-using Eddie.Core;
-using System.Windows.Forms;
-
-namespace Eddie.Forms.Controls
+namespace Eddie.Core
 {
-	public class ListViewItemOption : ListViewItem
+	public class GeneralOptions
 	{
-		public Option Option;
+		private Json m_data = new Json();
+		public void Read()
+		{
 
+		}
 
+		public void Save()
+		{
+
+		}
 	}
 }

@@ -81,13 +81,13 @@ namespace Eddie.Forms.Skin
 
 		public void ClearFontCache()
 		{
-			GdiCacheFonts.Clear();
+			GdiCacheFonts.Clear();			
 		}
 
 		public Font GetFontEx(string name)
 		{
 			if (GdiCacheFonts.ContainsKey(name))
-				return GdiCacheFonts[name];
+				 return GdiCacheFonts[name];
 			else
 			{
 				string fontName = name;
@@ -143,7 +143,7 @@ namespace Eddie.Forms.Skin
 				FontConverter fontConverter = new FontConverter();
 				Font f = fontConverter.ConvertFromInvariantString(name2) as Font;
 				GdiCacheFonts[name] = f;
-
+				
 				return f;
 			}
 		}

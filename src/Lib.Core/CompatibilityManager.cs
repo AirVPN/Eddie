@@ -76,7 +76,7 @@ namespace Eddie.Core
 				}
 			}
 		}
-		public static void FixOptions(Dictionary<string, string> options)
+		public static void FixProfileOptions(Dictionary<string, string> options)
 		{
 			if (options.ContainsKey("mode.protocol"))
 			{
@@ -98,7 +98,7 @@ namespace Eddie.Core
 			}
 		}
 
-		public static void FixOptions(Options options)
+		public static void FixProfileOptions(ProfileOptions options)
 		{
 			if (options.Get("mode.protocol") == "AUTO")
 				options.Set("mode.type", "auto");

@@ -162,7 +162,7 @@ namespace Eddie.Core
 
 		public bool CanConnect()
 		{
-			if (Engine.Instance.Options.GetBool("connections.allow_anyway"))
+			if (Engine.Instance.ProfileOptions.GetBool("connections.allow_anyway"))
 				return true;
 
 			if (HasWarningsErrors())
@@ -220,7 +220,7 @@ namespace Eddie.Core
 				return 99995;
 			else
 			{
-				string scoreType = Engine.Instance.Options.GetLower("servers.scoretype");
+				string scoreType = Engine.Instance.ProfileOptions.GetLower("servers.scoretype");
 
 				double x = Users;
 				double x2 = UsersPerc();

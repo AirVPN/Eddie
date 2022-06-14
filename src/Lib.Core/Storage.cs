@@ -64,7 +64,7 @@ namespace Eddie.Core
 
 		public void Save()
 		{
-			bool remember = Engine.Instance.Options.GetBool("remember");
+			bool remember = Engine.Instance.ProfileOptions.GetBool("remember");
 
 			lock (this)
 			{
@@ -81,7 +81,7 @@ namespace Eddie.Core
 
 					xmlDoc.AppendChild(rootNode);
 
-					foreach (Option option in Engine.Instance.Options.Dict.Values)
+					foreach (ProfileOption option in Engine.Instance.ProfileOptions.Dict.Values)
 					{
 						bool skip = false;
 
@@ -220,7 +220,7 @@ namespace Eddie.Core
 							bool ask = Engine.Instance.OnAskYesNo(LanguageManager.GetText("OptionsReadNoKeyring"));
 							if (ask)
 							{
-								Engine.Instance.Options.ResetAll(true);
+								Engine.Instance.ProfileOptions.ResetAll(true);
 								return true;
 							}
 							else
@@ -256,7 +256,7 @@ namespace Eddie.Core
 				bool ask = Engine.Instance.OnAskYesNo(LanguageManager.GetText("OptionsReadError", ex.Message));
 				if (ask)
 				{
-					Engine.Instance.Options.ResetAll(true);
+					Engine.Instance.ProfileOptions.ResetAll(true);
 					return true;
 				}
 				else
@@ -281,7 +281,7 @@ namespace Eddie.Core
 				ms.Position = 0;
 				xmlDoc.Load(ms);
 
-				Engine.Instance.Options.ResetAll(true);
+				Engine.Instance.ProfileOptions.ResetAll(true);
 
 				Providers = xmlDoc.DocumentElement.GetFirstElementByTagName("providers");
 				if (Providers == null)
@@ -299,10 +299,10 @@ namespace Eddie.Core
 						options[name] = value;
 				}
 
-				CompatibilityManager.FixOptions(options);
+				CompatibilityManager.FixProfileOptions(options);
 				foreach (KeyValuePair<string, string> item in options)
-					Engine.Instance.Options.Set(item.Key, item.Value);
-				CompatibilityManager.FixOptions(Engine.Instance.Options);
+					Engine.Instance.ProfileOptions.Set(item.Key, item.Value);
+				CompatibilityManager.FixProfileOptions(Engine.Instance.ProfileOptions);
 
 				// For compatibility <3
 				XmlElement xmlManifest = xmlDoc.DocumentElement.GetFirstElementByTagName("manifest");

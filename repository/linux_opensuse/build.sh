@@ -93,7 +93,7 @@ cp "${SCRIPTDIR}/rpmbuild-eddie-${PROJECT}.spec" "${TARGETDIR}/../rpmbuild.spec"
 
 sed -i "s/{@version}/${VERSION}/g" ${TARGETDIR}/../rpmbuild.spec
 
-REQUIRES="mono-core sudo openvpn stunnel curl libsecret-tools" # Diff between OpenSuse and Fedora
+REQUIRES="mono-core sudo openvpn stunnel libcurl4 libsecret-tools" # Diff between OpenSuse and Fedora
 if [ $PROJECT = "cli" ]; then
     REQUIRES="${REQUIRES}"
 elif [ $PROJECT = "ui" ]; then

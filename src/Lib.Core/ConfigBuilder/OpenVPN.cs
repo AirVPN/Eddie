@@ -224,14 +224,14 @@ namespace Eddie.Core.ConfigBuilder
 				RemoveDirective("ncp-disable");
 				if (ExistsDirective("data-ciphers") == false)
 				{
-					string dataCiphers = Engine.Instance.Options.Get("openvpn.directives.data-ciphers");
-					if ((Engine.Instance.Options.GetBool("openvpn.directives.chacha20")) && (dataCiphers.IndexOfInv("chacha20-poly1305") == -1))
+					string dataCiphers = Engine.Instance.ProfileOptions.Get("openvpn.directives.data-ciphers");
+					if ((Engine.Instance.ProfileOptions.GetBool("openvpn.directives.chacha20")) && (dataCiphers.IndexOfInv("chacha20-poly1305") == -1))
 						dataCiphers = "CHACHA20-POLY1305:" + dataCiphers;
 					AppendDirective("data-ciphers", dataCiphers, "");
 				}
 
 				if (ExistsDirective("data-ciphers-fallback") == false)
-					AppendDirective("data-ciphers-fallback", Engine.Instance.Options.Get("openvpn.directives.data-ciphers-fallback"), "");
+					AppendDirective("data-ciphers-fallback", Engine.Instance.ProfileOptions.Get("openvpn.directives.data-ciphers-fallback"), "");
 			}
 
 			// Platform specific

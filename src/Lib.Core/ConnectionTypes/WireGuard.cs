@@ -38,7 +38,7 @@ namespace Eddie.Core.ConnectionTypes
 		{
 			base.Build();
 			
-			m_interfaceName = Engine.Instance.Options.Get("network.iface.name");
+			m_interfaceName = Engine.Instance.ProfileOptions.Get("network.iface.name");
 			if (m_interfaceName == "")
 				m_interfaceName = "Eddie";
 
@@ -66,10 +66,10 @@ namespace Eddie.Core.ConnectionTypes
 				m_configStartup.InterfaceAddresses = m_configStartup.InterfaceAddresses.OnlyIPv4;
 
 			// DNS
-			IpAddresses dnsCustom = new IpAddresses(Engine.Instance.Options.Get("dns.servers"));
+			IpAddresses dnsCustom = new IpAddresses(Engine.Instance.ProfileOptions.Get("dns.servers"));
 			if (dnsCustom.Count > 0)
 				m_configStartup.InterfaceDns = dnsCustom;
-			if (Engine.Instance.Options.GetBool("dns.delegate") == false)
+			if (Engine.Instance.ProfileOptions.GetBool("dns.delegate") == false)
 			{
 				m_dns = m_configStartup.InterfaceDns.Clone();
 				m_configStartup.InterfaceDns.Clear();
@@ -88,8 +88,8 @@ namespace Eddie.Core.ConnectionTypes
 			m_elevatedCommand.Parameters["id"] = Id;
 			m_elevatedCommand.Parameters["interface"] = m_interfaceName;
 			m_elevatedCommand.Parameters["config"] = m_configStartup.Build();
-			m_elevatedCommand.Parameters["handshake_timeout_first"] = Engine.Instance.Options.GetInt("wireguard.handshake.timeout.first").ToString();
-			m_elevatedCommand.Parameters["handshake_timeout_connected"] = Engine.Instance.Options.GetInt("wireguard.handshake.timeout.connected").ToString();
+			m_elevatedCommand.Parameters["handshake_timeout_first"] = Engine.Instance.ProfileOptions.GetInt("wireguard.handshake.timeout.first").ToString();
+			m_elevatedCommand.Parameters["handshake_timeout_connected"] = Engine.Instance.ProfileOptions.GetInt("wireguard.handshake.timeout.connected").ToString();
 
 			m_elevatedCommand.ExceptionEvent += delegate (Elevated.Command cmd, string message)
 			{
@@ -232,7 +232,7 @@ namespace Eddie.Core.ConnectionTypes
 
 		public override IpAddresses GetDns()
 		{
-			if (Engine.Instance.Options.GetBool("dns.delegate"))
+			if (Engine.Instance.ProfileOptions.GetBool("dns.delegate"))
 				return m_configStartup.InterfaceDns;
 			else
 				return m_dns;

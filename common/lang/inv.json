@@ -233,7 +233,7 @@
     "InitStepAppStartEvents": "Execution of App Start events",
     "InitStepCheckingSoftware": "Checking available software",
     "InitStepCheckRecoveryStatus": "Check recovery status",
-    "InitStepCollectNetworkInfo": "Collect network information",
+    "CollectNetworkInfo": "Collect network information",
     "InitStepCollectSystemInfo": "Collect system information",
     "InitStepComputeData": "Compute data",
     "InitStepConnectSystemPrivileges": "Connect with daemon for system privileges",

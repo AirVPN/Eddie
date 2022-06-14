@@ -46,7 +46,7 @@ namespace Eddie.Core.ConsoleEdition
 			else if (StartCommandLine.Exists("help"))
 			{
 				EnableLogOnConsole = false;
-				Options o = new Options();
+				ProfileOptions o = new ProfileOptions();
 				Console.WriteLine(o.GetMan(StartCommandLine.Get("help.format", "text")));
 				return false;
 			}
@@ -59,8 +59,8 @@ namespace Eddie.Core.ConsoleEdition
 
 		public override bool OnInitUi()
 		{
-			string login = Options.Get("login").Trim();
-			string password = Options.Get("password").Trim();
+			string login = ProfileOptions.Get("login").Trim();
+			string password = ProfileOptions.Get("password").Trim();
 
 			if ((login == "") || (password == ""))
 			{
@@ -72,7 +72,7 @@ namespace Eddie.Core.ConsoleEdition
 				if (StartCommandLine.Get("console.mode", "keys") == "keys")
 					Logs.Log(LogType.Info, LanguageManager.GetText("ConsoleKeyboardHelp"));
 
-				if (Options.GetBool("connect") == false)
+				if (ProfileOptions.GetBool("connect") == false)
 					Logs.Log(LogType.Info, LanguageManager.GetText("ConsoleKeyboardHelpNoConnect"));
 			}
 

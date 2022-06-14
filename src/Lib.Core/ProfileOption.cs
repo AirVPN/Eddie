@@ -18,7 +18,7 @@
 
 namespace Eddie.Core
 {
-	public class Option
+	public class ProfileOption
 	{
 		public string Code = "";
 		public string Type = "";

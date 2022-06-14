@@ -100,18 +100,18 @@ namespace Eddie.Core
 					if (CancelRequested)
 						continue;
 
-					string forceServer = Engine.Options.Get("server");
+					string forceServer = Engine.ProfileOptions.Get("server");
 					if ((Engine.NextServer == null) && (forceServer != ""))
 					{
 						Engine.NextServer = Engine.PickConnectionByName(forceServer);
 					}
 
-					if ((Engine.NextServer == null) && (Engine.Options.GetBool("servers.startlast")))
+					if ((Engine.NextServer == null) && (Engine.ProfileOptions.GetBool("servers.startlast")))
 					{
-						Engine.NextServer = Engine.PickConnection(Engine.Options.Get("servers.last"));
+						Engine.NextServer = Engine.PickConnection(Engine.ProfileOptions.Get("servers.last"));
 					}
 
-					if ((Engine.NextServer == null) && (Engine.Options.GetBool("servers.locklast")) && (sessionLastServer != ""))
+					if ((Engine.NextServer == null) && (Engine.ProfileOptions.GetBool("servers.locklast")) && (sessionLastServer != ""))
 					{
 						Engine.NextServer = Engine.PickConnection(sessionLastServer);
 					}
@@ -206,7 +206,7 @@ namespace Eddie.Core
 										}
 										else if (userMessageAction == "next")
 										{
-											Engine.CurrentServer.Penality += Engine.Options.GetInt("advanced.penality_on_error");
+											Engine.CurrentServer.Penality += Engine.ProfileOptions.GetInt("advanced.penality_on_error");
 											waitingMessage = userMessage + ", next in {1} sec.";
 											waitingSecs = 5;
 										}
@@ -224,16 +224,18 @@ namespace Eddie.Core
 					if (CancelRequested)
 						continue;
 
+					Engine.NetworkInfoUpdate(); // 2.22.0
+
 					if (Engine.CurrentServer.SupportIPv4)
 					{
 						bool osSupport = Platform.Instance.GetSupportIPv4();
-						if ((osSupport == false) && (Engine.Instance.Options.GetLower("network.ipv4.mode") != "block"))
+						if ((osSupport == false) && (Engine.Instance.ProfileOptions.GetLower("network.ipv4.mode") != "block"))
 						{
 							Engine.Instance.Logs.LogWarning(LanguageManager.GetText("IPv4NotSupportedByOS"));
-							if ((Engine.Instance.Options.GetBool("network.ipv4.autoswitch")) && (Engine.Instance.Options.Get("network.ipv4.mode") != "block"))
+							if ((Engine.Instance.ProfileOptions.GetBool("network.ipv4.autoswitch")) && (Engine.Instance.ProfileOptions.Get("network.ipv4.mode") != "block"))
 							{
 								Engine.Instance.Logs.LogWarning(LanguageManager.GetText("IPv4NotSupportedByNetworkAdapterAutoSwitch"));
-								Engine.Instance.Options.Set("network.ipv4.mode", "block");
+								Engine.Instance.ProfileOptions.Set("network.ipv4.mode", "block");
 							}
 						}
 					}
@@ -241,13 +243,13 @@ namespace Eddie.Core
 					if (Engine.CurrentServer.SupportIPv6)
 					{
 						bool osSupport = Platform.Instance.GetSupportIPv6();
-						if ((osSupport == false) && (Engine.Instance.Options.GetLower("network.ipv6.mode") != "block"))
+						if ((osSupport == false) && (Engine.Instance.ProfileOptions.GetLower("network.ipv6.mode") != "block"))
 						{
 							Engine.Instance.Logs.LogWarning(LanguageManager.GetText("IPv6NotSupportedByOS"));
-							if ((Engine.Instance.Options.GetBool("network.ipv6.autoswitch")) && (Engine.Instance.Options.Get("network.ipv6.mode") != "block"))
+							if ((Engine.Instance.ProfileOptions.GetBool("network.ipv6.autoswitch")) && (Engine.Instance.ProfileOptions.Get("network.ipv6.mode") != "block"))
 							{
 								Engine.Instance.Logs.LogWarning(LanguageManager.GetText("IPv6NotSupportedByNetworkAdapterAutoSwitch"));
-								Engine.Instance.Options.Set("network.ipv6.mode", "block");
+								Engine.Instance.ProfileOptions.Set("network.ipv6.mode", "block");
 							}
 						}
 					}
@@ -297,7 +299,7 @@ namespace Eddie.Core
 						m_connection.ExitIPs.Add(Engine.CurrentServer.IpsExit.Clone());
 
 						sessionLastServer = Engine.CurrentServer.Code;
-						Engine.Options.Set("servers.last", Engine.CurrentServer.Code);
+						Engine.ProfileOptions.Set("servers.last", Engine.CurrentServer.Code);
 
 						Engine.RunEventCommand("vpn.pre");
 
@@ -395,7 +397,7 @@ namespace Eddie.Core
 
 						if (m_reset == "ERROR")
 						{
-							Engine.CurrentServer.Penality += Engine.Options.GetInt("advanced.penality_on_error");
+							Engine.CurrentServer.Penality += Engine.ProfileOptions.GetInt("advanced.penality_on_error");
 						}
 
 						// -----------------------------------
@@ -449,7 +451,7 @@ namespace Eddie.Core
 
 						//Platform.Instance.OnRouteDefaultRemoveRestore();
 
-						if (Engine.Instance.Options.GetBool("dns.delegate") == false)
+						if (Engine.Instance.ProfileOptions.GetBool("dns.delegate") == false)
 							Platform.Instance.OnDnsSwitchRestore();
 
 						Platform.Instance.OnInterfaceRestore();
@@ -758,7 +760,7 @@ namespace Eddie.Core
 			Platform.Instance.OnInterfaceDo(m_connection.Interface);
 
 			// DNS Switch
-			if (Engine.Instance.Options.GetBool("dns.delegate") == false)
+			if (Engine.Instance.ProfileOptions.GetBool("dns.delegate") == false)
 			{
 				IpAddresses dns = m_connection.GetDns();
 
@@ -798,7 +800,7 @@ namespace Eddie.Core
 				SetConnected(true);
 				m_connection.TimeStart = DateTime.UtcNow;
 
-				if (Engine.Instance.Options.GetBool("advanced.testonly"))
+				if (Engine.Instance.ProfileOptions.GetBool("advanced.testonly"))
 					Engine.RequestStop();
 			}
 		}

@@ -134,7 +134,7 @@ namespace Eddie.Core.Elevated
 
 			c.Parameters["_id"] = c.Id.ToString();
 			c.Parameters["_token"] = m_sessionKey;
-			c.Parameters["_debug"] = ((Engine.Instance != null) && (Engine.Instance.Options != null) && (Engine.Instance.Options.GetBool("log.level.debug")) ? "1" : "0");
+			c.Parameters["_debug"] = ((Engine.Instance != null) && (Engine.Instance.ProfileOptions != null) && (Engine.Instance.ProfileOptions.GetBool("log.level.debug")) ? "1" : "0");
 			string line = "";
 			foreach (KeyValuePair<string, string> kp in c.Parameters)
 			{

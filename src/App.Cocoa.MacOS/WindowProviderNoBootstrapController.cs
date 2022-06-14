@@ -54,12 +54,12 @@ namespace Eddie.UI.Cocoa.Osx
 
             GuiUtils.SetCheck(ChkDontShowAgain, false);
 			LblBody.StringValue = LanguageManager.GetText("WindowsProviderNoBootstrapBody", Provider.Title);
-			TxtManualUrls.StringValue = Engine.Instance.Options.Get("bootstrap.urls");
+			TxtManualUrls.StringValue = Engine.Instance.ProfileOptions.Get("bootstrap.urls");
 
 			CmdOk.Activated += (object sender, EventArgs e) =>
 			{
-                Engine.Instance.Options.SetBool("ui.skip.provider.manifest.failed", GuiUtils.GetCheck(ChkDontShowAgain));
-				Engine.Instance.Options.Set("bootstrap.urls", TxtManualUrls.StringValue);
+                Engine.Instance.ProfileOptions.SetBool("ui.skip.provider.manifest.failed", GuiUtils.GetCheck(ChkDontShowAgain));
+				Engine.Instance.ProfileOptions.Set("bootstrap.urls", TxtManualUrls.StringValue);
 				Engine.Instance.RefreshProvidersInvalidateConnections();
 
 				Window.Close();
@@ -69,7 +69,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 			CmdCancel.Activated += (object sender, EventArgs e) =>
 			{
-                Engine.Instance.Options.SetBool("ui.skip.provider.manifest.failed", GuiUtils.GetCheck(ChkDontShowAgain));
+                Engine.Instance.ProfileOptions.SetBool("ui.skip.provider.manifest.failed", GuiUtils.GetCheck(ChkDontShowAgain));
 
 				Window.Close();
 				NSApplication.SharedApplication.StopModal();

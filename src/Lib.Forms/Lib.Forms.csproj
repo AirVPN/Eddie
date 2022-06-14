@@ -88,7 +88,6 @@
     </Compile>
     <Compile Include="Controls\ListViewItemProvider.cs" />
     <Compile Include="Controls\ListViewItemProtocol.cs" />
-    <Compile Include="Controls\ListViewItemOption.cs" />
     <Compile Include="Controls\Tooltip.cs">
       <SubType>Component</SubType>
     </Compile>

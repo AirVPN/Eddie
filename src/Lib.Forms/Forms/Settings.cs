@@ -282,7 +282,7 @@ namespace Eddie.Forms.Forms
 			m_mapNetworkEntryIFace[""] = "Automatic";
 			cboNetworkEntryInterface.Items.Add("Automatic");
 
-			Json jNetworkInfo = Engine.Instance.Manifest["network_info"].Value as Json;
+			Json jNetworkInfo = Engine.Instance.NetworkInfoGet();
 			foreach (Json jNetworkInterface in jNetworkInfo["interfaces"].Json.GetArray())
 			{
 				if ((bool)jNetworkInterface["bind"].Value)
@@ -347,14 +347,6 @@ namespace Eddie.Forms.Forms
 			m_onLoadCompleted = true;
 		}
 
-		protected override void OnClosed(EventArgs e)
-		{
-			base.OnClosed(e);
-
-			UiClient.Instance.MainWindow.ResetSkinCache();
-			UiClient.Instance.MainWindow.ApplySkin();
-		}
-
 		public void BuildTreeTabs()
 		{
 			m_tabMain = new Eddie.Forms.Controls.TabNavigator();
@@ -373,7 +365,7 @@ namespace Eddie.Forms.Forms
 		public void ReadOptions()
 		{
 			Storage s = Engine.Instance.Storage;
-			Options o = Engine.Instance.Options;
+			ProfileOptions o = Engine.Instance.ProfileOptions;
 
 			// General            
 			chkSystemStart.Checked = Platform.Instance.GetAutoStart();
@@ -721,7 +713,7 @@ namespace Eddie.Forms.Forms
 
 		public void ReadOptionsEvent(string name, int index)
 		{
-			Options o = Engine.Instance.Options;
+			ProfileOptions o = Engine.Instance.ProfileOptions;
 
 			String filename = o.Get("event." + name + ".filename");
 			if (filename != "")
@@ -766,7 +758,7 @@ namespace Eddie.Forms.Forms
 		public void SaveOptions()
 		{
 			Storage s = Engine.Instance.Storage;
-			Options o = Engine.Instance.Options;
+			ProfileOptions o = Engine.Instance.ProfileOptions;
 
 			// General            
 			Platform.Instance.SetAutoStart(chkSystemStart.Checked);
@@ -1104,7 +1096,7 @@ namespace Eddie.Forms.Forms
 		public void SaveOptionsEvent(string name, int index)
 		{
 			Storage s = Engine.Instance.Storage;
-			Options o = Engine.Instance.Options;
+			ProfileOptions o = Engine.Instance.ProfileOptions;
 
 			if (lstAdvancedEvents.Items[index].SubItems.Count == 1)
 			{
@@ -1628,7 +1620,7 @@ namespace Eddie.Forms.Forms
 		{
 			if (UiClient.Instance.MainWindow.AskYesNo(LanguageManager.GetText("ResetSettingsConfirm")))
 			{
-				Engine.Instance.Options.ResetAll(false);
+				Engine.Instance.ProfileOptions.ResetAll(false);
 				ReadOptions();
 				GuiUtils.MessageBoxInfo(this, LanguageManager.GetText("ResetSettingsDone"));
 			}
@@ -1661,13 +1653,13 @@ namespace Eddie.Forms.Forms
 
 		private void cmdShellExternalView_Click(object sender, EventArgs e)
 		{
-			Json rules = Engine.Instance.Options.GetJson("external.rules");
+			Json rules = Engine.Instance.ProfileOptions.GetJson("external.rules");
 			Engine.Instance.OnShowText("Rules", rules.ToJsonPretty());
 		}
 
 		private void cmdShellExternalClear_Click(object sender, EventArgs e)
 		{
-			Engine.Instance.Options.Set("external.rules", Engine.Instance.Options.Dict["external.rules"].Default);
+			Engine.Instance.ProfileOptions.Set("external.rules", Engine.Instance.ProfileOptions.Dict["external.rules"].Default);
 			GuiUtils.MessageBoxInfo(this, "Done.");
 		}
 

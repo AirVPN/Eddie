@@ -47,10 +47,10 @@ function arch_env() {
 		sed -i "s|{@pkgdesc}|Eddie - VPN tunnel|g" PKGBUILD    
 		if [ "${PROJECT}" = "cli" ]; then
 			sed -i "s|{@pkgdesc}|Eddie - VPN tunnel - CLI - prebuilt|g" PKGBUILD    
-			sed -i "s|{@pkgdepends}|(mono openvpn sudo)|g" PKGBUILD
+			sed -i "s|{@pkgdepends}|(mono curl openvpn sudo)|g" PKGBUILD
 		else
 			sed -i "s|{@pkgdesc}|Eddie - VPN tunnel - UI - prebuilt|g" PKGBUILD    
-			sed -i "s|{@pkgdepends}|(mono openvpn sudo desktop-file-utils libnotify libayatana-appindicator patchelf)|g" PKGBUILD
+			sed -i "s|{@pkgdepends}|(mono curl openvpn sudo desktop-file-utils libnotify libayatana-appindicator patchelf)|g" PKGBUILD
 		fi
 		sed -i "s|{@source}|git+file:///$2/|g" PKGBUILD    
 		sed -i "s|cd \"Eddie-\$pkgver\"|cd \"eddie-air\"|g" PKGBUILD
@@ -70,10 +70,10 @@ function arch_env() {
 			sed -i "s|{@pkgname}|eddie-${PROJECT}-git|g" PKGBUILD    
 			if [ "${PROJECT}" = "cli" ]; then
 				sed -i "s|{@pkgdesc}|Eddie - VPN tunnel - CLI - beta|g" PKGBUILD    
-				sed -i "s|{@pkgdepends}|(mono openvpn sudo)|g" PKGBUILD
+				sed -i "s|{@pkgdepends}|(mono curl openvpn sudo)|g" PKGBUILD
 			else
 				sed -i "s|{@pkgdesc}|Eddie - VPN tunnel - UI - beta|g" PKGBUILD    
-				sed -i "s|{@pkgdepends}|(mono openvpn sudo desktop-file-utils libnotify libayatana-appindicator patchelf)|g" PKGBUILD
+				sed -i "s|{@pkgdepends}|(mono curl openvpn sudo desktop-file-utils libnotify libayatana-appindicator patchelf)|g" PKGBUILD
 			fi
 			sed -i "s|{@source}|git+https://github.com/AirVPN/Eddie.git|g" PKGBUILD    
 			sed -i "s|cd \"Eddie-\$pkgver\"|cd \"Eddie\"|g" PKGBUILD
@@ -93,10 +93,10 @@ function arch_env() {
 			sed -i "s|{@pkgname}|eddie-${PROJECT}|g" PKGBUILD    
 			if [ "${PROJECT}" = "cli" ]; then
 				sed -i "s|{@pkgdesc}|Eddie - VPN tunnel - CLI|g" PKGBUILD    
-				sed -i "s|{@pkgdepends}|(mono openvpn sudo)|g" PKGBUILD
+				sed -i "s|{@pkgdepends}|(mono curl openvpn sudo)|g" PKGBUILD
 			else
 				sed -i "s|{@pkgdesc}|Eddie - VPN tunnel - UI|g" PKGBUILD
-				sed -i "s|{@pkgdepends}|(mono openvpn sudo desktop-file-utils libnotify libayatana-appindicator patchelf)|g" PKGBUILD
+				sed -i "s|{@pkgdepends}|(mono curl openvpn sudo desktop-file-utils libnotify libayatana-appindicator patchelf)|g" PKGBUILD
 			fi
 			sed -i "s|{@source}|https://github.com/AirVPN/Eddie/archive/${VERSIONSTABLE}.tar.gz|g" PKGBUILD    
 			if test -f "${SCRIPTDIR}/../signing/aur.key.password.txt"; then # Staff AirVPN

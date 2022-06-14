@@ -436,7 +436,7 @@ namespace Eddie.Platform.MacOS
 		{
 			base.FlushDNS();
 
-			Engine.Instance.Elevated.DoCommandSync("dns-flush", "services", Engine.Instance.Options.Get("linux.dns.services"));
+			Engine.Instance.Elevated.DoCommandSync("dns-flush", "services", Engine.Instance.ProfileOptions.Get("linux.dns.services"));
 		}
 
 		public override int StartProcessAsRoot(string path, string[] arguments, bool consoleMode)
@@ -875,7 +875,7 @@ namespace Eddie.Platform.MacOS
 
 		public override bool OnDnsSwitchDo(Core.ConnectionTypes.IConnectionType connection, IpAddresses dns)
 		{
-			string mode = Engine.Instance.Options.GetLower("dns.mode");
+			string mode = Engine.Instance.ProfileOptions.GetLower("dns.mode");
 
 			if (mode == "auto")
 			{
@@ -967,7 +967,7 @@ namespace Eddie.Platform.MacOS
 			return result;
 		}
 
-		public override void OnJsonNetworkInterfaceInfo(NetworkInterface networkInterface, Json jNetworkInterface)
+		public override void OnNetworkInterfaceInfoBuild(NetworkInterface networkInterface, Json jNetworkInterface)
 		{
 			Json j = Json.Parse(Engine.Instance.Elevated.DoCommandSync("network-interface-info", "id", jNetworkInterface["id"].ValueString));
 			if (j.HasKey("friendly"))

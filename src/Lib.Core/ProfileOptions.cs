@@ -23,16 +23,16 @@ using System.Text;
 
 namespace Eddie.Core
 {
-	public class Options
+	public class ProfileOptions
 	{
-		private Dictionary<string, Option> m_options = new Dictionary<string, Option>();
+		private Dictionary<string, ProfileOption> m_options = new Dictionary<string, ProfileOption>();
 
-		public Options()
+		public ProfileOptions()
 		{
 			EnsureDefaults();
 		}
 
-		public Dictionary<string, Option> Dict
+		public Dictionary<string, ProfileOption> Dict
 		{
 			get
 			{
@@ -43,7 +43,7 @@ namespace Eddie.Core
 		public string GetReportForSupport()
 		{
 			string result = "";
-			foreach (Option option in Dict.Values)
+			foreach (ProfileOption option in Dict.Values)
 			{
 				if (option.Important == false)
 					continue;
@@ -75,7 +75,7 @@ namespace Eddie.Core
 					body += "[option_block][option_code]" + kp.Key + "[/option_code]\n\t\t" + kp.Value.Replace("\n", "\n\t") + "[/option_block]\n";
 			}
 
-			foreach (Option option in Dict.Values)
+			foreach (ProfileOption option in Dict.Values)
 			{
 				if (option.Man != "")
 				{
@@ -204,7 +204,7 @@ namespace Eddie.Core
 			}
 		}
 
-		public Option GetOption(string name)
+		public ProfileOption GetOption(string name)
 		{
 			if (Exists(name))
 			{
@@ -227,7 +227,7 @@ namespace Eddie.Core
 			{
 				lock (m_options)
 				{
-					Option option = m_options[name];
+					ProfileOption option = m_options[name];
 					if (option.Value != "")
 						return option.Value;
 					else
@@ -373,7 +373,7 @@ namespace Eddie.Core
 
 		public void SetDefault(string name, string type, string val, string man, bool important)
 		{
-			Option option = new Option();
+			ProfileOption option = new ProfileOption();
 			option.Code = name;
 			option.Type = type;
 			option.Default = val;
@@ -666,7 +666,7 @@ namespace Eddie.Core
 
 		public void ResetAll(bool force)
 		{
-			foreach (Option option in Dict.Values)
+			foreach (ProfileOption option in Dict.Values)
 			{
 				if ((force == false) && (option.DontUserReset))
 					continue;
@@ -694,7 +694,7 @@ namespace Eddie.Core
 			Json j = new Json();
 			j.EnsureDictionary();
 
-			foreach (KeyValuePair<string, Option> kp in m_options)
+			foreach (KeyValuePair<string, ProfileOption> kp in m_options)
 			{
 				Json jOption = kp.Value.GetJson();
 				jOption["value"].Value = Get(kp.Key);

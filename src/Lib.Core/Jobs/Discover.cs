@@ -38,7 +38,7 @@ namespace Eddie.Core.Jobs
 
 			Int64 timeNow = Utils.UnixTimeStamp();
 
-			int interval = Engine.Instance.Options.GetInt("discover.interval");
+			int interval = Engine.Instance.ProfileOptions.GetInt("discover.interval");
 
 			foreach (ConnectionInfo infoServer in servers.Values)
 			{
@@ -64,7 +64,7 @@ namespace Eddie.Core.Jobs
 				servers = new Dictionary<string, ConnectionInfo>(Engine.Instance.Connections);
 
 			Int64 timeNow = Utils.UnixTimeStamp();
-			int interval = Engine.Instance.Options.GetInt("discover.interval");
+			int interval = Engine.Instance.ProfileOptions.GetInt("discover.interval");
 			int nTotal = 0;
 			int nPending = 0;
 
@@ -135,7 +135,7 @@ namespace Eddie.Core.Jobs
 
 		private Json DiscoverIpData(string ip, string layer)
 		{
-			string[] methods = Engine.Instance.Options.Get("discover.ip_webservice.list").Split(';');
+			string[] methods = Engine.Instance.ProfileOptions.Get("discover.ip_webservice.list").Split(';');
 			foreach (string method in methods)
 			{
 				try

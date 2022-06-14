@@ -821,7 +821,7 @@ namespace Eddie.Core
 				throw new Exception("Invalid destination " + jRoute["destination"].ValueString);
 
 			// Check if already exists
-			Json jRoutes = Engine.Instance.JsonRouteList();
+			Json jRoutes = Engine.Instance.NetworkRouteListBuild();
 			bool exists = false;
 			foreach (Json jRouteCheck in jRoutes.GetArray())
 			{
@@ -1208,15 +1208,15 @@ namespace Eddie.Core
 			return true;
 		}
 
-		public virtual void OnJsonNetworkInfo(Json jNetworkInfo)
+		public virtual void OnNetworkInfoBuild(Json jNetworkInfo)
 		{
 		}
 
-		public virtual void OnJsonNetworkInterfaceInfo(NetworkInterface networkInterface, Json jNetworkInterface)
+		public virtual void OnNetworkInterfaceInfoBuild(NetworkInterface networkInterface, Json jNetworkInterface)
 		{
 		}
 
-		public virtual void OnJsonRouteList(Json jRoutesList)
+		public virtual void OnNetworkRouteListBuild(Json jRoutesList)
 		{
 			// Notes to remember:
 			// - gateway can be a mac-address (macOS)

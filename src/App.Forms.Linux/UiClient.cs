@@ -51,7 +51,7 @@ namespace Eddie.Forms.Linux
 			}
 			else if (cmd == "engine.ui")
 			{
-				if (Eddie.Core.Engine.Instance.Options.GetBool("gui.tray_show"))
+				if (Eddie.Core.Engine.Instance.ProfileOptions.GetBool("gui.tray_show"))
 				{
 					Tray = new Tray();
 					for (int t = 0; t < 3000; t += 100)

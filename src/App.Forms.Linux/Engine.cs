@@ -49,7 +49,7 @@ namespace Eddie.Forms.Linux
 
 			if ((UiClient.Tray != null) && (UiClient.Tray.IsStarted()))
 			{
-				if (Engine.Options.GetBool("gui.tray_show"))
+				if (Engine.ProfileOptions.GetBool("gui.tray_show"))
 				{
 					UiClient.Tray.SendCommand("menu.restore.visible:true");
 
@@ -69,7 +69,7 @@ namespace Eddie.Forms.Linux
 		{
 			if (Engine.Storage != null)
 			{
-				if (Engine.Options.GetBool("gui.tray_show") == false)
+				if (Engine.ProfileOptions.GetBool("gui.tray_show") == false)
 				{
 					return false;
 				}

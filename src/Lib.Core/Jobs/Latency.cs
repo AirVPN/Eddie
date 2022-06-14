@@ -44,7 +44,7 @@ namespace Eddie.Core.Jobs
 				bool enabled = GetEnabled();
 
 				Int64 timeNow = Utils.UnixTimeStamp();
-				int jobsLimit = Engine.Instance.Options.GetInt("pinger.jobs");
+				int jobsLimit = Engine.Instance.ProfileOptions.GetInt("pinger.jobs");
 
 				bool startOne = false;
 
@@ -73,7 +73,7 @@ namespace Eddie.Core.Jobs
 
 							Ping p = new Ping();
 							p.Ip = connectionInfo.IpsEntry.FirstPreferIPv4;
-							p.TimeoutMs = Engine.Instance.Options.GetInt("pinger.timeout");
+							p.TimeoutMs = Engine.Instance.ProfileOptions.GetInt("pinger.timeout");
 							p.Server = connectionInfo;
 							p.CompleteEvent += delegate (Ping p2)
 							{
@@ -115,7 +115,7 @@ namespace Eddie.Core.Jobs
 
 		public bool GetEnabled()
 		{
-			return Engine.Instance.Options.GetBool("pinger.enabled");
+			return Engine.Instance.ProfileOptions.GetBool("pinger.enabled");
 		}
 
 		public bool GetCanRun()
@@ -135,7 +135,7 @@ namespace Eddie.Core.Jobs
 
 		public int GetPingerDelaySuccess(ConnectionInfo server) // Delay for already success ping
 		{
-			int delay = Engine.Instance.Options.GetInt("pinger.delay");
+			int delay = Engine.Instance.ProfileOptions.GetInt("pinger.delay");
 			if (delay == 0)
 				delay = Conversions.ToInt32(server.Provider.GetKeyValue("pinger_delay", "180"));
 			return delay;
@@ -143,7 +143,7 @@ namespace Eddie.Core.Jobs
 
 		public int GetPingerDelayRetry(ConnectionInfo server) // Delay for failed ping
 		{
-			int delay = Engine.Instance.Options.GetInt("pinger.retry");
+			int delay = Engine.Instance.ProfileOptions.GetInt("pinger.retry");
 			if (delay == 0)
 				delay = Conversions.ToInt32(server.Provider.GetKeyValue("pinger_retry", "5"));
 			return delay;
@@ -151,7 +151,7 @@ namespace Eddie.Core.Jobs
 
 		public int GetPingerDelayValid(ConnectionInfo server) // Delay for consider valid
 		{
-			int delay = Engine.Instance.Options.GetInt("pinger.valid");
+			int delay = Engine.Instance.ProfileOptions.GetInt("pinger.valid");
 			if (delay == 0)
 				delay = GetPingerDelaySuccess(server) * 5;
 			return delay;

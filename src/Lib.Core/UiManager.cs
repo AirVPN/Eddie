@@ -77,9 +77,9 @@ namespace Eddie.Core
 			{
 				Json result = new Json();
 				result["manifest"].Value = Engine.Instance.Manifest;
-				result["main_status"].Value = Engine.Instance.JsonMainStatus();
+				result["main_status"].Value = Engine.Instance.MainStatusBuild();
 				result["logs"].Value = Engine.Instance.Logs.GetJson();
-				result["options"].Value = Engine.Instance.Options.GetJson();
+				result["options"].Value = Engine.Instance.ProfileOptions.GetJson();
 
 				Json jNetlockModes = new Json();
 				foreach (NetworkLockPlugin lockPlugin in Engine.Instance.NetworkLockManager.Modes)
@@ -128,7 +128,7 @@ namespace Eddie.Core
 				string name = data["name"].Value as string;
 				string value = data["value"].Value as string;
 
-				Engine.Instance.Options.Set(name, data["value"].Value);
+				Engine.Instance.ProfileOptions.Set(name, data["value"].Value);
 			}
 			else if (cmd == "ui.stats.pathprofile")
 			{
@@ -150,11 +150,9 @@ namespace Eddie.Core
 				Json result = new Json();
 				result["layout"].Value = "text";
 				result["title"].Value = "MAN";
-				result["body"].Value = Engine.Instance.Options.GetMan(format);
+				result["body"].Value = Engine.Instance.ProfileOptions.GetMan(format);
 				return result;
-			}
-			else if (cmd == "ui.show.os.info")
-				return Engine.Instance.JsonOsInfo().Clone();
+			}			
 			else if (cmd == "tor.guard")
 				Engine.Instance.Logs.LogVerbose("Tor Guard IPs:" + TorControl.GetGuardIps(true).ToString());
 			else if (cmd == "tor.NEWNYM")

@@ -57,7 +57,7 @@ namespace Eddie.Core
 
 			Send(client, LanguageManager.GetText("ReportStepLogs"), 50);
 			
-			Add(LanguageManager.GetText("ReportOptions"), Engine.Instance.Options.GetReportForSupport().PruneForReport());
+			Add(LanguageManager.GetText("ReportOptions"), Engine.Instance.ProfileOptions.GetReportForSupport().PruneForReport());
 
 			Add(LanguageManager.GetText("ReportLogs"), Engine.Instance.Logs.ToString().PruneForReport());
 						
@@ -205,7 +205,7 @@ namespace Eddie.Core
 
 		public void NetworkInfo()
 		{
-			Add("Network Interfaces and Routes", Engine.Instance.JsonNetworkInfo().ToTextPretty());
+			Add("Network Info", Engine.Instance.NetworkInfoBuild().ToTextPretty());
 		}
 	}
 }

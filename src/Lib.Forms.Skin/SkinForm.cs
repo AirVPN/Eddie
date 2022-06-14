@@ -84,11 +84,6 @@ namespace Eddie.Forms.Skin
 			}
 		}
 
-		public void ResetSkinCache()
-		{
-			Skin.ClearFontCache();
-		}
-
 		public void ApplySkin()
 		{
 			if (DesignMode == false)

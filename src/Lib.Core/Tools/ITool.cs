@@ -136,13 +136,13 @@ namespace Eddie.Core.Tools
 		{
 			string searchLocation = "";
 			string customLocationOption = "tools." + Code + ".location"; // "" (auto), "bundle", "system", "custom";
-			if (Engine.Instance.Options.Exists(customLocationOption))
-				searchLocation = Engine.Instance.Options.Get(customLocationOption);
+			if (Engine.Instance.ProfileOptions.Exists(customLocationOption))
+				searchLocation = Engine.Instance.ProfileOptions.Get(customLocationOption);
 
 			string customPathOption = "tools." + Code + ".path";
-			if (Engine.Instance.Options.Exists(customPathOption))
+			if (Engine.Instance.ProfileOptions.Exists(customPathOption))
 			{
-				string path = Engine.Instance.Options.Get(customPathOption).Trim();
+				string path = Engine.Instance.ProfileOptions.Get(customPathOption).Trim();
 				if (path != "")
 				{
 					path = Platform.Instance.NormalizePath(path);

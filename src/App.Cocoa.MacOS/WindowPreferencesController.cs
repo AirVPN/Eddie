@@ -137,7 +137,7 @@ namespace Eddie.UI.Cocoa.Osx
 			{
                 if (GuiUtils.MessageYesNo(LanguageManager.GetText("ResetSettingsConfirm")))
 				{
-					Engine.Instance.Options.ResetAll(false);
+					Engine.Instance.ProfileOptions.ResetAll(false);
 					ReadOptions();
 					GuiUtils.MessageBoxInfo(LanguageManager.GetText("ResetSettingsDone"));
 				}
@@ -429,13 +429,13 @@ namespace Eddie.UI.Cocoa.Osx
 
             CmdShellExternalView.Activated += (object sender, EventArgs e) => 
             {
-                Json rules = Engine.Instance.Options.GetJson("external.rules");
+                Json rules = Engine.Instance.ProfileOptions.GetJson("external.rules");
                 Engine.Instance.OnShowText("Rules", rules.ToJsonPretty());
             };
 
             CmdShellExternalClear.Activated += (object sender, EventArgs e) => 
             {
-                Engine.Instance.Options.Set("external.rules", Engine.Instance.Options.Dict["external.rules"].Default);
+                Engine.Instance.ProfileOptions.Set("external.rules", Engine.Instance.ProfileOptions.Dict["external.rules"].Default);
                 GuiUtils.MessageBoxInfo("Done.");
             };
 
@@ -619,7 +619,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 		void ReadOptionsEvent(string name, int index)
 		{
-			Options o = Engine.Instance.Options;
+			ProfileOptions o = Engine.Instance.ProfileOptions;
 
 			string filename = o.Get("event." + name + ".filename");
 			if (filename != "")
@@ -633,7 +633,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 		void SaveOptionsEvent(string name, int index)
 		{
-			Options o = Engine.Instance.Options;
+			ProfileOptions o = Engine.Instance.ProfileOptions;
 
 			TableAdvancedEventsControllerItem i = TableAdvancedEventsController.Items[index];
 			o.Set("event." + name + ".filename", i.Filename);
@@ -644,7 +644,7 @@ namespace Eddie.UI.Cocoa.Osx
 		void ReadOptions()
 		{
 			Storage s = Engine.Instance.Storage;
-			Options o = Engine.Instance.Options;
+			ProfileOptions o = Engine.Instance.ProfileOptions;
 
             // General
             GuiUtils.SetCheck(ChkSystemStart, Core.Platform.Instance.GetAutoStart());
@@ -1021,7 +1021,7 @@ namespace Eddie.UI.Cocoa.Osx
 		void SaveOptions()
 		{
 			Storage s = Engine.Instance.Storage;
-			Options o = Engine.Instance.Options;
+			ProfileOptions o = Engine.Instance.ProfileOptions;
 
             // General
             Core.Platform.Instance.SetAutoStart(GuiUtils.GetCheck(ChkSystemStart));

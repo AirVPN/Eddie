@@ -109,9 +109,9 @@ namespace Eddie.Core.ConnectionTypes
 							// Not sure if used anymore, matched in another step below
 							if (directive.ToLowerInvariant().StartsWithInv("dhcp-option dns"))
 							{
-								if (Engine.Instance.Options.GetBool("dns.delegate") == false)
+								if (Engine.Instance.ProfileOptions.GetBool("dns.delegate") == false)
 								{
-									IpAddresses dnsCustom = new IpAddresses(Engine.Instance.Options.Get("dns.servers"));
+									IpAddresses dnsCustom = new IpAddresses(Engine.Instance.ProfileOptions.Get("dns.servers"));
 									if (dnsCustom.Count == 0)
 									{
 										if (directive.ToLowerInvariant().StartsWithInv("dhcp-option dns "))
@@ -177,9 +177,9 @@ namespace Eddie.Core.ConnectionTypes
 					{
 						string ip = matchDnsIPv4.Groups[1].Value;
 
-						if (Engine.Instance.Options.GetBool("dns.delegate") == false)
+						if (Engine.Instance.ProfileOptions.GetBool("dns.delegate") == false)
 						{
-							IpAddresses dnsCustom = new IpAddresses(Engine.Instance.Options.Get("dns.servers"));
+							IpAddresses dnsCustom = new IpAddresses(Engine.Instance.ProfileOptions.Get("dns.servers"));
 							if (dnsCustom.Count == 0)
 								m_dns.Add(ip);
 						}
@@ -192,9 +192,9 @@ namespace Eddie.Core.ConnectionTypes
 					{
 						string ip = matchDnsIPv6.Groups[1].Value;
 
-						if (Engine.Instance.Options.GetBool("dns.delegate") == false)
+						if (Engine.Instance.ProfileOptions.GetBool("dns.delegate") == false)
 						{
-							IpAddresses dnsCustom = new IpAddresses(Engine.Instance.Options.Get("dns.servers"));
+							IpAddresses dnsCustom = new IpAddresses(Engine.Instance.ProfileOptions.Get("dns.servers"));
 							if (dnsCustom.Count == 0)
 								m_dns.Add(ip);
 						}
@@ -287,7 +287,7 @@ namespace Eddie.Core.ConnectionTypes
 			string path = Engine.Instance.GetOpenVpnTool().Path;
 
 			m_elevatedCommand.Parameters["command"] = "hummingbird";
-			m_elevatedCommand.Parameters["dns-ignore"] = Engine.Instance.Options.GetBool("dns.delegate") ? "false" : "true";
+			m_elevatedCommand.Parameters["dns-ignore"] = Engine.Instance.ProfileOptions.GetBool("dns.delegate") ? "false" : "true";
 			m_elevatedCommand.Parameters["gui-version"] = Constants.Name + Constants.VersionDesc;
 			m_elevatedCommand.Parameters["path"] = path;
 			m_elevatedCommand.Parameters["config"] = m_fileConfig.Path;

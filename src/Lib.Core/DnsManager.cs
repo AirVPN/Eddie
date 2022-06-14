@@ -49,7 +49,7 @@ namespace Eddie.Core
 				Int64 delay = now - entry.TimeStamp;
 				Int64 ttl = 3600;
 				if ((Engine.Instance != null) && (Engine.Instance.Storage != null))
-					ttl = Engine.Instance.Options.GetInt("dns.cache.ttl");
+					ttl = Engine.Instance.ProfileOptions.GetInt("dns.cache.ttl");
 				if (delay >= ttl)
 				{
 					IpAddresses result = Platform.Instance.ResolveDNS(host);

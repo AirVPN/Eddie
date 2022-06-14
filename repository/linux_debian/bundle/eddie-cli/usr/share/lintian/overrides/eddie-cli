@@ -24,4 +24,3 @@
 # -------------------
 # 2022-05-05: added
 eddie-cli binary: hardening-no-pie usr/lib/eddie-cli/eddie-cli-elevated
-eddie-cli binary: hardening-no-pie usr/lib/eddie-cli/eddie-tray

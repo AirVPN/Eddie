@@ -83,7 +83,7 @@ namespace Eddie.Core.Jobs
 
 							Engine.Instance.OnRefreshUi(Core.Engine.RefreshUiMode.Stats);
 
-							Engine.Instance.RaiseStatus();
+							Engine.Instance.StatusRaise();
 						}
 					}
 

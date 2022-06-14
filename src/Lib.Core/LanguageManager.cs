@@ -246,8 +246,8 @@ namespace Eddie.Core
 
 		public static string FormatBytes(Int64 bytes, bool speedSec, bool showBytes)
 		{
-			string userUnit = Engine.Instance.Options.Get("ui.unit");
-			bool iec = Engine.Instance.Options.GetBool("ui.iec");
+			string userUnit = Engine.Instance.ProfileOptions.Get("ui.unit");
+			bool iec = Engine.Instance.ProfileOptions.GetBool("ui.iec");
 			return FormatBytes(bytes, speedSec, showBytes, userUnit, iec);
 		}
 

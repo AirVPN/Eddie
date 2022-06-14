@@ -534,8 +534,10 @@ namespace Eddie.Platform.Linux
 		}
 
 		public override bool FetchUrlInternal()
-		{
-			return false;  // See comment in Lib.Platform.Native/build.sh
+		{			
+			// return false;  // See comment in Lib.Platform.Native/build.sh
+
+			return true; // Switched in 2.22.0, TOCLEAN FetchUrlInternal
 		}
 
 		public override Json FetchUrl(Json request)
@@ -547,7 +549,7 @@ namespace Eddie.Platform.Linux
 		{
 			base.FlushDNS();
 
-			Engine.Instance.Elevated.DoCommandSync("dns-flush", "services", Engine.Instance.Options.Get("linux.dns.services"));
+			Engine.Instance.Elevated.DoCommandSync("dns-flush", "services", Engine.Instance.ProfileOptions.Get("linux.dns.services"));
 		}
 
 		public override void OpenUrl(string url)
@@ -960,9 +962,9 @@ namespace Eddie.Platform.Linux
 			return true;
 		}
 
-		public override void OnJsonNetworkInterfaceInfo(NetworkInterface networkInterface, Json jNetworkInterface)
+		public override void OnNetworkInterfaceInfoBuild(NetworkInterface networkInterface, Json jNetworkInterface)
 		{
-			base.OnJsonNetworkInterfaceInfo(networkInterface, jNetworkInterface);
+			base.OnNetworkInterfaceInfoBuild(networkInterface, jNetworkInterface);
 
 			string id = jNetworkInterface["id"].Value as string;
 
@@ -1067,7 +1069,7 @@ namespace Eddie.Platform.Linux
 
 		public string GetDnsSwitchMode()
 		{
-			string current = Engine.Instance.Options.GetLower("dns.mode");
+			string current = Engine.Instance.ProfileOptions.GetLower("dns.mode");
 
 			if (current == "auto")
 				current = "rename";

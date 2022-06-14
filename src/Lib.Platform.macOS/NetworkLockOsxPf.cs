@@ -157,16 +157,16 @@ namespace Eddie.Platform.MacOS
 			pf += "scrub in all\n"; // 2.9
 
 			pf += "# General rule\n";
-			if (Engine.Instance.Options.Get("netlock.incoming") == "allow")
+			if (Engine.Instance.ProfileOptions.Get("netlock.incoming") == "allow")
 				pf += "pass in all\n";
 			else
 				pf += "block in all\n";
-			if (Engine.Instance.Options.Get("netlock.outgoing") == "allow")
+			if (Engine.Instance.ProfileOptions.Get("netlock.outgoing") == "allow")
 				pf += "pass out all\n";
 			else
 				pf += "block out all\n";
 
-			if (Engine.Instance.Options.GetBool("netlock.allow_private"))
+			if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_private"))
 			{
 				pf += "# IPv4 - Private networks\n";
 				pf += "pass out quick inet from 192.168.0.0/16 to 192.168.0.0/16\n";
@@ -200,7 +200,7 @@ namespace Eddie.Platform.MacOS
 				pf += "pass in quick inet6 from ff00::/8 to ff00::/8\n";
 			}
 
-			if (Engine.Instance.Options.GetBool("netlock.allow_ping"))
+			if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_ping"))
 			{
 				pf += "# Allow ICMP\n";
 				pf += "pass quick proto icmp\n"; // 2.9

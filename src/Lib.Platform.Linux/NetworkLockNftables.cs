@@ -78,9 +78,9 @@ namespace Eddie.Platform.Linux
 				string defaultPolicyInput = "drop";
 				string defaultPolicyForward = "drop";
 				string defaultPolicyOutput = "drop";
-				if (Engine.Instance.Options.Get("netlock.incoming") == "allow")
+				if (Engine.Instance.ProfileOptions.Get("netlock.incoming") == "allow")
 					defaultPolicyInput = "accept";
-				if (Engine.Instance.Options.Get("netlock.outgoing") == "allow")
+				if (Engine.Instance.ProfileOptions.Get("netlock.outgoing") == "allow")
 					defaultPolicyOutput = "accept";
 
 				// Build rules
@@ -127,12 +127,12 @@ namespace Eddie.Platform.Linux
 				// Input - Reject traffic to localhost that does not originate from lo0.
 				AddRule(rules, "ipv6", "add rule ip6 filter INPUT iifname != \"lo\" ip6 saddr ::1 counter reject");
 
-				if (Engine.Instance.Options.GetBool("netlock.allow_dhcp") == true)
+				if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_dhcp") == true)
 				{
 					AddRule(rules, "ipv4", "add rule ip filter INPUT ip saddr 255.255.255.255 counter accept");
 				}
 
-				if (Engine.Instance.Options.GetBool("netlock.allow_private"))
+				if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_private"))
 				{
 					AddRule(rules, "ipv4", "add rule ip filter INPUT ip saddr 192.168.0.0/16 ip daddr 192.168.0.0/16 counter accept");
 					AddRule(rules, "ipv4", "add rule ip filter INPUT ip saddr 10.0.0.0/8 ip daddr 10.0.0.0/8 counter accept");
@@ -142,7 +142,7 @@ namespace Eddie.Platform.Linux
 					AddRule(rules, "ipv6", "add rule ip6 filter INPUT ip6 daddr ff00::/8 counter accept");
 				}
 
-				if (Engine.Instance.Options.GetBool("netlock.allow_ping"))
+				if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_ping"))
 				{
 					AddRule(rules, "ipv4", "add rule ip filter INPUT icmp type echo-request counter accept");
 
@@ -210,12 +210,12 @@ namespace Eddie.Platform.Linux
 				// Output - Disable processing of any RH0 packet which could allow a ping-pong of packets
 				AddRule(rules, "ipv6", "add rule ip6 filter OUTPUT rt type 0 counter drop");
 
-				if (Engine.Instance.Options.GetBool("netlock.allow_dhcp") == true)
+				if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_dhcp") == true)
 				{
 					AddRule(rules, "ipv4", "add rule ip filter OUTPUT ip daddr 255.255.255.255 counter accept");
 				}
 
-				if (Engine.Instance.Options.GetBool("netlock.allow_private"))
+				if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_private"))
 				{
 					// Private networks
 					AddRule(rules, "ipv4", "add rule ip filter OUTPUT ip saddr 192.168.0.0/16 ip daddr 192.168.0.0/16 counter accept");
@@ -244,7 +244,7 @@ namespace Eddie.Platform.Linux
 					AddRule(rules, "ipv6", "add rule ip6 filter OUTPUT ip6 daddr ff00::/8 counter accept");
 				}
 
-				if (Engine.Instance.Options.GetBool("netlock.allow_ping"))
+				if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_ping"))
 				{
 					AddRule(rules, "ipv4", "add rule ip filter OUTPUT icmp type echo-reply counter accept");
 					AddRule(rules, "ipv6", "add rule ip6 filter OUTPUT meta l4proto ipv6-icmp counter accept");

@@ -91,7 +91,7 @@ namespace Eddie.Core.ConnectionTypes
 
 		public virtual void SetupLayers()
 		{
-			Options options = Engine.Instance.Options;
+			ProfileOptions options = Engine.Instance.ProfileOptions;
 
 			// Layers
 
@@ -188,7 +188,7 @@ namespace Eddie.Core.ConnectionTypes
 
 			if (SkipRouteAll == false)
 			{
-				string routeCatchAllMode = Engine.Instance.Options.Get("routes.catch_all_mode");
+				string routeCatchAllMode = Engine.Instance.ProfileOptions.Get("routes.catch_all_mode");
 				if (routeCatchAllMode == "auto")
 					routeCatchAllMode = "double";
 				if (RouteAllIPv4)
@@ -246,7 +246,7 @@ namespace Eddie.Core.ConnectionTypes
 			if (Platform.Instance.GetUseOpenVpnRoutes() == false) // WIP, remove in 2.22.0
 				AddRoute(EntryIP, "net_gateway", "IP Entry");
 			
-			string routes = Engine.Instance.Options.Get("routes.custom");
+			string routes = Engine.Instance.ProfileOptions.Get("routes.custom");
 			string[] routes2 = routes.Split(';');
 			foreach (string route in routes2)
 			{
@@ -286,8 +286,8 @@ namespace Eddie.Core.ConnectionTypes
 				}
 			}
 
-			string proxyMode = Engine.Instance.Options.GetLower("proxy.mode");
-			string proxyWhen = Engine.Instance.Options.GetLower("proxy.when");
+			string proxyMode = Engine.Instance.ProfileOptions.GetLower("proxy.mode");
+			string proxyWhen = Engine.Instance.ProfileOptions.GetLower("proxy.when");
 			if ((proxyWhen == "none") || (proxyWhen == "web"))
 				proxyMode = "none";
 
@@ -466,25 +466,25 @@ namespace Eddie.Core.ConnectionTypes
 			if (Engine.Instance.NetworkLockManager != null)
 				Engine.Instance.NetworkLockManager.AllowInterface(networkInterface);
 
-			Json jInfo = Engine.Instance.JsonNetworkInterfaceInfo(networkInterface);
+			Json jInfo = Engine.Instance.NetworkInterfaceInfoBuild(networkInterface);
 
 			if ((ConfigIPv4) && (jInfo != null) && (jInfo.HasKey("support_ipv4")) && (Conversions.ToBool(jInfo["support_ipv4"].Value) == false))
 			{
 				Engine.Instance.Logs.LogWarning(LanguageManager.GetText("IPv4NotSupportedByNetworkAdapter"));
-				if ((Engine.Instance.Options.GetBool("network.ipv4.autoswitch")) && (Engine.Instance.Options.Get("network.ipv4.mode") != "block"))
+				if ((Engine.Instance.ProfileOptions.GetBool("network.ipv4.autoswitch")) && (Engine.Instance.ProfileOptions.Get("network.ipv4.mode") != "block"))
 				{
 					Engine.Instance.Logs.LogWarning(LanguageManager.GetText("IPv4NotSupportedByNetworkAdapterAutoSwitch"));
-					Engine.Instance.Options.Set("network.ipv4.mode", "block");
+					Engine.Instance.ProfileOptions.Set("network.ipv4.mode", "block");
 				}
 			}
 
 			if ((ConfigIPv6) && (jInfo != null) && (jInfo.HasKey("support_ipv6")) && (Conversions.ToBool(jInfo["support_ipv6"].Value) == false))
 			{
 				Engine.Instance.Logs.LogWarning(LanguageManager.GetText("IPv6NotSupportedByNetworkAdapter"));
-				if ((Engine.Instance.Options.GetBool("network.ipv6.autoswitch")) && (Engine.Instance.Options.Get("network.ipv6.mode") != "block"))
+				if ((Engine.Instance.ProfileOptions.GetBool("network.ipv6.autoswitch")) && (Engine.Instance.ProfileOptions.Get("network.ipv6.mode") != "block"))
 				{
 					Engine.Instance.Logs.LogWarning(LanguageManager.GetText("IPv6NotSupportedByNetworkAdapterAutoSwitch"));
-					Engine.Instance.Options.Set("network.ipv6.mode", "block");
+					Engine.Instance.ProfileOptions.Set("network.ipv6.mode", "block");
 				}
 			}
 		}

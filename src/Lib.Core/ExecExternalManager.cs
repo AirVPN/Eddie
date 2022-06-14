@@ -53,13 +53,13 @@ namespace Eddie.Core
 			if (Engine.Instance.Storage == null)
 				return false;
 
-			Json rulesCustom = Engine.Instance.Options.GetJson("external.rules");
+			Json rulesCustom = Engine.Instance.ProfileOptions.GetJson("external.rules");
 			for (int r = 0; r < 2; r++)
 			{
 				Json rules = null;
 				if (r == 0)
 				{
-					if (Engine.Instance.Options.GetBool("external.rules.recommended"))
+					if (Engine.Instance.ProfileOptions.GetBool("external.rules.recommended"))
 						rules = Engine.Instance.Manifest["external-rules-recommended"].Value as Json;
 					else
 						continue;
@@ -119,7 +119,7 @@ namespace Eddie.Core
 			{
 				replyUi.RemoveKey("allow");
 				rulesCustom.Append(replyUi);
-				Engine.Instance.Options.SetJson("external.rules", rulesCustom);
+				Engine.Instance.ProfileOptions.SetJson("external.rules", rulesCustom);
 
 				return AllowPathX(path);
 			}

@@ -112,7 +112,9 @@
     <Compile Include="Jobs\RealtimeNetworkStats.cs" />
     <Compile Include="Jobs\Updater.cs" />
     <Compile Include="LanguageManager.cs" />
-    <Compile Include="Options.cs" />
+    <Compile Include="GeneralOptions.cs" />
+    <Compile Include="ProfileOption.cs" />
+    <Compile Include="ProfileOptions.cs" />
     <Compile Include="Providers\IProvider.cs" />
     <Compile Include="Providers\WireGuard.cs" />
     <Compile Include="PingerStats.cs" />
@@ -130,7 +132,6 @@
     <Compile Include="CompatibilityManager.cs" />
     <Compile Include="LogsManager.cs" />
     <Compile Include="LogType.cs" />
-    <Compile Include="Option.cs" />
     <Compile Include="ProvidersManager.cs" />
     <Compile Include="Providers\Service.cs" />
     <Compile Include="Providers\OpenVPN.cs" />

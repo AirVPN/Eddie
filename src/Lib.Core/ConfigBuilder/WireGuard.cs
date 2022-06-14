@@ -77,15 +77,15 @@ namespace Eddie.Core.ConfigBuilder
 				s.Append("Table = " + InterfaceTable.ToString() + Platform.Instance.EndOfLineSep);
 
 			int buildInterfaceMTU = InterfaceMTU;
-			if (Engine.Instance.Options.GetInt("network.mtu") != -1)
-				buildInterfaceMTU = Engine.Instance.Options.GetInt("network.mtu");
+			if (Engine.Instance.ProfileOptions.GetInt("network.mtu") != -1)
+				buildInterfaceMTU = Engine.Instance.ProfileOptions.GetInt("network.mtu");
 			if (buildInterfaceMTU != 0)
 				s.Append("MTU = " + buildInterfaceMTU.ToString() + Platform.Instance.EndOfLineSep);
 
 			if (InterfaceFwMark != "")
 				s.Append("FwMark = " + InterfaceFwMark + Platform.Instance.EndOfLineSep);
 
-			if (Engine.Instance.Options.GetBool("wireguard.interface.skip_commands") == false)
+			if (Engine.Instance.ProfileOptions.GetBool("wireguard.interface.skip_commands") == false)
 			{
 				if (InterfacePreUp != "")
 					s.Append("PreUp = " + InterfacePreUp + Platform.Instance.EndOfLineSep);
@@ -110,8 +110,8 @@ namespace Eddie.Core.ConfigBuilder
 				s.Append("AllowedIPs = " + PeerAllowedIPs.ToString() + Platform.Instance.EndOfLineSep);
 
 			int buildPeerPersistentKeepAlive = PeerPersistentKeepalive;
-			if (Engine.Instance.Options.GetInt("wireguard.peer.persistentkeepalive") != -1)
-				buildPeerPersistentKeepAlive = Engine.Instance.Options.GetInt("wireguard.peer.persistentkeepalive");
+			if (Engine.Instance.ProfileOptions.GetInt("wireguard.peer.persistentkeepalive") != -1)
+				buildPeerPersistentKeepAlive = Engine.Instance.ProfileOptions.GetInt("wireguard.peer.persistentkeepalive");
 			if (buildPeerPersistentKeepAlive != 0)
 				s.Append("PersistentKeepalive = " + buildPeerPersistentKeepAlive.ToString() + Platform.Instance.EndOfLineSep);
 

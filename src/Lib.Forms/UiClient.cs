@@ -125,8 +125,6 @@ namespace Eddie.Forms
 			}
 			else if (cmd == "engine.ui")
 			{
-				Skin.SkinForm.Skin.ClearFontCache(); // Splash loaded before options
-
 				SplashWindow.RequestMain();
 			}
 			else if (cmd == "ui.restarted")

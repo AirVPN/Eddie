@@ -34,7 +34,7 @@ namespace Eddie.Core.Jobs
 			if (m_lastVersionNotification == "")
 				m_lastVersionNotification = Constants.VersionDesc;
 
-			string channel = Engine.Instance.Options.Get("updater.channel");
+			string channel = Engine.Instance.ProfileOptions.Get("updater.channel");
 
 			try
 			{

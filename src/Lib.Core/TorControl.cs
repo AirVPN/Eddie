@@ -42,10 +42,10 @@ namespace Eddie.Core
 			c.Parameters["command"] = "tor-get-info";
 
 			c.Parameters["name"] = "tor";
-			string proxyTorPath = Engine.Instance.Options.Get("proxy.tor.path");
+			string proxyTorPath = Engine.Instance.ProfileOptions.Get("proxy.tor.path");
 			if (proxyTorPath != "")
 				c.Parameters["path"] = proxyTorPath;
-			string proxyTorControlCookiePath = Engine.Instance.Options.Get("proxy.tor.control.cookie.path");
+			string proxyTorControlCookiePath = Engine.Instance.ProfileOptions.Get("proxy.tor.control.cookie.path");
 			if (proxyTorControlCookiePath != "")
 				c.Parameters["cookie_path"] = proxyTorControlCookiePath;
 			c.Parameters["username"] = Environment.UserName;
@@ -76,9 +76,9 @@ namespace Eddie.Core
 
 		public static void Connect(TcpClient client)
 		{
-			string controlHost = Engine.Instance.Options.Get("proxy.host").ToLowerInvariant().Trim();
-			int controlPort = Engine.Instance.Options.GetInt("proxy.tor.control.port");
-			string controlPassword = Engine.Instance.Options.Get("proxy.tor.control.password");
+			string controlHost = Engine.Instance.ProfileOptions.Get("proxy.host").ToLowerInvariant().Trim();
+			int controlPort = Engine.Instance.ProfileOptions.GetInt("proxy.tor.control.port");
+			string controlPassword = Engine.Instance.ProfileOptions.Get("proxy.tor.control.password");
 
 			Connect(client, controlHost, controlPort, controlPassword);
 		}
@@ -88,7 +88,7 @@ namespace Eddie.Core
 			if (client == null)
 				throw new Exception("Internal error (client is null)");
 
-			bool controlAuthenticate = Engine.Instance.Options.GetBool("proxy.tor.control.auth");
+			bool controlAuthenticate = Engine.Instance.ProfileOptions.GetBool("proxy.tor.control.auth");
 
 			byte[] password = System.Text.Encoding.ASCII.GetBytes(controlPassword);
 
@@ -131,7 +131,7 @@ namespace Eddie.Core
 
 		public static string Test()
 		{
-			return Test(Engine.Instance.Options.Get("proxy.host"), Engine.Instance.Options.GetInt("proxy.tor.control.port"), Engine.Instance.Options.Get("proxy.tor.control.password"));
+			return Test(Engine.Instance.ProfileOptions.Get("proxy.host"), Engine.Instance.ProfileOptions.GetInt("proxy.tor.control.port"), Engine.Instance.ProfileOptions.Get("proxy.tor.control.password"));
 		}
 
 		public static string Test(string host, int controlPort, string controlPassword)
@@ -214,7 +214,7 @@ namespace Eddie.Core
 
 			try
 			{
-				string controlHost = Engine.Instance.Options.Get("proxy.host").ToLowerInvariant().Trim();
+				string controlHost = Engine.Instance.ProfileOptions.Get("proxy.host").ToLowerInvariant().Trim();
 
 				if ((controlHost != "127.0.0.1") && (controlHost.ToLowerInvariant() != "localhost"))
 				{

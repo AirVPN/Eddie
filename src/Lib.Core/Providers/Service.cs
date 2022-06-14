@@ -96,7 +96,7 @@ namespace Eddie.Core.Providers
 
 			// Pick the IP
 			IpAddress ip = null;
-			string entryIpLayer = Engine.Instance.Options.Get("network.entry.iplayer");
+			string entryIpLayer = Engine.Instance.ProfileOptions.Get("network.entry.iplayer");
 			if (entryIpLayer == "ipv6-ipv4")
 			{
 				ip = connection.Info.IpsEntry.GetV6ByIndex(mode.EntryIndex);
@@ -128,13 +128,13 @@ namespace Eddie.Core.Providers
 				if (mode.Transport == "SSH")
 				{
 					connectionOpenVPN.TransportSshPortDestination = mode.SshPortDestination;
-					connectionOpenVPN.TransportSshLocalPort = Engine.Instance.Options.GetInt("ssh.port");
+					connectionOpenVPN.TransportSshLocalPort = Engine.Instance.ProfileOptions.GetInt("ssh.port");
 					if (connectionOpenVPN.TransportSshLocalPort == 0)
 						connectionOpenVPN.TransportSshLocalPort = RandomGenerator.GetInt(1024, 64 * 1024);
 				}
 				else if (mode.Transport == "SSL")
 				{
-					connectionOpenVPN.TransportSslLocalPort = Engine.Instance.Options.GetInt("ssl.port");
+					connectionOpenVPN.TransportSslLocalPort = Engine.Instance.ProfileOptions.GetInt("ssl.port");
 					if (connectionOpenVPN.TransportSslLocalPort == 0)
 						connectionOpenVPN.TransportSslLocalPort = RandomGenerator.GetInt(1024, 64 * 1024);
 				}
@@ -206,7 +206,7 @@ namespace Eddie.Core.Providers
 				connection.RouteEntryIp = true; // Entry must routed, because OpenVPN can't route it (see 127.0.0.1)
 
 			// Auth
-			string key = Engine.Instance.Options.Get("key");
+			string key = Engine.Instance.ProfileOptions.Get("key");
 
 			if (connection.IsPreviewMode() == false)
 			{
@@ -265,7 +265,7 @@ namespace Eddie.Core.Providers
 			base.OnVpnEstablished(session);
 
 			// Remember: when OpenVPN or WireGuard say 'connected', at least under Windows it's not really true, the following code reach try 2.
-			int nTry = Engine.Instance.Options.GetInt("checking.ntry");
+			int nTry = Engine.Instance.ProfileOptions.GetInt("checking.ntry");
 
 			if (session.Connection.Info.SupportCheck == false)
 			{
@@ -454,7 +454,7 @@ namespace Eddie.Core.Providers
 				}
 
 				// DNS test
-				if ((session.InReset == false) && (CheckDns) && (Engine.Instance.Options.Get("dns.servers") == ""))
+				if ((session.InReset == false) && (CheckDns) && (Engine.Instance.ProfileOptions.Get("dns.servers") == ""))
 				{
 					Engine.Instance.WaitMessageSet(LanguageManager.GetText("ConnectionCheckingDNS"), true);
 					Engine.Instance.Logs.Log(LogType.Info, LanguageManager.GetText("ConnectionCheckingDNS"));
@@ -542,7 +542,7 @@ namespace Eddie.Core.Providers
 			int minInterval = RefreshInterval;
 			{
 				// Temp until option migration
-				minInterval = Engine.Instance.Options.GetInt("advanced.manifest.refresh");
+				minInterval = Engine.Instance.ProfileOptions.GetInt("advanced.manifest.refresh");
 				if (minInterval == 0)
 					return false;
 				if (minInterval != -1)
@@ -601,7 +601,7 @@ namespace Eddie.Core.Providers
 
 					if (kind == "promo")
 					{
-						bool skipPromo = Engine.Instance.Options.GetBool("ui.skip.promotional");
+						bool skipPromo = Engine.Instance.ProfileOptions.GetBool("ui.skip.promotional");
 						if (skipPromo)
 							continue;
 					}
@@ -663,7 +663,7 @@ namespace Eddie.Core.Providers
 				User = Storage.ImportNode(node, true);
 				Storage.DocumentElement.AppendChild(User);
 
-				string key = Engine.Instance.Options.Get("key");
+				string key = Engine.Instance.ProfileOptions.Get("key");
 				string firstKey = "";
 				bool found = false;
 				foreach (XmlElement xmlKey in User.SelectNodes("keys/key"))
@@ -677,7 +677,7 @@ namespace Eddie.Core.Providers
 						firstKey = xmlKey.GetAttribute("name");
 				}
 				if (found == false)
-					Engine.Instance.Options.Set("key", firstKey);
+					Engine.Instance.ProfileOptions.Set("key", firstKey);
 			}
 		}
 
@@ -783,7 +783,7 @@ namespace Eddie.Core.Providers
 #if (EDDIE3)
                 return Engine.Instance.Options.GetBool("providers." + GetCode() + ".dns.check");
 #else
-				return Engine.Instance.Options.GetBool("dns.check");
+				return Engine.Instance.ProfileOptions.GetBool("dns.check");
 #endif
 			}
 		}
@@ -795,7 +795,7 @@ namespace Eddie.Core.Providers
 #if (EDDIE3)
                 return Engine.Instance.Options.GetBool("providers." + GetCode() + ".tunnel.check");
 #else
-				return Engine.Instance.Options.GetBool("advanced.check.route");
+				return Engine.Instance.ProfileOptions.GetBool("advanced.check.route");
 #endif
 			}
 		}
@@ -820,7 +820,7 @@ namespace Eddie.Core.Providers
 			List<string> urls = new List<string>();
 
 			// Manual URLs
-			foreach (string url in Engine.Instance.Options.Get("bootstrap.urls").Split(';'))
+			foreach (string url in Engine.Instance.ProfileOptions.Get("bootstrap.urls").Split(';'))
 			{
 				string sUrl = url.Trim();
 				if (sUrl != "")
@@ -1003,8 +1003,8 @@ namespace Eddie.Core.Providers
 
 		public XmlDocument FetchUrls(string title, List<string> urls, Dictionary<string, string> parameters)
 		{
-			parameters["login"] = Engine.Instance.Options.Get("login");
-			parameters["password"] = Engine.Instance.Options.Get("password");
+			parameters["login"] = Engine.Instance.ProfileOptions.Get("login");
+			parameters["password"] = Engine.Instance.ProfileOptions.Get("password");
 			parameters["system"] = Platform.Instance.GetSystemCode();
 			parameters["version"] = Constants.VersionInt.ToString(CultureInfo.InvariantCulture);
 
@@ -1037,13 +1037,13 @@ namespace Eddie.Core.Providers
 				catch (Exception ex)
 				{
 					string info = ex.Message;
-					string proxyMode = Engine.Instance.Options.GetLower("proxy.mode");
-					string proxyWhen = Engine.Instance.Options.GetLower("proxy.when");
-					string proxyAuth = Engine.Instance.Options.GetLower("proxy.auth");
+					string proxyMode = Engine.Instance.ProfileOptions.GetLower("proxy.mode");
+					string proxyWhen = Engine.Instance.ProfileOptions.GetLower("proxy.when");
+					string proxyAuth = Engine.Instance.ProfileOptions.GetLower("proxy.auth");
 					if (proxyMode != "none")
 						info += " - with '" + proxyMode + "' (" + proxyWhen + ") proxy and '" + proxyAuth + "' auth";
 
-					if (Engine.Instance.Options.GetBool("advanced.expert"))
+					if (Engine.Instance.ProfileOptions.GetBool("advanced.expert"))
 						Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("ExchangeTryFailed", title, hostN.ToString(), info));
 
 					if (firstError == "")
@@ -1056,7 +1056,7 @@ namespace Eddie.Core.Providers
 
 		public ConnectionMode GetModeAuto()
 		{
-			string proxyMode = Engine.Instance.Options.GetLower("proxy.mode");
+			string proxyMode = Engine.Instance.ProfileOptions.GetLower("proxy.mode");
 
 			foreach (ConnectionMode mode in Modes)
 			{
@@ -1073,10 +1073,10 @@ namespace Eddie.Core.Providers
 
 		public ConnectionMode GetMode()
 		{
-			String type = Engine.Instance.Options.Get("mode.type").ToLowerInvariant();
-			String protocol = Engine.Instance.Options.Get("mode.protocol").ToUpperInvariant();
-			int port = Engine.Instance.Options.GetInt("mode.port");
-			int entry = Engine.Instance.Options.GetInt("mode.alt");
+			String type = Engine.Instance.ProfileOptions.Get("mode.type").ToLowerInvariant();
+			String protocol = Engine.Instance.ProfileOptions.Get("mode.protocol").ToUpperInvariant();
+			int port = Engine.Instance.ProfileOptions.GetInt("mode.port");
+			int entry = Engine.Instance.ProfileOptions.GetInt("mode.alt");
 
 			if (type == "auto")
 			{

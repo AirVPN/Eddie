@@ -44,7 +44,7 @@ namespace Eddie.UI.Cocoa.Osx
 		public void AddLog(LogEntry l)
 		{
 			m_items.Add(l);
-			if (m_items.Count >= Engine.Instance.Options.GetInt("log.limit"))
+			if (m_items.Count >= Engine.Instance.ProfileOptions.GetInt("log.limit"))
 				m_items.RemoveAt(0);
 			RefreshUI();
 		}

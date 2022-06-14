@@ -33,7 +33,7 @@ namespace Eddie.Core.Tools
 		{
 			if (Platform.Instance.IsWindowsSystem())
 			{
-				if (Engine.Instance.Options.GetBool("windows.ssh.plink.force"))
+				if (Engine.Instance.ProfileOptions.GetBool("windows.ssh.plink.force"))
 					return "plink.exe";
 				else
 				{

@@ -113,7 +113,7 @@ namespace Eddie.UI.Cocoa.Osx
                 new NSObject().InvokeOnMainThread(() => // BeginInvokeOnMainThread
                 {
                     MainWindow = new MainWindowController();
-                    bool startVisible = Engine.Options.GetBool("gui.osx.visible");
+                    bool startVisible = Engine.ProfileOptions.GetBool("gui.osx.visible");
                     if (startVisible)
                     {
                         MainWindow.Window.MakeKeyAndOrderFront(null);

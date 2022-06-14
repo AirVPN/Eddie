@@ -82,9 +82,9 @@ namespace Eddie.Platform.Linux
 					string defaultPolicyInput = "DROP";
 					string defaultPolicyForward = "DROP";
 					string defaultPolicyOutput = "DROP";
-					if (Engine.Instance.Options.Get("netlock.incoming") == "allow")
+					if (Engine.Instance.ProfileOptions.Get("netlock.incoming") == "allow")
 						defaultPolicyInput = "ACCEPT";
-					if (Engine.Instance.Options.Get("netlock.outgoing") == "allow")
+					if (Engine.Instance.ProfileOptions.Get("netlock.outgoing") == "allow")
 						defaultPolicyOutput = "ACCEPT";
 
 					// IPv4
@@ -111,12 +111,12 @@ namespace Eddie.Platform.Linux
 						// Local
 						rulesIPv4.AppendLine("-A INPUT -i lo -j ACCEPT");
 
-						if (Engine.Instance.Options.GetBool("netlock.allow_dhcp") == true)
+						if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_dhcp") == true)
 						{
 							rulesIPv4.AppendLine("-A INPUT -s 255.255.255.255/32 -j ACCEPT");
 						}
 
-						if (Engine.Instance.Options.GetBool("netlock.allow_private"))
+						if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_private"))
 						{
 							// Private networks
 							rulesIPv4.AppendLine("-A INPUT -s 192.168.0.0/16 -d 192.168.0.0/16 -j ACCEPT");
@@ -124,7 +124,7 @@ namespace Eddie.Platform.Linux
 							rulesIPv4.AppendLine("-A INPUT -s 172.16.0.0/12 -d 172.16.0.0/12 -j ACCEPT");
 						}
 
-						if (Engine.Instance.Options.GetBool("netlock.allow_ping"))
+						if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_ping"))
 						{
 							// icmp-type: echo-request
 							rulesIPv4.AppendLine("-A INPUT -p icmp -m icmp --icmp-type 8 -j ACCEPT");
@@ -158,13 +158,13 @@ namespace Eddie.Platform.Linux
 						// Local
 						rulesIPv4.AppendLine("-A OUTPUT -o lo -j ACCEPT");
 
-						if (Engine.Instance.Options.GetBool("netlock.allow_dhcp") == true)
+						if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_dhcp") == true)
 						{
 							// Make sure you can communicate with any DHCP server
 							rulesIPv4.AppendLine("-A OUTPUT -d 255.255.255.255/32 -j ACCEPT");
 						}
 
-						if (Engine.Instance.Options.GetBool("netlock.allow_private"))
+						if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_private"))
 						{
 							// Private networks
 							rulesIPv4.AppendLine("-A OUTPUT -s 192.168.0.0/16 -d 192.168.0.0/16 -j ACCEPT");
@@ -187,7 +187,7 @@ namespace Eddie.Platform.Linux
 							rulesIPv4.AppendLine("-A OUTPUT -s 172.16.0.0/12 -d 239.255.255.253/32 -j ACCEPT");
 						}
 
-						if (Engine.Instance.Options.GetBool("netlock.allow_ping"))
+						if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_ping"))
 						{
 							// icmp-type: echo-reply
 							rulesIPv4.AppendLine("-A OUTPUT -p icmp -m icmp --icmp-type 0 -j ACCEPT");
@@ -264,7 +264,7 @@ namespace Eddie.Platform.Linux
 						// icmpv6-type:redirect - Rules which are required for your IPv6 address to be properly allocated
 						rulesIPv6.AppendLine("-A INPUT -p ipv6-icmp -m icmp6 --icmpv6-type 137 -m hl --hl-eq 255 -j ACCEPT");
 
-						if (Engine.Instance.Options.GetBool("netlock.allow_private"))
+						if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_private"))
 						{
 							// Allow Link-Local addresses
 							rulesIPv6.AppendLine("-A INPUT -s fe80::/10 -j ACCEPT");
@@ -273,7 +273,7 @@ namespace Eddie.Platform.Linux
 							rulesIPv6.AppendLine("-A INPUT -d ff00::/8 -j ACCEPT");
 						}
 
-						if (Engine.Instance.Options.GetBool("netlock.allow_ping"))
+						if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_ping"))
 						{
 							rulesIPv6.AppendLine("-A INPUT -p ipv6-icmp -j ACCEPT");
 						}
@@ -311,7 +311,7 @@ namespace Eddie.Platform.Linux
 						// Disable processing of any RH0 packet which could allow a ping-pong of packets
 						rulesIPv6.AppendLine("-A OUTPUT -m rt --rt-type 0 -j DROP");
 
-						if (Engine.Instance.Options.GetBool("netlock.allow_private"))
+						if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_private"))
 						{
 							// Allow Link-Local addresses
 							rulesIPv6.AppendLine("-A OUTPUT -s fe80::/10 -j ACCEPT");
@@ -320,7 +320,7 @@ namespace Eddie.Platform.Linux
 							rulesIPv6.AppendLine("-A OUTPUT -d ff00::/8 -j ACCEPT");
 						}
 
-						if (Engine.Instance.Options.GetBool("netlock.allow_ping"))
+						if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_ping"))
 						{
 							rulesIPv6.AppendLine("-A OUTPUT -p ipv6-icmp -j ACCEPT");
 						}

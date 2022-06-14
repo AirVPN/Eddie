@@ -709,7 +709,7 @@ namespace Eddie.Platform.Windows
 		{
 			base.FlushDNS();
 
-			Engine.Instance.Elevated.DoCommandSync("dns-flush", "mode", (Engine.Instance.Options.GetBool("windows.workarounds") ? "max" : "normal"));
+			Engine.Instance.Elevated.DoCommandSync("dns-flush", "mode", (Engine.Instance.ProfileOptions.GetBool("windows.workarounds") ? "max" : "normal"));
 
 			SystemExec.Exec1(LocateExecutable("ipconfig.exe"), "/flushdns");
 		}
@@ -836,7 +836,7 @@ namespace Eddie.Platform.Windows
 			if (IsVistaOrNewer() == false)
 				return "none";
 
-			if (Engine.Instance.Options.GetBool("windows.wfp.enable"))
+			if (Engine.Instance.ProfileOptions.GetBool("windows.wfp.enable"))
 				return "windows_wfp";
 			else
 				return "windows_firewall";
@@ -855,7 +855,7 @@ namespace Eddie.Platform.Windows
 		{
 			// FlushDNS(); // Moved in 2.13.3 in ::session.cs, but only if a connection occur.
 
-			if (Engine.Instance.Options.GetBool("windows.adapters.cleanup"))
+			if (Engine.Instance.ProfileOptions.GetBool("windows.adapters.cleanup"))
 				Engine.Instance.Elevated.DoCommandSync("wintun-adapter-removepool", "pool", Constants.WintunPool);
 
 			Recovery.Save();
@@ -863,7 +863,7 @@ namespace Eddie.Platform.Windows
 
 		public override bool OnIPv6Block()
 		{
-			if ((IsVistaOrNewer()) && (Engine.Instance.Options.GetBool("windows.wfp.enable")))
+			if ((IsVistaOrNewer()) && (Engine.Instance.ProfileOptions.GetBool("windows.wfp.enable")))
 			{
 				{
 					XmlDocument xmlDocRule = new XmlDocument();
@@ -914,7 +914,7 @@ namespace Eddie.Platform.Windows
 		{
 			base.AdaptConfigOpenVpn(config);
 
-			if ((Engine.Instance.Options.GetBool("windows.ipv6.bypass_dns")) && (Engine.Instance.Options.GetBool("dns.delegate")))
+			if ((Engine.Instance.ProfileOptions.GetBool("windows.ipv6.bypass_dns")) && (Engine.Instance.ProfileOptions.GetBool("dns.delegate")))
 			{
 				config.AppendDirectives("pull-filter ignore \"dhcp-option DNS6\"", "OS");
 			}
@@ -923,11 +923,11 @@ namespace Eddie.Platform.Windows
 			{
 				if (Engine.Instance.GetOpenVpnTool().VersionAboveOrEqual("2.5"))
 				{
-					if (Engine.Instance.Options.GetBool("windows.force_old_driver") == false)
+					if (Engine.Instance.ProfileOptions.GetBool("windows.force_old_driver") == false)
 					{
 						config.AppendDirectives("windows-driver wintun", "OS");
-						if (Core.Engine.Instance.Options.Get("network.iface.name") != "")
-							config.AppendDirectives("dev-node \"" + Core.Engine.Instance.Options.Get("network.iface.name").EscapeQuote() + "\"", "OS");
+						if (Core.Engine.Instance.ProfileOptions.Get("network.iface.name") != "")
+							config.AppendDirectives("dev-node \"" + Core.Engine.Instance.ProfileOptions.Get("network.iface.name").EscapeQuote() + "\"", "OS");
 					}
 				}
 			}
@@ -966,7 +966,7 @@ namespace Eddie.Platform.Windows
 
 		public override bool OnDnsSwitchDo(Core.ConnectionTypes.IConnectionType connectionActive, IpAddresses dns)
 		{
-			if ((Engine.Instance.Options.GetBool("windows.dns.lock")) && (IsVistaOrNewer()) && (Engine.Instance.Options.GetBool("windows.wfp.enable")))
+			if ((Engine.Instance.ProfileOptions.GetBool("windows.dns.lock")) && (IsVistaOrNewer()) && (Engine.Instance.ProfileOptions.GetBool("windows.wfp.enable")))
 			{
 				// Order is important! IPv6 block use weight 3000, DNS-Lock 2000, WFP 1000. All within a parent filter of max priority.
 				// Otherwise the netlock allow-private rule can allow DNS outside the tunnel in some configuration.
@@ -1044,19 +1044,19 @@ namespace Eddie.Platform.Windows
 				Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("DnsLockActivatedWpf"));
 			}
 
-			string mode = Engine.Instance.Options.GetLower("dns.mode");
+			string mode = Engine.Instance.ProfileOptions.GetLower("dns.mode");
 
 			if (mode == "auto")
 			{
-				List<string> dnsInterfacesNamesList = Engine.Instance.Options.Get("dns.interfaces.names").ToLowerInvariant().StringToList();
+				List<string> dnsInterfacesNamesList = Engine.Instance.ProfileOptions.Get("dns.interfaces.names").ToLowerInvariant().StringToList();
 
-				string dnsInterfacesTypes = Engine.Instance.Options.Get("dns.interfaces.types").ToLowerInvariant();
+				string dnsInterfacesTypes = Engine.Instance.ProfileOptions.Get("dns.interfaces.types").ToLowerInvariant();
 				if (dnsInterfacesTypes == "auto")
 					dnsInterfacesTypes = "ethernet, virtual";
 
 				List<string> dnsInterfacesTypesList = dnsInterfacesTypes.StringToList();
 
-				Json jNetworkInfo = Engine.Instance.JsonNetworkInfo(); // Realtime
+				Json jNetworkInfo = Engine.Instance.NetworkInfoBuild();
 				foreach (Json jNetworkInterface in jNetworkInfo["interfaces"].Json.GetArray())
 				{
 					string interfaceId = jNetworkInterface["id"].ValueString;
@@ -1163,8 +1163,8 @@ namespace Eddie.Platform.Windows
 		{
 			string id = adapter.Id;
 
-			int interfaceMetricIPv4Value = Engine.Instance.Options.GetInt("windows.metrics.tap.ipv4");
-			int interfaceMetricIPv6Value = Engine.Instance.Options.GetInt("windows.metrics.tap.ipv6");
+			int interfaceMetricIPv4Value = Engine.Instance.ProfileOptions.GetInt("windows.metrics.tap.ipv4");
+			int interfaceMetricIPv6Value = Engine.Instance.ProfileOptions.GetInt("windows.metrics.tap.ipv6");
 			if ((interfaceMetricIPv4Value == -1) || (interfaceMetricIPv6Value == -1))
 				return true;
 
@@ -1299,7 +1299,7 @@ namespace Eddie.Platform.Windows
 		{
 			if (message.IndexOf("Waiting for TUN/TAP interface to come up") != -1)
 			{
-				if (Engine.Instance.Options.GetBool("windows.tap_up"))
+				if (Engine.Instance.ProfileOptions.GetBool("windows.tap_up"))
 				{
 					HackWindowsInterfaceUp();
 				}
@@ -1314,7 +1314,7 @@ namespace Eddie.Platform.Windows
 				if (Wfp.ClearPendingRules())
 					Engine.Instance.Logs.Log(LogType.Warning, LanguageManager.GetText("WfpRecovery"));
 
-			if (Engine.Instance.Options.GetBool("windows.adapters.cleanup"))
+			if (Engine.Instance.ProfileOptions.GetBool("windows.adapters.cleanup"))
 				Engine.Instance.Elevated.DoCommandSync("wintun-adapter-removepool", "pool", Constants.WintunPool);
 		}
 
@@ -1389,18 +1389,19 @@ namespace Eddie.Platform.Windows
 			}
 		}
 
-		public override void OnJsonNetworkInterfaceInfo(NetworkInterface networkInterface, Json jNetworkInterface)
+		public override void OnNetworkInterfaceInfoBuild(NetworkInterface networkInterface, Json jNetworkInterface)
 		{
-			base.OnJsonNetworkInterfaceInfo(networkInterface, jNetworkInterface);
+			base.OnNetworkInterfaceInfoBuild(networkInterface, jNetworkInterface);
 
 			string id = jNetworkInterface["id"].ValueString;
 
-			jNetworkInterface["dns4"].Value = Registry.GetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\\" + id.ToLowerInvariant(), "NameServer", "") as string;
-			jNetworkInterface["dns6"].Value = Registry.GetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip6\\Parameters\\Interfaces\\" + id.ToLowerInvariant(), "NameServer", "") as string;
-			jNetworkInterface["dns6"].Value = null; // WIP, re-check
+			string dns4 = Registry.GetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\\" + id.ToLowerInvariant(), "NameServer", "") as string;
+			string dns6 = Registry.GetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip6\\Parameters\\Interfaces\\" + id.ToLowerInvariant(), "NameServer", "") as string;
+			jNetworkInterface["dns4"].Value = dns4;
+			jNetworkInterface["dns6"].Value = dns6;
 		}
 
-		public override void OnJsonRouteList(Json jRoutesList)
+		public override void OnNetworkRouteListBuild(Json jRoutesList)
 		{
 			// C++ code return an interface index, here converted to interface ID/Name
 			Dictionary<int, string> InterfacesIndexToGuid = new Dictionary<int, string>();
@@ -1669,7 +1670,7 @@ namespace Eddie.Platform.Windows
 					needInstall = true;
 					Engine.Instance.Logs.Log(LogType.InfoImportant, LanguageManager.GetText("OsDriverInstall", driver));
 				}
-				else if ((Engine.Instance.Options.GetBool("windows.disable_driver_upgrade") == false) && (version.VersionCompare(bundleVersion) == -1))
+				else if ((Engine.Instance.ProfileOptions.GetBool("windows.disable_driver_upgrade") == false) && (version.VersionCompare(bundleVersion) == -1))
 				{
 					Engine.Instance.Logs.Log(LogType.Warning, LanguageManager.GetText("OsDriverNeedUpgrade", driver, version, bundleVersion));
 					needInstall = true;

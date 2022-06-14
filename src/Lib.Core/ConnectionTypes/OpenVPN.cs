@@ -66,7 +66,7 @@ namespace Eddie.Core.ConnectionTypes
 		{
 			base.Build();
 
-			Options options = Engine.Instance.Options;
+			ProfileOptions options = Engine.Instance.ProfileOptions;
 
 			m_configStartup = GenerateConfigBuilder();
 
@@ -74,8 +74,8 @@ namespace Eddie.Core.ConnectionTypes
 
 			if (options.GetBool("openvpn.skip_defaults") == false)
 			{
-				m_configStartup.AppendDirectives(Engine.Instance.Options.Get("openvpn.directives"), "Client level");
-				string directivesPath = Engine.Instance.Options.Get("openvpn.directives.path");
+				m_configStartup.AppendDirectives(Engine.Instance.ProfileOptions.Get("openvpn.directives"), "Client level");
+				string directivesPath = Engine.Instance.ProfileOptions.Get("openvpn.directives.path");
 				if (directivesPath.Trim() != "")
 				{
 					try
@@ -276,7 +276,7 @@ namespace Eddie.Core.ConnectionTypes
 				}
 
 				// If custom DNS provided, add to config
-				IpAddresses dnsCustom = new IpAddresses(Engine.Instance.Options.Get("dns.servers"));
+				IpAddresses dnsCustom = new IpAddresses(Engine.Instance.ProfileOptions.Get("dns.servers"));
 				foreach (IpAddress dnsIP in dnsCustom.IPs)
 				{
 					if ((dnsIP.IsV4) && (ConfigIPv4))
@@ -292,7 +292,7 @@ namespace Eddie.Core.ConnectionTypes
 					m_configStartup.AppendDirectives("pull-filter ignore \"dhcp-option DNS6\"", "Forced client side");
 				}
 
-				if (Engine.Instance.Options.GetBool("dns.delegate") == false)
+				if (Engine.Instance.ProfileOptions.GetBool("dns.delegate") == false)
 				{
 					if (dnsCustom.Count == 0) // Otherwise already added
 					{
@@ -331,7 +331,7 @@ namespace Eddie.Core.ConnectionTypes
 
 			Info.Provider.OnBuildConnection(this);
 
-			m_configStartup.AppendDirectives(Engine.Instance.Options.Get("openvpn.custom"), "Custom level");
+			m_configStartup.AppendDirectives(Engine.Instance.ProfileOptions.Get("openvpn.custom"), "Custom level");
 
 			foreach (ConnectionRoute route in Routes)
 			{
@@ -854,9 +854,9 @@ namespace Eddie.Core.ConnectionTypes
 
 							if (directive.ToLowerInvariant().StartsWithInv("dhcp-option dns"))
 							{
-								if (Engine.Instance.Options.GetBool("dns.delegate") == false)
+								if (Engine.Instance.ProfileOptions.GetBool("dns.delegate") == false)
 								{
-									IpAddresses dnsCustom = new IpAddresses(Engine.Instance.Options.Get("dns.servers"));
+									IpAddresses dnsCustom = new IpAddresses(Engine.Instance.ProfileOptions.Get("dns.servers"));
 									if (dnsCustom.Count == 0)
 									{
 										if (directive.ToLowerInvariant().StartsWithInv("dhcp-option dns "))
@@ -1005,13 +1005,13 @@ namespace Eddie.Core.ConnectionTypes
 		public override void EnsureDriver()
 		{
 			// Remember: WireGuard ALWAYS create and destroy adapter, for this the code below is OpenVPN-specific.
-			if (Engine.Instance.Options.GetBool("advanced.skip_tun_detect") == false)
+			if (Engine.Instance.ProfileOptions.GetBool("advanced.skip_tun_detect") == false)
 			{
 				string driverRequested = Platform.Instance.GetConnectionTunDriver(this);
 
 				Engine.Instance.WaitMessageSet(LanguageManager.GetText("OsDriverInstall", driverRequested), false);
 
-				string interfaceName = Core.Engine.Instance.Options.Get("network.iface.name");
+				string interfaceName = Core.Engine.Instance.ProfileOptions.Get("network.iface.name");
 				if (interfaceName == "")
 				{
 					System.Net.NetworkInformation.NetworkInterface adapter = Platform.Instance.SearchAdapter(driverRequested);
@@ -1029,7 +1029,7 @@ namespace Eddie.Core.ConnectionTypes
 
 		public override IpAddresses GetDns()
 		{
-			if (Engine.Instance.Options.GetBool("dns.delegate"))
+			if (Engine.Instance.ProfileOptions.GetBool("dns.delegate"))
 				return m_configWithPush.ExtractDns();
 			else
 				return m_dns;
@@ -1281,8 +1281,8 @@ namespace Eddie.Core.ConnectionTypes
 				//sslConfig += "output = /dev/stdout\n"; // With this, with stunnel 5.01, we have duplicated output dump.
 				sslConfig += "foreground = yes\n";  // Without this, the process fork and it's exit can't be detected.
 			}
-			if (Engine.Instance.Options.Get("ssl.options") != "")
-				sslConfig += "options = " + Engine.Instance.Options.Get("ssl.options") + "\n";
+			if (Engine.Instance.ProfileOptions.Get("ssl.options") != "")
+				sslConfig += "options = " + Engine.Instance.ProfileOptions.Get("ssl.options") + "\n";
 			sslConfig += "client = yes\n";
 			sslConfig += "debug = 6\n";
 			if (Platform.Instance.IsUnixSystem())
@@ -1292,8 +1292,8 @@ namespace Eddie.Core.ConnectionTypes
 			sslConfig += "accept = 127.0.0.1:" + Conversions.ToString(TransportSslLocalPort) + "\n";
 			sslConfig += "connect = " + EntryIP + ":" + EntryPort + "\n";
 			sslConfig += "TIMEOUTclose = 0\n";
-			if (Engine.Instance.Options.GetInt("ssl.verify") != -1)
-				sslConfig += "verify = " + Engine.Instance.Options.GetInt("ssl.verify").ToString() + "\n";
+			if (Engine.Instance.ProfileOptions.GetInt("ssl.verify") != -1)
+				sslConfig += "verify = " + Engine.Instance.ProfileOptions.GetInt("ssl.verify").ToString() + "\n";
 			sslConfig += "CAfile = " + m_fileSslCrt.Path + "\n"; // Note: don't like quoted path
 			sslConfig += "\n";
 

@@ -111,14 +111,14 @@ namespace Eddie.Forms.Forms
 
 		public override void OnInitializeComponent()
 		{
+			ApplySkinSettings();
+
 			base.OnInitializeComponent();
 		}
 
 		public override void OnApplySkin()
 		{
-			base.OnApplySkin();
-
-			ApplySkinSettings();
+			base.OnApplySkin();			
 
 			Skin.Apply(mnuMain);
 			Skin.Apply(mnuServers);
@@ -201,7 +201,7 @@ namespace Eddie.Forms.Forms
 				m_windowsNotifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
 				m_windowsNotifyIcon.Icon = m_iconGray;
 				m_windowsNotifyIcon.Text = Constants.Name;
-				m_windowsNotifyIcon.Visible = Engine.Instance.Options.GetBool("gui.tray_show");
+				m_windowsNotifyIcon.Visible = Engine.Instance.ProfileOptions.GetBool("gui.tray_show");
 				m_windowsNotifyIcon.BalloonTipTitle = Constants.Name;
 
 				m_windowsNotifyIcon.MouseDoubleClick += new MouseEventHandler(notifyIcon_MouseDoubleClick);
@@ -370,24 +370,24 @@ namespace Eddie.Forms.Forms
 			lstLogs.ResizeColumnMax(2);
 
 			chkShowAll.Checked = false;
-			chkLockLast.Checked = Engine.Instance.Options.GetBool("servers.locklast");
-			cboScoreType.Text = Engine.Instance.Options.Get("servers.scoretype");
+			chkLockLast.Checked = Engine.Instance.ProfileOptions.GetBool("servers.locklast");
+			cboScoreType.Text = Engine.Instance.ProfileOptions.Get("servers.scoretype");
 
 
 			//ApplySkin();
 
 			bool forceMinimized = false;
-			if (Engine.Instance.Options.GetBool("gui.start_minimized"))
+			if (Engine.Instance.ProfileOptions.GetBool("gui.start_minimized"))
 				forceMinimized = true;
 			if ((m_windowStateSetByShortcut) && (WindowState == FormWindowState.Minimized))
 				forceMinimized = true;
 			bool forceMaximized = false;
 			if ((m_windowStateSetByShortcut) && (WindowState == FormWindowState.Maximized))
 				forceMaximized = true;
-			SetFormLayout(Engine.Instance.Options.Get("gui.window.main"), forceMinimized, forceMaximized, new Size(m_windowDefaultWidth, m_windowDefaultHeight));
-			m_listViewServers.SetUserPrefs(Engine.Instance.Options.Get("gui.list.servers"));
-			m_listViewAreas.SetUserPrefs(Engine.Instance.Options.Get("gui.list.areas"));
-			lstLogs.SetUserPrefs(Engine.Instance.Options.Get("gui.list.logs"));
+			SetFormLayout(Engine.Instance.ProfileOptions.Get("gui.window.main"), forceMinimized, forceMaximized, new Size(m_windowDefaultWidth, m_windowDefaultHeight));
+			m_listViewServers.SetUserPrefs(Engine.Instance.ProfileOptions.Get("gui.list.servers"));
+			m_listViewAreas.SetUserPrefs(Engine.Instance.ProfileOptions.Get("gui.list.areas"));
+			lstLogs.SetUserPrefs(Engine.Instance.ProfileOptions.Get("gui.list.logs"));
 
 			foreach (StatsEntry statsEntry in Engine.Instance.Stats.List)
 			{
@@ -450,11 +450,11 @@ namespace Eddie.Forms.Forms
 			}
 
 			// Start
-			if (Engine.Instance.Options.GetBool("remember"))
+			if (Engine.Instance.ProfileOptions.GetBool("remember"))
 			{
 				chkRemember.Checked = true;
-				txtLogin.Text = Engine.Instance.Options.Get("login");
-				txtPassword.Text = Engine.Instance.Options.Get("password");
+				txtLogin.Text = Engine.Instance.ProfileOptions.Get("login");
+				txtPassword.Text = Engine.Instance.ProfileOptions.Get("password");
 			}
 
 			m_lockCoordUpdate = false;
@@ -665,10 +665,10 @@ namespace Eddie.Forms.Forms
 
 			if (UiClient.Instance.MainWindow != null)
 			{
-				engine.Options.Set("gui.window.main", UiClient.Instance.MainWindow.GetFormLayout());
-				engine.Options.Set("gui.list.servers", m_listViewServers.GetUserPrefs());
-				engine.Options.Set("gui.list.areas", m_listViewAreas.GetUserPrefs());
-				engine.Options.Set("gui.list.logs", lstLogs.GetUserPrefs());
+				engine.ProfileOptions.Set("gui.window.main", UiClient.Instance.MainWindow.GetFormLayout());
+				engine.ProfileOptions.Set("gui.list.servers", m_listViewServers.GetUserPrefs());
+				engine.ProfileOptions.Set("gui.list.areas", m_listViewAreas.GetUserPrefs());
+				engine.ProfileOptions.Set("gui.list.logs", lstLogs.GetUserPrefs());
 			}
 
 			Engine.Instance.RequestStop();
@@ -682,7 +682,7 @@ namespace Eddie.Forms.Forms
 
 			Resizing();
 
-			if ((WindowState == FormWindowState.Minimized) && (Engine.Instance.Options.GetBool("gui.tray_minimized")))
+			if ((WindowState == FormWindowState.Minimized) && (Engine.Instance.ProfileOptions.GetBool("gui.tray_minimized")))
 				WinHide();
 		}
 
@@ -751,7 +751,7 @@ namespace Eddie.Forms.Forms
 		private void chkRemember_CheckedChanged(object sender, EventArgs e)
 		{
 			if (m_formReady)
-				Engine.Instance.Options.SetBool("remember", chkRemember.Checked);
+				Engine.Instance.ProfileOptions.SetBool("remember", chkRemember.Checked);
 		}
 
 		private void cmdLogin_Click(object sender, EventArgs e)
@@ -1091,7 +1091,7 @@ namespace Eddie.Forms.Forms
 
 		private void chkLockCurrent_CheckedChanged(object sender, EventArgs e)
 		{
-			Engine.Instance.Options.SetBool("servers.locklast", chkLockLast.Checked);
+			Engine.Instance.ProfileOptions.SetBool("servers.locklast", chkLockLast.Checked);
 		}
 
 		private void lstStats_DoubleClick(object sender, EventArgs e)
@@ -1115,7 +1115,7 @@ namespace Eddie.Forms.Forms
 
 		private void cboScoreType_SelectionChangeCommitted(object sender, EventArgs e)
 		{
-			Engine.Instance.Options.Set("servers.scoretype", cboScoreType.Text);
+			Engine.Instance.ProfileOptions.Set("servers.scoretype", cboScoreType.Text);
 
 			OnRefreshUi(Core.Engine.RefreshUiMode.Full);
 		}
@@ -1185,15 +1185,15 @@ namespace Eddie.Forms.Forms
 		private void cboKey_SelectedIndexChanged(object sender, EventArgs e)
 		{
 			string key = cboKey.SelectedItem as string;
-			if (Engine.Instance.Options.Get("key") != key)
-				Engine.Instance.Options.Set("key", key);
+			if (Engine.Instance.ProfileOptions.Get("key") != key)
+				Engine.Instance.ProfileOptions.Set("key", key);
 		}
 
 		#endregion
 
 		public void OnChangeMainFormVisibility(bool vis)
 		{
-			if (Engine.Instance.Options.GetBool("gui.tray_show"))
+			if (Engine.Instance.ProfileOptions.GetBool("gui.tray_show"))
 			{
 				mnuRestore.Visible = true;
 				mnuRestoreSep.Visible = true;
@@ -1219,11 +1219,13 @@ namespace Eddie.Forms.Forms
 
 		public void ApplySkinSettings()
 		{
-			if (Engine.Instance.Options == null)
+			if (Engine.Instance.ProfileOptions == null)
 				return;
 
-			SkinReference.FontName = Engine.Instance.Options.Get("gui.font.normal.name");
-			SkinReference.FontSize = Engine.Instance.Options.GetFloat("gui.font.normal.size");
+			SkinReference.FontName = Engine.Instance.ProfileOptions.Get("gui.font.normal.name");
+			SkinReference.FontSize = Engine.Instance.ProfileOptions.GetFloat("gui.font.normal.size");
+
+			Skin.ClearFontCache();
 		}
 
 		public void Resizing()
@@ -1362,8 +1364,8 @@ namespace Eddie.Forms.Forms
 
 		public void Login()
 		{
-			Engine.Instance.Options.Set("login", txtLogin.Text);
-			Engine.Instance.Options.Set("password", txtPassword.Text);
+			Engine.Instance.ProfileOptions.Set("login", txtLogin.Text);
+			Engine.Instance.ProfileOptions.Set("password", txtPassword.Text);
 
 			Engine.Instance.Login();
 		}
@@ -1439,7 +1441,7 @@ namespace Eddie.Forms.Forms
 								lstLogs.Items.Add(Item);
 								m_logNeedScrollBottom = true;
 
-								if (lstLogs.Items.Count >= Engine.Instance.Options.GetInt("log.limit"))
+								if (lstLogs.Items.Count >= Engine.Instance.ProfileOptions.GetInt("log.limit"))
 									lstLogs.Items.RemoveAt(0);
 							}
 							catch
@@ -1776,7 +1778,7 @@ namespace Eddie.Forms.Forms
 			cmdAreasUndefined.Enabled = cmdAreasAllowlist.Enabled;
 			mnuAreasUndefined.Enabled = cmdAreasUndefined.Enabled;
 
-			cmdLogsCommand.Visible = Engine.Instance.Options.GetBool("advanced.expert");
+			cmdLogsCommand.Visible = Engine.Instance.ProfileOptions.GetBool("advanced.expert");
 
 			if ((Engine.Instance.NetworkLockManager != null) && (Engine.Instance.NetworkLockManager.IsActive()))
 			{
@@ -1793,7 +1795,7 @@ namespace Eddie.Forms.Forms
 			cmdLockedNetwork.Visible = networkCanEnabled;
 			imgLockedNetwork.Visible = networkCanEnabled;
 
-			m_tabMain.SetPageVisible(1, Engine.Instance.Options.GetBool("advanced.providers"));
+			m_tabMain.SetPageVisible(1, Engine.Instance.ProfileOptions.GetBool("advanced.providers"));
 		}
 
 		// Force when need to update icons, force refresh etc.		
@@ -1933,7 +1935,7 @@ namespace Eddie.Forms.Forms
 						foreach (string k in keysAdd)
 							cboKey.Items.Add(k);
 
-						string currentKey = Engine.Instance.Options.Get("key");
+						string currentKey = Engine.Instance.ProfileOptions.Get("key");
 						if (currentKey != null)
 						{
 							if ((cboKey.Items.Contains(currentKey) == true) && ((cboKey.SelectedItem as string) != currentKey))
@@ -2326,12 +2328,13 @@ namespace Eddie.Forms.Forms
 					EnabledUi();
 					Resizing();
 					ApplySkinSettings();
+					ApplySkin();
 				}
 			}
 			catch (Exception ex)
 			{
 				Engine.Instance.Logs.LogUnexpected(ex);
-			}
+			}			
 		}
 
 		private delegate void OnUpdaterDelegate();

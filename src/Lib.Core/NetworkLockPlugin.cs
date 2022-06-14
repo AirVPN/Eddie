@@ -122,7 +122,7 @@ namespace Eddie.Core
 
 			// Allowlist
 			{
-				string list = Engine.Instance.Options.Get("netlock.allowlist.incoming.ips");
+				string list = Engine.Instance.ProfileOptions.Get("netlock.allowlist.incoming.ips");
 				list = list.Replace("\u2028", ","); // macOS Hack  // TOCLEAN
 				List<string> hosts = list.StringToList();
 				foreach (string host in hosts)
@@ -145,7 +145,7 @@ namespace Eddie.Core
 
 			// Allowlist
 			{
-				string list = Engine.Instance.Options.Get("netlock.allowlist.outgoing.ips");
+				string list = Engine.Instance.ProfileOptions.Get("netlock.allowlist.outgoing.ips");
 				list = list.Replace("\u2028", ","); // macOS Hack  // TOCLEAN
 				List<string> hosts = list.StringToList();
 				foreach (string host in hosts)
@@ -161,7 +161,7 @@ namespace Eddie.Core
 
 			// Routes Out
 			{
-				string routes = Engine.Instance.Options.Get("routes.custom");
+				string routes = Engine.Instance.ProfileOptions.Get("routes.custom");
 				string[] routes2 = routes.Split(';');
 				foreach (string route in routes2)
 				{
@@ -180,7 +180,7 @@ namespace Eddie.Core
 			}
 
 			// DNS
-			if (Engine.Instance.Options.GetBool("netlock.allow_dns"))
+			if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_dns"))
 				result.Add(Platform.Instance.DetectDNS());
 
 			if (includeIpUsedByClient)
