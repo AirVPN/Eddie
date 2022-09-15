@@ -422,11 +422,6 @@ namespace Eddie.Platform.MacOS
 			return 256 * 1024;
 		}
 
-		public override bool FetchUrlInternal()
-		{
-			return true;
-		}
-
 		public override Json FetchUrl(Json request)
 		{
 			return NativeMethods.CUrl(request);

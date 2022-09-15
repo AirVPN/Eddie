@@ -1547,7 +1547,7 @@ namespace Eddie.Core
 		}
 
 		public HttpResponse FetchUrl(HttpRequest request)
-		{
+		{			
 			if (Platform.Instance.FetchUrlInternal())
 			{
 				Json jRequest = request.ToJson();
@@ -1560,8 +1560,8 @@ namespace Eddie.Core
 			}
 			else
 			{
+				// At 2.22.1, no platform reach this. Deprecated, still here for future need.
 				Tools.Curl curl = Software.GetTool("curl") as Tools.Curl;
-
 				return curl.Fetch(request);
 			}
 		}

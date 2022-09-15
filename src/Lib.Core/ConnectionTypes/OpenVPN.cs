@@ -1008,22 +1008,9 @@ namespace Eddie.Core.ConnectionTypes
 			if (Engine.Instance.ProfileOptions.GetBool("advanced.skip_tun_detect") == false)
 			{
 				string driverRequested = Platform.Instance.GetConnectionTunDriver(this);
-
-				Engine.Instance.WaitMessageSet(LanguageManager.GetText("OsDriverInstall", driverRequested), false);
-
 				string interfaceName = Core.Engine.Instance.ProfileOptions.Get("network.iface.name");
-				if (interfaceName == "")
-				{
-					System.Net.NetworkInformation.NetworkInterface adapter = Platform.Instance.SearchAdapter(driverRequested);
-					if (adapter != null)
-						interfaceName = adapter.Name;
-				}
-				if (interfaceName == "")
-				{
-					interfaceName = "Eddie";
-				}
-
-				Platform.Instance.OpenVpnEnsureDriverAndAdapterAvailable(driverRequested, interfaceName);
+				
+				Platform.Instance.OpenVpnEnsureInterface(driverRequested, interfaceName);
 			}
 		}
 

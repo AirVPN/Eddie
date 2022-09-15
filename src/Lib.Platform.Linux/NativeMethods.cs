@@ -107,15 +107,6 @@ namespace Eddie.Platform.Linux
 			return eddie_file_get_immutable(filename);
 		}
 
-		/*// TOCLEAN18
-		[DllImport(NativeLibName)]
-		private static extern int eddie_file_set_immutable(string filename, int flag);
-		public static int SetFileImmutable(string filename, int flag)
-		{
-			return eddie_file_set_immutable(filename, flag);
-		}
-		*/
-
 		[DllImport(NativeLibName)]
 		private static extern bool eddie_file_get_runasroot(string filename);
 		public static bool GetFileRunAsRoot(string filename)

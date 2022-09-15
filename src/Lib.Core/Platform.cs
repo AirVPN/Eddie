@@ -797,7 +797,7 @@ namespace Eddie.Core
 
 		public virtual bool FetchUrlInternal()
 		{
-			return false;
+			return true;
 		}
 
 		public virtual Json FetchUrl(Json request)
@@ -1295,22 +1295,14 @@ namespace Eddie.Core
 			return (GetWireGuardVersion() != "");
 		}
 
-		public virtual NetworkInterface SearchAdapter(string driver)
-		{
-			return null;
-		}
-
 		public virtual string GetDriverVersion(string driver)
 		{
 			return LanguageManager.GetText("NotImplemented");
 		}
-
-		public virtual void OpenVpnEnsureDriverAndAdapterAvailable(string driver, string ifaceName)
+		
+		public virtual void OpenVpnEnsureInterface(string driver, string ifaceName)
 		{
-			if (GetDriverVersion(driver) != "")
-				return;
 
-			throw new Exception(LanguageManager.GetText("OsDriverCannotInstall"));
 		}
 
 		public virtual bool OpenVpnCanUninstallDriver(string driver)
@@ -1323,8 +1315,9 @@ namespace Eddie.Core
 			return false;
 		}
 
-		public virtual void OpenVpnDeleteOldTapAdapter()
+		public virtual int OpenVpnDeleteOldTapAdapter()
 		{
+			return 0;
 		}
 
 		public virtual bool PreferHummingbirdIfAvailable()

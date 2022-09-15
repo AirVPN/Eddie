@@ -284,7 +284,7 @@ namespace Eddie.UI.Cocoa.Osx
 			m_mapNetworkEntryIFace[""] = "Automatic";
 			CboNetworkEntryInterface.AddItem("Automatic");
 
-			Json jNetworkInfo = Engine.Instance.Manifest["network_info"].Value as Json;
+			Json jNetworkInfo = Engine.Instance.NetworkInfoGet();
 			foreach (Json jNetworkInterface in jNetworkInfo["interfaces"].Json.GetArray())
 			{
 				if ((bool)jNetworkInterface["bind"].Value)

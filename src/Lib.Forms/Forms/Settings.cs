@@ -1665,7 +1665,11 @@ namespace Eddie.Forms.Forms
 
 		private void cmdAdvancedDeleteOldTapAdapter_Click(object sender, EventArgs e)
 		{
-			Platform.Instance.OpenVpnDeleteOldTapAdapter();				
+			int nRemoved = Platform.Instance.OpenVpnDeleteOldTapAdapter();
+			if (nRemoved == 0)
+				GuiUtils.MessageBoxError(this, "No old tap6 interfaces found to delete");
+			else
+				GuiUtils.MessageBoxError(this, nRemoved.ToString() + " old tap6 interfaces found deleted");
 		}
 	}
 }

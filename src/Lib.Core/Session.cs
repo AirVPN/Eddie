@@ -224,8 +224,6 @@ namespace Eddie.Core
 					if (CancelRequested)
 						continue;
 
-					Engine.NetworkInfoUpdate(); // 2.22.0
-
 					if (Engine.CurrentServer.SupportIPv4)
 					{
 						bool osSupport = Platform.Instance.GetSupportIPv4();

@@ -533,13 +533,6 @@ namespace Eddie.Platform.Linux
 			return (NativeMethods.Kill(process.Id, (int)NativeMethods.Signum.SIGTERM) == 0);
 		}
 
-		public override bool FetchUrlInternal()
-		{			
-			// return false;  // See comment in Lib.Platform.Native/build.sh
-
-			return true; // Switched in 2.22.0, TOCLEAN FetchUrlInternal
-		}
-
 		public override Json FetchUrl(Json request)
 		{
 			return NativeMethods.CUrl(request);
