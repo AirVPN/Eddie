@@ -26,6 +26,7 @@ namespace Eddie.Core
 	{
 		protected Elevated.Command m_elevated;
 		protected Dictionary<int, Ping> m_elevatedPings;
+		protected Dictionary<int, int> m_unknownResult;
 
 		// DotNet implementation can be cleaned when Elevated implement PingEngine also in Windows platform // WIP
 		// DotNet implementation don't work well on other OS (for example, Mono under macOS don't implement IPv6)
@@ -38,6 +39,7 @@ namespace Eddie.Core
 			if (m_dotnet == false)
 			{
 				m_elevatedPings = new Dictionary<int, Ping>();
+				m_unknownResult = new Dictionary<int, int>();
 
 				m_elevated = new Elevated.Command();
 				m_elevated.Parameters["command"] = "ping-engine";
@@ -54,6 +56,11 @@ namespace Eddie.Core
 							{
 								m_elevatedPings[id].End(result);
 								m_elevatedPings.Remove(id);
+							}
+							else
+							{
+								// It is possible for delegate to excute before id is added to m_elevatedPings
+								m_unknownResult[id] = result;
 							}
 						}
 					}
@@ -73,7 +80,15 @@ namespace Eddie.Core
 				if (id > 0)
 				{
 					lock (m_elevatedPings)
-						m_elevatedPings[id] = p;
+						if (m_unknownResult.ContainsKey(id)) {
+							int result = m_unknownResult[id];
+							m_unknownResult.Remove(id);
+							p.End(result);
+						}
+						else
+						{
+							m_elevatedPings[id] = p;
+						}
 				}
 			}
 			else
