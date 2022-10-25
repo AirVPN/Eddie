@@ -24,11 +24,11 @@ using System.Windows.Forms;
 
 namespace Eddie.Forms.Skin
 {
-	public class SkinForm : System.Windows.Forms.Form
+	public class SkinForm : Form
 	{
 		public static string InternalName = "Eddie";
 
-		public static Skin.SkinReference Skin = new Eddie.Forms.Skin.SkinReference();
+		public static SkinReference Skin = new SkinReference();
 
 		public bool MinimizeInTray = false;
 
@@ -47,7 +47,7 @@ namespace Eddie.Forms.Skin
 				Text = InternalName + " - " + Title;
 			}
 
-			Icon = global::Eddie.Forms.Skin.Properties.Resources.icon;
+			Icon = global::Eddie.Forms.Skin.Properties.Resources.icon; // Note: VS2022 suggest a wrong semplification
 
 			SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw | ControlStyles.UserPaint, true);
 
@@ -78,7 +78,7 @@ namespace Eddie.Forms.Skin
 			else
 			{
 				e.Graphics.FillRectangle(Skin.GetBrush("color.form.background"), ClientRectangle);
-				SkinForm.DrawImageOpt(e.Graphics, SkinUtils.GetSkinResourceImage("form"), ClientRectangle);
+				DrawImageOpt(e.Graphics, SkinUtils.GetSkinResourceImage("form"), ClientRectangle);
 
 				//base.OnPaintBackground(e);
 			}
@@ -110,7 +110,7 @@ namespace Eddie.Forms.Skin
 			else
 				output += "n,";
 
-			System.Drawing.Rectangle R = this.Bounds;
+			Rectangle R = this.Bounds;
 			if (this.WindowState != FormWindowState.Normal)
 				R = this.RestoreBounds;
 
@@ -188,24 +188,24 @@ namespace Eddie.Forms.Skin
 			{
 				if (MinimizeInTray)
 				{
-					this.Visible = false;
+					Visible = false;
 				}
 				else
 				{
-					this.WindowState = FormWindowState.Minimized;
-					this.Visible = true;
+					WindowState = FormWindowState.Minimized;
+					Visible = true;
 				}
 			}
 
 			else if (state == "M")
 			{
-				this.WindowState = FormWindowState.Maximized;
-				this.Visible = true;
+				WindowState = FormWindowState.Maximized;
+				Visible = true;
 			}
 			else if (state == "n")
 			{
-				this.WindowState = FormWindowState.Normal;
-				this.Visible = true;
+				WindowState = FormWindowState.Normal;
+				Visible = true;
 			}
 		}
 

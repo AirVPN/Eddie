@@ -57,7 +57,7 @@ namespace Eddie.Forms.Controls
 		{
 			base.OnMouseLeave(e);
 
-			if (m_hover == true)
+			if (m_hover)
 			{
 				m_hover = false;
 				Invalidate();

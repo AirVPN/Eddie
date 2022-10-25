@@ -74,12 +74,12 @@ public:
 	void Stop();
 	int Check();
 
-	int Request(const std::string& ip, int timeoutMs, const std::string& notes);
+	void Request(const uint16_t& id, const std::string& ip, int timeoutMs, const std::string& notes);
 
 protected:
 
 	uint16_t ChecksumIpAddress(const uint16_t* addr, uint32_t len);
-	void RequestEnd(int id, int code);
+	void RequestEnd(const uint16_t& id, int code);
 
 	// Utils
 	uint64_t GetTimestampUnixUsec();
@@ -88,13 +88,12 @@ protected:
 	bool SocketSetNonBlock(int s);
 	bool SocketSetHdrIncl(int s);
 
-	virtual void OnResponse(const int& id, const int& result);
+	virtual void OnResponse(const uint16_t& id, const int& result);
 
 private:
-	int m_id_seq = 0;
 	std::mutex m_mutex;
-	std::map<int, PingRequest*> m_requests;
-	std::vector<int> m_done;
+	std::map<uint16_t, PingRequest*> m_requests;
+	std::vector<uint16_t> m_done;
 	bool m_debug = false;
 
 	int m_socket4 = -1;

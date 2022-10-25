@@ -141,7 +141,7 @@ namespace Eddie.Core
 			else if (cmd == "ui.stats.pathapp")
 			{
 				Platform.Instance.OpenDirectoryInFileManager(Engine.Instance.Stats.Get("PathApp").Value);
-			}			
+			}
 			else if (cmd == "man")
 			{
 				string format = "text";
@@ -152,7 +152,7 @@ namespace Eddie.Core
 				result["title"].Value = "MAN";
 				result["body"].Value = Engine.Instance.ProfileOptions.GetMan(format);
 				return result;
-			}			
+			}
 			else if (cmd == "tor.guard")
 				Engine.Instance.Logs.LogVerbose("Tor Guard IPs:" + TorControl.GetGuardIps(true).ToString());
 			else if (cmd == "tor.NEWNYM")

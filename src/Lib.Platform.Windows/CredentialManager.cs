@@ -95,7 +95,7 @@ public static class CredentialManager
 		credential.UserName = Marshal.StringToCoTaskMemUni(userName ?? Environment.UserName);
 
 		bool written = CredWrite(ref credential, 0);
-		int lastError = Marshal.GetLastWin32Error();
+		// int lastError = Marshal.GetLastWin32Error();
 
 		Marshal.FreeCoTaskMem(credential.TargetName);
 		Marshal.FreeCoTaskMem(credential.CredentialBlob);

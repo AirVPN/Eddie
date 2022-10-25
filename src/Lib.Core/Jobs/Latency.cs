@@ -108,11 +108,6 @@ namespace Eddie.Core.Jobs
 			}
 		}
 
-		private void ElevatedEngine_ReceiveEvent(Elevated.Command c, string data)
-		{
-			throw new NotImplementedException();
-		}
-
 		public bool GetEnabled()
 		{
 			return Engine.Instance.ProfileOptions.GetBool("pinger.enabled");

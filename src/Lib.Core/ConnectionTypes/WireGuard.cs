@@ -37,7 +37,7 @@ namespace Eddie.Core.ConnectionTypes
 		public override void Build()
 		{
 			base.Build();
-			
+
 			m_interfaceName = Engine.Instance.ProfileOptions.Get("network.iface.name");
 			if (m_interfaceName == "")
 				m_interfaceName = "Eddie";
@@ -174,9 +174,8 @@ namespace Eddie.Core.ConnectionTypes
 				else if (messageLower == "setup-interface")
 				{
 					log = false;
-					Engine.Instance.Logs.Log(LogType.Verbose, "WireGuard > " + LanguageManager.GetText("WireGuardSetupInterface"));					
+					Engine.Instance.Logs.Log(LogType.Verbose, "WireGuard > " + LanguageManager.GetText("WireGuardSetupInterface"));
 					SearchTunNetworkInterfaceByName(m_interfaceName);
-					
 				}
 				else if (messageLower == "handshake-first")
 				{

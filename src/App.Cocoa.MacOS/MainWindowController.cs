@@ -952,6 +952,9 @@ namespace Eddie.UI.Cocoa.Osx
 
 		public bool NetworkLockKnowledge()
 		{
+			if (Engine.Instance.ProfileOptions.GetBool("ui.skip.netlock.confirm"))
+				return true;
+
 			string msg = LanguageManager.GetText("NetworkLockWarning");
 
 			return (GuiUtils.MessageYesNo(msg));

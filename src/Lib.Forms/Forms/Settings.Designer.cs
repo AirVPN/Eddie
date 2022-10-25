@@ -252,6 +252,8 @@ namespace Eddie.Forms.Forms
 			this.lblLogPath = new Eddie.Forms.Skin.Label();
 			this.chkLoggingEnabled = new Eddie.Forms.Skin.CheckBox();
 			this.tabExperimentals = new System.Windows.Forms.TabPage();
+			this.lblUiSkipNetlockConfirm = new Eddie.Forms.Skin.Label();
+			this.chkUiSkipNetlockConfirm = new Eddie.Forms.Skin.CheckBox();
 			tabAdvanced = new Eddie.Forms.Skin.TabPage();
 			tabDirectives = new Eddie.Forms.Skin.TabPage();
 			tabEvents = new Eddie.Forms.Skin.TabPage();
@@ -1694,6 +1696,8 @@ namespace Eddie.Forms.Forms
 			// tabUI
 			// 
 			this.tabUI.BackColor = System.Drawing.Color.White;
+			this.tabUI.Controls.Add(this.lblUiSkipNetlockConfirm);
+			this.tabUI.Controls.Add(this.chkUiSkipNetlockConfirm);
 			this.tabUI.Controls.Add(this.lbUiSkipPromotional);
 			this.tabUI.Controls.Add(this.chkUiSkipPromotional);
 			this.tabUI.Controls.Add(this.lblUiStartMinimized);
@@ -3172,6 +3176,29 @@ namespace Eddie.Forms.Forms
 			this.tabExperimentals.Text = "Experimentals";
 			this.tabExperimentals.UseVisualStyleBackColor = true;
 			// 
+			// lblUiSkipNetlockConfirm
+			// 
+			this.lblUiSkipNetlockConfirm.BackColor = System.Drawing.Color.Transparent;
+			this.lblUiSkipNetlockConfirm.ForeColor = System.Drawing.Color.Black;
+			this.lblUiSkipNetlockConfirm.Location = new System.Drawing.Point(26, 342);
+			this.lblUiSkipNetlockConfirm.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.lblUiSkipNetlockConfirm.Name = "lblUiSkipNetlockConfirm";
+			this.lblUiSkipNetlockConfirm.Size = new System.Drawing.Size(398, 34);
+			this.lblUiSkipNetlockConfirm.TabIndex = 118;
+			this.lblUiSkipNetlockConfirm.Text = "Hide network lock confirmation";
+			this.lblUiSkipNetlockConfirm.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// chkUiSkipNetlockConfirm
+			// 
+			this.chkUiSkipNetlockConfirm.BackColor = System.Drawing.Color.Transparent;
+			this.chkUiSkipNetlockConfirm.ForeColor = System.Drawing.Color.Black;
+			this.chkUiSkipNetlockConfirm.Location = new System.Drawing.Point(432, 342);
+			this.chkUiSkipNetlockConfirm.Margin = new System.Windows.Forms.Padding(4);
+			this.chkUiSkipNetlockConfirm.Name = "chkUiSkipNetlockConfirm";
+			this.chkUiSkipNetlockConfirm.Size = new System.Drawing.Size(42, 34);
+			this.chkUiSkipNetlockConfirm.TabIndex = 117;
+			this.chkUiSkipNetlockConfirm.UseVisualStyleBackColor = false;
+			// 
 			// Settings
 			// 
 			this.AcceptButton = this.cmdOk;
@@ -3436,5 +3463,7 @@ namespace Eddie.Forms.Forms
 		private Skin.CheckBox chkWindowsAdaptersCleanup;
 		private Skin.CheckBox chkWindowsForceOldTunDriver;
 		private Skin.Button cmdAdvancedDeleteOldTapAdapter;
+		private Skin.Label lblUiSkipNetlockConfirm;
+		private Skin.CheckBox chkUiSkipNetlockConfirm;
 	}
 }

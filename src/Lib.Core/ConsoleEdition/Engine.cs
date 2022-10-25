@@ -103,9 +103,15 @@ namespace Eddie.Core.ConsoleEdition
 							else if (ch == 'n')
 							{
 								Logs.Log(LogType.Info, LanguageManager.GetText("ConsoleKeySwitch"));
-								SwitchServer = true;
-								if ((Engine.CanConnect()) && (Engine.IsConnected() == false) && (Engine.IsWaiting() == false))
-									Connect();
+								if (Engine.IsConnected())
+								{
+									SwitchServer = true;
+								}
+								else
+								{
+									if ((Engine.CanConnect()) && (Engine.IsWaiting() == false))
+										Connect();
+								}
 							}
 						}
 					}

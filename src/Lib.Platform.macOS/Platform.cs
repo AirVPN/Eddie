@@ -715,32 +715,23 @@ namespace Eddie.Platform.MacOS
 			return result;
 		}
 
-		public override bool OnCheckEnvironmentApp()
+		public override void OnCheckEnvironmentApp()
 		{
-			bool fatal = false;
 			string networksetupPath = LocateExecutable("networksetup");
 			if (networksetupPath == "")
-			{
-				Engine.Instance.Logs.Log(LogType.Error, "'networksetup' " + LanguageManager.GetText("NotFound"));
-
-				fatal = true;
-			}
-
+				throw new Exception("'networksetup' " + LanguageManager.GetText("NotFound"));
+			
 			string pfctlPath = LocateExecutable("pfctl");
 			if (pfctlPath == "")
-				Engine.Instance.Logs.Log(LogType.Error, "'pfctl' " + LanguageManager.GetText("NotFound"));
-
+				Engine.Instance.Logs.Log(LogType.Warning, "'pfctl' " + LanguageManager.GetText("NotFound"));
 
 			string hostPath = LocateExecutable("host");
 			if (hostPath == "")
-				Engine.Instance.Logs.Log(LogType.Error, "'host' " + LanguageManager.GetText("NotFound"));
+				Engine.Instance.Logs.Log(LogType.Warning, "'host' " + LanguageManager.GetText("NotFound"));
 
 			string psPath = LocateExecutable("ps");
 			if (psPath == "")
-				Engine.Instance.Logs.Log(LogType.Error, "'ps' " + LanguageManager.GetText("NotFound"));
-
-
-			return (fatal == false);
+				Engine.Instance.Logs.Log(LogType.Warning, "'ps' " + LanguageManager.GetText("NotFound"));
 		}
 
 		public override bool OnCheckEnvironmentSession()

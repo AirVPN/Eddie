@@ -220,12 +220,12 @@ DWORD WINAPI ServiceWorkerThread(LPVOID lpParam)
 	if (rc != ERROR_SUCCESS)
 		return 1;
 
-	// Quote not need support.
 	std::wstring wArgs = szBuffer;
 	std::wstring arg;
+	bool inQuote = false;
 	for (size_t c = 0; c < wArgs.size(); c++)
 	{
-		if (wArgs[c] == L' ')
+		if ((wArgs[c] == L' ') && (inQuote == false))
 		{
 			args.push_back(impl.StringWStringToUTF8(arg));
 			arg = L"";
@@ -233,9 +233,12 @@ DWORD WINAPI ServiceWorkerThread(LPVOID lpParam)
 		else
 		{
 			arg += wArgs[c];
+
+			if (wArgs[c] == L'\"') inQuote = !inQuote;
 		}
 	}
-	args.push_back(impl.StringWStringToUTF8(arg));
+	if (arg.size() > 0)
+		args.push_back(impl.StringWStringToUTF8(arg));
 
 	impl.AppMain(args);
 

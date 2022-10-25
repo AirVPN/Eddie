@@ -122,7 +122,7 @@ namespace Eddie.Core
 			{
 				m_lastLogMessage = l.Message;
 				m_logDotCount += 1;
-				m_logDotCount = m_logDotCount % 10;
+				m_logDotCount %= 10;
 			}
 
 			lock (Entries)

@@ -20,7 +20,7 @@ namespace Eddie.Core
 {
 	public class GeneralOptions
 	{
-		private Json m_data = new Json();
+		//private Json m_data = new Json();
 		public void Read()
 		{
 

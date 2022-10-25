@@ -33,7 +33,7 @@ namespace Eddie.Core
 
 		private HttpListener m_listener = new HttpListener();
 
-		private List<Json> m_pullItems = new List<Json>();
+		//private List<Json> m_pullItems = new List<Json>();
 
 		private WebserverClient m_client = new WebserverClient();
 
@@ -71,7 +71,7 @@ namespace Eddie.Core
 					{
 						ThreadPool.QueueUserWorkItem((c) =>
 						{
-							var context = c as HttpListenerContext;
+							HttpListenerContext context = c as HttpListenerContext;
 							try
 							{
 								SendResponse(context);
@@ -96,7 +96,7 @@ namespace Eddie.Core
 
 		void WriteFile(HttpListenerContext ctx, string path, bool asDownload)
 		{
-			var response = ctx.Response;
+			HttpListenerResponse response = ctx.Response;
 			using (FileStream fs = File.OpenRead(path))
 			{
 				string filename = Path.GetFileName(path);
@@ -169,7 +169,7 @@ namespace Eddie.Core
 			// string physicalPath = GetPath() + request.RawUrl;
 			string bodyResponse = ""; // If valorized, always a dynamic response
 			Dictionary<string, string> requestHeaders = new Dictionary<string, string>();
-			foreach (var key in context.Request.Headers.AllKeys)
+			foreach (string key in context.Request.Headers.AllKeys)
 				requestHeaders[key.ToLowerInvariant()] = context.Request.Headers[key];
 			string requestHttpMethod = context.Request.HttpMethod.ToLowerInvariant().Trim();
 
@@ -209,7 +209,7 @@ namespace Eddie.Core
 				if (requestHttpMethod == "post")
 				{
 					// Pull mode
-					var data = new StreamReader(context.Request.InputStream).ReadToEnd();
+					string data = new StreamReader(context.Request.InputStream).ReadToEnd();
 					Json ret = Receive(data);
 					if (ret != null)
 						bodyResponse = ret.ToJson();

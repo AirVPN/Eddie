@@ -22,8 +22,8 @@ namespace Eddie.Core
 {
 	public class HttpResponse
 	{
-		public string Status;
-		public byte[] BufferData = default(byte[]);
+		public string Status;		
+		public byte[] BufferData;
 		public List<KeyValuePair<string, string>> Headers = new List<KeyValuePair<string, string>>();
 		public int HttpCode = 0;
 

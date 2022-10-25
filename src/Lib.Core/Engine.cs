@@ -25,7 +25,7 @@ using System.Xml;
 
 namespace Eddie.Core
 {
-	public class Engine : Eddie.Core.Thread
+	public class Engine : Thread
 	{
 		public static Engine Instance;
 
@@ -36,7 +36,7 @@ namespace Eddie.Core
 
 		public bool Terminated = false;
 		public delegate void TerminateHandler();
-		public event TerminateHandler TerminateEvent;		
+		public event TerminateHandler TerminateEvent;
 
 		private string m_pathProfile = "";
 		private string m_pathData = "";
@@ -85,7 +85,7 @@ namespace Eddie.Core
 		private List<ActionService> m_actionsList = new List<ActionService>();
 		private string m_mainStatusMessage = "";
 		private bool m_mainStatusCancel = false;
-		
+
 		public ConnectionInfo CurrentServer;
 		public ConnectionInfo NextServer;
 		public bool SwitchServer;
@@ -364,7 +364,7 @@ namespace Eddie.Core
 
 				CountriesManager.Init();
 
-				m_stats = new Core.Stats();
+				m_stats = new Stats();
 
 				return true;
 			}
@@ -453,7 +453,7 @@ namespace Eddie.Core
 						{
 							if (ProfileOptions.GetBool("connect"))
 							{
-								Engine.Instance.Logs.Log(LogType.Fatal, LanguageManager.GetText("NetworkLockActivationConnectStop"));
+								Logs.Log(LogType.Fatal, LanguageManager.GetText("NetworkLockActivationConnectStop"));
 								ProfileOptions.SetBool("connect", false);
 							}
 						}
@@ -773,7 +773,7 @@ namespace Eddie.Core
 			if (m_breakRequests > 0)
 				return false;
 
-			if (ProfileOptions.GetBool("gui.exit_confirm") == true)
+			if (ProfileOptions.GetBool("gui.exit_confirm"))
 				return true;
 
 			return false;
@@ -781,13 +781,13 @@ namespace Eddie.Core
 
 		public void Connect()
 		{
-			Engine.Instance.ProvidersManager.DoRefresh(false);
+			ProvidersManager.DoRefresh(false);
 
-			if ((CanConnect() == true) && (IsConnected() == false) && (IsWaiting() == false))
+			if ((CanConnect()) && (IsConnected() == false) && (IsWaiting() == false))
 			{
 				lock (m_actionsList)
 				{
-					m_actionsList.Add(Engine.ActionService.Connect);
+					m_actionsList.Add(ActionService.Connect);
 				}
 			}
 		}
@@ -796,7 +796,7 @@ namespace Eddie.Core
 		{
 			lock (m_actionsList)
 			{
-				m_actionsList.Add(Engine.ActionService.Login);
+				m_actionsList.Add(ActionService.Login);
 			}
 		}
 
@@ -804,7 +804,7 @@ namespace Eddie.Core
 		{
 			lock (m_actionsList)
 			{
-				m_actionsList.Add(Engine.ActionService.Logout);
+				m_actionsList.Add(ActionService.Logout);
 			}
 		}
 
@@ -812,7 +812,7 @@ namespace Eddie.Core
 		{
 			lock (m_actionsList)
 			{
-				m_actionsList.Add(Engine.ActionService.NetLockIn);
+				m_actionsList.Add(ActionService.NetLockIn);
 			}
 		}
 
@@ -1547,7 +1547,7 @@ namespace Eddie.Core
 		}
 
 		public HttpResponse FetchUrl(HttpRequest request)
-		{			
+		{
 			if (Platform.Instance.FetchUrlInternal())
 			{
 				Json jRequest = request.ToJson();
@@ -1688,7 +1688,7 @@ namespace Eddie.Core
 			{
 				Logs.Log(LogType.Info, LanguageManager.GetText("SessionStart"));
 
-				Engine.Instance.WaitMessageSet(LanguageManager.GetText("CheckingEnvironment"), true);
+				WaitMessageSet(LanguageManager.GetText("CheckingEnvironment"), true);
 
 				if (CheckEnvironmentSession() == false)
 				{
@@ -1861,16 +1861,16 @@ namespace Eddie.Core
 			}
 		}
 
-		public bool CheckEnvironmentApp()
+		public void CheckEnvironmentApp()
 		{
 			if (Platform.Instance.HasAccessToWrite(GetDataPath()) == false)
-				Engine.Instance.Logs.Log(LogType.Fatal, "Unable to write in path '" + GetDataPath() + "'");
+				throw new Exception("Unable to write in path '" + GetDataPath() + "'");
 
 			// Local Time in the past
 			if (DateTime.UtcNow < Constants.dateForPastChecking)
-				Engine.Instance.Logs.Log(LogType.Fatal, LanguageManager.GetText("WarningLocalTimeInPast"));
+				throw new Exception(LanguageManager.GetText("WarningLocalTimeInPast"));
 
-			return Platform.Instance.OnCheckEnvironmentApp();
+			Platform.Instance.OnCheckEnvironmentApp();
 		}
 
 		public bool CheckEnvironmentSession()
@@ -2038,7 +2038,7 @@ namespace Eddie.Core
 				Manifest["languages"].Value = LanguageManager.GetJsonForManifest();
 			}
 		}
-				
+
 		public Json StatusBuild(string logMessage)
 		{
 			// "full" is the text for window title.
@@ -2206,7 +2206,7 @@ namespace Eddie.Core
 		{
 			Json jNetworkInfo = new Json();
 
-			Json jRouteList = NetworkRouteListBuild();			
+			Json jRouteList = NetworkRouteListBuild();
 
 			jNetworkInfo["routes"].Value = jRouteList;
 

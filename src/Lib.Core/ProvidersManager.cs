@@ -70,7 +70,7 @@ namespace Eddie.Core
 
 			if (path != "")
 			{
-				FileInfo[] filesJson = new System.IO.DirectoryInfo(path).GetFiles("*.json");
+				FileInfo[] filesJson = new DirectoryInfo(path).GetFiles("*.json");
 				foreach (FileInfo fi in filesJson)
 				{
 					LoadDefinitionFromFile(fi.FullName);

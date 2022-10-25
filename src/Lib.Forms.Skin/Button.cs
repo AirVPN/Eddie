@@ -45,11 +45,11 @@ namespace Eddie.Forms.Skin
 			BackgroundImageLayout = ImageLayout.Stretch;
 			Cursor = Cursors.Hand;
 
-			FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			FlatStyle = FlatStyle.Flat;
 			FlatAppearance.BorderSize = 0;
 		}
 
-		new public bool Enabled
+		public new bool Enabled
 		{
 			get
 			{
@@ -77,7 +77,7 @@ namespace Eddie.Forms.Skin
 		{
 			base.OnMouseLeave(e);
 
-			if (m_hover == true)
+			if (m_hover)
 			{
 				m_hover = false;
 				Invalidate();
@@ -88,7 +88,7 @@ namespace Eddie.Forms.Skin
 		{
 			Rectangle r = ClientRectangle;
 
-			Image imageBackground = null;
+			Image imageBackground;
 			ImageAttributes imageAttributes = null;
 
 			if (Enabled)

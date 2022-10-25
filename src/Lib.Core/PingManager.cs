@@ -24,8 +24,9 @@ namespace Eddie.Core
 {
 	public class PingManager
 	{
+		protected ushort m_idSeq = 0;
 		protected Elevated.Command m_elevated;
-		protected Dictionary<int, Ping> m_elevatedPings;
+		protected Dictionary<ushort, Ping> m_elevatedPings;
 
 		// DotNet implementation can be cleaned when Elevated implement PingEngine also in Windows platform // WIP
 		// DotNet implementation don't work well on other OS (for example, Mono under macOS don't implement IPv6)
@@ -37,7 +38,8 @@ namespace Eddie.Core
 
 			if (m_dotnet == false)
 			{
-				m_elevatedPings = new Dictionary<int, Ping>();
+				m_idSeq = 0;
+				m_elevatedPings = new Dictionary<ushort, Ping>();
 
 				m_elevated = new Elevated.Command();
 				m_elevated.Parameters["command"] = "ping-engine";
@@ -46,7 +48,7 @@ namespace Eddie.Core
 					string[] fields = data.Split(',');
 					if (fields.Length == 2)
 					{
-						int id = Conversions.ToInt32(fields[0]);
+						ushort id = (ushort)Conversions.ToInt32(fields[0]);
 						int result = Conversions.ToInt32(fields[1]);
 						lock (m_elevatedPings)
 						{
@@ -69,12 +71,11 @@ namespace Eddie.Core
 		{
 			if (m_dotnet == false)
 			{
-				int id = Conversions.ToInt32(Engine.Instance.Elevated.DoCommandSync("ping-request", "ip", p.Ip.ToString(), "timeout", p.TimeoutMs.ToString()));
-				if (id > 0)
-				{
-					lock (m_elevatedPings)
-						m_elevatedPings[id] = p;
-				}
+				m_idSeq++;
+				ushort id = m_idSeq;
+				lock (m_elevatedPings)
+					m_elevatedPings[id] = p;
+				Engine.Instance.Elevated.DoCommandSync("ping-request", "id", id.ToString(), "ip", p.Ip.ToString(), "timeout", p.TimeoutMs.ToString());
 			}
 			else
 			{

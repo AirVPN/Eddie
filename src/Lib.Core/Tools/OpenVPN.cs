@@ -20,7 +20,7 @@ using System;
 
 namespace Eddie.Core.Tools
 {
-	public class OpenVPN : Tools.ITool
+	public class OpenVPN : ITool
 	{
 		public override void OnNormalizeVersion()
 		{

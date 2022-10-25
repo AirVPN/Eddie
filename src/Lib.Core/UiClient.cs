@@ -46,13 +46,13 @@ namespace Eddie.Core
 		public Json Command(string command)
 		{
 			Json j = new Json();
-			
+
 			CommandLine cmd = new CommandLine(command.Trim(), false, true);
 			j["command"].Value = cmd.Get("action", "");
 			foreach (KeyValuePair<string, string> kp in cmd.Params)
 				if (kp.Key != "action")
 					j[kp.Key].Value = kp.Value;
-			
+
 			return Command(j);
 		}
 	}

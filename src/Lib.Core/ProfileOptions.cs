@@ -45,7 +45,7 @@ namespace Eddie.Core
 			string result = "";
 			foreach (ProfileOption option in Dict.Values)
 			{
-				if (option.Important == false)
+				if (option.InternalOnly)
 					continue;
 
 				if (option.Value != "")
@@ -368,17 +368,12 @@ namespace Eddie.Core
 
 		public void SetDefault(string name, string type, string val, string man)
 		{
-			SetDefault(name, type, val, man, true);
-		}
-
-		public void SetDefault(string name, string type, string val, string man, bool important)
-		{
 			ProfileOption option = new ProfileOption();
 			option.Code = name;
 			option.Type = type;
 			option.Default = val;
 			option.Man = man;
-			option.Important = important;
+			//option.Important = important;
 			m_options[option.Code] = option;
 		}
 
@@ -389,22 +384,17 @@ namespace Eddie.Core
 
 		public void SetDefaultInt(string name, int val, string man)
 		{
-			SetDefault(name, "int", val.ToString(CultureInfo.InvariantCulture), man, true);
+			SetDefault(name, "int", val.ToString(CultureInfo.InvariantCulture), man);
 		}
 
 		public void SetDefaultBool(string name, bool val, string man)
 		{
-			SetDefault(name, "bool", val.ToString(CultureInfo.InvariantCulture), man, true);
-		}
-
-		public void SetDefaultBool(string name, bool val, string man, bool important)
-		{
-			SetDefault(name, "bool", val.ToString(CultureInfo.InvariantCulture), man, important);
+			SetDefault(name, "bool", val.ToString(CultureInfo.InvariantCulture), man);
 		}
 
 		public void SetDefaultFloat(string name, float val, string man)
 		{
-			SetDefault(name, "float", val.ToString(CultureInfo.InvariantCulture), man, true);
+			SetDefault(name, "float", val.ToString(CultureInfo.InvariantCulture), man);
 		}
 
 		public void Remove(string name)
@@ -434,7 +424,7 @@ namespace Eddie.Core
 
 			SetDefaultChoice("updater.channel", "stable,beta,internal,none", "stable", LanguageManager.GetText("ManOptionUpdaterChannel"));
 
-			SetDefault("servers.last", "text", "", NotInMan, false);
+			SetDefault("servers.last", "text", "", NotInMan);
 			SetDefault("servers.allowlist", "text", "", LanguageManager.GetText("ManOptionServersAllowlist"));
 			SetDefault("servers.denylist", "text", "", LanguageManager.GetText("ManOptionServersDenylist"));
 			SetDefaultBool("servers.startlast", false, LanguageManager.GetText("ManOptionServersStartLast"));
@@ -609,20 +599,21 @@ namespace Eddie.Core
 			SetDefaultBool("ui.iec", false, LanguageManager.GetText("ManOptionUiIEC"));
 			SetDefaultBool("ui.skip.provider.manifest.failed", false, NotInMan);
 			SetDefaultBool("ui.skip.promotional", false, NotInMan);
+			SetDefaultBool("ui.skip.netlock.confirm", false, NotInMan);
 
 			// GUI only
 			SetDefaultBool("gui.start_minimized", false, NotInMan);
 			SetDefaultBool("gui.tray_show", true, NotInMan);
 			SetDefaultBool("gui.tray_minimized", (Platform.Instance.IsLinuxSystem() == false), NotInMan); // We can't know if the Linux Desktop Environment will support show tray.
 			SetDefaultBool("gui.notifications", true, NotInMan);
-			SetDefaultBool("gui.exit_confirm", true, NotInMan, false);
+			SetDefaultBool("gui.exit_confirm", true, NotInMan);
 			SetDefault("gui.font.normal.name", "text", "", NotInMan);
 			SetDefaultFloat("gui.font.normal.size", 0, NotInMan);
 
-			SetDefault("gui.window.main", "text", "", NotInMan, false);
-			SetDefault("gui.list.servers", "text", "", NotInMan, false);
-			SetDefault("gui.list.areas", "text", "", NotInMan, false);
-			SetDefault("gui.list.logs", "text", "", NotInMan, false);
+			SetDefault("gui.window.main", "text", "", NotInMan);
+			SetDefault("gui.list.servers", "text", "", NotInMan);
+			SetDefault("gui.list.areas", "text", "", NotInMan);
+			SetDefault("gui.list.logs", "text", "", NotInMan);
 
 			// UI - OSX Only
 			// SetDefaultBool("gui.osx.dock", false, NotInMan); // See this FAQ: https://airvpn.org/topic/13331-its-possible-to-hide-the-icon-in-dock-bar-under-os-x/

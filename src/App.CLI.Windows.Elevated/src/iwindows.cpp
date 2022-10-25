@@ -1951,8 +1951,8 @@ int IWindows::WireGuardTunnel(const std::string& configName)
 			SetNamedPipeHandleState(hPipeErrRead, &pipeMode, &pipeMaxCollectionCount, &pipeCollectDataTimeout);
 			SetNamedPipeHandleState(hPipeErrWrite, &pipeMode, &pipeMaxCollectionCount, &pipeCollectDataTimeout);
 			SetStdHandle(STD_ERROR_HANDLE, hPipeErrWrite);
-
-			std::wstring configNameW = StringUTF8ToWString(configName);
+						
+			std::wstring configNameW = StringUTF8ToWString(configName);			
 			int result = procWgTunnel(&configNameW[0]);
 
 			// Revert previous handlers

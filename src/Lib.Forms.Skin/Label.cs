@@ -47,6 +47,8 @@ namespace Eddie.Forms.Skin
 				case ContentAlignment.BottomLeft: sf = SkinUtils.StringFormatLeftBottom; break;
 				case ContentAlignment.BottomCenter: sf = SkinUtils.StringFormatCenterBottom; break;
 				case ContentAlignment.BottomRight: sf = SkinUtils.StringFormatRightBottom; break;
+				default:
+					break;
 			}
 
 			Rectangle R = ClientRectangle;

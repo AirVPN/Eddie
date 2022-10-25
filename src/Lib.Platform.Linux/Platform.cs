@@ -762,20 +762,20 @@ namespace Eddie.Platform.Linux
 		{
 			base.AdaptConfigOpenVpn(config);
 
-			config.AppendDirective("route-delay", "5", ""); // 2.8, to resolve some issue on some distro, ex. Fedora 21
+			// 2.8, to resolve some issue on some distro, ex. Fedora 21
+			// 2.22.2, removed, with OpenVPN3 throw a deprecated fatal error.
+			//config.AppendDirective("route-delay", "5", ""); 
 		}
 
-		public override bool OnCheckEnvironmentApp()
+		public override void OnCheckEnvironmentApp()
 		{
 			string getentPath = LocateExecutable("getent");
 			if (getentPath == "")
-				Engine.Instance.Logs.Log(LogType.Error, "'getent' " + LanguageManager.GetText("NotFound"));
+				throw new Exception("'getent' " + LanguageManager.GetText("NotFound"));
 
 			string ipPath = LocateExecutable("ip");
 			if (ipPath == "")
-				Engine.Instance.Logs.Log(LogType.Error, "'ip' " + LanguageManager.GetText("NotFound"));
-
-			return true;
+				throw new Exception("'ip' " + LanguageManager.GetText("NotFound"));
 		}
 
 		public override void OnCheckUpMonitor()

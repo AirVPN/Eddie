@@ -27,8 +27,7 @@ namespace Eddie.Core.Elevated
 	public class ISocket : IElevated
 	{
 		private ManualResetEvent connectDone = new ManualResetEvent(false);
-		private ManualResetEvent sendDone = new ManualResetEvent(false);
-		private ManualResetEvent receiveDone = new ManualResetEvent(false);
+		private ManualResetEvent sendDone = new ManualResetEvent(false);		
 		private Socket m_socket = null;
 
 		protected int GetPortSpot()

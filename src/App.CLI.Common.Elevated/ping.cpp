@@ -104,7 +104,7 @@ void PingEngine::Stop()
 {
 	m_mutex.lock();
 
-	for (std::map<int, PingRequest*>::iterator it = m_requests.begin(); it != m_requests.end(); it++)
+	for (std::map<uint16_t, PingRequest*>::iterator it = m_requests.begin(); it != m_requests.end(); it++)
 		delete it->second;
 	m_requests.clear();
 
@@ -134,11 +134,11 @@ int PingEngine::Check()
 
 	uint64_t now = GetTimestampUnixUsec();
 
-	for (std::map<int, PingRequest*>::iterator it = m_requests.begin(); it != m_requests.end(); it++)
+	for (std::map<uint16_t, PingRequest*>::iterator it = m_requests.begin(); it != m_requests.end(); it++)
 	{
 		nPending++;
 
-		int requestId = it->first;
+		uint16_t requestId = it->first;
 		PingRequest* pR = it->second;
 
 		if (pR->m_startTime == 0)
@@ -236,7 +236,7 @@ int PingEngine::Check()
 				{
 					// TODO: checksum
 
-					int responseId = ntohs(responseHeader->icmp_hun.ih_idseq.icd_id);
+					uint16_t responseId = ntohs(responseHeader->icmp_hun.ih_idseq.icd_id);
 					RequestEnd(responseId, 0);
 				}
 			}
@@ -263,7 +263,7 @@ int PingEngine::Check()
 				{
 					// TODO: checksum
 
-					int responseId = ntohs(responseHeader->icmp6_id);
+					uint16_t responseId = ntohs(responseHeader->icmp6_id);
 					RequestEnd(responseId, 0);
 				}
 			}
@@ -271,9 +271,9 @@ int PingEngine::Check()
 #endif
 	}
 
-	for (std::vector<int>::const_iterator iDone = m_done.begin(); iDone != m_done.end(); ++iDone)
+	for (std::vector<uint16_t>::const_iterator iDone = m_done.begin(); iDone != m_done.end(); ++iDone)
 	{
-		int requestId = *iDone;
+		uint16_t requestId = *iDone;
 		PingRequest* pR = m_requests[requestId];
 		m_requests.erase(requestId);
 		delete pR;
@@ -305,13 +305,9 @@ uint16_t PingEngine::ChecksumIpAddress(const uint16_t* addr, uint32_t len)
 }
 
 // Generate a request
-int PingEngine::Request(const std::string& ip, int timeoutMs, const std::string& notes)
+void PingEngine::Request(const uint16_t& id, const std::string& ip, int timeoutMs, const std::string& notes)
 {
 	m_mutex.lock();
-
-	m_id_seq++;
-
-	int id = m_id_seq;
 
 	PingRequest* pR = new PingRequest();
 	pR->m_ip = ip;
@@ -320,11 +316,9 @@ int PingEngine::Request(const std::string& ip, int timeoutMs, const std::string&
 	m_requests[id] = pR;
 
 	m_mutex.unlock();
-
-	return id;
 }
 
-void PingEngine::RequestEnd(int id, int code)
+void PingEngine::RequestEnd(const uint16_t& id, int code)
 {
 	if (m_requests.find(id) != m_requests.end())
 	{
@@ -429,16 +423,16 @@ void PingEngine::TestDebug()
 
 	std::cout << "Ping Test Samples IPv4\n";
 
-	Request("193.148.16.210", 5000, "expected:230");
-	Request("8.8.8.9", 5000, "expected:timeout");
-	Request("188.166.41.48", 5000, "expected:52");
-	Request("184.75.223.210", 5000, "expected:127");
+	Request(1,"193.148.16.210", 5000, "expected:230");
+	Request(2,"8.8.8.9", 5000, "expected:timeout");
+	Request(3,"188.166.41.48", 5000, "expected:52");
+	Request(4,"184.75.223.210", 5000, "expected:127");
 
 	std::cout << "Ping Test Samples IPv6\n";
 
-	Request("2606:6080:1002:6:ddb0:6fe6:c526:9e8a", 5000, "expected-v6:127");
-	Request("2a03:b0c0:2:d0::11b4:6001", 5000, "expected-v6:52");
-	Request("2a03:b0c0:2:d0::11b4:6002", 5000, "expected-v6:timeout");
+	Request(5,"2606:6080:1002:6:ddb0:6fe6:c526:9e8a", 5000, "expected-v6:127");
+	Request(6,"2a03:b0c0:2:d0::11b4:6001", 5000, "expected-v6:52");
+	Request(7,"2a03:b0c0:2:d0::11b4:6002", 5000, "expected-v6:timeout");
 
 	std::cout << "Ping Test Start\n";
 
@@ -469,6 +463,6 @@ void PingEngine::TestDebug()
 	std::cout << "Ping Test End\n";
 }
 
-void PingEngine::OnResponse(const int& id, const int& result)
+void PingEngine::OnResponse(const uint16_t& id, const int& result)
 {
 }

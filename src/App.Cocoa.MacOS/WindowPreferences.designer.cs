@@ -169,6 +169,9 @@ namespace Eddie.UI.Cocoa.Osx
 		AppKit.NSButton ChkUiIEC { get; set; }
 
 		[Outlet]
+		AppKit.NSButton ChkUiSkipNetlockConfirm { get; set; }
+
+		[Outlet]
 		AppKit.NSButton ChkUiSkipPromotional { get; set; }
 
 		[Outlet]
@@ -634,6 +637,11 @@ namespace Eddie.UI.Cocoa.Osx
 			if (ChkUiSkipPromotional != null) {
 				ChkUiSkipPromotional.Dispose ();
 				ChkUiSkipPromotional = null;
+			}
+
+			if (ChkUiSkipNetlockConfirm != null) {
+				ChkUiSkipNetlockConfirm.Dispose ();
+				ChkUiSkipNetlockConfirm = null;
 			}
 
 			if (ChkUiSkipProviderManifestFailed != null) {

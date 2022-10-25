@@ -32,7 +32,6 @@ using Microsoft.Win32;
 
 using Eddie.Core;
 using System.Management;
-using System.Collections;
 
 namespace Eddie.Platform.Windows
 {
@@ -1145,9 +1144,9 @@ namespace Eddie.Platform.Windows
 			DnsForceRestore();
 
 			bool DnsPermitExists = false;
-			DnsPermitExists = DnsPermitExists | Wfp.RemoveItem("dns_permit_openvpn");
-			DnsPermitExists = DnsPermitExists | Wfp.RemoveItem("dns_permit_tap");
-			DnsPermitExists = DnsPermitExists | Wfp.RemoveItem("dns_block_all");
+			DnsPermitExists |= Wfp.RemoveItem("dns_permit_openvpn");
+			DnsPermitExists |= Wfp.RemoveItem("dns_permit_tap");
+			DnsPermitExists |= Wfp.RemoveItem("dns_block_all");
 			if (DnsPermitExists)
 				Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("DnsLockDeactivatedWpf"));
 
@@ -1417,12 +1416,12 @@ namespace Eddie.Platform.Windows
 							jNetworkInterface[itemWanted.Value].Value = v;
 						}
 						catch
-						{ 
+						{
 						}
 					}
 				}
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				Engine.Instance.Logs.Log(ex);
 			}
@@ -1647,7 +1646,7 @@ namespace Eddie.Platform.Windows
 		}
 
 		public override void OpenVpnEnsureInterface(string driver, string ifaceName)
-		{			
+		{
 			if (driver == OpenVpnDriverTapId)
 			{
 				if (Engine.Instance.GetOpenVpnTool().VersionAboveOrEqual("2.5"))
@@ -1732,7 +1731,7 @@ namespace Eddie.Platform.Windows
 					break;
 				}
 				else if (lap == 0)
-				{					
+				{
 					if (ifaceName == "")
 						ifaceName = "Eddie";
 
@@ -1751,7 +1750,7 @@ namespace Eddie.Platform.Windows
 						Engine.Instance.Logs.LogVerbose("Added new network interface \"" + ifaceName + "\", Tap0901");
 						jNetworkInfo = Engine.Instance.NetworkInfoUpdate(); // Refresh
 					}
-				}				
+				}
 			}
 
 			if (jNetworkInterfaceSelected == null)

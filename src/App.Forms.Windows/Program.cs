@@ -23,7 +23,7 @@ using System.Windows.Forms;
 
 namespace Eddie.Forms.Windows
 {
-	static class Program
+	public static class Program
 	{
 		/// <summary>
 		/// The main entry point for the application.
@@ -33,12 +33,14 @@ namespace Eddie.Forms.Windows
 		private static Eddie.Forms.UiClient m_client;
 
 		[STAThread]
-		static void Main()
+		public static void Main()
 		{
 			try
 			{
 				if (Environment.OSVersion.Version.Major >= 6)
+				{
 					NativeMethods.SetProcessDPIAware();
+				}
 
 				//Application.EnableVisualStyles();
 				Application.SetCompatibleTextRenderingDefault(false);
@@ -47,7 +49,7 @@ namespace Eddie.Forms.Windows
 				Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
 				AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
 
-				Core.Platform.Instance = new Eddie.Platform.Windows.Platform();
+				Core.Platform.Instance = new Platform.Windows.Platform();
 
 				if (new CommandLine(Environment.CommandLine, true, false).Exists("cli")) // TOFIX, not need anymore when every OS have a CLI executable.
 				{
@@ -62,18 +64,22 @@ namespace Eddie.Forms.Windows
 			}
 			catch (Exception ex)
 			{
-				MessageBox.Show(ex.Message, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+				_ = MessageBox.Show(ex.Message, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
 
 			// Application.Run must be outside the catch above, otherwise it's not unhandled
 			if ((m_client != null) && (m_client.AppContext != null))
+			{
 				Application.Run(m_client.AppContext);
+			}
 		}
 
 		public static void ApplicationThreadException(object sender, ThreadExceptionEventArgs e)
 		{
 			if (m_client != null)
+			{
 				m_client.OnUnhandledException("ApplicationThread", e.Exception);
+			}
 		}
 
 		private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)

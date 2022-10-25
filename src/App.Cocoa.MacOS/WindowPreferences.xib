@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="18122" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="20037" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="18122"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="20037"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -57,6 +57,7 @@
                 <outlet property="ChkSystemService" destination="qqg-FO-Mr5" id="zgI-4P-YXa"/>
                 <outlet property="ChkSystemStart" destination="aut-IV-uda" id="ZKC-gy-vSp"/>
                 <outlet property="ChkUiIEC" destination="vu2-Pk-Cd3" id="s6x-xZ-4NA"/>
+                <outlet property="ChkUiSkipNetlockConfirm" destination="TqM-i5-R7y" id="ZRO-HC-Fva"/>
                 <outlet property="ChkUiSkipPromotional" destination="ThV-6a-FAq" id="cFR-yX-Ryp"/>
                 <outlet property="ChkUiSkipProviderManifestFailed" destination="WiI-8s-gmd" id="apn-Pq-dZA"/>
                 <outlet property="ChkUiSystemBarShowInfo" destination="jET-rF-bKQ" id="5Jf-Tp-Gty"/>
@@ -492,6 +493,23 @@
                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
                                         </textField>
+                                        <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="TqM-i5-R7y">
+                                            <rect key="frame" x="223" y="222" width="81" height="18"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <buttonCell key="cell" type="check" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="7ag-Ar-WJh">
+                                                <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                <font key="font" metaFont="system"/>
+                                            </buttonCell>
+                                        </button>
+                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" allowsCharacterPickerTouchBarItem="YES" translatesAutoresizingMaskIntoConstraints="NO" id="cXD-8o-QdJ">
+                                            <rect key="frame" x="12" y="223" width="207" height="17"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Hide network lock confirmation" id="9Rh-px-xuR">
+                                                <font key="font" metaFont="message" size="11"/>
+                                                <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                            </textFieldCell>
+                                        </textField>
                                     </subviews>
                                 </view>
                             </tabViewItem>
@@ -529,7 +547,7 @@
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <clipView key="contentView" id="Cib-7u-OjK">
                                                 <rect key="frame" x="1" y="1" width="515" height="269"/>
-                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                <autoresizingMask key="autoresizingMask"/>
                                                 <subviews>
                                                     <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" alternatingRowBackgroundColors="YES" autosaveColumns="NO" rowHeight="15" headerView="4JJ-rc-bx7" id="1GA-Pm-iyx">
                                                         <rect key="frame" x="0.0" y="0.0" width="578" height="252"/>
@@ -919,7 +937,7 @@
                                                 <autoresizingMask key="autoresizingMask"/>
                                                 <subviews>
                                                     <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" alternatingRowBackgroundColors="YES" autosaveColumns="NO" rowHeight="15" headerView="O9e-J7-wSv" id="UUg-4W-rPw">
-                                                        <rect key="frame" x="0.0" y="0.0" width="521" height="230"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="501" height="230"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                         <size key="intercellSpacing" width="3" height="2"/>
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -983,7 +1001,7 @@
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </scroller>
                                             <tableHeaderView key="headerView" id="O9e-J7-wSv">
-                                                <rect key="frame" x="0.0" y="0.0" width="521" height="17"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="501" height="17"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </tableHeaderView>
                                         </scrollView>
@@ -1077,7 +1095,7 @@
                                                         <tableViewGridLines key="gridStyleMask" vertical="YES" horizontal="YES"/>
                                                         <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
                                                         <tableColumns>
-                                                            <tableColumn identifier="IP" width="305" minWidth="40" maxWidth="1000" id="XaO-hg-Xfq">
+                                                            <tableColumn identifier="IP" width="296" minWidth="40" maxWidth="1000" id="XaO-hg-Xfq">
                                                                 <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="IP">
                                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                                     <color key="backgroundColor" white="0.33333298560000002" alpha="1" colorSpace="calibratedWhite"/>
@@ -1972,7 +1990,7 @@
                                                                 </textFieldCell>
                                                                 <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                             </tableColumn>
-                                                            <tableColumn identifier="FileName" width="198.5" minWidth="40" maxWidth="1000" id="wbe-W2-eH1">
+                                                            <tableColumn identifier="FileName" width="194" minWidth="40" maxWidth="1000" id="wbe-W2-eH1">
                                                                 <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="File name">
                                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                                     <color key="backgroundColor" white="0.33333298560000002" alpha="1" colorSpace="calibratedWhite"/>
@@ -1984,7 +2002,7 @@
                                                                 </textFieldCell>
                                                                 <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                             </tableColumn>
-                                                            <tableColumn identifier="Arguments" width="98.5" minWidth="10" maxWidth="1000" id="78x-4q-Yy1">
+                                                            <tableColumn identifier="Arguments" width="94" minWidth="10" maxWidth="1000" id="78x-4q-Yy1">
                                                                 <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Arguments">
                                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                                     <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>

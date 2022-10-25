@@ -590,12 +590,11 @@ void IBase::Do(const std::string& commandId, const std::string& command, std::ma
 	}
 	else if (command == "ping-request")
 	{
+		uint16_t id = StringToInt(params["id"]);
 		std::string ip = params["ip"];
 		int timeoutMs = StringToInt(params["timeout"]);
 
-		int pingID = m_pinger.Request(ip, timeoutMs, "");
-
-		ReplyCommand(commandId, StringFrom(pingID));
+		m_pinger.Request(id, ip, timeoutMs, "");
 	}
 	else if (command == "ping-engine")
 	{
@@ -1574,7 +1573,7 @@ ExecResult IBase::ExecEx8(const std::string& path, const std::string& arg1, cons
 	return ExecEx(path, args);
 }
 
-void Pinger::OnResponse(const int& id, const int& result)
+void Pinger::OnResponse(const uint16_t& id, const int& result)
 {
 	std::string r = std::to_string(id) + "," + std::to_string(result);
 	m_pBase->ReplyCommand(m_commandId, r);

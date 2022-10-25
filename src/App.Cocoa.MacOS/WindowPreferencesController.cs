@@ -689,6 +689,7 @@ namespace Eddie.UI.Cocoa.Osx
 			GuiUtils.SetCheck(ChkUiIEC, o.GetBool("ui.iec"));
             GuiUtils.SetCheck(ChkUiSkipProviderManifestFailed, o.GetBool("ui.skip.provider.manifest.failed"));
             GuiUtils.SetCheck(ChkUiSkipPromotional, o.GetBool("ui.skip.promotional"));
+			GuiUtils.SetCheck(ChkUiSkipNetlockConfirm, o.GetBool("ui.skip.netlock.confirm"));
 
 			/*
 			string interfaceMode = GuiUtils.InterfaceColorMode ();
@@ -1070,10 +1071,11 @@ namespace Eddie.UI.Cocoa.Osx
 			o.SetBool("ui.iec", GuiUtils.GetCheck(ChkUiIEC));
             o.SetBool("ui.skip.provider.manifest.failed", GuiUtils.GetCheck(ChkUiSkipProviderManifestFailed));
             o.SetBool("ui.skip.promotional", GuiUtils.GetCheck(ChkUiSkipPromotional));
+			o.SetBool("ui.skip.netlock.confirm", GuiUtils.GetCheck(ChkUiSkipNetlockConfirm));
 
-            // Protocols
+			// Protocols
 
-            if (GuiUtils.GetCheck(ChkProtocolsAutomatic))
+			if (GuiUtils.GetCheck(ChkProtocolsAutomatic))
 			{
 				o.Set("mode.type", "auto");
 				o.Set("mode.protocol", "udp");

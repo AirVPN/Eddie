@@ -48,9 +48,9 @@ namespace Eddie.Forms.Controls
 			m_timer.Start();
 		}
 
-		void OnTimerTick(object sender, EventArgs e)
+		protected void OnTimerTick(object sender, EventArgs e)
 		{
-			if (this.Visible)
+			if (Visible)
 				Invalidate();
 		}
 

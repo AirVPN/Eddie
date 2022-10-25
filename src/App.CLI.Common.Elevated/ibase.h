@@ -48,7 +48,7 @@ class IBase;
 class Pinger : public PingEngine
 {
 protected:
-	virtual void OnResponse(const int& id, const int& result);
+	virtual void OnResponse(const uint16_t& id, const int& result);
 
 public:
 	IBase* m_pBase = NULL;

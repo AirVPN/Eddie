@@ -231,7 +231,7 @@ namespace Eddie.Core.ConnectionTypes
 							Platform.Instance.FileContentsWriteText(m_fileAuthProxy.Path, fileNameData, Encoding.Default);
 							Platform.Instance.FileEnsurePermission(m_fileAuthProxy.Path, "600");
 						}
-						proxyDirectiveArgs += " " + m_configStartup.EncodePath(fileNameAuthOvpn) + " " + options.Get("proxy.auth").ToLowerInvariant(); // 2.6 Auth Fix
+						proxyDirectiveArgs += " " + m_configStartup.EncodePath(Platform.Instance.FileGetPhysicalPath(fileNameAuthOvpn)) + " " + options.Get("proxy.auth").ToLowerInvariant(); // 2.6 Auth Fix
 					}
 				}
 
@@ -962,7 +962,7 @@ namespace Eddie.Core.ConnectionTypes
 			Platform.Instance.FileContentsWriteText(fileNameAuthOvpn, fileNameData, Encoding.Default); // TOFIX: Check if OpenVPN expect UTF-8
 			Platform.Instance.FileEnsurePermission(fileNameAuthOvpn, "600");
 
-			m_configStartup.AppendDirective("auth-user-pass", m_configStartup.EncodePath(fileNameAuthOvpn), "Auth");
+			m_configStartup.AppendDirective("auth-user-pass", m_configStartup.EncodePath(Platform.Instance.FileGetPhysicalPath(fileNameAuthOvpn)), "Auth");
 		}
 
 		public override void CheckForWarnings()
@@ -1009,7 +1009,7 @@ namespace Eddie.Core.ConnectionTypes
 			{
 				string driverRequested = Platform.Instance.GetConnectionTunDriver(this);
 				string interfaceName = Core.Engine.Instance.ProfileOptions.Get("network.iface.name");
-				
+
 				Platform.Instance.OpenVpnEnsureInterface(driverRequested, interfaceName);
 			}
 		}
@@ -1107,8 +1107,8 @@ namespace Eddie.Core.ConnectionTypes
 			m_elevatedCommand.Parameters["command"] = "openvpn";
 			m_elevatedCommand.Parameters["action"] = "start";
 			m_elevatedCommand.Parameters["id"] = Id;
-			m_elevatedCommand.Parameters["path"] = path;
-			m_elevatedCommand.Parameters["config"] = m_fileConfig.Path;
+			m_elevatedCommand.Parameters["path"] = Platform.Instance.FileGetPhysicalPath(path);
+			m_elevatedCommand.Parameters["config"] = Platform.Instance.FileGetPhysicalPath(m_fileConfig.Path);
 			OverrideElevatedCommandParameters();
 
 			if (Platform.Instance.NeedExecuteOutsideAppPath(m_elevatedCommand.Parameters["path"]))

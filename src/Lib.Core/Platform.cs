@@ -492,6 +492,7 @@ namespace Eddie.Core
 		public virtual string FileGetPhysicalPath(string path)
 		{
 			// For example under Windows convert a path with hardlink under the physical real path.
+			// For example under Windows convert a path to the VirtualStore real path (32bit only?)
 			return path;
 		}
 
@@ -814,7 +815,7 @@ namespace Eddie.Core
 
 		public void Route(Json jRoute, string action)
 		{
-			string iface = jRoute["interface"].ValueString;			
+			string iface = jRoute["interface"].ValueString;
 			string ifaceFriendly = Platform.Instance.GetFriendlyInterfaceName(iface);
 			IpAddress ip = jRoute["destination"].ValueString;
 			if (ip.Valid == false)
@@ -1071,9 +1072,8 @@ namespace Eddie.Core
 		{
 		}
 
-		public virtual bool OnCheckEnvironmentApp()
+		public virtual void OnCheckEnvironmentApp()
 		{
-			return true;
 		}
 
 		public virtual bool OnCheckEnvironmentSession()
@@ -1299,7 +1299,7 @@ namespace Eddie.Core
 		{
 			return LanguageManager.GetText("NotImplemented");
 		}
-		
+
 		public virtual void OpenVpnEnsureInterface(string driver, string ifaceName)
 		{
 
@@ -1321,8 +1321,8 @@ namespace Eddie.Core
 		}
 
 		public virtual bool PreferHummingbirdIfAvailable()
-        {
+		{
 			return false;
-        }
+		}
 	}
 }

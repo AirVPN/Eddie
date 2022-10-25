@@ -17,17 +17,16 @@
 // </eddie_source_header>
 
 using System;
-using System.Collections.Generic;
 using System.Dynamic;
 using System.Globalization;
 using System.Text;
 
+using JsonArray = System.Collections.Generic.List<object>;
+using JsonDictionary = System.Collections.Generic.Dictionary<string, object>;
+using JsonDictionaryKeyValuePair = System.Collections.Generic.KeyValuePair<string, object>;
+
 namespace Eddie.Core
 {
-	using JsonArray = List<object>;
-	using JsonDictionary = Dictionary<string, object>;
-	using JsonDictionaryKeyValuePair = KeyValuePair<string, object>;
-
 	public class JsonValue
 	{
 		private Json m_json;

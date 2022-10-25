@@ -46,23 +46,23 @@ namespace Eddie.Core
 		}
 
 		public void Start2(UiClient client)
-		{			
+		{
 			Send(client, LanguageManager.GetText("ReportStepCollectEnvironmentInfo"), 0);
 
 			Environment();
-						
+
 			Send(client, LanguageManager.GetText("ReportStepTests"), 10);
 
 			Tests();
 
 			Send(client, LanguageManager.GetText("ReportStepLogs"), 50);
-			
+
 			Add(LanguageManager.GetText("ReportOptions"), Engine.Instance.ProfileOptions.GetReportForSupport().PruneForReport());
 
 			Add(LanguageManager.GetText("ReportLogs"), Engine.Instance.Logs.ToString().PruneForReport());
-						
+
 			Send(client, LanguageManager.GetText("ReportStepLogs"), 60);
-						
+
 			Send(client, LanguageManager.GetText("ReportStepPlatform"), 70);
 
 			NetworkInfo();

@@ -93,22 +93,7 @@ namespace Eddie.Forms.Forms
 
 			SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw | ControlStyles.UserPaint, true);
 		}
-
-		private void DoDispose(IDisposable o)
-		{
-			if (o != null)
-			{
-				o.Dispose();
-				o = null;
-			}
-		}
-
-		private void DoDispose(System.Windows.Forms.ToolStripMenuItem o)
-		{
-			o.Dispose();
-			o = null;
-		}
-
+				
 		public override void OnInitializeComponent()
 		{
 			ApplySkinSettings();
@@ -118,7 +103,7 @@ namespace Eddie.Forms.Forms
 
 		public override void OnApplySkin()
 		{
-			base.OnApplySkin();			
+			base.OnApplySkin();
 
 			Skin.Apply(mnuMain);
 			Skin.Apply(mnuServers);
@@ -2149,7 +2134,7 @@ namespace Eddie.Forms.Forms
 				}
 				else
 				{
-					Forms.WindowCredentials Dlg = new Forms.WindowCredentials();
+					WindowCredentials Dlg = new WindowCredentials();
 					if (Dlg.ShowDialog(this) == DialogResult.OK)
 						return Dlg.Credentials;
 					else
@@ -2168,10 +2153,10 @@ namespace Eddie.Forms.Forms
 		{
 			try
 			{
-				if (this.InvokeRequired)
+				if (InvokeRequired)
 				{
 					OnSystemReportDelegate inv = new OnSystemReportDelegate(this.OnSystemReport);
-					this.Invoke(inv, new object[] { step, text, perc });
+					Invoke(inv, new object[] { step, text, perc });
 				}
 				else
 				{
@@ -2334,7 +2319,7 @@ namespace Eddie.Forms.Forms
 			catch (Exception ex)
 			{
 				Engine.Instance.Logs.LogUnexpected(ex);
-			}			
+			}
 		}
 
 		private delegate void OnUpdaterDelegate();
@@ -2490,6 +2475,9 @@ namespace Eddie.Forms.Forms
 
 		public bool NetworkLockKnowledge()
 		{
+			if (Engine.Instance.ProfileOptions.GetBool("ui.skip.netlock.confirm"))
+				return true;
+
 			string Msg = LanguageManager.GetText("NetworkLockWarning");
 
 			return AskYesNo(Msg);

@@ -415,8 +415,9 @@ namespace Eddie.Forms.Forms
 			chkUiTrayShow.Checked = o.GetBool("gui.tray_show");
 			chkUiTrayMinimized.Checked = o.GetBool("gui.tray_minimized");
 
-			chkUiSkipProviderManifestFailed.Checked = o.GetBool("ui.skip.provider.manifest.failed");
+			chkUiSkipProviderManifestFailed.Checked = o.GetBool("ui.skip.provider.manifest.failed");			
 			chkUiSkipPromotional.Checked = o.GetBool("ui.skip.promotional");
+			chkUiSkipNetlockConfirm.Checked = o.GetBool("ui.skip.netlock.confirm");
 
 			// Protocol
 			String type = o.Get("mode.type").ToLowerInvariant();
@@ -809,8 +810,9 @@ namespace Eddie.Forms.Forms
 			o.SetBool("gui.tray_show", chkUiTrayShow.Checked);
 			o.SetBool("gui.tray_minimized", chkUiTrayShow.Checked && chkUiTrayMinimized.Checked);
 
-			o.SetBool("ui.skip.provider.manifest.failed", chkUiSkipProviderManifestFailed.Checked);
+			o.SetBool("ui.skip.provider.manifest.failed", chkUiSkipProviderManifestFailed.Checked);			
 			o.SetBool("ui.skip.promotional", chkUiSkipPromotional.Checked);
+			o.SetBool("ui.skip.netlock.confirm", chkUiSkipNetlockConfirm.Checked);
 
 			// Protocols
 			if (lstProtocols.Items.Count == 0) // Occur if AirVPN provider is disabled

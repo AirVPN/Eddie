@@ -245,7 +245,7 @@ namespace Eddie.Core.ConnectionTypes
 
 			if (Platform.Instance.GetUseOpenVpnRoutes() == false) // WIP, remove in 2.22.0
 				AddRoute(EntryIP, "net_gateway", "IP Entry");
-			
+
 			string routes = Engine.Instance.ProfileOptions.Get("routes.custom");
 			string[] routes2 = routes.Split(';');
 			foreach (string route in routes2)
@@ -342,7 +342,7 @@ namespace Eddie.Core.ConnectionTypes
 		{
 			OnCleanAfterStart();
 
-			if(Interface != null)
+			if (Interface != null)
 				if (Engine.Instance.NetworkLockManager != null)
 					Engine.Instance.NetworkLockManager.DeallowInterface(Interface);
 		}
