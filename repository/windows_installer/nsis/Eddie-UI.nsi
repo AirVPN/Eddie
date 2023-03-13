@@ -14,6 +14,7 @@
 			
 	;Name and file
 	Name "Eddie - VPN Tunnel"
+	VIAddVersionKey "ProductVersion" "2.22.2"
 	OutFile "{@out}"
 	
 	; Adds an XP manifest to the installer
