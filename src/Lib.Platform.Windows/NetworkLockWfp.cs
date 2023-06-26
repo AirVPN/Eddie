@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -113,11 +113,11 @@ namespace Eddie.Platform.Windows
 
 				if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_ping") == true)
 				{
-					// Allow ICMP
+					// Allow ICMP IPv4
 					{
 						XmlDocument xmlDocRule = new XmlDocument();
 						XmlElement xmlRule = xmlDocRule.CreateElement("rule");
-						xmlRule.SetAttribute("name", "NetLock - Allow ICMP");
+						xmlRule.SetAttribute("name", "NetLock - Allow ICMP - IPv4");
 						xmlRule.SetAttribute("layer", "all");
 						xmlRule.SetAttribute("action", "permit");
 						XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
@@ -125,48 +125,99 @@ namespace Eddie.Platform.Windows
 						XmlIf1.SetAttribute("field", "ip_protocol");
 						XmlIf1.SetAttribute("match", "equal");
 						XmlIf1.SetAttribute("protocol", "icmp");
-						AddRule("netlock_allow_icmp", xmlRule);
+						AddRule("netlock_allow_ping_ipv4", xmlRule);
+					}
+
+					// Allow ICMP IPv6 - new in 2.23.0
+					{
+						XmlDocument xmlDocRule = new XmlDocument();
+						XmlElement xmlRule = xmlDocRule.CreateElement("rule");
+						xmlRule.SetAttribute("name", "NetLock - Allow ICMP - IPv6");
+						xmlRule.SetAttribute("layer", "all");
+						xmlRule.SetAttribute("action", "permit");
+						XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
+						xmlRule.AppendChild(XmlIf1);
+						XmlIf1.SetAttribute("field", "ip_protocol");
+						XmlIf1.SetAttribute("match", "equal");
+						XmlIf1.SetAttribute("protocol", "icmp6");
+						AddRule("netlock_allow_ping_ipv6", xmlRule);
 					}
 				}
 
 				if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_private") == true)
 				{
-					AddRule("netlock_allow_ipv4_local1", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Local Subnet 1 - IPv4", new IpAddress("192.168.0.0/255.255.0.0")));
-					AddRule("netlock_allow_ipv4_local2", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Local Subnet 2 - IPv4", new IpAddress("172.16.0.0/255.240.0.0")));
-					AddRule("netlock_allow_ipv4_local3", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Local Subnet 3 - IPv4", new IpAddress("10.0.0.0/255.0.0.0")));
-					AddRule("netlock_allow_ipv4_multicast", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Multicast - IPv4", new IpAddress("224.0.0.0/255.255.255.0")));
-					AddRule("netlock_allow_ipv4_ssdp", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Simple Service Discovery Protocol address", new IpAddress("239.255.255.250/255.255.255.255")));
-					AddRule("netlock_allow_ipv4_slp", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Service Location Protocol", new IpAddress("239.255.255.253/255.255.255.255")));
+					AddRule("netlock_allow_private_ipv4_local1", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Local Subnet 1 - IPv4", new IpAddress("192.168.0.0/255.255.0.0")));
+					AddRule("netlock_allow_private_ipv4_local2", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Local Subnet 2 - IPv4", new IpAddress("172.16.0.0/255.240.0.0")));
+					AddRule("netlock_allow_private_ipv4_local3", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Local Subnet 3 - IPv4", new IpAddress("10.0.0.0/255.0.0.0")));
+					AddRule("netlock_allow_private_ipv4_multicast", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Multicast - IPv4", new IpAddress("224.0.0.0/255.255.255.0")));
+					AddRule("netlock_allow_private_ipv4_ssdp", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Simple Service Discovery Protocol address", new IpAddress("239.255.255.250/255.255.255.255")));
+					AddRule("netlock_allow_private_ipv4_slp", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Service Location Protocol", new IpAddress("239.255.255.253/255.255.255.255")));
+
+					AddRule("netlock_allow_private_ipv6_local1", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Local Subnet 1 - IPv6", new IpAddress("fe80::/10"))); // New in 2.23.0
+					AddRule("netlock_allow_private_ipv6_local2", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Local Subnet 2 - IPv6", new IpAddress("ff00::/8"))); // New in 2.23.0
 				}
 
 				// Without this, Windows stay in 'Identifying network...' and OpenVPN in 'Waiting TUN to come up'. // Note 2018: don't occur in Win10?
 				if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_dhcp") == true)
 				{
+					// New in 2.23.0
+					AddRule("netlock_allow_dhcp_ipv4_rule1", Wfp.CreateItemAllowAddress("NetLock - DHCP - Allow - IPv4 rule 1", new IpAddress("255.255.255.255/255.255.255.255")));
+					AddRule("netlock_allow_dhcp_ipv6_rule1", Wfp.CreateItemAllowAddress("NetLock - DHCP - Allow - IPv6 rule 1", new IpAddress("ff02::1:2/128")));
+					AddRule("netlock_allow_dhcp_ipv6_rule2", Wfp.CreateItemAllowAddress("NetLock - DHCP - Allow - IPv6 rule 2", new IpAddress("ff05::1:3/128")));
+
+					/*
 					XmlDocument xmlDocRule = new XmlDocument();
-					XmlElement xmlRule = xmlDocRule.CreateElement("rule");
-					xmlRule.SetAttribute("name", "NetLock - Allow DHCP");
-					xmlRule.SetAttribute("layer", "all");
-					xmlRule.SetAttribute("action", "permit");
 
-					XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
-					xmlRule.AppendChild(XmlIf1);
-					XmlIf1.SetAttribute("field", "ip_protocol");
-					XmlIf1.SetAttribute("match", "equal");
-					XmlIf1.SetAttribute("protocol", "udp");
+					XmlElement xmlRuleIPv4 = xmlDocRule.CreateElement("rule");
+					xmlRuleIPv4.SetAttribute("name", "NetLock - Allow DHCP - IPv4");
+					xmlRuleIPv4.SetAttribute("layer", "all");
+					xmlRuleIPv4.SetAttribute("action", "permit");
 
-					XmlElement XmlIf2 = xmlDocRule.CreateElement("if");
-					xmlRule.AppendChild(XmlIf2);
-					XmlIf2.SetAttribute("field", "ip_local_port");
-					XmlIf2.SetAttribute("match", "equal");
-					XmlIf2.SetAttribute("port", "68");
+					XmlElement xmlRuleIPv4If1 = xmlDocRule.CreateElement("if");
+					xmlRuleIPv4.AppendChild(xmlRuleIPv4If1);
+					xmlRuleIPv4If1.SetAttribute("field", "ip_protocol");
+					xmlRuleIPv4If1.SetAttribute("match", "equal");
+					xmlRuleIPv4If1.SetAttribute("protocol", "udp");
 
-					XmlElement XmlIf3 = xmlDocRule.CreateElement("if");
-					xmlRule.AppendChild(XmlIf3);
-					XmlIf3.SetAttribute("field", "ip_remote_port");
-					XmlIf3.SetAttribute("match", "equal");
-					XmlIf3.SetAttribute("port", "67");
+					XmlElement xmlRuleIPv4If3 = xmlDocRule.CreateElement("if");
+					xmlRuleIPv4.AppendChild(xmlRuleIPv4If3);
+					xmlRuleIPv4If3.SetAttribute("field", "ip_remote_port");
+					xmlRuleIPv4If3.SetAttribute("match", "equal");
+					xmlRuleIPv4If3.SetAttribute("port", "67");
 
-					AddRule("netlock_allow_dhcp", xmlRule);
+					XmlElement xmlRuleIPv4If2 = xmlDocRule.CreateElement("if");
+					xmlRuleIPv4.AppendChild(xmlRuleIPv4If2);
+					xmlRuleIPv4If2.SetAttribute("field", "ip_local_port");
+					xmlRuleIPv4If2.SetAttribute("match", "equal");
+					xmlRuleIPv4If2.SetAttribute("port", "68");
+
+					AddRule("netlock_allow_ipv4_dhcp", xmlRuleIPv4);
+
+					XmlElement xmlRuleIPv6 = xmlDocRule.CreateElement("rule");
+					xmlRuleIPv6.SetAttribute("name", "NetLock - Allow DHCP - IPv6");
+					xmlRuleIPv6.SetAttribute("layer", "all");
+					xmlRuleIPv6.SetAttribute("action", "permit");
+
+					XmlElement xmlRuleIPv6If1 = xmlDocRule.CreateElement("if");
+					xmlRuleIPv6.AppendChild(xmlRuleIPv6If1);
+					xmlRuleIPv6If1.SetAttribute("field", "ip_protocol");
+					xmlRuleIPv6If1.SetAttribute("match", "equal");
+					xmlRuleIPv6If1.SetAttribute("protocol", "udp");
+
+					XmlElement xmlRuleIPv6If2 = xmlDocRule.CreateElement("if");
+					xmlRuleIPv6.AppendChild(xmlRuleIPv6If2);
+					xmlRuleIPv6If2.SetAttribute("field", "ip_local_port");
+					xmlRuleIPv6If2.SetAttribute("match", "equal");
+					xmlRuleIPv6If2.SetAttribute("port", "546");
+
+					XmlElement xmlRuleIPv6If3 = xmlDocRule.CreateElement("if");
+					xmlRuleIPv6.AppendChild(xmlRuleIPv6If3);
+					xmlRuleIPv6If3.SetAttribute("field", "ip_remote_port");
+					xmlRuleIPv6If3.SetAttribute("match", "equal");
+					xmlRuleIPv6If3.SetAttribute("port", "547");
+
+					AddRule("netlock_allow_ipv6_dhcp", xmlRuleIPv6);
+					*/
 				}
 
 				OnUpdateIps();

@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -53,13 +53,13 @@ namespace Eddie.Forms.Forms
 		{
 			base.OnLoad(e);
 
-			CommonInit(LanguageManager.GetText("WindowsAboutTitle"));
+			CommonInit(LanguageManager.GetText(LanguageItems.WindowsAboutTitle));
 
 			lnkWebsite.Text = UiClient.Instance.Data["links"]["help"]["website"].Value as string;
 			lnkManual.Text = UiClient.Instance.Data["links"]["help"]["general"].Value as string;
 			lnkSources.Text = UiClient.Instance.Data["links"]["github"].Value as string;
-			lblVersion.Text = LanguageManager.GetText("WindowsAboutVersion", Engine.Instance.GetVersionShow());
-			lblThanks.Text = LanguageManager.GetText("WindowsAboutThanks", Constants.Thanks);
+			lblVersion.Text = LanguageManager.GetText(LanguageItems.WindowsAboutVersion, Engine.Instance.GetVersionShow());
+			lblThanks.Text = LanguageManager.GetText(LanguageItems.WindowsAboutThanks, Constants.Thanks);
 		}
 
 		protected override void OnPaint(PaintEventArgs e)

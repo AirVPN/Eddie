@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -93,7 +93,7 @@ namespace Eddie.Forms.Forms
 
 			SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw | ControlStyles.UserPaint, true);
 		}
-				
+
 		public override void OnInitializeComponent()
 		{
 			ApplySkinSettings();
@@ -390,45 +390,45 @@ namespace Eddie.Forms.Forms
 			lstStats.ResizeColumnAuto(0);
 
 			cboSpeedResolution.Items.Clear();
-			cboSpeedResolution.Items.Add(LanguageManager.GetText("WindowsMainSpeedResolution1"));
-			cboSpeedResolution.Items.Add(LanguageManager.GetText("WindowsMainSpeedResolution2"));
-			cboSpeedResolution.Items.Add(LanguageManager.GetText("WindowsMainSpeedResolution3"));
-			cboSpeedResolution.Items.Add(LanguageManager.GetText("WindowsMainSpeedResolution4"));
-			cboSpeedResolution.Items.Add(LanguageManager.GetText("WindowsMainSpeedResolution5"));
+			cboSpeedResolution.Items.Add(LanguageManager.GetText(LanguageItems.WindowsMainSpeedResolution1));
+			cboSpeedResolution.Items.Add(LanguageManager.GetText(LanguageItems.WindowsMainSpeedResolution2));
+			cboSpeedResolution.Items.Add(LanguageManager.GetText(LanguageItems.WindowsMainSpeedResolution3));
+			cboSpeedResolution.Items.Add(LanguageManager.GetText(LanguageItems.WindowsMainSpeedResolution4));
+			cboSpeedResolution.Items.Add(LanguageManager.GetText(LanguageItems.WindowsMainSpeedResolution5));
 			cboSpeedResolution.SelectedIndex = 0;
 
 			// Tooltips
-			cmdConnect.Text = LanguageManager.GetText("CommandConnect");
-			lblConnectSubtitle.Text = LanguageManager.GetText("CommandConnectSubtitle");
-			cmdDisconnect.Text = LanguageManager.GetText("CommandDisconnect");
-			cmdCancel.Text = LanguageManager.GetText("CommandCancel");
+			cmdConnect.Text = LanguageManager.GetText(LanguageItems.CommandConnect);
+			lblConnectSubtitle.Text = LanguageManager.GetText(LanguageItems.CommandConnectSubtitle);
+			cmdDisconnect.Text = LanguageManager.GetText(LanguageItems.CommandDisconnect);
+			cmdCancel.Text = LanguageManager.GetText(LanguageItems.CommandCancel);
 
 			if (m_toolTip != null)
 			{
-				m_toolTip.Connect(this.cboScoreType, LanguageManager.GetText("TooltipServersScoreType"));
-				m_toolTip.Connect(this.chkLockLast, LanguageManager.GetText("TooltipServersLockCurrent"));
-				m_toolTip.Connect(this.chkShowAll, LanguageManager.GetText("TooltipServersShowAll"));
-				m_toolTip.Connect(this.cboScoreType, LanguageManager.GetText("TooltipServersScoreType"));
-				m_toolTip.Connect(this.chkLockLast, LanguageManager.GetText("TooltipServersLockCurrent"));
-				m_toolTip.Connect(this.chkShowAll, LanguageManager.GetText("TooltipServersShowAll"));
-				m_toolTip.Connect(this.cmdServersConnect, LanguageManager.GetText("TooltipServersConnect"));
-				m_toolTip.Connect(this.cmdServersUndefined, LanguageManager.GetText("TooltipServersUndefined"));
-				m_toolTip.Connect(this.cmdServersDenylist, LanguageManager.GetText("TooltipServersDenylist"));
-				m_toolTip.Connect(this.cmdServersAllowlist, LanguageManager.GetText("TooltipServersAllowlist"));
-				m_toolTip.Connect(this.cmdServersRename, LanguageManager.GetText("TooltipServersRename"));
-				m_toolTip.Connect(this.cmdServersMore, LanguageManager.GetText("TooltipServersMore"));
-				m_toolTip.Connect(this.cmdServersRefresh, LanguageManager.GetText("TooltipServersRefresh"));
-				m_toolTip.Connect(this.cmdAreasUndefined, LanguageManager.GetText("TooltipAreasUndefined"));
-				m_toolTip.Connect(this.cmdAreasDenylist, LanguageManager.GetText("TooltipAreasDenylist"));
-				m_toolTip.Connect(this.cmdAreasAllowlist, LanguageManager.GetText("TooltipAreasAllowlist"));
-				m_toolTip.Connect(this.cmdLogsCommand, LanguageManager.GetText("TooltipLogsCommand"));
-				m_toolTip.Connect(this.cmdLogsClean, LanguageManager.GetText("TooltipLogsClean"));
-				m_toolTip.Connect(this.cmdLogsCopy, LanguageManager.GetText("TooltipLogsCopy"));
-				m_toolTip.Connect(this.cmdLogsSave, LanguageManager.GetText("TooltipLogsSave"));
-				m_toolTip.Connect(this.cmdLogsSupport, LanguageManager.GetText("TooltipLogsSupport"));
+				m_toolTip.Connect(this.cboScoreType, LanguageManager.GetText(LanguageItems.TooltipServersScoreType));
+				m_toolTip.Connect(this.chkLockLast, LanguageManager.GetText(LanguageItems.TooltipServersLockCurrent));
+				m_toolTip.Connect(this.chkShowAll, LanguageManager.GetText(LanguageItems.TooltipServersShowAll));
+				m_toolTip.Connect(this.cboScoreType, LanguageManager.GetText(LanguageItems.TooltipServersScoreType));
+				m_toolTip.Connect(this.chkLockLast, LanguageManager.GetText(LanguageItems.TooltipServersLockCurrent));
+				m_toolTip.Connect(this.chkShowAll, LanguageManager.GetText(LanguageItems.TooltipServersShowAll));
+				m_toolTip.Connect(this.cmdServersConnect, LanguageManager.GetText(LanguageItems.TooltipServersConnect));
+				m_toolTip.Connect(this.cmdServersUndefined, LanguageManager.GetText(LanguageItems.TooltipServersUndefined));
+				m_toolTip.Connect(this.cmdServersDenylist, LanguageManager.GetText(LanguageItems.TooltipServersDenylist));
+				m_toolTip.Connect(this.cmdServersAllowlist, LanguageManager.GetText(LanguageItems.TooltipServersAllowlist));
+				m_toolTip.Connect(this.cmdServersRename, LanguageManager.GetText(LanguageItems.TooltipServersRename));
+				m_toolTip.Connect(this.cmdServersMore, LanguageManager.GetText(LanguageItems.TooltipServersMore));
+				m_toolTip.Connect(this.cmdServersRefresh, LanguageManager.GetText(LanguageItems.TooltipServersRefresh));
+				m_toolTip.Connect(this.cmdAreasUndefined, LanguageManager.GetText(LanguageItems.TooltipAreasUndefined));
+				m_toolTip.Connect(this.cmdAreasDenylist, LanguageManager.GetText(LanguageItems.TooltipAreasDenylist));
+				m_toolTip.Connect(this.cmdAreasAllowlist, LanguageManager.GetText(LanguageItems.TooltipAreasAllowlist));
+				m_toolTip.Connect(this.cmdLogsCommand, LanguageManager.GetText(LanguageItems.TooltipLogsCommand));
+				m_toolTip.Connect(this.cmdLogsClean, LanguageManager.GetText(LanguageItems.TooltipLogsClean));
+				m_toolTip.Connect(this.cmdLogsCopy, LanguageManager.GetText(LanguageItems.TooltipLogsCopy));
+				m_toolTip.Connect(this.cmdLogsSave, LanguageManager.GetText(LanguageItems.TooltipLogsSave));
+				m_toolTip.Connect(this.cmdLogsSupport, LanguageManager.GetText(LanguageItems.TooltipLogsSupport));
 
-				m_toolTip.Connect(this.m_cmdAbout, LanguageManager.GetText("TooltipAbout"));
-				m_toolTip.Connect(this.m_cmdPreferences, LanguageManager.GetText("TooltipPreferences"));
+				m_toolTip.Connect(this.m_cmdAbout, LanguageManager.GetText(LanguageItems.TooltipAbout));
+				m_toolTip.Connect(this.m_cmdPreferences, LanguageManager.GetText(LanguageItems.TooltipPreferences));
 
 
 				Controls.SetChildIndex(m_toolTip, 0);
@@ -579,18 +579,18 @@ namespace Eddie.Forms.Forms
 
 					DrawImage(e.Graphics, GuiUtils.GetResourceImage("topbar_green"), rectHeader);
 
-					DrawStringOutline(e.Graphics, LanguageManager.GetText("TopBarConnected", serverName), Skin.FontBig, Skin.ForeBrush, rectHeaderText, SkinUtils.StringFormatRightMiddle);
+					DrawStringOutline(e.Graphics, LanguageManager.GetText(LanguageItems.TopBarConnected, serverName), Skin.FontBig, Skin.ForeBrush, rectHeaderText, SkinUtils.StringFormatRightMiddle);
 				}
 				else
 				{
 					DrawImage(e.Graphics, GuiUtils.GetResourceImage("topbar_red"), rectHeader);
 					if ((Engine.Instance.NetworkLockManager != null) && (Engine.Instance.NetworkLockManager.IsActive()))
 					{
-						DrawStringOutline(e.Graphics, LanguageManager.GetText("TopBarNotConnectedLocked"), Skin.FontBig, Skin.ForeBrush, rectHeaderText, SkinUtils.StringFormatRightMiddle);
+						DrawStringOutline(e.Graphics, LanguageManager.GetText(LanguageItems.TopBarNotConnectedLocked), Skin.FontBig, Skin.ForeBrush, rectHeaderText, SkinUtils.StringFormatRightMiddle);
 					}
 					else
 					{
-						DrawStringOutline(e.Graphics, LanguageManager.GetText("TopBarNotConnectedExposed"), Skin.FontBig, Skin.ForeBrush, rectHeaderText, SkinUtils.StringFormatRightMiddle);
+						DrawStringOutline(e.Graphics, LanguageManager.GetText(LanguageItems.TopBarNotConnectedExposed), Skin.FontBig, Skin.ForeBrush, rectHeaderText, SkinUtils.StringFormatRightMiddle);
 					}
 				}
 
@@ -639,7 +639,7 @@ namespace Eddie.Forms.Forms
 
 			if (Engine.Instance.AskExitConfirm())
 			{
-				if (AskYesNo(LanguageManager.GetText("ExitConfirm")) != true)
+				if (AskYesNo(LanguageManager.GetText(LanguageItems.ExitConfirm)) != true)
 				{
 					Engine.Instance.OnExitRejected();
 					return;
@@ -1184,9 +1184,9 @@ namespace Eddie.Forms.Forms
 				mnuRestoreSep.Visible = true;
 
 				if (this.Visible)
-					mnuRestore.Text = LanguageManager.GetText("WindowsMainHide");
+					mnuRestore.Text = LanguageManager.GetText(LanguageItems.WindowsMainHide);
 				else
-					mnuRestore.Text = LanguageManager.GetText("WindowsMainShow");
+					mnuRestore.Text = LanguageManager.GetText(LanguageItems.WindowsMainShow);
 			}
 			else
 			{
@@ -1228,7 +1228,7 @@ namespace Eddie.Forms.Forms
 
 			Graphics g = this.CreateGraphics();
 
-			m_topHeaderHeight = SkinUtils.GetFontSize(g, Skin.FontBig, LanguageManager.GetText("TopBarNotConnectedExposed")).Height;
+			m_topHeaderHeight = SkinUtils.GetFontSize(g, Skin.FontBig, LanguageManager.GetText(LanguageItems.TopBarNotConnectedExposed)).Height;
 			if (m_topHeaderHeight < 30)
 				m_topHeaderHeight = 30;
 
@@ -1512,10 +1512,14 @@ namespace Eddie.Forms.Forms
 
 					{
 						string t = textFull;
-						if (t.IndexOf("\n") != -1)
-							t = t.Substring(0, t.IndexOf("\n")).Trim();
+						if (t.IndexOfInv("\n") != -1)
+						{
+							t = t.Substring(0, t.IndexOfInv("\n")).Trim();
+						}
 						if (t.Length > 128)
+						{
 							t = t.Substring(0, 128) + "...";
+						}
 						mnuStatus.Text = "> " + t.Trim();
 					}
 
@@ -1523,7 +1527,9 @@ namespace Eddie.Forms.Forms
 					{
 						String tooltipText = textShort;
 						if (tooltipText.Length > 120)
+						{
 							tooltipText = tooltipText.Substring(0, 120) + "...";
+						}
 						GuiUtils.SetNotifyIconText(m_windowsNotifyIcon, tooltipText);
 					}
 				}
@@ -1706,11 +1712,11 @@ namespace Eddie.Forms.Forms
 
 				if (airvpnLogged == false)
 				{
-					cmdLogin.Text = LanguageManager.GetText("CommandLoginButton");
+					cmdLogin.Text = LanguageManager.GetText(LanguageItems.CommandLoginButton);
 				}
 				else
 				{
-					cmdLogin.Text = LanguageManager.GetText("CommandLogout");
+					cmdLogin.Text = LanguageManager.GetText(LanguageItems.CommandLogout);
 				}
 
 				cmdLogin.Enabled = ((waiting == false) && (connected == false) && (txtLogin.Text.Trim() != "") && (txtPassword.Text.Trim() != ""));
@@ -1767,12 +1773,12 @@ namespace Eddie.Forms.Forms
 
 			if ((Engine.Instance.NetworkLockManager != null) && (Engine.Instance.NetworkLockManager.IsActive()))
 			{
-				cmdLockedNetwork.Text = LanguageManager.GetText("NetworkLockButtonActive");
+				cmdLockedNetwork.Text = LanguageManager.GetText(LanguageItems.NetworkLockButtonActive);
 				imgLockedNetwork.Image = m_bitmapNetlockOn;
 			}
 			else
 			{
-				cmdLockedNetwork.Text = LanguageManager.GetText("NetworkLockButtonDeactive");
+				cmdLockedNetwork.Text = LanguageManager.GetText(LanguageItems.NetworkLockButtonDeactive);
 				imgLockedNetwork.Image = m_bitmapNetlockOff;
 			}
 
@@ -1799,7 +1805,7 @@ namespace Eddie.Forms.Forms
 				{
 					OnRefreshUiDelegate inv = new OnRefreshUiDelegate(this.OnRefreshUi);
 
-					//this.Invoke(inv, new object[] { mode });
+					//this.Invoke(inv, new object[] { mode });					
 					this.BeginInvoke(inv, new object[] { mode });
 				}
 				else
@@ -2349,7 +2355,7 @@ namespace Eddie.Forms.Forms
 
 		private delegate void OnShowAboutDelegate();
 		public void OnShowAbout()
-		{			
+		{
 			try
 			{
 				if (UiClient.Instance.Data == null)
@@ -2434,7 +2440,7 @@ namespace Eddie.Forms.Forms
 				using (SaveFileDialog sd = new SaveFileDialog())
 				{
 					sd.FileName = Engine.Instance.Logs.GetLogSuggestedFileName();
-					sd.Filter = LanguageManager.GetText("FilterTextFiles");
+					sd.Filter = LanguageManager.GetText(LanguageItems.FilterTextFiles);
 
 					if (sd.ShowDialog(this) == DialogResult.OK)
 					{
@@ -2445,7 +2451,7 @@ namespace Eddie.Forms.Forms
 							//sw.Close();	// because of "using"
 						}
 
-						GuiUtils.MessageBoxInfo(this, LanguageManager.GetText("LogsSaveToFileDone"));
+						GuiUtils.MessageBoxInfo(this, LanguageManager.GetText(LanguageItems.LogsSaveToFileDone));
 					}
 				}
 			}
@@ -2478,13 +2484,13 @@ namespace Eddie.Forms.Forms
 			if (Engine.Instance.ProfileOptions.GetBool("ui.skip.netlock.confirm"))
 				return true;
 
-			string Msg = LanguageManager.GetText("NetworkLockWarning");
+			string Msg = LanguageManager.GetText(LanguageItems.NetworkLockWarning);
 
 			return AskYesNo(Msg);
 		}
 
 		public void NetworkLockActivation()
-		{
+		{			
 			if (NetworkLockKnowledge())
 			{
 				Engine.Instance.NetLockIn();

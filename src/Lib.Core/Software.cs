@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -54,7 +54,7 @@ namespace Eddie.Core
 			}
 			if (Platform.IsWindows())
 			{
-				AddTool("tap-windows", new Tools.File("tap-windows.exe"));
+				AddTool("tap-windows6", new Tools.File("tap-windows.exe"));
 				AddTool("tapctl", new Tools.File("tapctl.exe"));
 			}
 
@@ -76,7 +76,7 @@ namespace Eddie.Core
 			}
 			else
 			{
-				Engine.Instance.Logs.Log(LogType.Error, "OpenVPN - " + LanguageManager.GetText("NotAvailable"));
+				Engine.Instance.Logs.Log(LogType.Error, "OpenVPN - " + LanguageManager.GetText(LanguageItems.NotAvailable));
 			}
 
 			if (GetTool("ssh").Available())
@@ -85,7 +85,7 @@ namespace Eddie.Core
 			}
 			else
 			{
-				Engine.Instance.Logs.Log(LogType.Info, "SSH - " + LanguageManager.GetText("NotAvailable"));
+				Engine.Instance.Logs.Log(LogType.Info, "SSH - " + LanguageManager.GetText(LanguageItems.NotAvailable));
 			}
 
 			if (GetTool("ssl").Available())
@@ -94,7 +94,7 @@ namespace Eddie.Core
 			}
 			else
 			{
-				Engine.Instance.Logs.Log(LogType.Info, "SSL - " + LanguageManager.GetText("NotAvailable"));
+				Engine.Instance.Logs.Log(LogType.Info, "SSL - " + LanguageManager.GetText(LanguageItems.NotAvailable));
 			}
 
 			if (Platform.Instance.FetchUrlInternal() == false)
@@ -105,7 +105,7 @@ namespace Eddie.Core
 				}
 				else
 				{
-					Engine.Instance.Logs.Log(LogType.Warning, "curl - " + LanguageManager.GetText("NotAvailable"));
+					Engine.Instance.Logs.Log(LogType.Warning, "curl - " + LanguageManager.GetText(LanguageItems.NotAvailable));
 				}
 			}
 
@@ -117,7 +117,7 @@ namespace Eddie.Core
             }
             else
             {
-                Engine.Instance.Logs.Log(LogType.Warning, "Certification Authorities - " + LanguageManager.GetText("NotAvailable"));
+                Engine.Instance.Logs.Log(LogType.Warning, "Certification Authorities - " + LanguageManager.GetText(LanguageItems.NotAvailable));
 
 			}
 			*/

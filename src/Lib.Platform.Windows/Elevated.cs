@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -35,8 +35,8 @@ namespace Eddie.Platform.Windows
 					// Here, in spot mode, we install a service that will be uninstalled at exit.
 					// The old method above (really spot), still used in other OS, dont work in Windows because WinTun require SYSTEM privileges.
 
-					Engine.Instance.UiManager.Broadcast("init.step", "message", LanguageManager.GetText("InitStepRaiseSystemPrivileges"));
-					Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("InitStepRaiseSystemPrivileges"));
+					Engine.Instance.UiManager.Broadcast("init.step", "message", LanguageManager.GetText(LanguageItems.InitStepRaiseSystemPrivileges));
+					Engine.Instance.Logs.LogVerbose(LanguageManager.GetText(LanguageItems.InitStepRaiseSystemPrivileges));
 
 					string helperFullPath = Platform.Instance.GetElevatedHelperPath();
 
@@ -77,7 +77,7 @@ namespace Eddie.Platform.Windows
 			{
 				Stop();
 
-				throw new Exception(LanguageManager.GetText("HelperPrivilegesFailed", ex.Message));
+				throw new Exception(LanguageManager.GetText(LanguageItems.HelperPrivilegesFailed, ex.Message));
 			}
 		}
 	}

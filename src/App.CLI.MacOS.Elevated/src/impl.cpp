@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 #include "impl.h"
 #include <sys/ioctl.h>
 #include <sys/stat.h>
+#include <regex>
 #include <unistd.h>
 #include <libproc.h>
 #include <arpa/inet.h>
@@ -37,10 +38,6 @@
 std::string serviceName = "eddie-elevated";
 std::string serviceDesc = "Eddie Elevation";
 std::string launchdPath = "/Library/LaunchDaemons/org.airvpn.eddie.ui.elevated.plist";
-
-
-
-
 
 int Impl::Main()
 {
@@ -139,7 +136,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 
 		std::vector<std::string> newDns = StringToVector(params["dns"], ',');
 
-		std::vector<std::string> interfaces = GetNetworkInterfaces();
+		std::vector<std::string> interfaces = GetNetworkInterfacesNames();
 		for (std::vector<std::string>::const_iterator i = interfaces.begin(); i != interfaces.end(); ++i)
 		{
 			std::string interfaceName = *i;
@@ -211,7 +208,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 
 		std::vector<std::string> newDns = StringToVector(params["dns"], ',');
 
-		std::vector<std::string> interfaces = GetNetworkInterfaces();
+		std::vector<std::string> interfaces = GetNetworkInterfacesNames();
 		for (std::vector<std::string>::const_iterator i = interfaces.begin(); i != interfaces.end(); ++i)
 		{
 			std::string interfaceName = *i;
@@ -414,6 +411,20 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 		ExecResult execResult = ExecEx(FsLocateExecutable("route"), args);
 		if (execResult.exit != 0)
 			ThrowException(GetExecResultDump(execResult));
+	}
+	else if (command == "workaround-ipv6-dns-lookup-enable")
+	{
+		std::string iface = StringEnsureInterfaceName(params["iface"]);		
+
+		std::string result = WorkaroundDnsLookupIPv6Enable(iface);		
+		ReplyCommand(commandId, result);
+	}
+	else if (command == "workaround-ipv6-dns-lookup-disable")
+	{
+		std::string iface = StringEnsureInterfaceName(params["iface"]);
+
+		std::string result = WorkaroundDnsLookupIPv6Disable(iface);		
+		ReplyCommand(commandId, result);
 	}
 	else if (command == "wireguard-version")
 	{
@@ -681,6 +692,33 @@ bool Impl::ServiceUninstall()
 	}
 	else
 		return 0;
+}
+
+std::vector<std::string> Impl::GetNetworkInterfacesNames()
+{
+	ExecResult networksetupListResult = ExecEx1(FsLocateExecutable("networksetup"), "-listallnetworkservices");
+	if (networksetupListResult.exit != 0)
+		ThrowException("Unable to obtain network services list");
+
+	std::vector<std::string> lines = StringToVector(networksetupListResult.out, '\n');
+
+	std::vector<std::string> output;
+
+	for (std::vector<std::string>::const_iterator i = lines.begin(); i != lines.end(); ++i)
+	{
+		std::string line = *i;
+		line = StringTrim(line);
+		if (line == "")
+			continue;
+		if (StringStartsWith(line, "An asterisk (*)"))
+			continue;
+		if (StringStartsWith(line, "*")) // An asterisk (*) denotes that a network service is disabled
+			continue;
+
+		output.push_back(*i);
+	}
+
+	return output;
 }
 
 std::string Impl::CheckIfClientPathIsAllowed(const std::string& path)
@@ -962,33 +1000,6 @@ std::string Impl::GetRoutesAsJson()
 	return "[" + json + "]";
 }
 
-std::vector<std::string> Impl::GetNetworkInterfaces()
-{
-	ExecResult networksetupListResult = ExecEx1(FsLocateExecutable("networksetup"), "-listallnetworkservices");
-	if (networksetupListResult.exit != 0)
-		ThrowException("Unable to obtain network services list");
-
-	std::vector<std::string> lines = StringToVector(networksetupListResult.out, '\n');
-
-	std::vector<std::string> output;
-
-	for (std::vector<std::string>::const_iterator i = lines.begin(); i != lines.end(); ++i)
-	{
-		std::string line = *i;
-		line = StringTrim(line);
-		if (line == "")
-			continue;
-		if (StringStartsWith(line, "An asterisk (*)"))
-			continue;
-		if (StringStartsWith(line, "*")) // An asterisk (*) denotes that a network service is disabled
-			continue;
-
-		output.push_back(*i);
-	}
-
-	return output;
-}
-
 std::string Impl::GetNetworkInterfaceInfoAsJson(const std::string& id)
 {
 	std::map<std::string, std::string> kp;
@@ -1068,4 +1079,131 @@ unsigned long Impl::WireGuardLastHandshake(const std::string& wgPath, const std:
 		ThrowException("Unable to fetch status");
 
 	return StringToULong(peerStats[4]);
+}
+
+std::string Impl::WorkaroundDnsLookupIPv6Enable(const std::string& iface)
+{
+	// Workaround based on
+	// https://gist.github.com/smammy/3247b5114d717d12b68c201000ab163d
+
+	try
+	{
+		std::string serviceName = "eddie_tunnel_" + iface;
+		std::string ifconfigPath = FsLocateExecutable("ifconfig");
+		std::string scUtilPath = FsLocateExecutable("scutil");
+
+
+		// Need? 
+		ExecResult execCheck = ExecEx1(scUtilPath, "--dns");
+		if (execCheck.exit != 0)
+			ThrowException("Unexpected scutil --dns output: " + GetExecResultDump(execCheck));
+		if (StringContain(execCheck.out, "Request AAAA records"))
+			return "not_need_already";
+				
+		// Fetch data
+		ExecResult ifconfigResult;
+		ifconfigResult = ExecEx1(ifconfigPath, iface);
+		if(ifconfigResult.exit != 0)
+			ThrowException("Unexpected ifconfig output: " + GetExecResultDump(ifconfigResult));
+
+		std::vector<std::string> scAddressesIPv4;
+		std::vector<std::string> scDescAddressesIPv4;
+		std::regex regexIPv4("\\s*inet\\s+(\\S+)\\s+-->\\s+(\\S+)\\s+netmask\\s+\\S+");
+		auto regexIPv4begin = std::sregex_iterator(ifconfigResult.out.begin(), ifconfigResult.out.end(), regexIPv4);
+		auto regexIPv4end = std::sregex_iterator();
+		for (std::sregex_iterator i = regexIPv4begin; i != regexIPv4end; ++i)
+		{
+			std::smatch match = *i;
+
+			scAddressesIPv4.push_back(match[1]);
+			scDescAddressesIPv4.push_back(match[2]);
+		}
+
+		std::vector<std::string> scAddressesIPv6;
+		std::vector<std::string> scDescAddressesIPv6;
+		std::vector<std::string> scFlagsIPv6;
+		std::vector<std::string> scPrefixLengthIPv6;
+		std::regex regexIPv6("\\s*inet6\\s+(\\S+?)(?:%\\S+)?\\s+prefixlen\\s+(\\S+)");
+		auto regexIPv6begin = std::sregex_iterator(ifconfigResult.out.begin(), ifconfigResult.out.end(), regexIPv6);
+		auto regexIPv6end = std::sregex_iterator();
+		for (std::sregex_iterator i = regexIPv6begin; i != regexIPv6end; ++i)
+		{
+			std::smatch match = *i;
+
+			scAddressesIPv6.push_back(match[1]);
+			if(StringStartsWith(match[1], "fe80")) // ?
+				scDescAddressesIPv6.push_back("::ffff:ffff:ffff:ffff:0:0");
+			else
+				scDescAddressesIPv6.push_back("::");
+			scFlagsIPv6.push_back("0");
+			scPrefixLengthIPv6.push_back(match[2]);
+		}
+
+		if (scAddressesIPv6.size() == 0)
+			return "not_need_noipv6";
+
+		// Build scutil
+		std::string sc;
+		if (scAddressesIPv4.size() > 0)
+		{
+			sc += "d.init\n";
+			sc += "d.add Addresses * " + StringFromVector(scAddressesIPv4, " ") + "\n";
+			sc += "d.add DestAddresses * " + StringFromVector(scDescAddressesIPv4, " ") + "\n";
+			sc += "d.add InterfaceName " + iface + "\n";
+			sc += "set State:/Network/Service/" + serviceName + "/IPv4\n";
+			sc += "set Setup:/Network/Service/" + serviceName + "/IPv4\n";
+		}
+		if (scAddressesIPv6.size() > 0)
+		{
+			sc += "d.init\n";
+			sc += "d.add Addresses * " + StringFromVector(scAddressesIPv6, " ") + "\n";
+			sc += "d.add DestAddresses * " + StringFromVector(scDescAddressesIPv6, " ") + "\n";
+			sc += "d.add Flags * " + StringFromVector(scFlagsIPv6, " ") + "\n";
+			sc += "d.add InterfaceName " + iface + "\n";
+			sc += "d.add PrefixLength * " + StringFromVector(scPrefixLengthIPv6, " ") + "\n";
+			sc += "set State:/Network/Service/" + serviceName + "/IPv6\n";
+			sc += "set Setup:/Network/Service/" + serviceName + "/IPv6\n";
+		}
+
+		std::vector<std::string> args;
+		ExecResult resultScutil;
+		resultScutil.exit = Exec(scUtilPath, args, true, sc, resultScutil.out, resultScutil.err, true);
+		if(resultScutil.exit != 0)
+			ThrowException("Unexpected scutil output: " + GetExecResultDump(resultScutil));
+
+		return "ok";
+	}
+	catch (std::exception& ex)
+	{
+		std::string msg = "WorkaroundDnsLookupIPv6Enable: " + std::string(ex.what());
+		return "err:" + msg;
+	}	
+}
+
+std::string Impl::WorkaroundDnsLookupIPv6Disable(const std::string& iface)
+{
+	try
+	{
+		std::string serviceName = "eddie_tunnel_" + iface;
+		std::string scUtilPath = FsLocateExecutable("scutil");
+
+		std::string sc;
+		sc += "remove State:/Network/Service/" + serviceName + "/IPv4\n";
+		sc += "remove Setup:/Network/Service/" + serviceName + "/IPv4\n";
+		sc += "remove State:/Network/Service/" + serviceName + "/IPv6\n";
+		sc += "remove Setup:/Network/Service/" + serviceName + "/IPv6\n";
+
+		std::vector<std::string> args;
+		ExecResult resultScutil;
+		resultScutil.exit = Exec(scUtilPath, args, true, sc, resultScutil.out, resultScutil.err, true);
+		if(resultScutil.exit != 0)
+			ThrowException("Unexpected scutil output: " + GetExecResultDump(resultScutil));
+		
+		return "ok";
+	}
+	catch (std::exception& ex)
+	{
+		std::string msg = "WorkaroundDnsLookupIPv6Disable: " + std::string(ex.what());
+		return "err:" + msg;
+	}
 }

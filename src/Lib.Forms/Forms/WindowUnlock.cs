@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -47,16 +47,16 @@ namespace Eddie.Forms.Forms
 		protected override void OnLoad(EventArgs e)
 		{
 			base.OnLoad(e);
-			CommonInit(LanguageManager.GetText("WindowsUnlockTitle"));
+			CommonInit(LanguageManager.GetText(LanguageItems.WindowsUnlockTitle));
 
 			if (AuthFailed)
 			{
-				lblMessage.Text = LanguageManager.GetText("WindowsUnlockFailedAuth");
+				lblMessage.Text = LanguageManager.GetText(LanguageItems.WindowsUnlockFailedAuth);
 				lblMessage.ForeColor = Color.Red;
 			}
 			else
 			{
-				lblMessage.Text = LanguageManager.GetText("WindowsUnlockFirstAuth");
+				lblMessage.Text = LanguageManager.GetText(LanguageItems.WindowsUnlockFirstAuth);
 				lblMessage.ForeColor = Color.Black;
 			}
 

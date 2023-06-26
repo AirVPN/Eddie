@@ -1,6 +1,6 @@
 // <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -144,6 +144,7 @@ namespace Eddie.Core
 							if (Platform.Instance.OsCredentialSystemWrite(Id, SavePassword) == false)
 							{
 								// User not authorize the OS keychain, or fail. Revert to plain mode.
+								Engine.Instance.Logs.LogFatal(LanguageManager.GetText(LanguageItems.OptionsWriteNoKeyring));
 								SaveFormat = "v2n";
 								SavePassword = Constants.PasswordIfEmpty;
 							}
@@ -160,7 +161,7 @@ namespace Eddie.Core
 				}
 				catch (Exception ex)
 				{
-					Engine.Instance.Logs.Log(LogType.Fatal, LanguageManager.GetText("OptionsWriteFailed", SavePath, ex.Message));
+					Engine.Instance.Logs.Log(LogType.Fatal, LanguageManager.GetText(LanguageItems.OptionsWriteFailed, SavePath, ex.Message));
 				}
 			}
 		}
@@ -217,7 +218,7 @@ namespace Eddie.Core
 						if ((m_loadFormat == "v1s") || (m_loadFormat == "v2s"))
 						{
 							// Loses, ask what to do
-							bool ask = Engine.Instance.OnAskYesNo(LanguageManager.GetText("OptionsReadNoKeyring"));
+							bool ask = Engine.Instance.OnAskYesNo(LanguageManager.GetText(LanguageItems.OptionsReadNoKeyring));
 							if (ask)
 							{
 								Engine.Instance.ProfileOptions.ResetAll(true);
@@ -253,7 +254,7 @@ namespace Eddie.Core
 			}
 			catch (Exception ex)
 			{
-				bool ask = Engine.Instance.OnAskYesNo(LanguageManager.GetText("OptionsReadError", ex.Message));
+				bool ask = Engine.Instance.OnAskYesNo(LanguageManager.GetText(LanguageItems.OptionsReadError, ex.Message));
 				if (ask)
 				{
 					Engine.Instance.ProfileOptions.ResetAll(true);

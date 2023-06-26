@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -106,7 +106,7 @@ namespace Eddie.Core
 					m_logLast = logRepetitionNormalized;
 					m_logLastCount = 0;
 					if (oldCount >= m_nAllowedRepetition)
-						Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("LogsLineRepetitionSummary", (oldCount - m_nAllowedRepetition + 1).ToString()));
+						Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText(LanguageItems.LogsLineRepetitionSummary, (oldCount - m_nAllowedRepetition + 1).ToString()));
 				}
 
 				if (m_logLastCount >= m_nAllowedRepetition)

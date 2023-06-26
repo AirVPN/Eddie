@@ -1,6 +1,6 @@
 // <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -23,15 +23,12 @@ class Impl :public IWindows
 public:
 	int Main();
 	virtual void Do(const std::string& id, const std::string& command, std::map<std::string, std::string>& params);
-
-
-	// Private
+		
 private:
-
 
 	// WFP
 	HANDLE m_wfpEngineHandle = 0;
-	GUID m_wfpSubLayerGUID;
+	GUID m_wfpSubLayerGUID = GUID_NULL;
 	std::string m_wfpSubLayerName;
 	std::wstring m_wfpSubLayerWName;
 	std::wstring m_wfpServiceWName;

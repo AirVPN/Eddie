@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -47,29 +47,29 @@ namespace Eddie.Core
 
 		public void Start2(UiClient client)
 		{
-			Send(client, LanguageManager.GetText("ReportStepCollectEnvironmentInfo"), 0);
+			Send(client, LanguageManager.GetText(LanguageItems.ReportStepCollectEnvironmentInfo), 0);
 
 			Environment();
 
-			Send(client, LanguageManager.GetText("ReportStepTests"), 10);
+			Send(client, LanguageManager.GetText(LanguageItems.ReportStepTests), 10);
 
 			Tests();
 
-			Send(client, LanguageManager.GetText("ReportStepLogs"), 50);
+			Send(client, LanguageManager.GetText(LanguageItems.ReportStepLogs), 50);
 
-			Add(LanguageManager.GetText("ReportOptions"), Engine.Instance.ProfileOptions.GetReportForSupport().PruneForReport());
+			Add(LanguageManager.GetText(LanguageItems.ReportOptions), Engine.Instance.ProfileOptions.GetReportForSupport().PruneForReport());
 
-			Add(LanguageManager.GetText("ReportLogs"), Engine.Instance.Logs.ToString().PruneForReport());
+			Add(LanguageManager.GetText(LanguageItems.ReportLogs), Engine.Instance.Logs.ToString().PruneForReport());
 
-			Send(client, LanguageManager.GetText("ReportStepLogs"), 60);
+			Send(client, LanguageManager.GetText(LanguageItems.ReportStepLogs), 60);
 
-			Send(client, LanguageManager.GetText("ReportStepPlatform"), 70);
+			Send(client, LanguageManager.GetText(LanguageItems.ReportStepPlatform), 70);
 
 			NetworkInfo();
 
 			Platform.Instance.OnReport(this);
 
-			Send(client, LanguageManager.GetText("ReportStepDone"), 100);
+			Send(client, LanguageManager.GetText(LanguageItems.ReportStepDone), 100);
 		}
 
 		public void Send(UiClient client, string step, int perc)
@@ -78,7 +78,7 @@ namespace Eddie.Core
 			jReport["command"].Value = "system.report.progress";
 			jReport["step"].Value = step;
 			if (Items.Count == 0)
-				jReport["body"].Value = LanguageManager.GetText("PleaseWait");
+				jReport["body"].Value = LanguageManager.GetText(LanguageItems.PleaseWait);
 			else
 				jReport["body"].Value = ToString();
 			jReport["perc"].Value = perc;
@@ -110,8 +110,8 @@ namespace Eddie.Core
 		public void Tests()
 		{
 			IpAddresses dns = DnsManager.ResolveDNS("dnstest.eddie.website", true);
-			Add("Test DNS IPv4", (dns.CountIPv4 == 2) ? LanguageManager.GetText("Ok") : LanguageManager.GetText("Failed"));
-			Add("Test DNS IPv6", (dns.CountIPv6 == 2) ? LanguageManager.GetText("Ok") : LanguageManager.GetText("Failed"));
+			Add("Test DNS IPv4", (dns.CountIPv4 == 2) ? LanguageManager.GetText(LanguageItems.Ok) : LanguageManager.GetText(LanguageItems.Failed));
+			Add("Test DNS IPv6", (dns.CountIPv6 == 2) ? LanguageManager.GetText(LanguageItems.Ok) : LanguageManager.GetText(LanguageItems.Failed));
 
 			Add("Test Ping IPv4", TestPing(Constants.WebSiteIPv4));
 			Add("Test Ping IPv6", TestPing(Constants.WebSiteIPv6));
@@ -132,7 +132,7 @@ namespace Eddie.Core
 				if (result != -1)
 					return result + " ms";
 				else
-					return LanguageManager.GetText("Failed");
+					return LanguageManager.GetText(LanguageItems.Failed);
 			}
 			catch (Exception ex)
 			{
@@ -148,9 +148,9 @@ namespace Eddie.Core
 				request.Url = url;
 				HttpResponse response = Engine.Instance.FetchUrl(request);
 				if (response.GetBodyAscii().Trim() == "Success.")
-					return LanguageManager.GetText("Ok");
+					return LanguageManager.GetText(LanguageItems.Ok);
 				else
-					return LanguageManager.GetText("Failed") + " - " + response.GetLineReport();
+					return LanguageManager.GetText(LanguageItems.Failed) + " - " + response.GetLineReport();
 			}
 			catch (Exception ex)
 			{
@@ -184,21 +184,21 @@ namespace Eddie.Core
 			Add("Command line arguments", "(" + Engine.Instance.StartCommandLine.Params.Count.ToString() + " args) " + Engine.Instance.StartCommandLine.GetFull());
 
 			{
-				string nl = LanguageManager.GetText("No");
+				string nl = LanguageManager.GetText(LanguageItems.No);
 				if (Engine.Instance.NetworkLockManager.IsActive())
-					nl = LanguageManager.GetText("Yes") + ", " + Engine.Instance.NetworkLockManager.GetActive().GetName();
+					nl = LanguageManager.GetText(LanguageItems.Yes) + ", " + Engine.Instance.NetworkLockManager.GetActive().GetName();
 				Add("Network Lock Active", nl);
 			}
 
 			{
-				string cn = LanguageManager.GetText("No");
+				string cn = LanguageManager.GetText(LanguageItems.No);
 				if (Engine.Instance.IsConnected())
-					cn = LanguageManager.GetText("Yes") + ", " + Engine.Instance.Stats.Get("ServerName").Text;
+					cn = LanguageManager.GetText(LanguageItems.Yes) + ", " + Engine.Instance.Stats.Get("ServerName").Text;
 				Add("Connected to VPN", cn);
 			}
 
-			Add("OS support IPv4", Platform.Instance.GetSupportIPv4() ? LanguageManager.GetText("Yes") : LanguageManager.GetText("No"));
-			Add("OS support IPv6", Platform.Instance.GetSupportIPv6() ? LanguageManager.GetText("Yes") : LanguageManager.GetText("No"));
+			Add("OS support IPv4", Platform.Instance.GetSupportIPv4() ? LanguageManager.GetText(LanguageItems.Yes) : LanguageManager.GetText(LanguageItems.No));
+			Add("OS support IPv6", Platform.Instance.GetSupportIPv6() ? LanguageManager.GetText(LanguageItems.Yes) : LanguageManager.GetText(LanguageItems.No));
 			Add("Detected DNS", Platform.Instance.DetectDNS().ToString());
 			//Add("Detected Exit", Engine.Instance.DiscoverExit().ToString());
 		}

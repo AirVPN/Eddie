@@ -12,10 +12,15 @@ class Program
 			string scriptPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);			
 			string arch = args[0];
 			string pathTemp = args[1];
-			string pathDeploy = args[2];			
+			string pathDeploy = args[2];
+
+			string constantsPath = scriptPath + "\\..\\..\\src\\Lib.Core\\Constants.cs";
+			string constantsBody = System.IO.File.ReadAllText(constantsPath);
+			string version = System.Text.RegularExpressions.Regex.Match(constantsBody, "VersionDesc = \"([0-9\\.]+)\"").Groups[1].Value;
 
 			string nsis = System.IO.File.ReadAllText(scriptPath + "\\nsis\\Eddie-UI.nsi");
 
+			nsis = nsis.Replace("{@version}", version);
 			nsis = nsis.Replace("{@arch}", arch);
 			nsis = nsis.Replace("{@resources}", scriptPath + "\\nsis");
 			//nsis = nsis.Replace("{@temp}", NormalizePath(pathTemp));

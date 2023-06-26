@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -95,7 +95,7 @@ namespace Eddie.Core.Providers
 
 			string pathScan = Path;
 
-			// Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("ProviderRefreshStart, Title));
+			// Engine.Instance.Logs.LogVerbose(LanguageManager.GetText(LanguageItems.ProviderRefreshStart, Title));
 
 			List<ConnectionInfo> connections = new List<ConnectionInfo>();
 
@@ -108,7 +108,7 @@ namespace Eddie.Core.Providers
 				}
 				else
 				{
-					Engine.Instance.Logs.Log(LogType.Warning, LanguageManager.GetText("ProvidersOpenVpnPathNotFound", pathScan, Title));
+					Engine.Instance.Logs.Log(LogType.Warning, LanguageManager.GetText(LanguageItems.ProvidersOpenVpnPathNotFound, pathScan, Title));
 				}
 			}
 
@@ -134,7 +134,7 @@ namespace Eddie.Core.Providers
 				nodeProfile.Attributes.RemoveNamedItem("checked");
 			}
 
-			Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("ProviderRefreshDone", Title));
+			Engine.Instance.Logs.LogVerbose(LanguageManager.GetText(LanguageItems.ProviderRefreshDone, Title));
 
 			return "";
 		}
@@ -311,7 +311,7 @@ namespace Eddie.Core.Providers
 					}
 					catch (System.Exception ex)
 					{
-						string message = LanguageManager.GetText("ProvidersOpenVpnErrorProfile", file.FullName, this.Title, ex.Message); // TOTRANSLATE
+						string message = LanguageManager.GetText(LanguageItems.ProvidersOpenVpnErrorProfile, file.FullName, this.Title, ex.Message); // TOTRANSLATE
 						Engine.Instance.Logs.Log(LogType.Warning, message);
 					}
 				}

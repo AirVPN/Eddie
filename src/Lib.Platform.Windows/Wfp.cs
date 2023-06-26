@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -50,7 +50,7 @@ namespace Eddie.Platform.Windows
 			if (Conversions.ToBool(Engine.Instance.Elevated.DoCommandSync("wfp", "action", "start", "xml", xmlInfo.OuterXml)) == false)
 			{
 				string wfpLastError = Engine.Instance.Elevated.DoCommandSync("wfp", "action", "last-error");
-				throw new Exception(LanguageManager.GetText("WfpStartFail", wfpLastError));
+				throw new Exception(LanguageManager.GetText(LanguageItems.WfpStartFail, wfpLastError));
 			}
 		}
 
@@ -87,7 +87,7 @@ namespace Eddie.Platform.Windows
 					if (result == false)
 					{
 						string wfpLastError = Engine.Instance.Elevated.DoCommandSync("wfp", "action", "last-error");
-						throw new Exception(LanguageManager.GetText("WfpRuleRemoveFail", wfpLastError));
+						throw new Exception(LanguageManager.GetText(LanguageItems.WfpRuleRemoveFail, wfpLastError));
 					}
 
 				}
@@ -185,7 +185,7 @@ namespace Eddie.Platform.Windows
 					if (id1 == 0)
 					{
 						string wfpLastError = Engine.Instance.Elevated.DoCommandSync("wfp", "action", "last-error");
-						throw new Exception(LanguageManager.GetText("WfpRuleAddFail", wfpLastError));
+						throw new Exception(LanguageManager.GetText(LanguageItems.WfpRuleAddFail, wfpLastError));
 					}
 					else
 					{

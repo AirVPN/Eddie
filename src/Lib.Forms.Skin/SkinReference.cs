@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,6 +16,7 @@
 // along with Eddie. If not, see <http://www.gnu.org/licenses/>.
 // </eddie_source_header>
 
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
@@ -102,7 +103,7 @@ namespace Eddie.Forms.Skin
 				if (userBaseSize == 0)
 				{
 					string systemFont = SkinUtils.GetSystemFont();
-					int posSize = systemFont.IndexOf(",");
+					int posSize = systemFont.IndexOf(",", StringComparison.InvariantCulture);
 
 					string strSize = systemFont.Substring(posSize + 1);
 					if (posSize != -1)
@@ -125,7 +126,7 @@ namespace Eddie.Forms.Skin
 
 					else if (fontName == "SystemMonospace")
 						systemFont = SkinUtils.GetSystemFontMonospace();
-					int posSize = systemFont.IndexOf(",");
+					int posSize = systemFont.IndexOf(",", StringComparison.InvariantCulture);
 					if (posSize != -1)
 						systemFont = systemFont.Substring(0, posSize);
 					fontName = systemFont;

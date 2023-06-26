@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -40,6 +40,7 @@ protected:
 	virtual pid_t GetParentProcessId();
 	virtual pid_t GetParentProcessId(pid_t pid);
 	virtual pid_t GetProcessIdOfName(const std::string& name);
+	virtual void KillProcess(const std::string& signal, pid_t pid);
 	virtual std::string GetCmdlineOfProcessId(pid_t pid);
 	virtual std::string GetWorkingDirOfProcessId(pid_t pid);
 	virtual void SetEnv(const std::string& name, const std::string& value);
@@ -48,7 +49,7 @@ protected:
 	virtual bool FsFileExists(const std::string& path);
 	virtual bool FsDirectoryExists(const std::string& path);
 	virtual bool FsFileDelete(const std::string& path);
-	virtual bool FsDirectoryDelete(const std::string& path, bool recursive);
+	virtual bool FsDirectoryDelete(const std::string& path, bool recursive);	
 	virtual bool FsFileMove(const std::string& source, const std::string& destination);
 	virtual std::string FsFileReadText(const std::string& path);
 	virtual std::vector<char> FsFileReadBytes(const std::string& path);

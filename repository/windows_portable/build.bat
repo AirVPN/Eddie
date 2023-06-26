@@ -16,93 +16,112 @@ if "%~3"=="" (
 	goto :error
 )
 
+if "%~4"=="" (
+	echo "Framework missing"
+	goto :error
+)
+
 set VARPROJECT=%1
 set VARARCH=%2
 set VAROS=%3
+set VARFRAMEWORK=%4
 set VARCONFIG=Release
 
 set VARSCRIPTDIR=%~dp0
-FOR /F "tokens=*" %%g IN ('%VARSCRIPTDIR%\..\windows_common\get-version.exe') do (SET "VARVERSION=%%g")
-set VARTARGETDIR=%TEMP%\eddie_deploy\eddie-%VARPROJECT%_%VARVERSION%_%VAROS%_%VARARCH%_portable
-set VARFINALPATH=%TEMP%\eddie_deploy\eddie-%VARPROJECT%_%VARVERSION%_%VAROS%_%VARARCH%_portable.zip
-set VARDEPLOYPATH=%VARSCRIPTDIR%\..\files\eddie-%VARPROJECT%_%VARVERSION%_%VAROS%_%VARARCH%_portable.zip
+FOR /F "tokens=*" %%g IN ('!VARSCRIPTDIR!\..\windows_common\get-version.exe') do (SET "VARVERSION=%%g")
+set VARTARGETDIR=%TEMP%\eddie_deploy\eddie-!VARPROJECT!_!VARVERSION!_!VAROS!_!VARARCH!_portable
+set VARFINALPATH=%TEMP%\eddie_deploy\eddie-!VARPROJECT!_!VARVERSION!_!VAROS!_!VARARCH!_portable.zip
+set VARDEPLOYPATH=!VARSCRIPTDIR!\..\files\eddie-!VARPROJECT!_!VARVERSION!_!VAROS!_!VARARCH!_portable.zip
 
-echo Build Windows Portable, Project: %VARPROJECT%, OS: %VAROS%, Arch: %VARARCH%
+echo Build Windows Portable, Project: !VARPROJECT!, OS: !VAROS!, Arch: !VARARCH!, Framework: !VARFRAMEWORK!
 
-IF EXIST "%VARDEPLOYPATH%" (
-	echo "Already builded: %VARDEPLOYPATH%"
+IF EXIST "!VARDEPLOYPATH!" (
+	echo "Already builded: !VARDEPLOYPATH!"
 	exit /b 0;
 ) 
 
-rem Cleanup
-IF EXIST "%VARTARGETDIR%" (
-	rmdir /s /q "%VARTARGETDIR%" 
+echo Step: Cleanup
+
+IF EXIST "!VARTARGETDIR!" (
+	rmdir /s /q "!VARTARGETDIR!" 
 )
 	
-rem Compilation
 echo Step: Compilation
 
-set VARARCHCOMPILE=%VARARCH%
+set VARARCHCOMPILE=!VARARCH!
 
-CALL "%VARSCRIPTDIR%\..\windows_common\compile.bat" %VARPROJECT% %VARARCH% || goto :error
+CALL "!VARSCRIPTDIR!\..\windows_common\compile.bat" !VARPROJECT! !VARARCH! !VARFRAMEWORK! || goto :error
 
-mkdir %VARTARGETDIR%
+echo Step: Copying
 
-IF "%VARPROJECT%"=="cli" (
-	echo copy %VARSCRIPTDIR%\..\..\src\App.CLI.Windows\bin\%VARARCHCOMPILE%\%VARCONFIG%\* %VARTARGETDIR% || goto :error
-	copy %VARSCRIPTDIR%\..\..\src\App.CLI.Windows\bin\%VARARCHCOMPILE%\%VARCONFIG%\* %VARTARGETDIR% || goto :error
-	move %VARTARGETDIR%\App.CLI.Windows.exe %VARTARGETDIR%\Eddie-CLI.exe || goto :error	
-) ELSE IF "%VARPROJECT%"=="ui" (
-	copy %VARSCRIPTDIR%\..\..\src\App.CLI.Windows\bin\%VARARCHCOMPILE%\%VARCONFIG%\APP.CLI.Windows.exe %VARTARGETDIR%\Eddie-CLI.exe || goto :error
-	copy %VARSCRIPTDIR%\..\..\src\App.Forms.Windows\bin\%VARARCHCOMPILE%\%VARCONFIG%\* %VARTARGETDIR% || goto :error
-	move %VARTARGETDIR%\App.Forms.Windows.exe %VARTARGETDIR%\Eddie-UI.exe || goto :error
-) ELSE IF "%VARPROJECT%"=="ui3" (
-	copy %VARSCRIPTDIR%\..\..\src\UI.WPF.Windows\bin\%VARARCHCOMPILE%\%VARCONFIG%\* %VARTARGETDIR% || goto :error
-	move %VARTARGETDIR%\UI.WPF.Windows.exe %VARTARGETDIR%\Eddie-UI.exe || goto :error
+mkdir !VARTARGETDIR!
+
+IF "!VARFRAMEWORK!"=="net4" (
+	IF "!VARPROJECT!"=="cli" (
+		copy !VARSCRIPTDIR!\..\..\src\App.CLI.Windows\bin\!VARARCHCOMPILE!\!VARCONFIG!\* !VARTARGETDIR! || goto :error
+		move !VARTARGETDIR!\App.CLI.Windows.exe !VARTARGETDIR!\Eddie-CLI.exe || goto :error	
+	) ELSE IF "!VARPROJECT!"=="ui" (
+		copy !VARSCRIPTDIR!\..\..\src\App.CLI.Windows\bin\!VARARCHCOMPILE!\!VARCONFIG!\APP.CLI.Windows.exe !VARTARGETDIR!\Eddie-CLI.exe || goto :error
+		copy !VARSCRIPTDIR!\..\..\src\App.Forms.Windows\bin\!VARARCHCOMPILE!\!VARCONFIG!\* !VARTARGETDIR! || goto :error
+		move !VARTARGETDIR!\App.Forms.Windows.exe !VARTARGETDIR!\Eddie-UI.exe || goto :error
+	)
+) ELSE IF "!VARFRAMEWORK!"=="net6" (
+	IF "!VARPROJECT!"=="cli" (
+		copy !VARSCRIPTDIR!\..\..\src\App.CLI.Windows\bin\!VARARCHCOMPILE!\!VARCONFIG!\net6.0\win-x64\publish\* !VARTARGETDIR! || goto :error
+		rem move !VARTARGETDIR!\App.CLI.Windows.exe !VARTARGETDIR!\Eddie-CLI.exe || goto :error	
+	) ELSE IF "!VARPROJECT!"=="ui" (
+		copy !VARSCRIPTDIR!\..\..\src\App.CLI.Windows\bin\!VARARCHCOMPILE!\!VARCONFIG!\net6.0\win-x64\publish\Eddie-CLI.exe !VARTARGETDIR!\Eddie-CLI.exe || goto :error
+		echo look for !VARSCRIPTDIR!\..\..\src\App.Forms.Windows\bin\!VARARCHCOMPILE!\!VARCONFIG!\net6.0-windows\win-x64\publish
+		copy !VARSCRIPTDIR!\..\..\src\App.Forms.Windows\bin\!VARARCHCOMPILE!\!VARCONFIG!\net6.0-windows\win-x64\publish\* !VARTARGETDIR! || goto :error
+		rem move !VARTARGETDIR!\App.Forms.Windows.exe !VARTARGETDIR!\Eddie-UI.exe || goto :error
+	) ELSE IF "!VARPROJECT!"=="ui3" (
+		copy !VARSCRIPTDIR!\..\..\src\UI.WPF.Windows\bin\!VARARCHCOMPILE!\!VARCONFIG!\net6.0\win-x64\publish\* !VARTARGETDIR! || goto :error
+		rem move !VARTARGETDIR!\UI.WPF.Windows.exe !VARTARGETDIR!\Eddie-UI.exe || goto :error
+	)
 )
 
 rem Resources
 echo Step: Resources
-copy %VARSCRIPTDIR%\..\..\deploy\%VAROS%_%VARARCH%\* %VARTARGETDIR% || goto :error
-robocopy %VARSCRIPTDIR%\..\..\common %VARTARGETDIR%\res /E
+copy !VARSCRIPTDIR!\..\..\deploy\!VAROS!_!VARARCH!\* !VARTARGETDIR! || goto :error
+robocopy !VARSCRIPTDIR!\..\..\common !VARTARGETDIR!\res /E
 
-IF "%VARPROJECT%"=="ui3" (
-	robocopy %VARSCRIPTDIR%\..\..\src\UI.WPF.Windows\bin\%VARARCHCOMPILE%\%VARCONFIG%\runtimes %VARTARGETDIR%\runtimes /E
+IF "!VARPROJECT!"=="ui3" (
+	robocopy !VARSCRIPTDIR!\..\..\src\UI.WPF.Windows\bin\!VARARCHCOMPILE!\!VARCONFIG!\runtimes !VARTARGETDIR!\runtimes /E
 )
  
 rem Cleanup
 echo Step: Cleanup
-del %VARTARGETDIR%\*.profile 2> nul
-del %VARTARGETDIR%\*.pdb 2> nul
-del %VARTARGETDIR%\*.config 2> nul
-del %VARTARGETDIR%\temp.* 2> nul
-del %VARTARGETDIR%\Recovery.xml 2> nul
-del %VARTARGETDIR%\mono_crash.* 2> nul
-del %VARTARGETDIR%\*.xml 2> nul
-rem rmdir /s /q %VARTARGETDIR%\res\providers
+del !VARTARGETDIR!\*.profile 2> nul
+del !VARTARGETDIR!\*.pdb 2> nul
+del !VARTARGETDIR!\*.config 2> nul
+del !VARTARGETDIR!\temp.* 2> nul
+del !VARTARGETDIR!\Recovery.xml 2> nul
+del !VARTARGETDIR!\mono_crash.* 2> nul
+del !VARTARGETDIR!\*.xml 2> nul
+rem rmdir /s /q !VARTARGETDIR!\res\providers
 
-IF "%VARPROJECT%"=="cli" (
-	rmdir /s /q %VARTARGETDIR%\res\webui
-) ELSE IF "%VARPROJECT%"=="ui" (
-	rmdir /s /q %VARTARGETDIR%\res\webui	
-) ELSE IF "%VARPROJECT%"=="ui3" (
-	rmdir /s /q %VARTARGETDIR%\res\xx
+IF "!VARPROJECT!"=="cli" (
+	rmdir /s /q !VARTARGETDIR!\res\webui
+) ELSE IF "!VARPROJECT!"=="ui" (
+	rmdir /s /q !VARTARGETDIR!\res\webui	
+) ELSE IF "!VARPROJECT!"=="ui3" (
+	rmdir /s /q !VARTARGETDIR!\res\xx
 ) 
 
 rem Signing
 
-SET /p VARSIGNPASSWORD= < "%VARSCRIPTDIR%\..\signing\eddie.win-signing.pfx.pwd"
-IF exist %VARSCRIPTDIR%\..\signing\eddie.win-signing.pfx (
+SET /p VARSIGNPASSWORD= < "!VARSCRIPTDIR!\..\signing\eddie.win-signing.pfx.pwd"
+IF exist !VARSCRIPTDIR!\..\signing\eddie.win-signing.pfx (
 	echo Step: Signing
 
-	for %%f in (%VARTARGETDIR%\*.*) do (
+	for %%f in (!VARTARGETDIR!\*.*) do (
 		IF NOT "%%~nxf"=="openvpn.exe" (
 			echo Check signature %%~ff 
-			rem %VARSCRIPTDIR%\..\windows_common\signtool.exe verify /pa "%%~ff" | find /i "No signature found"
-			%VARSCRIPTDIR%\..\windows_common\signtool.exe verify /pa "%%~ff"
+			rem !VARSCRIPTDIR!\..\windows_common\signtool.exe verify /pa "%%~ff" | find /i "No signature found"
+			!VARSCRIPTDIR!\..\windows_common\signtool.exe verify /pa "%%~ff"
 			if ERRORLEVEL 1 (
-				echo %VARSCRIPTDIR%\..\windows_common\signtool.exe sign /fd sha256 /p "%VARSIGNPASSWORD%" /f "%VARSCRIPTDIR%\..\signing\eddie.win-signing.pfx" /t http://timestamp.comodoca.com/authenticode /d "Eddie - VPN Tunnel" "%%~ff" || goto :error
-				%VARSCRIPTDIR%\..\windows_common\signtool.exe sign /fd sha256 /p "%VARSIGNPASSWORD%" /f "%VARSCRIPTDIR%\..\signing\eddie.win-signing.pfx" /t http://timestamp.comodoca.com/authenticode /d "Eddie - VPN Tunnel" "%%~ff" || goto :error
+				echo !VARSCRIPTDIR!\..\windows_common\signtool.exe sign /fd sha256 /p "!VARSIGNPASSWORD!" /f "!VARSCRIPTDIR!\..\signing\eddie.win-signing.pfx" /t http://timestamp.comodoca.com/authenticode /d "Eddie - VPN Tunnel" "%%~ff" || goto :error
+				!VARSCRIPTDIR!\..\windows_common\signtool.exe sign /fd sha256 /p "!VARSIGNPASSWORD!" /f "!VARSCRIPTDIR!\..\signing\eddie.win-signing.pfx" /t http://timestamp.comodoca.com/authenticode /d "Eddie - VPN Tunnel" "%%~ff" || goto :error
 			) ELSE (
 				rem Already signed
 			)
@@ -113,17 +132,17 @@ IF exist %VARSCRIPTDIR%\..\signing\eddie.win-signing.pfx (
 rem Build archive
 echo Step: Build archive
 
-%VARSCRIPTDIR%\..\windows_common\7za.exe a -mx9 -tzip "%VARFINALPATH%" "%VARTARGETDIR%" || goto :error
+!VARSCRIPTDIR!\..\windows_common\7za.exe a -mx9 -tzip "!VARFINALPATH!" "!VARTARGETDIR!" || goto :error
 
 rem Deploy
-call %VARSCRIPTDIR%\..\windows_common\deploy.bat "%VARFINALPATH%" || goto :error
+call !VARSCRIPTDIR!\..\windows_common\deploy.bat "!VARFINALPATH!" || goto :error
 
 rem End
-move "%VARFINALPATH%" "%VARDEPLOYPATH%"
+move "!VARFINALPATH!" "!VARDEPLOYPATH!"
 
 rem Cleanup
 echo Step: Final cleanup
-rmdir /s /q %VARTARGETDIR%
+rmdir /s /q !VARTARGETDIR!
 
 :done
 echo Done

@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -45,6 +45,7 @@ protected:
 	virtual pid_t GetParentProcessId(pid_t pid);
 	virtual std::string GetProcessPathOfId(pid_t pid);
 	virtual pid_t GetProcessIdOfName(const std::string& name);
+	virtual void KillProcess(const std::string& signal, pid_t pid);
 	virtual std::string GetCmdlineOfProcessId(pid_t pid);
 	virtual std::string GetWorkingDirOfProcessId(pid_t pid);
 	virtual void SetEnv(const std::string& name, const std::string& value);
@@ -85,8 +86,7 @@ protected:
 		HANDLE stdoutReadHandle = NULL;
 		HANDLE stderrReadHandle = NULL;
 	} t_shellinfo;
-
-	bool IsWin8OrGreater();
+		
 	std::string GetLastErrorAsString();
 	t_shellinfo ExecStart(const std::string& path, const std::vector<std::string>& args);
 	DWORD ExecEnd(t_shellinfo info);
@@ -105,6 +105,10 @@ protected:
 	void WintunAdapterRemove(const std::wstring& pool, const std::wstring& name);
 	void WintunAdapterRemovePool(const std::wstring& pool);
 
+	// Tap	
+	void TapCreateInterface(const std::wstring& hwid, const std::string& name);
+	void TapDeleteInterface(const std::wstring& id);
+
 public:
 	WINTUN_ADAPTER_HANDLE WintunAdapterOpen(const std::wstring& pool, const std::wstring& name);
 	void WintunAdapterClose(WINTUN_ADAPTER_HANDLE hAdapter);
@@ -116,7 +120,7 @@ protected:
 	int WireGuardTunnel(const std::string& configName);
 
 	// Public
-public:
+public:	
 	static std::wstring StringUTF8ToWString(const std::string& str);
 	static std::string StringWStringToUTF8(const std::wstring& str);
 };

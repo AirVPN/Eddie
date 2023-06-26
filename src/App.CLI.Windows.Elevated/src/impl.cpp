@@ -1,6 +1,6 @@
 // <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -59,6 +59,8 @@ Some code by ValdikSS
 #include "yxml.h" // WFP utils, maybe converted in JSON in future
 
 #include "wintun.h"
+
+#include <regex>
 
 int Impl::Main()
 {
@@ -598,188 +600,150 @@ UINT64 Impl::WfpRuleAdd(const std::string& xml)
 				{
 					conditionIndex++;
 					rulesMap[conditionIndex] = WfpRuleData();
+				}
 
-					// https://msdn.microsoft.com/en-us/library/windows/desktop/aa363996(v=vs.85).aspx
+				if ((conditionIndex >= 0) && (conditionIndex < 100))
+				{
+					if (attrName == "field")
+					{
+						// https://msdn.microsoft.com/en-us/library/windows/desktop/aa363996(v=vs.85).aspx
 
-					if (attrValue == "ale_app_id")
-					{
-						Condition[conditionIndex].fieldKey = FWPM_CONDITION_ALE_APP_ID;
-					}
-					else if (attrValue == "ip_local_address")
-					{
-						Condition[conditionIndex].fieldKey = FWPM_CONDITION_IP_LOCAL_ADDRESS;
-					}
-					else if (attrValue == "ip_local_interface")
-					{
-						Condition[conditionIndex].fieldKey = FWPM_CONDITION_IP_LOCAL_INTERFACE;
-					}
-					else if (attrValue == "ip_local_port")
-					{
-						Condition[conditionIndex].fieldKey = FWPM_CONDITION_IP_LOCAL_PORT;
-					}
-					else if (attrValue == "ip_protocol")
-					{
-						Condition[conditionIndex].fieldKey = FWPM_CONDITION_IP_PROTOCOL;
-					}
-					else if (attrValue == "ip_remote_address")
-					{
-						Condition[conditionIndex].fieldKey = FWPM_CONDITION_IP_REMOTE_ADDRESS;
-					}
-					else if (attrValue == "ip_remote_port")
-					{
-						Condition[conditionIndex].fieldKey = FWPM_CONDITION_IP_REMOTE_PORT;
-					}
-					else
-					{
-						m_wfpLastError = "Unknown field '" + attrValue + "'";
-						m_wfpLastErrorCode = 0;
-						return 0;
-					};
-				}
-				else if (attrName == "match")
-				{
-					if (attrValue == "equal")
-					{
-						Condition[conditionIndex].matchType = FWP_MATCH_EQUAL;
-					}
-					else if (attrValue == "greater")
-					{
-						Condition[conditionIndex].matchType = FWP_MATCH_GREATER;
-					}
-					else if (attrValue == "less")
-					{
-						Condition[conditionIndex].matchType = FWP_MATCH_LESS;
-					}
-					else if (attrValue == "greater_or_equal")
-					{
-						Condition[conditionIndex].matchType = FWP_MATCH_GREATER_OR_EQUAL;
-					}
-					else if (attrValue == "less_or_equal")
-					{
-						Condition[conditionIndex].matchType = FWP_MATCH_LESS_OR_EQUAL;
-					}
-					else if (attrValue == "range")
-					{
-						Condition[conditionIndex].matchType = FWP_MATCH_RANGE;
-					}
-					else if (attrValue == "flags_all_set")
-					{
-						Condition[conditionIndex].matchType = FWP_MATCH_FLAGS_ALL_SET;
-					}
-					else if (attrValue == "flags_any_set")
-					{
-						Condition[conditionIndex].matchType = FWP_MATCH_FLAGS_ANY_SET;
-					}
-					else if (attrValue == "flags_none_set")
-					{
-						Condition[conditionIndex].matchType = FWP_MATCH_FLAGS_NONE_SET;
-					}
-					else if (attrValue == "equal_case_insensitive")
-					{
-						Condition[conditionIndex].matchType = FWP_MATCH_EQUAL_CASE_INSENSITIVE;
-					}
-					else if (attrValue == "not_equal")
-					{
-						Condition[conditionIndex].matchType = FWP_MATCH_NOT_EQUAL;
-					}
-					else if (attrValue == "type_max")
-					{
-						Condition[conditionIndex].matchType = FWP_MATCH_TYPE_MAX;
-					}
-					else
-					{
-						m_wfpLastError = "Unknown match '" + attrValue + "'";
-						m_wfpLastErrorCode = 0;
-						return 0;
-					}
-				}
-				else if (attrName == "port")
-				{
-					Condition[conditionIndex].conditionValue.type = FWP_UINT16;
-					Condition[conditionIndex].conditionValue.uint16 = atoi(attrValue.c_str());
-				}
-				else if (attrName == "path")
-				{
-					if (Condition[conditionIndex].fieldKey == FWPM_CONDITION_ALE_APP_ID)
-					{
-						std::wstring wAttrValue = std::wstring(attrValue.begin(), attrValue.end());
-						FWP_BYTE_BLOB* appblob = NULL;
-						if (FwpmGetAppIdFromFileName0(wAttrValue.c_str(), &appblob) != ERROR_SUCCESS)
+						if (attrValue == "ale_app_id")
 						{
-							m_wfpLastError = "App not found";
+							Condition[conditionIndex].fieldKey = FWPM_CONDITION_ALE_APP_ID;
+						}
+						else if (attrValue == "ip_local_address")
+						{
+							Condition[conditionIndex].fieldKey = FWPM_CONDITION_IP_LOCAL_ADDRESS;
+						}
+						else if (attrValue == "ip_local_interface")
+						{
+							Condition[conditionIndex].fieldKey = FWPM_CONDITION_IP_LOCAL_INTERFACE;
+						}
+						else if (attrValue == "ip_local_port")
+						{
+							Condition[conditionIndex].fieldKey = FWPM_CONDITION_IP_LOCAL_PORT;
+						}
+						else if (attrValue == "ip_protocol")
+						{
+							Condition[conditionIndex].fieldKey = FWPM_CONDITION_IP_PROTOCOL;
+						}
+						else if (attrValue == "ip_remote_address")
+						{
+							Condition[conditionIndex].fieldKey = FWPM_CONDITION_IP_REMOTE_ADDRESS;
+						}
+						else if (attrValue == "ip_remote_port")
+						{
+							Condition[conditionIndex].fieldKey = FWPM_CONDITION_IP_REMOTE_PORT;
+						}
+						else
+						{
+							m_wfpLastError = "Unknown field '" + attrValue + "'";
+							m_wfpLastErrorCode = 0;
+							return 0;
+						};
+					}
+					else if (attrName == "match")
+					{
+						if (attrValue == "equal")
+						{
+							Condition[conditionIndex].matchType = FWP_MATCH_EQUAL;
+						}
+						else if (attrValue == "greater")
+						{
+							Condition[conditionIndex].matchType = FWP_MATCH_GREATER;
+						}
+						else if (attrValue == "less")
+						{
+							Condition[conditionIndex].matchType = FWP_MATCH_LESS;
+						}
+						else if (attrValue == "greater_or_equal")
+						{
+							Condition[conditionIndex].matchType = FWP_MATCH_GREATER_OR_EQUAL;
+						}
+						else if (attrValue == "less_or_equal")
+						{
+							Condition[conditionIndex].matchType = FWP_MATCH_LESS_OR_EQUAL;
+						}
+						else if (attrValue == "range")
+						{
+							Condition[conditionIndex].matchType = FWP_MATCH_RANGE;
+						}
+						else if (attrValue == "flags_all_set")
+						{
+							Condition[conditionIndex].matchType = FWP_MATCH_FLAGS_ALL_SET;
+						}
+						else if (attrValue == "flags_any_set")
+						{
+							Condition[conditionIndex].matchType = FWP_MATCH_FLAGS_ANY_SET;
+						}
+						else if (attrValue == "flags_none_set")
+						{
+							Condition[conditionIndex].matchType = FWP_MATCH_FLAGS_NONE_SET;
+						}
+						else if (attrValue == "equal_case_insensitive")
+						{
+							Condition[conditionIndex].matchType = FWP_MATCH_EQUAL_CASE_INSENSITIVE;
+						}
+						else if (attrValue == "not_equal")
+						{
+							Condition[conditionIndex].matchType = FWP_MATCH_NOT_EQUAL;
+						}
+						else if (attrValue == "type_max")
+						{
+							Condition[conditionIndex].matchType = FWP_MATCH_TYPE_MAX;
+						}
+						else
+						{
+							m_wfpLastError = "Unknown match '" + attrValue + "'";
 							m_wfpLastErrorCode = 0;
 							return 0;
 						}
-
-						Condition[conditionIndex].conditionValue.type = FWP_BYTE_BLOB_TYPE;
-						Condition[conditionIndex].conditionValue.byteBlob = appblob;
 					}
-					else
+					else if (attrName == "port")
 					{
-						m_wfpLastError = "Unexpected 'path' attribute.";
-						m_wfpLastErrorCode = 0;
-						return 0;
+						Condition[conditionIndex].conditionValue.type = FWP_UINT16;
+						Condition[conditionIndex].conditionValue.uint16 = atoi(attrValue.c_str());
 					}
-				}
-				else if (attrName == "address")
-				{
-					if ((Filter.layerKey == FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V4) ||
-						(Filter.layerKey == FWPM_LAYER_ALE_AUTH_CONNECT_V4) ||
-						(Filter.layerKey == FWPM_LAYER_ALE_FLOW_ESTABLISHED_V4))
+					else if (attrName == "path")
 					{
-						UINT32 IpAddr = 0;
-						if (!inet_pton(AF_INET, attrValue.c_str(), &IpAddr))
+						if (Condition[conditionIndex].fieldKey == FWPM_CONDITION_ALE_APP_ID)
 						{
-							m_wfpLastError = "inet_pton ipv4 address failed with '" + attrValue + "'";
+							std::wstring wAttrValue = std::wstring(attrValue.begin(), attrValue.end());
+							FWP_BYTE_BLOB* appblob = NULL;
+							if (FwpmGetAppIdFromFileName0(wAttrValue.c_str(), &appblob) != ERROR_SUCCESS)
+							{
+								m_wfpLastError = "App not found";
+								m_wfpLastErrorCode = 0;
+								return 0;
+							}
+
+							Condition[conditionIndex].conditionValue.type = FWP_BYTE_BLOB_TYPE;
+							Condition[conditionIndex].conditionValue.byteBlob = appblob;
+						}
+						else
+						{
+							m_wfpLastError = "Unexpected 'path' attribute.";
 							m_wfpLastErrorCode = 0;
 							return 0;
 						}
-
-						WfpRuleData& ruleData = rulesMap[conditionIndex];
-						ruleData.ipAddressV4.addr = ntohl(IpAddr);
-
-						Condition[conditionIndex].conditionValue.type = FWP_V4_ADDR_MASK;
-						Condition[conditionIndex].conditionValue.v4AddrMask = &ruleData.ipAddressV4;
 					}
-					else if ((Filter.layerKey == FWPM_LAYER_ALE_AUTH_CONNECT_V6) ||
-						(Filter.layerKey == FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6) ||
-						(Filter.layerKey == FWPM_LAYER_ALE_FLOW_ESTABLISHED_V6))
-					{
-						in6_addr IpAddr6;
-						::ZeroMemory(&IpAddr6, sizeof(in6_addr));
-
-						if (!inet_pton(AF_INET6, attrValue.c_str(), &IpAddr6))
-						{
-							m_wfpLastError = "inet_pton ipv6 address failed with '" + attrValue + "'";
-							m_wfpLastErrorCode = 0;
-							return 0;
-						}
-
-						WfpRuleData& ruleData = rulesMap[conditionIndex];
-						memcpy(&ruleData.ipAddressV6.addr, &IpAddr6.u.Byte, 16);
-
-						Condition[conditionIndex].conditionValue.type = FWP_V6_ADDR_MASK;
-						Condition[conditionIndex].conditionValue.v6AddrMask = &ruleData.ipAddressV6;
-					}
-				}
-				else if (attrName == "mask")
-				{
-					if (attrValue != "")
+					else if (attrName == "address")
 					{
 						if ((Filter.layerKey == FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V4) ||
 							(Filter.layerKey == FWPM_LAYER_ALE_AUTH_CONNECT_V4) ||
 							(Filter.layerKey == FWPM_LAYER_ALE_FLOW_ESTABLISHED_V4))
 						{
-							UINT32 Mask;
-							if (!inet_pton(AF_INET, attrValue.c_str(), &Mask))
+							UINT32 IpAddr = 0;
+							if (!inet_pton(AF_INET, attrValue.c_str(), &IpAddr))
 							{
-								m_wfpLastError = "inet_pton ipv4 mask failed with '" + attrValue + "'";
+								m_wfpLastError = "inet_pton ipv4 address failed with '" + attrValue + "'";
 								m_wfpLastErrorCode = 0;
 								return 0;
 							}
 
 							WfpRuleData& ruleData = rulesMap[conditionIndex];
-							ruleData.ipAddressV4.mask = ntohl(Mask);
+							ruleData.ipAddressV4.addr = ntohl(IpAddr);
 
 							Condition[conditionIndex].conditionValue.type = FWP_V4_ADDR_MASK;
 							Condition[conditionIndex].conditionValue.v4AddrMask = &ruleData.ipAddressV4;
@@ -788,169 +752,213 @@ UINT64 Impl::WfpRuleAdd(const std::string& xml)
 							(Filter.layerKey == FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6) ||
 							(Filter.layerKey == FWPM_LAYER_ALE_FLOW_ESTABLISHED_V6))
 						{
-							UINT8 prefixLength = atoi(attrValue.c_str());
+							in6_addr IpAddr6;
+							::ZeroMemory(&IpAddr6, sizeof(in6_addr));
+
+							if (!inet_pton(AF_INET6, attrValue.c_str(), &IpAddr6))
+							{
+								m_wfpLastError = "inet_pton ipv6 address failed with '" + attrValue + "'";
+								m_wfpLastErrorCode = 0;
+								return 0;
+							}
 
 							WfpRuleData& ruleData = rulesMap[conditionIndex];
-							ruleData.ipAddressV6.prefixLength = prefixLength;
+							memcpy(&ruleData.ipAddressV6.addr, &IpAddr6.u.Byte, 16);
 
 							Condition[conditionIndex].conditionValue.type = FWP_V6_ADDR_MASK;
 							Condition[conditionIndex].conditionValue.v6AddrMask = &ruleData.ipAddressV6;
 						}
 					}
-				}
-				else if (attrName == "port_from")
-				{
-					WfpRuleData& ruleData = rulesMap[conditionIndex];
-
-					ruleData.portRange.valueLow.type = FWP_UINT16;
-					ruleData.portRange.valueLow.uint16 = atoi(attrValue.c_str());
-
-					Condition[conditionIndex].conditionValue.type = FWP_RANGE_TYPE;
-					Condition[conditionIndex].conditionValue.rangeValue = &ruleData.portRange;
-				}
-				else if (attrName == "port_to")
-				{
-					WfpRuleData& ruleData = rulesMap[conditionIndex];
-
-					ruleData.portRange.valueHigh.type = FWP_UINT16;
-					ruleData.portRange.valueHigh.uint16 = atoi(attrValue.c_str());
-
-					Condition[conditionIndex].conditionValue.type = FWP_RANGE_TYPE;
-					Condition[conditionIndex].conditionValue.rangeValue = &ruleData.portRange;
-				}
-				else if (attrName == "protocol")
-				{
-					Condition[conditionIndex].conditionValue.type = FWP_UINT8;
-					if (attrValue == "tcp")
-						Condition[conditionIndex].conditionValue.uint8 = IPPROTO_TCP;
-					else if (attrValue == "udp")
-						Condition[conditionIndex].conditionValue.uint8 = IPPROTO_UDP;
-					else if (attrValue == "icmp")
-						Condition[conditionIndex].conditionValue.uint8 = IPPROTO_ICMP;
-				}
-				else if (attrName == "interface")
-				{
-					if (Condition[conditionIndex].fieldKey == FWPM_CONDITION_IP_LOCAL_INTERFACE)
+					else if (attrName == "mask")
 					{
-						Condition[conditionIndex].conditionValue.type = FWP_UINT64;
+						if (attrValue != "")
+						{
+							if ((Filter.layerKey == FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V4) ||
+								(Filter.layerKey == FWPM_LAYER_ALE_AUTH_CONNECT_V4) ||
+								(Filter.layerKey == FWPM_LAYER_ALE_FLOW_ESTABLISHED_V4))
+							{
+								UINT32 Mask;
+								if (!inet_pton(AF_INET, attrValue.c_str(), &Mask))
+								{
+									m_wfpLastError = "inet_pton ipv4 mask failed with '" + attrValue + "'";
+									m_wfpLastErrorCode = 0;
+									return 0;
+								}
 
-						BOOL found = FALSE;
+								WfpRuleData& ruleData = rulesMap[conditionIndex];
+								ruleData.ipAddressV4.mask = ntohl(Mask);
 
-						//std::ostringstream log;
+								Condition[conditionIndex].conditionValue.type = FWP_V4_ADDR_MASK;
+								Condition[conditionIndex].conditionValue.v4AddrMask = &ruleData.ipAddressV4;
+							}
+							else if ((Filter.layerKey == FWPM_LAYER_ALE_AUTH_CONNECT_V6) ||
+								(Filter.layerKey == FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6) ||
+								(Filter.layerKey == FWPM_LAYER_ALE_FLOW_ESTABLISHED_V6))
+							{
+								UINT8 prefixLength = atoi(attrValue.c_str());
 
-						PIP_ADAPTER_ADDRESSES pAddresses = NULL;
-						PIP_ADAPTER_ADDRESSES pCurrAddresses = NULL;
-						ULONG outBufLen = 0;
-						ULONG Iterations = 0;
-						DWORD dwRetVal = 0;
-						ULONG family = AF_UNSPEC;
-						ULONG flags = GAA_FLAG_INCLUDE_PREFIX;
+								WfpRuleData& ruleData = rulesMap[conditionIndex];
+								ruleData.ipAddressV6.prefixLength = prefixLength;
+
+								Condition[conditionIndex].conditionValue.type = FWP_V6_ADDR_MASK;
+								Condition[conditionIndex].conditionValue.v6AddrMask = &ruleData.ipAddressV6;
+							}
+						}
+					}
+					else if (attrName == "port_from")
+					{
+						WfpRuleData& ruleData = rulesMap[conditionIndex];
+
+						ruleData.portRange.valueLow.type = FWP_UINT16;
+						ruleData.portRange.valueLow.uint16 = atoi(attrValue.c_str());
+
+						Condition[conditionIndex].conditionValue.type = FWP_RANGE_TYPE;
+						Condition[conditionIndex].conditionValue.rangeValue = &ruleData.portRange;
+					}
+					else if (attrName == "port_to")
+					{
+						WfpRuleData& ruleData = rulesMap[conditionIndex];
+
+						ruleData.portRange.valueHigh.type = FWP_UINT16;
+						ruleData.portRange.valueHigh.uint16 = atoi(attrValue.c_str());
+
+						Condition[conditionIndex].conditionValue.type = FWP_RANGE_TYPE;
+						Condition[conditionIndex].conditionValue.rangeValue = &ruleData.portRange;
+					}
+					else if (attrName == "protocol")
+					{
+						Condition[conditionIndex].conditionValue.type = FWP_UINT8;
+						if (attrValue == "tcp")
+							Condition[conditionIndex].conditionValue.uint8 = IPPROTO_TCP;
+						else if (attrValue == "udp")
+							Condition[conditionIndex].conditionValue.uint8 = IPPROTO_UDP;
+						else if (attrValue == "icmp")
+							Condition[conditionIndex].conditionValue.uint8 = IPPROTO_ICMP;
+					}
+					else if (attrName == "interface")
+					{
+						if (Condition[conditionIndex].fieldKey == FWPM_CONDITION_IP_LOCAL_INTERFACE)
+						{
+							Condition[conditionIndex].conditionValue.type = FWP_UINT64;
+
+							BOOL found = FALSE;
+
+							//std::ostringstream log;
+
+							PIP_ADAPTER_ADDRESSES pAddresses = NULL;
+							PIP_ADAPTER_ADDRESSES pCurrAddresses = NULL;
+							ULONG outBufLen = 0;
+							ULONG Iterations = 0;
+							DWORD dwRetVal = 0;
+							ULONG family = AF_UNSPEC;
+							ULONG flags = GAA_FLAG_INCLUDE_PREFIX;
 
 #define WORKING_BUFFER_SIZE 15000
 #define MAX_TRIES 3
 
-						// Allocate a 15 KB buffer to start with.
-						outBufLen = WORKING_BUFFER_SIZE;
+							// Allocate a 15 KB buffer to start with.
+							outBufLen = WORKING_BUFFER_SIZE;
 
-						do {
+							do {
 
-							pAddresses = (IP_ADAPTER_ADDRESSES*)MALLOC(outBufLen);
-							if (pAddresses == NULL) {
-								printf
-								("Memory allocation failed for IP_ADAPTER_ADDRESSES struct\n");
-								exit(1);
-							}
-
-							dwRetVal = GetAdaptersAddresses(family, flags, NULL, pAddresses, &outBufLen);
-
-							if (dwRetVal == ERROR_BUFFER_OVERFLOW) {
-								FREE(pAddresses);
-								pAddresses = NULL;
-							}
-							else {
-								break;
-							}
-
-							Iterations++;
-
-						} while ((dwRetVal == ERROR_BUFFER_OVERFLOW) && (Iterations < MAX_TRIES));
-
-						if (dwRetVal == NO_ERROR) {
-							// If successful, output some information from the data we received
-							pCurrAddresses = pAddresses;
-							while (pCurrAddresses) {
-
-								DWORD index = 0;
-
-								if (Filter.layerKey == FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V4)
-									index = pCurrAddresses->IfIndex;
-								else if (Filter.layerKey == FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6)
-									index = pCurrAddresses->Ipv6IfIndex;
-								else if (Filter.layerKey == FWPM_LAYER_ALE_AUTH_CONNECT_V4)
-									index = pCurrAddresses->IfIndex;
-								else if (Filter.layerKey == FWPM_LAYER_ALE_AUTH_CONNECT_V6)
-									index = pCurrAddresses->Ipv6IfIndex;
-								else if (Filter.layerKey == FWPM_LAYER_ALE_FLOW_ESTABLISHED_V4)
-									index = pCurrAddresses->IfIndex;
-								else if (Filter.layerKey == FWPM_LAYER_ALE_FLOW_ESTABLISHED_V6)
-									index = pCurrAddresses->Ipv6IfIndex;
-
-								if (index != 0)
-								{
-									if ((attrValue == "loopback") && (pCurrAddresses->IfType == IF_TYPE_SOFTWARE_LOOPBACK))
-										found = true;
-
-									if (strcmp(pCurrAddresses->AdapterName, attrValue.c_str()) == 0)
-										found = true;
+								pAddresses = (IP_ADAPTER_ADDRESSES*)MALLOC(outBufLen);
+								if (pAddresses == NULL) {
+									printf
+									("Memory allocation failed for IP_ADAPTER_ADDRESSES struct\n");
+									exit(1);
 								}
 
-								if (found)
-								{
-									NET_LUID tapluid;
+								dwRetVal = GetAdaptersAddresses(family, flags, NULL, pAddresses, &outBufLen);
 
-									if (ConvertInterfaceIndexToLuid(index, &tapluid) == NO_ERROR)
-									{
-										Condition[conditionIndex].conditionValue.uint64 = &tapluid.Value;
-									}
-									else
-									{
-										m_wfpLastError = "Unable to obtain interface luid";
-										m_wfpLastErrorCode = 0;
-										return 0;
-									}
-
+								if (dwRetVal == ERROR_BUFFER_OVERFLOW) {
+									FREE(pAddresses);
+									pAddresses = NULL;
+								}
+								else {
 									break;
 								}
 
-								pCurrAddresses = pCurrAddresses->Next;
+								Iterations++;
+
+							} while ((dwRetVal == ERROR_BUFFER_OVERFLOW) && (Iterations < MAX_TRIES));
+
+							if (dwRetVal == NO_ERROR) {
+								// If successful, output some information from the data we received
+								pCurrAddresses = pAddresses;
+								while (pCurrAddresses) {
+
+									DWORD index = 0;
+
+									if (Filter.layerKey == FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V4)
+										index = pCurrAddresses->IfIndex;
+									else if (Filter.layerKey == FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6)
+										index = pCurrAddresses->Ipv6IfIndex;
+									else if (Filter.layerKey == FWPM_LAYER_ALE_AUTH_CONNECT_V4)
+										index = pCurrAddresses->IfIndex;
+									else if (Filter.layerKey == FWPM_LAYER_ALE_AUTH_CONNECT_V6)
+										index = pCurrAddresses->Ipv6IfIndex;
+									else if (Filter.layerKey == FWPM_LAYER_ALE_FLOW_ESTABLISHED_V4)
+										index = pCurrAddresses->IfIndex;
+									else if (Filter.layerKey == FWPM_LAYER_ALE_FLOW_ESTABLISHED_V6)
+										index = pCurrAddresses->Ipv6IfIndex;
+
+									if (index != 0)
+									{
+										if ((attrValue == "loopback") && (pCurrAddresses->IfType == IF_TYPE_SOFTWARE_LOOPBACK))
+											found = true;
+
+										if (strcmp(pCurrAddresses->AdapterName, attrValue.c_str()) == 0)
+											found = true;
+									}
+
+									if (found)
+									{
+										NET_LUID tapluid;
+
+										if (ConvertInterfaceIndexToLuid(index, &tapluid) == NO_ERROR)
+										{
+											Condition[conditionIndex].conditionValue.uint64 = &tapluid.Value;
+										}
+										else
+										{
+											m_wfpLastError = "Unable to obtain interface luid";
+											m_wfpLastErrorCode = 0;
+											return 0;
+										}
+
+										break;
+									}
+
+									pCurrAddresses = pCurrAddresses->Next;
+								}
+							}
+							else {
+							}
+
+							if (pAddresses) {
+								FREE(pAddresses);
+							}
+
+							if (found == FALSE)
+							{
+								m_wfpLastError = "Interface ID '" + attrValue + "' unknown or disabled for the layer.";
+								m_wfpLastErrorCode = 0;
+								return 0;
 							}
 						}
-						else {
-						}
-
-						if (pAddresses) {
-							FREE(pAddresses);
-						}
-
-						if (found == FALSE)
+						else
 						{
-							m_wfpLastError = "Interface ID '" + attrValue + "' unknown or disabled for the layer.";
+							m_wfpLastError = "Unexpected 'interface' attribute.";
 							m_wfpLastErrorCode = 0;
 							return 0;
 						}
 					}
 					else
 					{
-						m_wfpLastError = "Unexpected 'interface' attribute.";
+						m_wfpLastError = "Unknown attribute '" + attrName + "'";
 						m_wfpLastErrorCode = 0;
 						return 0;
 					}
-				}
-				else
-				{
-					m_wfpLastError = "Unknown attribute '" + attrName + "'";
-					m_wfpLastErrorCode = 0;
-					return 0;
 				}
 			}
 			else

@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -51,7 +51,7 @@ void IPosix::Idle()
 		if (start != cur)
 		{
 			LogLocal("Executable changed/upgraded, exit");
-			kill(GetCurrentProcessId(), SIGTERM);
+			KillProcess("sigterm", GetCurrentProcessId());
 		}
 	}
 
@@ -69,17 +69,10 @@ void IPosix::Do(const std::string& commandId, const std::string& command, std::m
 		{
 			std::string signal = params["signal"];
 
-			if (m_keypair.find("openvpn_" + id + "_pid") != m_keypair.end())
+			if (m_keypair.find("openvpn_pid_" + id) != m_keypair.end())
 			{
-				pid_t pid = std::atoi(m_keypair["openvpn_" + id + "_pid"].c_str());
-
-				int signalUnix = SIGINT;
-				if (signal == "sigint")
-					signalUnix = SIGINT;
-				else if (signal == "sigterm")
-					signalUnix = SIGTERM;
-
-				kill(pid, signalUnix);
+				pid_t pid = std::atoi(m_keypair["openvpn_pid_" + id].c_str());
+				KillProcess(signal, pid);				
 			}
 		}
 		else if (action == "start")
@@ -109,7 +102,7 @@ void IPosix::Do(const std::string& commandId, const std::string& command, std::m
 				char buf[1024 * 32];
 				std::streamsize n;
 
-				m_keypair["openvpn_" + id + "_pid"] = std::to_string(child.pid());
+				m_keypair["openvpn_pid_" + id] = std::to_string(child.pid());
 				ReplyCommand(commandId, "procid:" + std::to_string(child.pid()));
 
 				bool finished[2] = { false, false };
@@ -148,7 +141,7 @@ void IPosix::Do(const std::string& commandId, const std::string& command, std::m
 					Sleep(100); // 0.1 secs. TODO: Search for alternative...
 				}
 
-				m_keypair.erase("openvpn_" + id + "_pid");
+				m_keypair.erase("openvpn_pid_" + id);
 
 				child.close();
 				int status = child.rdbuf()->status();
@@ -170,17 +163,10 @@ void IPosix::Do(const std::string& commandId, const std::string& command, std::m
 		{
 			std::string signal = params["signal"];
 
-			if (m_keypair.find("hummingbird_" + id + "_pid") != m_keypair.end())
+			if (m_keypair.find("hummingbird_pid_" + id) != m_keypair.end())
 			{
-				pid_t pid = std::atoi(m_keypair["hummingbird_" + id + "_pid"].c_str());
-
-				int signalUnix = SIGINT;
-				if (signal == "sigint")
-					signalUnix = SIGINT;
-				else if (signal == "sigterm")
-					signalUnix = SIGTERM;
-
-				kill(pid, signalUnix);
+				pid_t pid = std::atoi(m_keypair["hummingbird_pid_" + id].c_str());
+				KillProcess(signal, pid);
 			}
 		}
 		else if (action == "start")
@@ -224,7 +210,7 @@ void IPosix::Do(const std::string& commandId, const std::string& command, std::m
 				char buf[1024 * 32];
 				std::streamsize n;
 
-				m_keypair["hummingbird_" + id + "_pid"] = std::to_string(child.pid());
+				m_keypair["hummingbird_pid_" + id] = std::to_string(child.pid());
 				ReplyCommand(commandId, "procid:" + std::to_string(child.pid()));
 
 				bool finished[2] = { false, false };
@@ -263,7 +249,7 @@ void IPosix::Do(const std::string& commandId, const std::string& command, std::m
 					Sleep(100); // 0.1 secs. TOFIX: alternative?
 				}
 
-				m_keypair.erase("hummingbird_" + id + "_pid");
+				m_keypair.erase("hummingbird_pid_" + id);
 
 				child.close();
 				int status = child.rdbuf()->status();
@@ -390,6 +376,17 @@ pid_t IPosix::GetProcessIdOfName(const std::string& name)
 		return atoi(pidofResult.out.c_str());
 	else
 		return 0;
+}
+
+void IPosix::KillProcess(const std::string& signal, pid_t pid)
+{
+	int signalUnix = SIGINT;
+	if (signal == "sigint")
+		signalUnix = SIGINT;
+	else if (signal == "sigterm")
+		signalUnix = SIGTERM;
+
+	kill(pid, signalUnix);
 }
 
 std::string IPosix::GetCmdlineOfProcessId(pid_t pid)

@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org )
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org )
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -64,16 +64,16 @@ namespace Eddie.UI.Cocoa.Osx
 		{
 			base.AwakeFromNib();
 
-            Window.Title = Constants.Name + " - " + LanguageManager.GetText("WindowsAboutTitle");
+            Window.Title = Constants.Name + " - " + LanguageManager.GetText(LanguageItems.WindowsAboutTitle);
 
             GuiUtils.SetButtonDefault(Window, CmdOk);
 
             CmdHomePage.Title = UiClient.Instance.Data["links"]["help"]["website"].Value as string;
             CmdSoftware.Title = UiClient.Instance.Data["links"]["help"]["general"].Value as string;
             CmdSources.Title = UiClient.Instance.Data["links"]["github"].Value as string;
-            TxtVersion.StringValue = LanguageManager.GetText("WindowsAboutVersion", Constants.VersionDesc);
+            TxtVersion.StringValue = LanguageManager.GetText(LanguageItems.WindowsAboutVersion, Constants.VersionDesc);
 
-            LblThanks.StringValue = LanguageManager.GetText("WindowsAboutThanks", Constants.Thanks);
+            LblThanks.StringValue = LanguageManager.GetText(LanguageItems.WindowsAboutThanks, Constants.Thanks);
 
             CmdHomePage.Activated += (object sender, EventArgs e) =>
 			{

@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -67,7 +67,7 @@ public:
 class IBase
 {
 private:
-	std::string m_elevatedVersion = "v1376";
+	std::string m_elevatedVersion = "v1377";
 	int m_elevatedPortDefault = 9349;
 
 	std::string m_session_key;
@@ -133,6 +133,8 @@ protected:
 	virtual std::string GetProcessPathCurrentDir();
 	virtual time_t GetProcessModTimeStart();
 	virtual time_t GetProcessModTimeCurrent();
+	
+	virtual std::vector<std::string> GetNetworkInterfacesNames();	
 
 	virtual std::string GetTempPath(const std::string& filename);
 	virtual void AddTorCookiePaths(const std::string& torPath, const std::string& username, std::vector<std::string>& result);
@@ -147,6 +149,7 @@ protected:
 	virtual pid_t GetParentProcessId(pid_t pid) = 0;
 	virtual std::string GetProcessPathOfId(pid_t pid) = 0;
 	virtual pid_t GetProcessIdOfName(const std::string& name) = 0;
+	virtual void KillProcess(const std::string& signal, pid_t pid) = 0;
 	virtual std::string GetCmdlineOfProcessId(pid_t pid) = 0;
 	virtual std::string GetWorkingDirOfProcessId(pid_t pid) = 0;
 	virtual void SetEnv(const std::string& name, const std::string& value) = 0;
@@ -155,7 +158,7 @@ protected:
 	virtual bool FsFileExists(const std::string& path) = 0;
 	virtual bool FsDirectoryExists(const std::string& path) = 0;
 	virtual bool FsFileDelete(const std::string& path) = 0;
-	virtual bool FsDirectoryDelete(const std::string& path, bool recursive) = 0;
+	virtual bool FsDirectoryDelete(const std::string& path, bool recursive) = 0;	
 	virtual bool FsFileMove(const std::string& source, const std::string& destination) = 0;
 	virtual std::string FsFileReadText(const std::string& path) = 0;
 	virtual std::vector<char> FsFileReadBytes(const std::string& path) = 0;
@@ -201,6 +204,7 @@ protected:
 	std::string StringTrim(const std::string& s);
 	std::string StringToLower(const std::string& s);	
 	std::string StringPruneCharsNotIn(const std::string& str, const std::string& allowed);
+	std::string StringDeleteLinesContain(const std::string& str, const std::string& search);
 	std::string StringEnsureAlphaNumeric(const std::string& str);
 	std::string StringEnsureHex(const std::string& str);
 	std::string StringEnsureIntegrity(const std::string& str);

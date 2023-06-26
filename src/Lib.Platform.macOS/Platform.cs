@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -38,22 +38,15 @@ namespace Eddie.Platform.MacOS
 		private string m_version = "";
 		private string m_architecture = "";
 
+		private string m_launchdPath = "/Library/LaunchDaemons/org.airvpn.eddie.ui.elevated.plist";
+
 		private List<DnsSwitchEntry> m_listDnsSwitch = new List<DnsSwitchEntry>();
 		private List<IpV6ModeEntry> m_listIpV6Mode = new List<IpV6ModeEntry>();
 
-		private string m_launchdPath = "/Library/LaunchDaemons/org.airvpn.eddie.ui.elevated.plist";
+		private string m_workaroundIpv6DnsLookupEnableInterface = "";
 
-		/*
-		private UnixSignal[] m_signals = new UnixSignal[] {
-			new UnixSignal (Mono.Unix.Native.Signum.SIGTERM),
-			new UnixSignal (Mono.Unix.Native.Signum.SIGINT),
-			new UnixSignal (Mono.Unix.Native.Signum.SIGUSR1),
-			new UnixSignal (Mono.Unix.Native.Signum.SIGUSR2),
-		};
-		*/
-
-		// Override
-		public Platform()
+        // Override
+        public Platform()
 		{
 		}
 
@@ -248,7 +241,7 @@ namespace Eddie.Platform.MacOS
             if (value)
 			{
                 processStart.FileName = "osascript";
-                processStart.Arguments = " -e 'do shell script \"" + GetElevatedHelperPath() + " service-install" + "\" with prompt \"" + UtilsString.StringSafe(LanguageManager.GetText("HelperPrivilegesPromptInstall")) + "\" with administrator privileges'";
+                processStart.Arguments = " -e 'do shell script \"" + GetElevatedHelperPath() + " service-install" + "\" with prompt \"" + UtilsString.StringSafe(LanguageManager.GetText(LanguageItems.HelperPrivilegesPromptInstall)) + "\" with administrator privileges'";
                 System.Diagnostics.Process.Start(processStart);
                 //RunProcessAsRoot(GetElevatedHelperPath(), new string[] { "service-install" }, Engine.Instance.ConsoleMode);
 				return (GetService() == true);
@@ -256,7 +249,7 @@ namespace Eddie.Platform.MacOS
 			else
 			{
                 processStart.FileName = "osascript";
-                processStart.Arguments = " -e 'do shell script \"" + GetElevatedHelperPath() + " service-uninstall" + "\" with prompt \"" + UtilsString.StringSafe(LanguageManager.GetText("HelperPrivilegesPromptUninstall")) + "\" with administrator privileges'";
+                processStart.Arguments = " -e 'do shell script \"" + GetElevatedHelperPath() + " service-uninstall" + "\" with prompt \"" + UtilsString.StringSafe(LanguageManager.GetText(LanguageItems.HelperPrivilegesPromptUninstall")) + "\" with administrator privileges'";
                 System.Diagnostics.Process.Start(processStart);
                 //RunProcessAsRoot(GetElevatedHelperPath(), new string[] { "service-uninstall" }, Engine.Instance.ConsoleMode);
                 return (GetService() == false);
@@ -374,7 +367,7 @@ namespace Eddie.Platform.MacOS
 			if (otoolPath != "")
 				return SystemExec.Exec2(otoolPath, "-L", SystemExec.EscapePath(path));
 			else
-				return "'otool' " + LanguageManager.GetText("NotFound");
+				return "'otool' " + LanguageManager.GetText(LanguageItems.NotFound);
 		}
 
 		public override string GetExecutablePathEx()
@@ -460,7 +453,7 @@ namespace Eddie.Platform.MacOS
 					// Alternate version via osascript
 					//process = new System.Diagnostics.Process();
 					//process.StartInfo.FileName = "osascript";
-					//process.StartInfo.Arguments = " -e 'do shell script \"" + path + " " + string.Join(" ", arguments) + "\" with prompt \"" + LanguageManager.GetText("HelperPrivilegesPrompt").Safe() + "\" with administrator privileges'";
+					//process.StartInfo.Arguments = " -e 'do shell script \"" + path + " " + string.Join(" ", arguments) + "\" with prompt \"" + LanguageManager.GetText(LanguageItems.HelperPrivilegesPrompt).Safe() + "\" with administrator privileges'";
 
 					// Alternate version with RootLauncher
 					// TOFIX: pending pid, create launchd don't start it (no root?)
@@ -688,7 +681,7 @@ namespace Eddie.Platform.MacOS
 		{
 			base.OnReport(report);
 
-			report.Add("ifconfig", (LocateExecutable("ifconfig") != "") ? SystemExec.Exec0(LocateExecutable("ifconfig")) : "'ifconfig' " + LanguageManager.GetText("NotFound"));
+			report.Add("ifconfig", (LocateExecutable("ifconfig") != "") ? SystemExec.Exec0(LocateExecutable("ifconfig")) : "'ifconfig' " + LanguageManager.GetText(LanguageItems.NotFound));
 		}
 
 		public override Dictionary<string, string> GetProcessesList()
@@ -719,19 +712,19 @@ namespace Eddie.Platform.MacOS
 		{
 			string networksetupPath = LocateExecutable("networksetup");
 			if (networksetupPath == "")
-				throw new Exception("'networksetup' " + LanguageManager.GetText("NotFound"));
+				throw new Exception("'networksetup' " + LanguageManager.GetText(LanguageItems.NotFound));
 			
 			string pfctlPath = LocateExecutable("pfctl");
 			if (pfctlPath == "")
-				Engine.Instance.Logs.Log(LogType.Warning, "'pfctl' " + LanguageManager.GetText("NotFound"));
+				Engine.Instance.Logs.Log(LogType.Warning, "'pfctl' " + LanguageManager.GetText(LanguageItems.NotFound));
 
 			string hostPath = LocateExecutable("host");
 			if (hostPath == "")
-				Engine.Instance.Logs.Log(LogType.Warning, "'host' " + LanguageManager.GetText("NotFound"));
+				Engine.Instance.Logs.Log(LogType.Warning, "'host' " + LanguageManager.GetText(LanguageItems.NotFound));
 
 			string psPath = LocateExecutable("ps");
 			if (psPath == "")
-				Engine.Instance.Logs.Log(LogType.Warning, "'ps' " + LanguageManager.GetText("NotFound"));
+				Engine.Instance.Logs.Log(LogType.Warning, "'ps' " + LanguageManager.GetText(LanguageItems.NotFound));
 		}
 
 		public override bool OnCheckEnvironmentSession()
@@ -822,7 +815,7 @@ namespace Eddie.Platform.MacOS
 						entry.PrefixLength = fields[5];
 						m_listIpV6Mode.Add(entry);
 
-						Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("OsMacNetworkAdapterIPv6Disabled", interfaceName));
+						Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText(LanguageItems.OsMacNetworkAdapterIPv6Disabled, interfaceName));
 					}
 				}
 			}
@@ -847,7 +840,7 @@ namespace Eddie.Platform.MacOS
 				c.Parameters["prefix"] = entry.PrefixLength;
 				Engine.Instance.Elevated.DoCommandSync(c);
 
-				Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("OsMacNetworkAdapterIPv6Restored", entry.Interface));
+				Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText(LanguageItems.OsMacNetworkAdapterIPv6Restored, entry.Interface));
 			}
 
 			m_listIpV6Mode.Clear();
@@ -883,7 +876,7 @@ namespace Eddie.Platform.MacOS
 							e.Dns = oldIPs.Addresses;
 							m_listDnsSwitch.Add(e);
 
-							Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("OsMacNetworkAdapterDnsDone", interfaceName, ((oldIPs.Count == 0) ? "Automatic" : oldIPs.Addresses), dns.Addresses));
+							Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText(LanguageItems.OsMacNetworkAdapterDnsDone, interfaceName, ((oldIPs.Count == 0) ? "Automatic" : oldIPs.Addresses), dns.Addresses));
 						}
 					}
 				}
@@ -905,7 +898,7 @@ namespace Eddie.Platform.MacOS
 
 				string result = Engine.Instance.Elevated.DoCommandSync("dns-switch-restore", "interface", e.Name, "dns", dns.ToString());
 
-				Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("OsMacNetworkAdapterDnsRestored", e.Name, ((e.Dns == "") ? "Automatic" : e.Dns)));
+				Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText(LanguageItems.OsMacNetworkAdapterDnsRestored, e.Name, ((e.Dns == "") ? "Automatic" : e.Dns)));
 			}
 
 			m_listDnsSwitch.Clear();
@@ -914,6 +907,69 @@ namespace Eddie.Platform.MacOS
 
 			base.OnDnsSwitchRestore();
 
+			return true;
+		}
+
+		public override bool OnInterfaceDo(Core.ConnectionTypes.IConnectionType connection)
+		{
+			if (Engine.Instance.ProfileOptions.GetBool("macos.ipv6.dnslookup"))
+			{
+				Core.Elevated.Command c = new Core.Elevated.Command();
+				c.Parameters["command"] = "workaround-ipv6-dns-lookup-enable";
+				c.Parameters["iface"] = connection.Interface.Name;
+				string result = Engine.Instance.Elevated.DoCommandSync(c);
+
+				string msg = "Workaround to enable IPv6 DNS lookups";
+				if (result.StartsWith("err:"))
+				{
+					// No exception, it's only a workaround.
+					Engine.Instance.Logs.LogVerbose(msg + " failed: " + result.Substring(4));
+				}
+				else if(result == "not_need_already")
+				{
+					Engine.Instance.Logs.LogVerbose(msg + " not needed, already looked AAAA records up");
+				}
+				else if (result == "not_need_noipv6")
+				{
+					Engine.Instance.Logs.LogVerbose(msg + " not needed, not IPv6");
+				}
+				else if (result == "ok")
+				{
+					Engine.Instance.Logs.LogVerbose(msg + " activated");
+					m_workaroundIpv6DnsLookupEnableInterface = connection.Interface.Name;
+                }
+				else
+				{
+					Engine.Instance.Logs.LogVerbose(msg + " unexpected result");
+				}
+			}
+			return true;
+		}
+
+		public override bool OnInterfaceRestore()
+		{
+			if (m_workaroundIpv6DnsLookupEnableInterface != "")
+			{
+				Core.Elevated.Command c = new Core.Elevated.Command();
+				c.Parameters["command"] = "workaround-ipv6-dns-lookup-disable";
+				c.Parameters["iface"] = m_workaroundIpv6DnsLookupEnableInterface;
+                string result = Engine.Instance.Elevated.DoCommandSync(c);
+
+				string msg = "Workaround for enabling IPv6 DNS lookups";
+				if (result.StartsWith("err:"))
+				{
+					// No exception, it's only a workaround.
+					Engine.Instance.Logs.LogVerbose(msg + " failed: " + result.Substring(4));
+				}
+				else if (result == "ok")
+				{
+					Engine.Instance.Logs.LogVerbose(msg + " deactivated");
+				}
+				else
+				{
+					Engine.Instance.Logs.LogVerbose(msg + " unexpected result");
+				}
+			}
 			return true;
 		}
 
@@ -1094,7 +1150,7 @@ namespace Eddie.Platform.MacOS
         {
 			return false;
 			/* // for 2.23.0
-			if (Core.Platform.Instance.GetVersion().VersionUnder("10.13")) // Hummingbird require High Sierra
+			if (Core.Platform.Instance.GetVersion().VersionUnder("10.14")) // Hummingbird require Mojave
 				return false;
 
 			return true;

@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -65,20 +65,20 @@ namespace Eddie.Forms.Controls
 			View = System.Windows.Forms.View.Details;
 
 
-			columnHeader1.Text = LanguageManager.GetText("ServersName");
+			columnHeader1.Text = LanguageManager.GetText(LanguageItems.ServersName);
 			columnHeader1.Width = 110;
-			columnHeader2.Text = LanguageManager.GetText("ServersScore");
+			columnHeader2.Text = LanguageManager.GetText(LanguageItems.ServersScore);
 			columnHeader2.Width = 66;
 			columnHeader2.TextAlign = HorizontalAlignment.Center;
-			columnHeader3.Text = LanguageManager.GetText("ServersLocation");
+			columnHeader3.Text = LanguageManager.GetText(LanguageItems.ServersLocation);
 			columnHeader3.Width = 200;
-			columnHeader4.Text = LanguageManager.GetText("ServersLatency");
+			columnHeader4.Text = LanguageManager.GetText(LanguageItems.ServersLatency);
 			columnHeader4.Width = 60;
 			columnHeader4.TextAlign = HorizontalAlignment.Center;
-			columnHeader5.Text = LanguageManager.GetText("ServersLoad");
+			columnHeader5.Text = LanguageManager.GetText(LanguageItems.ServersLoad);
 			columnHeader5.Width = 160;
 			columnHeader5.TextAlign = HorizontalAlignment.Center;
-			columnHeader6.Text = LanguageManager.GetText("ServersUsers");
+			columnHeader6.Text = LanguageManager.GetText(LanguageItems.ServersUsers);
 			columnHeader6.Width = 50;
 			columnHeader6.TextAlign = HorizontalAlignment.Center;
 

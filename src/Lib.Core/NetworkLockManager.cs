@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -79,14 +79,14 @@ namespace Eddie.Core
 			return true;
 		}
 
-		public bool Activation()
+		public bool Activation(bool skipNotify)
 		{
 			bool result = false;
 
 			try
 			{
 				if (m_current != null)
-					throw new Exception(LanguageManager.GetText("NetworkLockUnexpectedAlreadyActive"));
+					throw new Exception(LanguageManager.GetText(LanguageItems.NetworkLockUnexpectedAlreadyActive));
 
 				NetworkLockPlugin nextCurrent = null;
 
@@ -114,13 +114,20 @@ namespace Eddie.Core
 
 				if (nextCurrent == null)
 				{
-					Engine.Instance.Logs.Log(LogType.Fatal, LanguageManager.GetText("NetworkLockNoMode"));
+					Engine.Instance.Logs.Log(LogType.Fatal, LanguageManager.GetText(LanguageItems.NetworkLockNoMode));
 				}
 				else
 				{
-					string message = LanguageManager.GetText("NetworkLockActivation") + " - " + nextCurrent.GetName();
-					Engine.Instance.WaitMessageSet(message, false);
-					Engine.Instance.Logs.Log(LogType.InfoImportant, message);
+					string message = LanguageManager.GetText(LanguageItems.NetworkLockActivation) + " - " + nextCurrent.GetName();
+					if (skipNotify == false)
+					{
+						Engine.Instance.WaitMessageSet(message, false);
+						Engine.Instance.Logs.Log(LogType.InfoImportant, message);
+					}
+					else
+					{
+						Engine.Instance.Logs.Log(LogType.Verbose, message);
+					}
 
 					// This is not useless: resolve hostnames (available later as cache) before a possible lock of DNS server.
 					nextCurrent.GetIpsAllowlistOutgoing(true);
@@ -142,17 +149,17 @@ namespace Eddie.Core
 			return result;
 		}
 
-		public void Deactivation(bool onExit)
+		public void Deactivation(bool skipNotify)
 		{
 			if (m_current != null)
 			{
-				if (onExit == false)
+				if (skipNotify == false)
 				{
-					Engine.Instance.WaitMessageSet(LanguageManager.GetText("NetworkLockDeactivation"), false);
-					Engine.Instance.Logs.Log(LogType.InfoImportant, LanguageManager.GetText("NetworkLockDeactivation"));
+					Engine.Instance.WaitMessageSet(LanguageManager.GetText(LanguageItems.NetworkLockDeactivation), false);
+					Engine.Instance.Logs.Log(LogType.InfoImportant, LanguageManager.GetText(LanguageItems.NetworkLockDeactivation));
 				}
 				else
-					Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("NetworkLockDeactivation"));
+					Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText(LanguageItems.NetworkLockDeactivation));
 
 				try
 				{
@@ -230,7 +237,7 @@ namespace Eddie.Core
 			try
 			{
 				if (m_current != null)
-					throw new Exception(LanguageManager.GetText("NetworkLockRecoveryWhenActive"));
+					throw new Exception(LanguageManager.GetText(LanguageItems.NetworkLockRecoveryWhenActive));
 
 				XmlElement node = root.GetFirstElementByTagName("netlock");
 				if (node != null)
@@ -249,7 +256,7 @@ namespace Eddie.Core
 					if (m_current != null)
 						m_current.OnRecoveryLoad(node);
 					else
-						Engine.Instance.Logs.Log(LogType.Warning, LanguageManager.GetText("NetworkLockRecoveryUnknownMode"));
+						Engine.Instance.Logs.Log(LogType.Warning, LanguageManager.GetText(LanguageItems.NetworkLockRecoveryUnknownMode));
 
 					Deactivation(false);
 				}

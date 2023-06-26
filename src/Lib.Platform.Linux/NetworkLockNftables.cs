@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -63,12 +63,12 @@ namespace Eddie.Platform.Linux
 		public override void Activation()
 		{
 			base.Activation();
-
+						
 			m_supportIPv4 = Platform.Instance.GetSupportIPv4();
 			m_supportIPv6 = Platform.Instance.GetSupportIPv6();
 
 			if (m_supportIPv6 == false)
-				Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("NetworkLockLinuxIPv6NotAvailable"));
+				Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText(LanguageItems.NetworkLockLinuxIPv6NotAvailable));
 
 			try
 			{
@@ -130,6 +130,8 @@ namespace Eddie.Platform.Linux
 				if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_dhcp") == true)
 				{
 					AddRule(rules, "ipv4", "add rule ip filter INPUT ip saddr 255.255.255.255 counter accept");
+					AddRule(rules, "ipv6", "add rule ip6 filter INPUT ip6 saddr ff02::1:2 counter accept");
+					AddRule(rules, "ipv6", "add rule ip6 filter INPUT ip6 saddr ff05::1:3 counter accept");
 				}
 
 				if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_private"))
@@ -213,6 +215,8 @@ namespace Eddie.Platform.Linux
 				if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_dhcp") == true)
 				{
 					AddRule(rules, "ipv4", "add rule ip filter OUTPUT ip daddr 255.255.255.255 counter accept");
+					AddRule(rules, "ipv6", "add rule ip6 filter OUTPUT ip6 daddr ff02::1:2 counter accept");
+					AddRule(rules, "ipv6", "add rule ip6 filter OUTPUT ip6 daddr ff05::1:3 counter accept");
 				}
 
 				if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_private"))

@@ -1,18 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+  <OutputType>WinExe</OutputType>
     <TargetFramework>net6.0-windows</TargetFramework>
-    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-    <OutputType>WinExe</OutputType>
+    <Platforms>x86;x64</Platforms>    
+    <PublishSingleFile>true</PublishSingleFile>
+    <PublishReadyToRun>true</PublishReadyToRun>
+    <SelfContained>true</SelfContained>
+    <PublishTrimmed>false</PublishTrimmed>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>    
     <RootNamespace>Eddie.Forms.Windows</RootNamespace>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <UseWindowsForms>true</UseWindowsForms>
-    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
-    <Platforms>x86;x64</Platforms>
-    <PublishSingleFile>true</PublishSingleFile>
-    <SelfContained>true</SelfContained>
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-    <PublishTrimmed>false</PublishTrimmed>
-    <PublishReadyToRun>true</PublishReadyToRun>
+    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>    
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>    
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <OutputPath>bin\x86\Debug\</OutputPath>
@@ -37,7 +37,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <AssemblyName>App.Forms.Windows</AssemblyName>
+    <AssemblyName>Eddie-UI</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
     <None Update="app.manifest">
@@ -70,6 +70,6 @@
     </Compile>
   </ItemGroup>  
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="$(SolutionDir)\eddie.windows.postbuild.bat &quot;$(TargetDir)&quot; ui $(PlatformName) $(ConfigurationName)&#xD;&#xA;" />
+    <Exec Command="$(SolutionDir)\eddie.windows.postbuild.bat &quot;$(PublishDir)&quot; ui $(PlatformName) $(ConfigurationName)&#xD;&#xA;" />
   </Target>
 </Project>

@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -66,9 +66,9 @@ int IBase::AppMain(const std::vector<std::string>& args)
 	{
 		return Main();
 	}
-	catch (std::exception& e)
+	catch (std::exception& ex)
 	{
-		LogLocal("Main exception: " + std::string(e.what()));
+		LogLocal("Main exception: " + std::string(ex.what()));
 		return 1;
 	}
 	catch (...)
@@ -111,9 +111,9 @@ void IBase::MainDo(const std::string& commandId, const std::string& command, std
 			Do(commandId, command, params);
 		}
 	}
-	catch (std::exception& e)
+	catch (std::exception& ex)
 	{
-		ReplyException(commandId, "Exception: " + std::string(e.what()));
+		ReplyException(commandId, "Exception: " + std::string(ex.what()));
 	}
 	catch (...)
 	{
@@ -182,6 +182,7 @@ void IBase::LogDevDebug(const std::string& msg)
 	/*
 	std::string logPath = FsGetTempPath() + FsPathSeparator + "eddie_elevated.log";
 	logPath = "C:\\elevated.log"; // Win temp
+	logPath = "/tmp/elevated.log";
 	FILE* f = fopen(logPath.c_str(), "a");
 	fprintf(f, "%lu - PID: %d - %s%s", (unsigned long)GetTimestampUnix(), (int)GetCurrentProcessId(), msg.c_str(), FsEndLine.c_str());
 	fclose(f);
@@ -349,6 +350,7 @@ int IBase::Main()
 		if (IsStopRequested())
 			break;
 
+		m_keypair.clear();
 		m_session_key = "";
 		m_sockClient = 0;
 		struct sockaddr_in addrClient;
@@ -397,19 +399,19 @@ int IBase::Main()
 					if (clientProcessPath == "")
 						ThrowException("Client not allowed: Cannot detect client process path");
 
-					// If spot mode, must be the parent
+					// If spot mode, must be a parent
 					if (GetLaunchMode() == "spot")
 					{
-						int parentPID = GetParentProcessId();
-
-						if (clientProcessId != parentPID)
+						int parentPid = GetParentProcessId();
+						for(;;)
 						{
-							int parentPID2 = GetParentProcessId(parentPID); // Grandparent, for example if launched via 'sudo'
-
-							if (clientProcessId != parentPID2)
-							{
+							if(parentPid == 0)
 								ThrowException("Client not allowed: Connection not from parent process (spot mode)");
-							}
+							
+							if (clientProcessId == parentPid)
+								break;
+							else
+								parentPid = GetParentProcessId(parentPid);
 						}
 					}
 
@@ -543,13 +545,40 @@ int IBase::Main()
 				}
 			}
 		}
-		catch (const std::exception& e)
+		catch (const std::exception& ex)
 		{
-			LogFatal(std::string(e.what()));
+			LogFatal(std::string(ex.what()));
 		}
 		catch (...)
 		{
 			LogFatal(std::string("Unknown exception"));
+		}
+
+		// Try to close pending VPN, new in 2.23
+		// For example if UI is terminated.		
+		{			
+			for (std::map<std::string, std::string>::iterator it = m_keypair.begin(); it != m_keypair.end(); ++it)
+			{
+				std::string k = it->first;
+				std::string v = it->second;
+
+				if (StringStartsWith(k, "openvpn_pid_"))
+				{
+					pid_t pid = atoi(v.c_str());
+					KillProcess("sigint", pid);
+				}
+
+				if (StringStartsWith(k, "hummingbird_pid_"))
+				{
+					pid_t pid = atoi(v.c_str());
+					KillProcess("sigint", pid);
+				}				
+
+				if (StringStartsWith(k, "wireguard_stop_"))
+				{
+					m_keypair[k] = "stop"; // WIP
+				}
+			}
 		}
 
 		LogDebug("Client soft disconnected");
@@ -795,6 +824,13 @@ time_t IBase::GetProcessModTimeCurrent()
 	}
 }
 
+std::vector<std::string> IBase::GetNetworkInterfacesNames()
+{
+	// Overrided by linux and macos, windows enum at C#
+	std::vector<std::string> result;
+	return result;
+}
+
 std::string IBase::GetTempPath(const std::string& filename)
 {
 	return FsGetTempPath() + FsPathSeparator + "eddie_tmp_" + filename;
@@ -1021,9 +1057,30 @@ std::string IBase::StringPruneCharsNotIn(const std::string& str, const std::stri
 	return result;
 }
 
+std::string IBase::StringDeleteLinesContain(const std::string& str, const std::string& search)
+{
+	std::string n = str;
+	for(int t=0;t<1000;t++)
+	{
+		size_t p = n.find(search);
+		if (p == std::string::npos)
+			break;
+		
+		size_t pStart = n.rfind("\n", p);
+		if(pStart == std::string::npos) 
+			pStart = 0;
+		size_t pEnd = n.find("\n", p);
+		if(pEnd == std::string::npos) 
+			pEnd = n.length();
+
+		n = n.substr(0, pStart) + n.substr(pEnd);
+	}
+	return n;
+}
+
 std::string IBase::StringEnsureAlphaNumeric(const std::string& str)
 {
-	return StringPruneCharsNotIn(str, "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+	return StringPruneCharsNotIn(str, "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ");
 }
 
 std::string IBase::StringEnsureHex(const std::string& str)
@@ -1217,10 +1274,13 @@ std::map<std::string, std::string> IBase::IniConfigToMap(const std::string& ini,
 		std::string lineNormalized = *i;
 		lineNormalized = StringTrim(lineNormalized);
 
-		if (StringStartsWith(lineNormalized, ";")) // Comment in standard INI
+		// Comment in standard INI
+		if (StringStartsWith(lineNormalized, ";")) 
 			continue;
 
-		size_t posComment = lineNormalized.find("#"); // WireGuard INI consider comment any text after a #
+		// WireGuard INI consider comment any text after a #
+		// Also systemd use INI-style with # as comment
+		size_t posComment = lineNormalized.find("#"); 
 		if (posComment != std::string::npos)
 			lineNormalized = StringTrim(lineNormalized.substr(0, posComment));
 
@@ -1242,7 +1302,7 @@ std::map<std::string, std::string> IBase::IniConfigToMap(const std::string& ini,
 
 				if (convertKeyToLower)
 					key = StringToLower(key);
-
+		
 				if (result.find(key) != result.end())
 					result[key] = result[key] + "," + value;
 				else

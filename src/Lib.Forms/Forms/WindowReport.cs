@@ -1,6 +1,6 @@
 // <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -47,7 +47,7 @@ namespace Eddie.Forms.Forms
 		{
 			base.OnLoad(e);
 
-			CommonInit(LanguageManager.GetText("WindowsReportTitle"));
+			CommonInit(LanguageManager.GetText(LanguageItems.WindowsReportTitle));
 
 			CheckEnabled();
 
@@ -58,8 +58,8 @@ namespace Eddie.Forms.Forms
 				Controls.Add(m_toolTip);
 				m_toolTip.BringToFront();
 
-				m_toolTip.Connect(this.cmdCopyClipboard, LanguageManager.GetText("TooltipLogsCopy"));
-				m_toolTip.Connect(this.cmdSave, LanguageManager.GetText("TooltipLogsSave"));
+				m_toolTip.Connect(this.cmdCopyClipboard, LanguageManager.GetText(LanguageItems.TooltipLogsCopy));
+				m_toolTip.Connect(this.cmdSave, LanguageManager.GetText(LanguageItems.TooltipLogsSave));
 			}
 
 			txtBody.Text = "";
@@ -97,7 +97,7 @@ namespace Eddie.Forms.Forms
 
 			using (SaveFileDialog sd = new SaveFileDialog())
 			{
-				sd.Filter = LanguageManager.GetText("FilterTextFiles");
+				sd.Filter = LanguageManager.GetText(LanguageItems.FilterTextFiles);
 
 				if (sd.ShowDialog() == DialogResult.OK)
 				{
@@ -108,7 +108,7 @@ namespace Eddie.Forms.Forms
 						//sw.Close();	// because of "using"
 					}
 
-					GuiUtils.MessageBoxInfo(this, LanguageManager.GetText("LogsSaveToFileDone"));
+					GuiUtils.MessageBoxInfo(this, LanguageManager.GetText(LanguageItems.LogsSaveToFileDone));
 				}
 			}
 		}

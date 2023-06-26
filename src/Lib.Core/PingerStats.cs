@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -29,11 +29,11 @@ namespace Eddie.Core
 		{
 			if (Engine.Instance.IsConnected())
 			{
-				return LanguageManager.GetText("PingerStatsPending", LanguageManager.FormatTime(LatestCheckDate));
+				return LanguageManager.GetText(LanguageItems.PingerStatsPending, LanguageManager.FormatTime(LatestCheckDate));
 			}
 			else
 			{
-				return LanguageManager.GetText("PingerStatsNormal", Invalid.ToString(), LanguageManager.FormatTime(OlderCheckDate), LanguageManager.FormatTime(LatestCheckDate));
+				return LanguageManager.GetText(LanguageItems.PingerStatsNormal, Invalid.ToString(), LanguageManager.FormatTime(OlderCheckDate), LanguageManager.FormatTime(LatestCheckDate));
 			}
 		}
 	}

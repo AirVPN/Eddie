@@ -29,18 +29,18 @@ namespace Eddie.UI.Cocoa.Osx
         {
             base.AwakeFromNib();
 
-            Window.Title = Constants.Name + " - " + LanguageManager.GetText("WindowsShellExternalPermissionTitle");
+            Window.Title = Constants.Name + " - " + LanguageManager.GetText(LanguageItems.WindowsExecExternalPermissionTitle);
 
-			LblMessage.StringValue = LanguageManager.GetText("WindowsShellExternalPermissionTop", Data["path"].Value as string);
+			LblMessage.StringValue = LanguageManager.GetText(LanguageItems.WindowsExecExternalPermissionTop, Data["path"].Value as string);
 
-            CmdNo.Title = LanguageManager.GetText("WindowsShellExternalPermissionNo");
-			CmdYes.Title = LanguageManager.GetText("WindowsShellExternalPermissionYes");
-			CmdRuleSign.Title = LanguageManager.GetText("WindowsShellExternalPermissionRuleSign", Data["sign -id"].Value as string);
+            CmdNo.Title = LanguageManager.GetText(LanguageItems.WindowsExecExternalPermissionNo);
+			CmdYes.Title = LanguageManager.GetText(LanguageItems.WindowsExecExternalPermissionYes);
+			CmdRuleSign.Title = LanguageManager.GetText(LanguageItems.WindowsExecExternalPermissionRuleSign, Data["sign -id"].Value as string);
             if ((Data["sign-id"].Value as string).StartsWith("No: "))
                 GuiUtils.SetEnabled(CmdRuleSign, false);
-            CmdRuleHash.Title = LanguageManager.GetText("WindowsShellExternalPermissionRuleHash", Data["sha256"].Value as string);
-            CmdRulePath.Title = LanguageManager.GetText("WindowsShellExternalPermissionRulePath", Data["path"].Value as string);
-            CmdRuleAll.Title = LanguageManager.GetText("WindowsShellExternalPermissionRuleAll");
+            CmdRuleHash.Title = LanguageManager.GetText(LanguageItems.WindowsExecExternalPermissionRuleHash, Data["sha256"].Value as string);
+            CmdRulePath.Title = LanguageManager.GetText(LanguageItems.WindowsExecExternalPermissionRulePath, Data["path"].Value as string);
+            CmdRuleAll.Title = LanguageManager.GetText(LanguageItems.WindowsExecExternalPermissionRuleAll);
 
 			Answer = new Json();
             Answer["allow"].Value = false;

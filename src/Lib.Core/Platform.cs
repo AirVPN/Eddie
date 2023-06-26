@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -154,7 +154,7 @@ namespace Eddie.Core
 		public virtual string GetWireGuardVersionShow()
 		{
 			string v = GetWireGuardVersion();
-			if (v == "") v = LanguageManager.GetText("NotAvailable");
+			if (v == "") v = LanguageManager.GetText(LanguageItems.NotAvailable);
 			return v;
 		}
 
@@ -665,7 +665,8 @@ namespace Eddie.Core
 				{
 					p.StartInfo.FileName = FileAdaptProcessExec(path);
 					p.StartInfo.Arguments = String.Join(" ", arguments);
-					p.StartInfo.WorkingDirectory = "";
+					//p.StartInfo.WorkingDirectory = "";
+					p.StartInfo.WorkingDirectory = Path.GetDirectoryName(path); // 2.22.3
 					p.StartInfo.CreateNoWindow = true;
 					p.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
 					p.StartInfo.UseShellExecute = false;
@@ -808,7 +809,7 @@ namespace Eddie.Core
 
 		public virtual void FlushDNS()
 		{
-			Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("ConnectionFlushDNS"));
+			Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText(LanguageItems.ConnectionFlushDNS));
 
 			DnsManager.Invalidate();
 		}
@@ -835,11 +836,11 @@ namespace Eddie.Core
 
 			if ((action == "add") && (exists))
 			{
-				Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("RouteAddExists", ip.ToCIDR(true), ifaceFriendly));
+				Engine.Instance.Logs.LogVerbose(LanguageManager.GetText(LanguageItems.RouteAddExists, ip.ToCIDR(true), ifaceFriendly));
 			}
 			else if ((action == "remove") && (exists == false))
 			{
-				Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("RouteDelNotExists", ip.ToCIDR(true), ifaceFriendly));
+				Engine.Instance.Logs.LogVerbose(LanguageManager.GetText(LanguageItems.RouteDelNotExists, ip.ToCIDR(true), ifaceFriendly));
 			}
 			else
 			{
@@ -847,9 +848,9 @@ namespace Eddie.Core
 				{
 					Platform.Instance.RouteApply(jRoute, action);
 					if (action == "add")
-						Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("RouteAddDone", ip.ToCIDR(true), ifaceFriendly));
+						Engine.Instance.Logs.LogVerbose(LanguageManager.GetText(LanguageItems.RouteAddDone, ip.ToCIDR(true), ifaceFriendly));
 					else if (action == "remove")
-						Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("RouteDelDone", ip.ToCIDR(true), ifaceFriendly));
+						Engine.Instance.Logs.LogVerbose(LanguageManager.GetText(LanguageItems.RouteDelDone, ip.ToCIDR(true), ifaceFriendly));
 					// Routes, add {1} for interface {2} failed: {3}
 				}
 				catch (Exception ex)
@@ -857,83 +858,14 @@ namespace Eddie.Core
 					// RouteDelFailed
 					string msg = "";
 					if (action == "add")
-						msg = LanguageManager.GetText("RouteAddFailed", ip.ToCIDR(true), ifaceFriendly, ex.Message);
+						msg = LanguageManager.GetText(LanguageItems.RouteAddFailed, ip.ToCIDR(true), ifaceFriendly, ex.Message);
 					else
-						msg = LanguageManager.GetText("RouteDelFailed", ip.ToCIDR(true), ifaceFriendly, ex.Message);
+						msg = LanguageManager.GetText(LanguageItems.RouteDelFailed, ip.ToCIDR(true), ifaceFriendly, ex.Message);
 
 					if (action == "add") // 2.21.8 - Throw exception only on ADD
 						throw new Exception(msg);
 				}
 			}
-
-			// Old Recovery // WIP
-			/*
-			lock (m_routes)
-			{
-				bool inRecoveryList = false;
-				for (int i = 0; i < m_routes.Count; i++)
-				{
-					Json jRouteC = m_routes[i];
-					if ((jRouteC["address"].ValueString == jRoute["address"].ValueString) &&
-						(jRouteC["interface"].ValueString == jRoute["interface"].ValueString) &&
-						(jRouteC["gateway"].ValueString == jRoute["gateway"].ValueString))
-					{
-						inRecoveryList = true;
-					}
-				}
-
-				if (action == "add")
-				{
-					bool known = false;
-					for (int i = 0; i < m_routes.Count; i++)
-					{
-						Json jRouteC = m_routes[i];
-						if ((jRouteC["address"].ValueString == jRoute["address"].ValueString) &&
-							 (jRouteC["gateway"].ValueString == jRoute["gateway"].ValueString) &&
-							 (jRouteC["type"].ValueString == "removed"))
-						{
-							Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("RouteAddRemoved", new IpAddress(jRoute["address"].ValueString).ToCIDR(), jRoute["interface"].ValueString));
-							m_routes.RemoveAt(i);
-							known = true;
-							break;
-						}
-					}
-
-					if (known == false)
-					{
-						Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("RouteAddNew", new IpAddress(jRoute["address"].Value as string).ToCIDR(), jRoute["interface"].ValueString));
-						jRoute["type"].Value = "added";
-						m_routes.Add(jRoute);
-					}
-				}
-				else if (action == "remove")
-				{
-					bool known = false;
-					for (int i = 0; i < m_routes.Count; i++)
-					{
-						Json jRouteC = m_routes[i] as Json;
-						if ((jRouteC["address"].Value as string == jRoute["address"].Value as string) &&
-							 (jRouteC["gateway"].Value as string == jRoute["gateway"].Value as string) &&
-							 (jRouteC["type"].Value as string == "added"))
-						{
-							Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("RouteDelAdded", new IpAddress(jRoute["address"].Value as string).ToCIDR(), jRoute["interface"].ValueString));
-							m_routes.RemoveAt(i);
-							known = true;
-							break;
-						}
-					}
-
-					if (known == false)
-					{
-						Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("RouteDelExist", new IpAddress(jRoute["address"].Value as string).ToCIDR(), jRoute["interface"].ValueString));
-						jRoute["type"].Value = "removed";
-						m_routes.Add(jRoute);
-					}
-				}				
-
-				Recovery.Save();
-			}
-			*/
 		}
 
 		public virtual void RouteApply(Json jRoute, string action)
@@ -1188,7 +1120,7 @@ namespace Eddie.Core
 			return true;
 		}
 
-		public virtual bool OnInterfaceDo(NetworkInterface adapter)
+		public virtual bool OnInterfaceDo(ConnectionTypes.IConnectionType connection)
 		{
 			return true;
 		}
@@ -1297,7 +1229,7 @@ namespace Eddie.Core
 
 		public virtual string GetDriverVersion(string driver)
 		{
-			return LanguageManager.GetText("NotImplemented");
+			return LanguageManager.GetText(LanguageItems.NotImplemented);
 		}
 
 		public virtual void OpenVpnEnsureInterface(string driver, string ifaceName)

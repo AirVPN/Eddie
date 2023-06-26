@@ -1,6 +1,6 @@
 // <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -38,7 +38,7 @@
 
 #ifndef EDDIE_NOLZMA
 #include "loadmod.h"
-#endif
+#endif 
 */
 
 #include "impl.h"
@@ -59,6 +59,8 @@ int Impl::Main()
 	signal(SIGHUP, SIG_IGN); // Signal of reboot, ignore, container will manage it
 
 	prctl(PR_SET_PDEATHSIG, SIGHUP); // Any child process will be killed if this process died, Linux specific
+
+	m_hasSystemdResolved = (ExecEx3("systemctl", "is-active", "--quiet", "systemd-resolved").exit == 0);
 
 	return IPosix::Main();
 }
@@ -115,6 +117,19 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 
 			if ((servicePath != "") && (systemctlPath != ""))
 			{
+				for (std::vector<std::string>::const_iterator iS = services.begin(); iS != services.end(); ++iS)
+				{
+					std::string service = *iS;
+
+					if (ExecEx3("systemctl", "is-active", "--quiet", StringEnsureFileName(service)).exit == 0)
+					{
+						LogRemote("Flush DNS - " + service + " restart via systemctl");
+						ExecEx2(servicePath, StringEnsureFileName(service), "restart");
+						restarted[service] = 1;
+					}	
+				}
+
+				/* < 2.23.0
 				ExecResult systemCtlListUnits = ExecEx2(systemctlPath, "list-units", "--no-pager");
 				if (systemCtlListUnits.exit != 0)
 				{
@@ -132,20 +147,25 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 							if (StringContain(line, " running ") == false)
 								continue;
 
-							LogRemote("Flush DNS - " + service + " via systemd");
+							LogRemote("Flush DNS - " + service + " via systemd restart");
 							ExecEx2(servicePath, StringEnsureFileName(service), "restart");
 							restarted[service] = 1;
 						}
 					}
 				}
+				*/
 			}
 
-			// Special case - Not need, restarted above
-			/*
-			std::string systemdResolvePath = FsLocateExecutable("systemd-resolve");
-			if (systemdResolvedPath != "")
-				ExecOut1(systemdResolvedPath, "--flush-caches");
-			*/
+			// systemd-resolved
+			if(m_hasSystemdResolved)
+			{
+				std::string resolvectlPath = FsLocateExecutable("resolvectl");
+				if (resolvectlPath != "")
+				{
+					LogRemote("Flush DNS - systemd-resolved flush-caches");
+					ExecEx1(resolvectlPath, "flush-caches");
+				}
+			}
 		}
 
 		// InitD
@@ -157,7 +177,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 				{
 					if (FsFileExists("/etc/init.d/" + service))
 					{
-						LogRemote("Flush DNS - " + service + " via init.d");
+						LogRemote("Flush DNS - " + service + " restart via init.d");
 						ExecEx1("/etc/init.d/" + service, "restart");
 					}
 				}
@@ -189,51 +209,258 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 
 		ReplyCommand(commandId, "1");
 	}
-	else if (command == "dns-switch-rename-do")
+	else if (command == "dns-switch-do")
 	{
-		if (FsFileExists("/etc/resolv.conf") == false)
-			ThrowException("/etc/resolv.conf missing, unexpected.");
-		
-		std::string expected = params["text"];
+		bool success = false;
 
-		bool update = false;
-		if (FsFileExists("/etc/resolv.conf.eddie") == false)
-			update = true;
-		else
-		{
-			std::string current = FsFileReadText("/etc/resolv.conf");
-			if (current != expected)
-				update = true;
-		}
+		bool check = false;
+		if (params.find("check") != params.end()) // Note: called also periodically
+			check = true;
 
-		if (update)
+		std::vector<std::string> dns = StringToVector(params["dns"], ',');
+
+		if(m_hasSystemdResolved)
 		{
-			if (FsFileExists("/etc/resolv.conf.eddie") == false)
+			std::string resolvectlPath = FsLocateExecutable("resolvectl");
+			if (resolvectlPath != "")
 			{
-				if (FsFileMove("/etc/resolv.conf", "/etc/resolv.conf.eddie") == false)
-					ThrowException("Move fail");
+				std::string resolveNetifPath = "/run/systemd/resolve/netif";
+				if(FsDirectoryExists(resolveNetifPath))
+				{
+					std::vector<std::string> interfaces = GetNetworkInterfacesNames();
+
+					int iFaceIndex = 0;
+					for (std::vector<std::string>::const_iterator iIFace = interfaces.begin(); iIFace != interfaces.end(); ++iIFace)
+					{
+						std::string interface = (*iIFace);
+						iFaceIndex++;
+
+						if(interface == "lo") continue;
+						if(interface == "lo0") continue;
+
+						bool actionPerformed = false;
+
+						std::string expectedServers = StringFromVector(dns, " ");
+						std::string expectedDefaultRoute = StringStartsWith(interface, "tun") ? "yes":"no";
+
+						std::string servers;
+						std::string defaultRoute;
+
+						std::string resolveNetifAdapterPath = resolveNetifPath + FsPathSeparator + std::to_string(iFaceIndex);
+						if(FsFileExists(resolveNetifAdapterPath))
+						{
+							if(check == false)
+							{
+								// Backup at start
+								std::string resolveNetifAdapterBackupPath = "/etc/systemd_resolve_netif_" + interface + ".eddievpn";								
+								if(FsFileExists(resolveNetifAdapterBackupPath) == false)
+								{
+									FsFileWriteText(resolveNetifAdapterBackupPath, FsFileReadText(resolveNetifAdapterPath));
+								}
+							}	
+
+							std::map<std::string, std::string> resolveNetIfMap = IniConfigToMap(FsFileReadText(resolveNetifAdapterPath), "", true);
+							if (resolveNetIfMap.find("servers") != resolveNetIfMap.end())
+								servers = resolveNetIfMap["servers"];
+							if (resolveNetIfMap.find("default_route") != resolveNetIfMap.end())
+								defaultRoute = resolveNetIfMap["default_route"];							
+						}
+
+						if(servers != expectedServers)
+						{
+							std::vector<std::string> args;
+							args.push_back("dns");
+							args.push_back(StringEnsureInterfaceName(interface));
+							
+							for (std::vector<std::string>::const_iterator iDns = dns.begin(); iDns != dns.end(); ++iDns)
+							{
+								args.push_back(StringEnsureIpAddress(*iDns));
+							}
+							ExecResult execResultDns = ExecEx(resolvectlPath, args);
+							if (execResultDns.exit != 0)
+								ThrowException("resolvectl issue: " + GetExecResultDump(execResultDns));
+
+							actionPerformed = true;
+						}
+
+						if(defaultRoute != expectedDefaultRoute)
+						{
+							std::vector<std::string> args;
+							args.push_back("default-route");
+							args.push_back(StringEnsureInterfaceName(interface));
+							args.push_back(StringStartsWith(interface, "tun") ? "true":"false");
+							ExecResult execResultDefaultRoute = ExecEx(resolvectlPath, args);
+							if (execResultDefaultRoute.exit != 0)
+								ThrowException("resolvectl issue: " + GetExecResultDump(execResultDefaultRoute));
+
+							actionPerformed = true;
+						}
+
+						if(actionPerformed)
+						{
+							LogRemote("DNS of the interface '" + interface + "' switched to VPN DNS - via systemd-resolved");
+							success = true;
+						}
+					}
+				}
+				else
+				{
+					LogRemote("Detected systemd-resolved active, but " + resolveNetifPath + " missing. Unexpected.");
+				}
 			}
-
-			if (FsFileWriteText("/etc/resolv.conf", expected) == false)
-				ThrowException("Write fail");
-			chmod("/etc/resolv.conf", S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-
-			ReplyCommand(commandId, "1");
+			else
+			{
+				LogRemote("Detected systemd-resolved active, but resolvectl missing. Unexpected.");
+			}
 		}
-		else
-			ReplyCommand(commandId, "0");
+		
+		//if(success == false) // Done anyway
+		{
+			if (FsFileExists("/etc/resolv.conf")) // /etc/resolv.conf method
+			{
+				std::string resolvConfExpected = "";
+				resolvConfExpected += "#\n";
+				resolvConfExpected += "# Created by Eddie. Do not edit.\n";
+				resolvConfExpected += "#\n";
+				resolvConfExpected += "# Your resolv.conf file is temporarily backed up in /etc/resolv.conf.eddievpn\n";
+				resolvConfExpected += "# To restore your resolv.conf file you need to log in as root\n";
+				resolvConfExpected += "# and execute the below command from the shell:\n";
+				resolvConfExpected += "#\n";
+				resolvConfExpected += "# mv /etc/resolv.conf.eddievpn /etc/resolv.conf\n";
+				resolvConfExpected += "#\n";
+
+				for (std::vector<std::string>::const_iterator iDns = dns.begin(); iDns != dns.end(); ++iDns)
+				{
+					resolvConfExpected += "nameserver " + (*iDns) + "\n";
+				}
+				resolvConfExpected += "\n\n";
+				
+				bool update = false;
+				if (FsFileExists("/etc/resolv.conf.eddievpn") == false)
+					update = true;
+				else
+				{
+					std::string current = FsFileReadText("/etc/resolv.conf");
+					if (current != resolvConfExpected)
+						update = true;
+				}
+
+				if (update)
+				{
+					if (FsFileExists("/etc/resolv.conf.eddievpn") == false)
+					{
+						if (FsFileMove("/etc/resolv.conf", "/etc/resolv.conf.eddievpn") == false)
+							ThrowException("resolv.conf move fail");
+					}
+
+					if (FsFileWriteText("/etc/resolv.conf", resolvConfExpected) == false)
+						ThrowException("resolv.conf write fail");
+					chmod("/etc/resolv.conf", S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+
+					LogRemote("DNS of the system switched to VPN DNS - via /etc/resolv.conf)");
+
+					success = true;
+				}			
+			}
+		}
+
+		// 
+		//ExecEx2(servicePath, StringEnsureFileName(service), "restart");
+		
+		ReplyCommand(commandId, success ? "1":"0");
 	}
-	else if (command == "dns-switch-rename-restore")
+	else if (command == "dns-switch-restore")
 	{
-		if (FsFileExists("/etc/resolv.conf.eddie"))
+		bool success = false;
+
+		if (FsFileExists("/etc/resolv.conf.eddievpn")) // /etc/resolv.conf method
 		{
 			if (FsFileExists("/etc/resolv.conf"))
 				FsFileDelete("/etc/resolv.conf");
-			FsFileMove("/etc/resolv.conf.eddie", "/etc/resolv.conf");
-			ReplyCommand(commandId, "1");
+			FsFileMove("/etc/resolv.conf.eddievpn", "/etc/resolv.conf");
+			LogRemote("DNS of the system restored - via /etc/resolv.conf)");
+			success = true;			
 		}
-		else
-			ReplyCommand(commandId, "0");
+		
+		if (ExecEx3("systemctl", "is-active", "--quiet", "systemd-resolved").exit == 0) // systemd-resolved active
+		{
+			// First, restart, otherwise don't see the resolv.conf switch
+			std::string servicePath = FsLocateExecutable("service");
+			if(servicePath != "")
+			{
+				ExecEx2(servicePath, StringEnsureFileName("systemd-resolved"), "restart");
+				LogRemote("systemd-resolved restarted");
+			}
+
+			std::string resolvectlPath = FsLocateExecutable("resolvectl");
+			if (resolvectlPath != "")
+			{
+				std::vector<std::string> interfaces = GetNetworkInterfacesNames();
+
+				int iFaceIndex = 0;
+				for (std::vector<std::string>::const_iterator iIFace = interfaces.begin(); iIFace != interfaces.end(); ++iIFace)
+				{
+					std::string interface = (*iIFace);
+					iFaceIndex++;
+
+					if(interface == "lo") continue;
+					if(interface == "lo0") continue;
+
+					std::string resolveNetifAdapterBackupPath = "/etc/systemd_resolve_netif_" + interface + ".eddievpn";
+
+					if(FsFileExists(resolveNetifAdapterBackupPath))
+					{
+						std::map<std::string, std::string> resolveNetIfMap = IniConfigToMap(FsFileReadText(resolveNetifAdapterBackupPath), "", true);
+
+						if (resolveNetIfMap.find("servers") != resolveNetIfMap.end())
+						{
+							std::vector<std::string> args;
+							args.push_back("dns");
+							args.push_back(StringEnsureInterfaceName(interface));
+							args.push_back(resolveNetIfMap["servers"]);							
+							ExecResult execResultDns = ExecEx(resolvectlPath, args);
+							// No exception if fail
+							//if (execResultDns.exit != 0)
+							//	ThrowException("resolvectl issue: " + GetExecResultDump(execResultDns));
+						}
+
+						if (resolveNetIfMap.find("default_route") != resolveNetIfMap.end())
+						{
+							std::vector<std::string> args;
+							args.push_back("default-route");
+							args.push_back(StringEnsureInterfaceName(interface));
+							args.push_back((resolveNetIfMap["default_route"] == "yes") ? "yes":"no");
+							ExecResult execResultDefaultRoute = ExecEx(resolvectlPath, args);
+							// No exception if fail
+							//if (execResultDefaultRoute.exit != 0)
+							//	ThrowException("resolvectl issue: " + GetExecResultDump(execResultDefaultRoute));
+						}
+
+						FsFileDelete(resolveNetifAdapterBackupPath);
+
+						LogRemote("DNS of the interface '" + interface + "' restored - via systemd-resolved");
+					}
+					/*
+					else
+					{
+						std::vector<std::string> args;
+						args.push_back("revert");
+						args.push_back(StringEnsureInterfaceName(interface));
+						ExecResult execResultRevert = ExecEx(resolvectlPath, args);
+						// No exception if fail
+						//if (execResultRevert.exit != 0)
+						//	ThrowException("resolvectl issue: " + GetExecResultDump(execResultRevert));						
+
+						LogRemote("DNS of the interface '" + interface + "' restored - via systemd-resolved, revert");
+					}
+					*/
+
+					success = true;
+				}
+			}
+		}
+		
+		ReplyCommand(commandId, success ? "1":"0");
 	}
 	else if (command == "ipv6-block")
 	{
@@ -246,6 +473,9 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 				continue;
 
 			if (interfaceName == "lo")
+				continue;
+
+			if (interfaceName == "lo0")
 				continue;
 
 			std::string curVal = StringTrim(FsFileReadText("/proc/sys/net/ipv6/conf/" + interfaceName + "/disable_ipv6"));
@@ -289,7 +519,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 	{
 		std::string result = "";
 		
-		if(true)
+		if (true)
 		{
 			/*
 			// Try to up kernel module
@@ -320,17 +550,17 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 
 		std::string path = FsLocateExecutable("nft", false);
 
-		if(path == "")
+		if (path == "")
 			available = false;
 
-		if(available)
+		if (available)
 		{
 			// Test
 			ExecResult result = ExecEx2(path, "list", "ruleset");
 			if (result.exit != 0)
 				available = false;
 
-			if(StringTrim(result.err) != "")
+			if (StringTrim(result.err) != "")
 				available = false;
 		}
 
@@ -381,101 +611,27 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 			if (execResultFlush.exit != 0)
 				ThrowException("nft issue: " + GetExecResultDump(execResultFlush));
 
+			if (true)
+			{
+				// There is a bug in iptables-translate, discussed here: https://forums.debian.net/viewtopic.php?t=153296
+				// We need to clean rules that trigger a "syntax error" before restore, waiting for a better fix (not related to Eddie, seem related to ip6tables-translate).
+				std::string body = FsFileReadText(path);
+				std::string source = body;
+		
+				body = StringDeleteLinesContain(body, "type  ip6");
+				body = StringDeleteLinesContain(body, "type  counter");
+
+				if (body != source)
+					FsFileWriteText(path, body);
+			}
+
 			ExecResult execResultRestore = ExecEx2(nft, "-f", path);
 			FsFileDelete(path);
 
 			if (execResultRestore.exit != 0)
 				ThrowException("nft issue: " + GetExecResultDump(execResultRestore));
 		}
-	}
-	/* if (command == "netlock-nftables-accept-ip") // Pre 2.21.5
-	{
-		std::string nft = FsLocateExecutable("nft");
-
-		std::vector<std::string> args1;
-		std::vector<std::string> args2;
-		int nCommands = 1;
-
-		if (params["action"] == "add")
-		{
-			args1.push_back("insert");
-		}
-		else if (params["action"] == "del")
-		{
-			args1.push_back("del");
-		}
-		else
-			ThrowException("Unknown action");
-
-		args1.push_back("rule");
-
-		if (params["layer"] == "ipv4")
-			args1.push_back("ip");
-		else if (params["layer"] == "ipv6")
-			args1.push_back("ip6");
-		else
-			ThrowException("Unknown layer");
-
-		args1.push_back("filter");
-		if (params["direction"] == "in")
-			args1.push_back("INPUT");
-		else if (params["direction"] == "out")
-			args1.push_back("OUTPUT");
-		else
-			ThrowException("Unknown direction");
-
-		if (params["layer"] == "ipv4")
-			args1.push_back("ip");
-		else if (params["layer"] == "ipv6")
-			args1.push_back("ip6");
-		else
-			ThrowException("Unknown layer");
-
-		if (params["direction"] == "in")
-			args1.push_back("saddr");
-		else if (params["direction"] == "out")
-			args1.push_back("daddr");
-		else
-			ThrowException("Unknown direction");
-
-		args1.push_back(StringEnsureCidr(params["cidr"]));
-
-		// Additional rule for incoming
-		if (params["direction"] == "in")
-		{
-			nCommands++;
-
-			args2 = args1;
-
-			args2.push_back("ct");
-			args2.push_back("state");
-			args2.push_back("established");
-			args2.push_back("counter");
-			args2.push_back("accept");
-		}
-
-		args1.push_back("counter");
-		args1.push_back("accept");
-
-		std::string output = "";
-
-		for (int l = 0; l < nCommands; l++)
-		{
-			std::vector<std::string>* args;
-			if (l == 0)
-				args = &args1;
-			else
-				args = &args2;
-
-			ExecResult execResultRule = ExecEx(nft, *args);
-			if (execResultRule.exit != 0)
-				ThrowException("nft issue: " + GetExecResultDump(execResultRule));
-
-			output += GetExecResultDump(execResultRule) + "\n";
-		}
-
-		ReplyCommand(commandId, StringTrim(output));
-	}*/
+	}	
 	else if (command == "netlock-nftables-accept-ip")
 	{
 		std::string nft = FsLocateExecutable("nft");
@@ -504,11 +660,11 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 
 		if (params["action"] == "add")
 		{
-			if(true)
+			if (true)
 			{
 				std::string commentSearch = "eddie_" + layer + "_filter_" + filter + "_latest_rule";
 				std::string handle = NftablesSearchHandle(execRulesList.out, commentSearch);
-				if(handle == "")
+				if (handle == "")
 					ThrowException("nft issue: expected rule with comment '" + commentSearch + "' not found");
 
 				std::vector<std::string> args;
@@ -549,7 +705,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 			{
 				std::string commentSearch = "eddie_" + layer + "_filter_OUTPUT_latest_rule";
 				std::string handle = NftablesSearchHandle(execRulesList.out, commentSearch);
-				if(handle == "")
+				if (handle == "")
 					ThrowException("nft issue: expected rule with comment '" + commentSearch + "' not found");
 
 				std::vector<std::string> args;
@@ -590,11 +746,11 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 		}
 		else if (params["action"] == "del")
 		{
-			if(true)
+			if (true)
 			{
 				std::string commentSearch = params["layer"] + "_" + params["direction"] + "_" + params["cidr"] + "_1";
 				std::string handle = NftablesSearchHandle(execRulesList.out, "eddie_ip_" + StringSHA256(commentSearch));
-				if(handle != "") // Already removed?
+				if (handle != "") // Already removed?
 				{
 					std::vector<std::string> args;
 					args.push_back("delete");
@@ -614,7 +770,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 			{
 				std::string commentSearch = params["layer"] + "_" + params["direction"] + "_" + params["cidr"] + "_2";
 				std::string handle = NftablesSearchHandle(execRulesList.out, "eddie_ip_" + StringSHA256(commentSearch));
-				if(handle != "") // Already removed?
+				if (handle != "") // Already removed?
 				{
 					std::vector<std::string> args;
 					args.push_back("delete");
@@ -646,9 +802,9 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 		std::string action = params["action"];
 		
 		std::vector<std::string> layers;
-		if(params["ipv4"] == "1")
+		if (params["ipv4"] == "1")
 			layers.push_back("ip");
-		if(params["ipv6"] == "1")
+		if (params["ipv6"] == "1")
 			layers.push_back("ip6");
 
 		std::vector<std::string> filters;
@@ -664,11 +820,11 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 			{
 				std::string filter = *f;
 
-				if(action == "add")
+				if (action == "add")
 				{
 					std::string commentSearch = "eddie_" + layer + "_filter_" + filter + "_latest_rule";
 					std::string handle = NftablesSearchHandle(execRulesList.out, commentSearch);
-					if(handle == "")
+					if (handle == "")
 						ThrowException("nft issue: expected rule with comment '" + commentSearch + "' not found");
 
 					std::vector<std::string> args;					
@@ -679,11 +835,11 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 					args.push_back(filter);
 					args.push_back("position");
 					args.push_back(handle);					
-					if(filter == "INPUT")
+					if (filter == "INPUT")
 						args.push_back("iifname");
-					else if(filter == "FORWARD")
+					else if (filter == "FORWARD")
 						args.push_back("iifname");
-					else if(filter == "OUTPUT")
+					else if (filter == "OUTPUT")
 						args.push_back("oifname");
 					args.push_back(id);					
 					args.push_back("counter");
@@ -695,11 +851,11 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 					if (execRule.exit != 0)
 						ThrowException("nft issue: " + GetExecResultDump(execRule));
 				}
-				else if(action == "del")
+				else if (action == "del")
 				{
 					std::string commentSearch = "eddie_" + layer + "_filter_" + filter + "_interface_" + id;
 					std::string handle = NftablesSearchHandle(execRulesList.out, commentSearch);
-					if(handle != "") // Already removed?
+					if (handle != "") // Already removed?
 					{
 						std::vector<std::string> args;
 						args.push_back("delete");
@@ -730,7 +886,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 		actions.push_back("restore");
 
 		// Try to up kernel module - Some distro don't have it loaded by default
-		if(true)
+		if (true)
 		{
 			/*
 #ifndef EDDIE_NOLZMA
@@ -756,7 +912,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 			*/
 		}
 
-		if(true)
+		if (true)
 		{
 			/*
 #ifndef EDDIE_NOLZMA
@@ -792,13 +948,13 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 				std::string action = *a;
 				
 				std::string path = IptablesExecutable(compatibility, layer, action);
-				if(path == "")
+				if (path == "")
 					available = false;
 			}
 
-			if(available)
+			if (available)
 			{
-				if(true)
+				if (true)
 				{
 					// In some distro, for example Pop, even modprobe don't load module, so the iptables-save below return empty.
 					// Test insert/delete a useless rule.
@@ -807,9 +963,9 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 					args[0] = "-A";
 					args[1] = "INPUT";
 					args[2] = "-s";
-					if(layer == "ipv4")
+					if (layer == "ipv4")
 						args[3] = "127.0.0.1";
-					else if(layer == "ipv6")
+					else if (layer == "ipv6")
 						args[3] = "::1";
 					args[4] = "-p";
 					args[5] = "tcp";
@@ -819,28 +975,28 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 					args[9] = "ACCEPT";
 					
 					ExecResult resultI = ExecEx(IptablesExecutable(compatibility, layer, ""), args);
-					if(resultI.exit != 0)
+					if (resultI.exit != 0)
 						available = false;
 					args[0] = "-D";
 					ExecResult resultD = ExecEx(IptablesExecutable(compatibility, layer, ""), args);
-					if(resultD.exit != 0)
+					if (resultD.exit != 0)
 						available = false;
 				}
 				
 				// Test save
 				ExecResult result = ExecEx0(IptablesExecutable(compatibility, layer, "save"));
-				if(result.exit != 0)
+				if (result.exit != 0)
 					available = false;
 
 				// ex. -legacy tables present
-				if(StringTrim(result.err) != "")
+				if (StringTrim(result.err) != "")
 					available = false;
 								
-				if(StringContain(result.out, "*filter") == false)
+				if (StringContain(result.out, "*filter") == false)
 					available = false;
 			}
 			
-			if(available)
+			if (available)
 				result += layer + ";";
 		}
 
@@ -1025,15 +1181,15 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 		std::string action = params["action"];
 		
 		std::vector<std::string> layers;
-		if(params["ipv4"] == "1")
+		if (params["ipv4"] == "1")
 			layers.push_back("ipv4");
-		if(params["ipv6"] == "1")
+		if (params["ipv6"] == "1")
 			layers.push_back("ipv6");
 		
 		for (std::vector<std::string>::const_iterator l = layers.begin(); l != layers.end(); ++l)
 		{
 			std::string layer = *l;
-			if(action == "add")
+			if (action == "add")
 			{
 				std::vector<std::string> args;
 				args.push_back("-I");
@@ -1056,7 +1212,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 				args[3] = "-o";
 				IptablesExec(IptablesExecutable(compatibility, layer,""), args, false, "");
 			}
-			else if(action == "del")
+			else if (action == "del")
 			{
 				std::vector<std::string> args;
 				args.push_back("-D");
@@ -1474,6 +1630,26 @@ bool Impl::ServiceUninstall()
 	return 0;
 }
 
+std::vector<std::string> Impl::GetNetworkInterfacesNames()
+{
+	// This code compile under macOS, but return nothing. Different approach.
+	std::vector<std::string> result;
+
+	struct if_nameindex *ifndx, *iface;
+	ifndx = if_nameindex();
+	if (ifndx != NULL )
+	{
+		for(iface = ifndx; iface->if_index != 0 || iface->if_name != NULL; iface++)
+		{
+			result.push_back(iface->if_name);
+		}
+
+		if_freenameindex(ifndx);
+	}
+
+	return result;
+}
+
 std::string Impl::CheckIfClientPathIsAllowed(const std::string& path)
 {
 	// Missing under Linux: in other platform (Windows, macOS) check if signature of client match.
@@ -1594,7 +1770,7 @@ std::string Impl::IptablesExecutable(const std::string& compatibility, const std
 	else
 		return "";
 
-	if(compatibility != "") // can be "" or "nft" or "legacy"
+	if (compatibility != "") // can be "" or "nft" or "legacy"
 		name += "-" + compatibility;
 
 	if (action != "")

@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org )
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org )
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -69,7 +69,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 			Accepted = false;
 
-			Window.Title = Constants.Name + " - " + LanguageManager.GetText("WindowsTosTitle");
+			Window.Title = Constants.Name + " - " + LanguageManager.GetText(LanguageItems.WindowsTosTitle);
 
 			GuiUtils.SetButtonCancel(Window, CmdCancel);
             GuiUtils.SetButtonDefault(Window, CmdAccept);
@@ -78,10 +78,10 @@ namespace Eddie.UI.Cocoa.Osx
             /*
             TxtTos.Value = Core.UI.App.GetTos();
             */
-			ChkTos1.Title = LanguageManager.GetText("WindowsTosCheck1");
-			ChkTos2.Title = LanguageManager.GetText("WindowsTosCheck2");
-			CmdAccept.Title = LanguageManager.GetText("WindowsTosAccept");
-			CmdCancel.StringValue = LanguageManager.GetText("WindowsTosReject");
+			ChkTos1.Title = LanguageManager.GetText(LanguageItems.WindowsTosCheck1);
+			ChkTos2.Title = LanguageManager.GetText(LanguageItems.WindowsTosCheck2);
+			CmdAccept.Title = LanguageManager.GetText(LanguageItems.WindowsTosAccept);
+			CmdCancel.StringValue = LanguageManager.GetText(LanguageItems.WindowsTosReject);
 
 			bool tosAccepted = Engine.Instance.ProfileOptions.GetBool("gui.tos");
 			ChkTos1.State = (tosAccepted ? NSCellStateValue.On : NSCellStateValue.Off);

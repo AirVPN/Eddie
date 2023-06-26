@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -123,34 +123,31 @@ namespace Eddie.Core
 			}
 		}
 
-		public static string GetText(string id)
+		public static string GetText(LanguageItems id)
 		{
-			string tempString = GetTextTemp(id);
-			if (tempString != "")
-				return tempString;
-
+			string idStr = id.ToString();
 			CultureInfo currentCulture = Culture;
 			for (; ; )
 			{
 				string code = GetCodeFromCulture(currentCulture);
 
-				if ((Messages.ContainsKey(code)) && (Messages[code].ContainsKey(id)))
-					return Messages[code][id];
+				if ((Messages.ContainsKey(code)) && (Messages[code].ContainsKey(idStr)))
+					return Messages[code][idStr];
 
 				if (code == "inv")
-					return "{lang:" + id + "}"; // Not Found
+					return "{lang:" + idStr + "}"; // Not Found
 
 				currentCulture = currentCulture.Parent;
 			}
 		}
 
-		public static string GetText(string id, string param1)
+		public static string GetText(LanguageItems id, string param1)
 		{
 			string format = GetText(id);
 			return format.Replace("{1}", param1);
 		}
 
-		public static string GetText(string id, string param1, string param2)
+		public static string GetText(LanguageItems id, string param1, string param2)
 		{
 			string format = GetText(id);
 			string o = format;
@@ -159,7 +156,7 @@ namespace Eddie.Core
 			return o;
 		}
 
-		public static string GetText(string id, string param1, string param2, string param3)
+		public static string GetText(LanguageItems id, string param1, string param2, string param3)
 		{
 			string format = GetText(id);
 			string o = format;
@@ -169,7 +166,7 @@ namespace Eddie.Core
 			return o;
 		}
 
-		public static string GetText(string id, string param1, string param2, string param3, string param4)
+		public static string GetText(LanguageItems id, string param1, string param2, string param3, string param4)
 		{
 			string format = GetText(id);
 			string o = format;
@@ -180,7 +177,7 @@ namespace Eddie.Core
 			return o;
 		}
 
-		public static string GetText(string id, string param1, string param2, string param3, string param4, string param5)
+		public static string GetText(LanguageItems id, string param1, string param2, string param3, string param4, string param5)
 		{
 			string format = GetText(id);
 			string o = format;
@@ -208,11 +205,11 @@ namespace Eddie.Core
 			string o = "";
 			Int64 now = Utils.UnixTimeStamp();
 			if (unix == now)
-				o = GetText("TimeJustNow");
+				o = GetText(LanguageItems.TimeJustNow);
 			else if (unix < now)
-				o = FormatSeconds(now - unix) + " " + GetText("TimeAgo");
+				o = FormatSeconds(now - unix) + " " + GetText(LanguageItems.TimeAgo);
 			else
-				o = FormatSeconds(unix - now) + " " + GetText("TimeRemain");
+				o = FormatSeconds(unix - now) + " " + GetText(LanguageItems.TimeRemain);
 			return o;
 		}
 
@@ -316,13 +313,6 @@ namespace Eddie.Core
 		public static string FormatDateShort(DateTime dt)
 		{
 			return dt.ToShortDateString() + " - " + dt.ToShortTimeString();
-		}
-
-		public static string GetTextTemp(string id)
-		{
-			// Hardcoded string that need to be moved in language system			            
-
-			return "";
 		}
 	}
 }

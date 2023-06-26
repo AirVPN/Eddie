@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org )
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org )
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -68,7 +68,7 @@ namespace Eddie.UI.Cocoa.Osx
 		{
 			base.AwakeFromNib();
 
-			Window.Title = Constants.Name + " - " + LanguageManager.GetText("WindowsReportTitle");
+			Window.Title = Constants.Name + " - " + LanguageManager.GetText(LanguageItems.WindowsReportTitle);
 
 			GuiUtils.SetButtonCancel(Window, CmdClose);
             GuiUtils.SetButtonDefault(Window, CmdSave);
@@ -86,7 +86,7 @@ namespace Eddie.UI.Cocoa.Osx
 				string[] pboardTypes = new string[] { "NSStringPboardType" };
 				NSPasteboard.GeneralPasteboard.DeclareTypes(pboardTypes, null);
 				NSPasteboard.GeneralPasteboard.SetStringForType(t, pboardTypes[0]);
-				GuiUtils.MessageBoxInfo(LanguageManager.GetText("LogsCopyClipboardDone"));
+				GuiUtils.MessageBoxInfo(LanguageManager.GetText(LanguageItems.LogsCopyClipboardDone));
 			};
 
 			CmdUpload.Activated += (object sender, EventArgs e) =>
@@ -101,7 +101,7 @@ namespace Eddie.UI.Cocoa.Osx
 					string[] pboardTypes = new string[] { "NSStringPboardType" };
 					NSPasteboard.GeneralPasteboard.DeclareTypes(pboardTypes, null);
 					NSPasteboard.GeneralPasteboard.SetStringForType(url, pboardTypes[0]);
-					GuiUtils.MessageBoxInfo(LanguageManager.GetText("LogsCopyClipboardDone"));
+					GuiUtils.MessageBoxInfo(LanguageManager.GetText(LanguageItems.LogsCopyClipboardDone));
 				}
 			};
 
@@ -116,12 +116,12 @@ namespace Eddie.UI.Cocoa.Osx
 				{
                     Core.Platform.Instance.FileContentsWriteText(panel.Url.Path, t, System.Text.Encoding.UTF8);
 
-					GuiUtils.MessageBoxInfo(LanguageManager.GetText("LogsSaveToFileDone"));
+					GuiUtils.MessageBoxInfo(LanguageManager.GetText(LanguageItems.LogsSaveToFileDone));
 				}
 			};
 
-			CmdCopyClipboard.ToolTip = LanguageManager.GetText("TooltipLogsCopy");
-			CmdSave.ToolTip = LanguageManager.GetText("TooltipLogsSave");
+			CmdCopyClipboard.ToolTip = LanguageManager.GetText(LanguageItems.TooltipLogsCopy);
+			CmdSave.ToolTip = LanguageManager.GetText(LanguageItems.TooltipLogsSave);
 		}
 
 		public void SetStep(string step, string text, int perc)

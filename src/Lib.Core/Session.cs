@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -22,18 +22,6 @@ using System.Xml;
 
 namespace Eddie.Core
 {
-	public class SessionLogEvent
-	{
-		public string Source;
-		public string Message;
-
-		public SessionLogEvent(string source, string message)
-		{
-			Source = source;
-			Message = message;
-		}
-	}
-
 	public class Session : Eddie.Core.Thread
 	{
 		public DateTime StatsStart = DateTime.MinValue;
@@ -64,6 +52,17 @@ namespace Eddie.Core
 			string sessionLastServer = "";
 
 			bool oneConnectionReached = false;
+			bool netLockAtSessionLevel = false;
+
+			if (Engine.NetworkLockManager.IsActive() == false)
+			{
+				if (Engine.ProfileOptions.GetBool("netlock.connection"))
+				{
+					netLockAtSessionLevel = true;
+					if (Engine.NetworkLockManager.Activation(true) == false)
+						CancelRequested = true;
+				}
+			}
 
 			for (; CancelRequested == false;)
 			{
@@ -82,8 +81,8 @@ namespace Eddie.Core
 					/*
                     if (Engine.ProvidersManager.LastRefreshDone == 0)
 					{
-                        Engine.Instance.WaitMessageSet(LanguageManager.GetText("ProvidersWait"), true);
-						Engine.Logs.Log(LogType.Verbose, LanguageManager.GetText("ProvidersWait"));
+                        Engine.Instance.WaitMessageSet(LanguageManager.GetText(LanguageItems.ProvidersWait), true);
+						Engine.Logs.Log(LogType.Verbose, LanguageManager.GetText(LanguageItems.ProvidersWait));
 						for (; ; )
 						{
                             if (CancelRequested)
@@ -131,7 +130,7 @@ namespace Eddie.Core
 							if (i == 0)
 								break;
 
-							string nextWaitingMessage = LanguageManager.GetText("WaitingLatencyTestsTitle") + " " + LanguageManager.GetText("WaitingLatencyTestsStep", i.ToString());
+							string nextWaitingMessage = LanguageManager.GetText(LanguageItems.WaitingLatencyTestsTitle) + " " + LanguageManager.GetText(LanguageItems.WaitingLatencyTestsStep, i.ToString());
 							if (lastWaitingMessage != nextWaitingMessage)
 							{
 								lastWaitingMessage = nextWaitingMessage;
@@ -168,8 +167,8 @@ namespace Eddie.Core
 							Providers.Service service = Engine.CurrentServer.Provider as Providers.Service;
 							if (service.SupportConnect)
 							{
-								Engine.WaitMessageSet(LanguageManager.GetText("AuthorizeConnect"), true);
-								Engine.Logs.Log(LogType.Info, LanguageManager.GetText("AuthorizeConnect"));
+								Engine.WaitMessageSet(LanguageManager.GetText(LanguageItems.AuthorizeConnect), true);
+								Engine.Logs.Log(LogType.Info, LanguageManager.GetText(LanguageItems.AuthorizeConnect));
 
 								Dictionary<string, string> parameters = new Dictionary<string, string>();
 								parameters["act"] = "connect";
@@ -183,12 +182,12 @@ namespace Eddie.Core
 								XmlDocument xmlDoc = null;
 								try
 								{
-									xmlDoc = service.Fetch(LanguageManager.GetText("AuthorizeConnect"), parameters);
+									xmlDoc = service.Fetch(LanguageManager.GetText(LanguageItems.AuthorizeConnect), parameters);
 								}
 								catch (Exception ex)
 								{
 									// Note: If failed, continue anyway.
-									Engine.Logs.Log(LogType.Warning, LanguageManager.GetText("AuthorizeConnectFailed", ex.Message));
+									Engine.Logs.Log(LogType.Warning, LanguageManager.GetText(LanguageItems.AuthorizeConnectFailed, ex.Message));
 								}
 
 								if (xmlDoc != null)
@@ -229,10 +228,10 @@ namespace Eddie.Core
 						bool osSupport = Platform.Instance.GetSupportIPv4();
 						if ((osSupport == false) && (Engine.Instance.ProfileOptions.GetLower("network.ipv4.mode") != "block"))
 						{
-							Engine.Instance.Logs.LogWarning(LanguageManager.GetText("IPv4NotSupportedByOS"));
+							Engine.Instance.Logs.LogWarning(LanguageManager.GetText(LanguageItems.IPv4NotSupportedByOS));
 							if ((Engine.Instance.ProfileOptions.GetBool("network.ipv4.autoswitch")) && (Engine.Instance.ProfileOptions.Get("network.ipv4.mode") != "block"))
 							{
-								Engine.Instance.Logs.LogWarning(LanguageManager.GetText("IPv4NotSupportedByNetworkAdapterAutoSwitch"));
+								Engine.Instance.Logs.LogWarning(LanguageManager.GetText(LanguageItems.IPv4NotSupportedByNetworkAdapterAutoSwitch));
 								Engine.Instance.ProfileOptions.Set("network.ipv4.mode", "block");
 							}
 						}
@@ -243,10 +242,10 @@ namespace Eddie.Core
 						bool osSupport = Platform.Instance.GetSupportIPv6();
 						if ((osSupport == false) && (Engine.Instance.ProfileOptions.GetLower("network.ipv6.mode") != "block"))
 						{
-							Engine.Instance.Logs.LogWarning(LanguageManager.GetText("IPv6NotSupportedByOS"));
+							Engine.Instance.Logs.LogWarning(LanguageManager.GetText(LanguageItems.IPv6NotSupportedByOS));
 							if ((Engine.Instance.ProfileOptions.GetBool("network.ipv6.autoswitch")) && (Engine.Instance.ProfileOptions.Get("network.ipv6.mode") != "block"))
 							{
-								Engine.Instance.Logs.LogWarning(LanguageManager.GetText("IPv6NotSupportedByNetworkAdapterAutoSwitch"));
+								Engine.Instance.Logs.LogWarning(LanguageManager.GetText(LanguageItems.IPv6NotSupportedByNetworkAdapterAutoSwitch));
 								Engine.Instance.ProfileOptions.Set("network.ipv6.mode", "block");
 							}
 						}
@@ -258,7 +257,7 @@ namespace Eddie.Core
 
 						m_connection.EnsureDriver();
 
-						Engine.WaitMessageSet(LanguageManager.GetText("ConnectionCredentials"), true);
+						Engine.WaitMessageSet(LanguageManager.GetText(LanguageItems.ConnectionCredentials), true);
 						if (Engine.CurrentServer.Provider.ApplyCredentials(m_connection) == false)
 						{
 							allowed = false;
@@ -301,7 +300,7 @@ namespace Eddie.Core
 
 						Engine.RunEventCommand("vpn.pre");
 
-						string connectingMessage = LanguageManager.GetText("ConnectionConnecting", Engine.CurrentServer.GetNameWithLocation());
+						string connectingMessage = LanguageManager.GetText(LanguageItems.ConnectionConnecting, Engine.CurrentServer.GetNameWithLocation());
 						Engine.WaitMessageSet(connectingMessage, true);
 						Engine.Logs.Log(LogType.InfoImportant, connectingMessage);
 
@@ -404,8 +403,8 @@ namespace Eddie.Core
 
 						SetConnected(false);
 
-						Engine.WaitMessageSet(LanguageManager.GetText("ConnectionDisconnecting"), false);
-						Engine.Logs.Log(LogType.InfoImportant, LanguageManager.GetText("ConnectionDisconnecting"));
+						Engine.WaitMessageSet(LanguageManager.GetText(LanguageItems.ConnectionDisconnecting), false);
+						Engine.Logs.Log(LogType.InfoImportant, LanguageManager.GetText(LanguageItems.ConnectionDisconnecting));
 
 						m_connection.OnStop();
 
@@ -460,7 +459,7 @@ namespace Eddie.Core
 							m_connection = null;
 						}
 
-						Engine.Logs.Log(LogType.Verbose, LanguageManager.GetText("ConnectionStop"));
+						Engine.Logs.Log(LogType.Verbose, LanguageManager.GetText(LanguageItems.ConnectionStop));
 					}
 				}
 				catch (Exception ex)
@@ -468,15 +467,9 @@ namespace Eddie.Core
 					// Warning: Avoid to reach this catch: unpredicable status of running processes.
 					SetConnected(false);
 
-					Engine.Logs.Log(LogType.Error, LanguageManager.GetText("FatalUnexpected", ex.Message + " - " + ex.StackTrace));
+					Engine.Logs.Log(LogType.Error, LanguageManager.GetText(LanguageItems.FatalUnexpected, ex.Message + " - " + ex.StackTrace));
 
 					SetReset("FATAL");
-				}
-
-				if (Engine.StartCommandLine.Get("console.mode") == "batch")
-				{
-					Engine.Instance.RequestStop();
-					break;
 				}
 
 				if (m_reset == "AUTH_FAILED")
@@ -512,11 +505,11 @@ namespace Eddie.Core
 			{
 				if (CancelRequested)
 				{
-					Engine.Logs.Log(LogType.Info, LanguageManager.GetText("SessionCancel"));
+					Engine.Logs.Log(LogType.Info, LanguageManager.GetText(LanguageItems.SessionCancel));
 				}
 				else
 				{
-					Engine.Logs.Log(LogType.Error, LanguageManager.GetText("SessionFailed"));
+					Engine.Logs.Log(LogType.Error, LanguageManager.GetText(LanguageItems.SessionFailed));
 				}
 			}
 
@@ -528,9 +521,15 @@ namespace Eddie.Core
 			Engine.Instance.WaitMessageClear();
 
 			Engine.CurrentServer = null;
+
+			if (Engine.NetworkLockManager.IsActive())
+			{
+				if (netLockAtSessionLevel)
+				{
+					Engine.NetworkLockManager.Deactivation(true);
+				}
+			}
 		}
-
-
 
 		public void SetResetError()
 		{
@@ -609,6 +608,9 @@ namespace Eddie.Core
 		{
 			try
 			{
+				if (m_connection.Info.Provider.OnPreFilterLog(source, message) == false)
+					return;
+
 				Platform.Instance.OnSessionLogEvent(source, message);
 
 				if (m_connection != null)
@@ -753,9 +755,9 @@ namespace Eddie.Core
 		public void ConnectedStep()
 		{
 			if (m_connection.Interface == null)
-				throw new Exception(LanguageManager.GetText("UnexpectedInterfaceNotRecognized"));
+				throw new Exception(LanguageManager.GetText(LanguageItems.UnexpectedInterfaceNotRecognized));
 
-			Platform.Instance.OnInterfaceDo(m_connection.Interface);
+			Platform.Instance.OnInterfaceDo(m_connection);
 
 			// DNS Switch
 			if (Engine.Instance.ProfileOptions.GetBool("dns.delegate") == false)
@@ -771,7 +773,7 @@ namespace Eddie.Core
 
 			RoutesApply("up");
 
-			Engine.WaitMessageSet(LanguageManager.GetText("ConnectionFlushDNS"), true);
+			Engine.WaitMessageSet(LanguageManager.GetText(LanguageItems.ConnectionFlushDNS), true);
 
 			Platform.Instance.FlushDNS();
 
@@ -781,8 +783,8 @@ namespace Eddie.Core
 
 			if (m_connection.ExitIPs.Count == 0)
 			{
-				Engine.WaitMessageSet(LanguageManager.GetText("ConnectionDetectExit"), true);
-				Engine.Logs.Log(LogType.Verbose, LanguageManager.GetText("ConnectionDetectExit"));
+				Engine.WaitMessageSet(LanguageManager.GetText(LanguageItems.ConnectionDetectExit), true);
+				Engine.Logs.Log(LogType.Verbose, LanguageManager.GetText(LanguageItems.ConnectionDetectExit));
 				m_connection.ExitIPs.Add(Engine.Instance.DiscoverExit());
 			}
 
@@ -794,7 +796,7 @@ namespace Eddie.Core
 			{
 				Engine.RunEventCommand("vpn.up");
 
-				Engine.Logs.Log(LogType.InfoImportant, LanguageManager.GetText("ConnectionConnected"));
+				Engine.Logs.Log(LogType.InfoImportant, LanguageManager.GetText(LanguageItems.ConnectionConnected));
 				SetConnected(true);
 				m_connection.TimeStart = DateTime.UtcNow;
 

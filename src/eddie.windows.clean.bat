@@ -2,32 +2,29 @@
 
 rem This exists because mixing already-builded net4.8 and net6 cause issues, so we launch this between switch.
 
-RMDIR App.CLI.Windows\bin /S /Q
-RMDIR App.CLI.Windows\obj /S /Q
+RMDIR App.CLI.Windows\bin /S /Q 2>nul
+RMDIR App.CLI.Windows\obj /S /Q 2>nul
 
-RMDIR App.CLI.Windows.WireGuard\bin /S /Q
-RMDIR App.CLI.Windows.WireGuard\obj /S /Q
+RMDIR App.Forms.Windows\bin /S /Q 2>nul
+RMDIR App.Forms.Windows\obj /S /Q 2>nul
 
-RMDIR App.Forms.Windows\bin /S /Q
-RMDIR App.Forms.Windows\obj /S /Q
+RMDIR Lib.Core\bin /S /Q 2>nul
+RMDIR Lib.Core\obj /S /Q 2>nul
 
-RMDIR Lib.Core\bin /S /Q
-RMDIR Lib.Core\obj /S /Q
+RMDIR Lib.Forms\bin /S /Q 2>nul
+RMDIR Lib.Forms\obj /S /Q 2>nul
 
-RMDIR Lib.Forms\bin /S /Q
-RMDIR Lib.Forms\obj /S /Q
+RMDIR Lib.Forms.Skin\bin /S /Q 2>nul
+RMDIR Lib.Forms.Skin\obj /S /Q 2>nul
 
-RMDIR Lib.Forms.Skin\bin /S /Q
-RMDIR Lib.Forms.Skin\obj /S /Q
+RMDIR Lib.Platform.Windows\bin /S /Q 2>nul
+RMDIR Lib.Platform.Windows\obj /S /Q 2>nul
 
-RMDIR Lib.Platform.Windows\bin /S /Q
-RMDIR Lib.Platform.Windows\obj /S /Q
+RMDIR Checking\bin /S /Q 2>nul
+RMDIR Checking\obj /S /Q 2>nul
 
-RMDIR Checking\bin /S /Q
-RMDIR Checking\obj /S /Q
-
-RMDIR UI.WPF.Windows\bin /S /Q
-RMDIR UI.WPF.Windows\obj /S /Q
+RMDIR UI.WPF.Windows\bin /S /Q 2>nul
+RMDIR UI.WPF.Windows\obj /S /Q 2>nul
 
 GOTO done
 

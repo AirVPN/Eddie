@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org )
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org )
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -24,7 +24,6 @@ using System.Linq;
 using Foundation;
 using AppKit;
 using Eddie.Core;
-
 namespace Eddie.UI.Cocoa.Osx
 {
 	public partial class WindowPreferencesController : AppKit.NSWindowController
@@ -82,7 +81,7 @@ namespace Eddie.UI.Cocoa.Osx
 				GuiUtils.SetHidden(CmdGeneralTos, true);
 			}
 
-			Window.Title = Constants.Name + " - " + LanguageManager.GetText("WindowsSettingsTitle");
+			Window.Title = Constants.Name + " - " + LanguageManager.GetText(LanguageItems.WindowsSettingsTitle);
 
 			GuiUtils.SetButtonCancel(Window, CmdCancel);
             GuiUtils.SetButtonDefault(Window, CmdSave);
@@ -100,12 +99,12 @@ namespace Eddie.UI.Cocoa.Osx
 
 			TableRoutes.Delegate = new TableRoutingDelegate(this);
 
-			LblDnsServers.StringValue = LanguageManager.GetText("WindowsSettingsDnsServers");
+			LblDnsServers.StringValue = LanguageManager.GetText(LanguageItems.WindowsSettingsDnsServers);
 			TableDnsServers.Delegate = new TableDnsServersDelegate(this);
 
 			TableAdvancedEvents.Delegate = new TableAdvancedEventsDelegate(this);
 
-			LblLoggingHelp.StringValue = LanguageManager.GetText("WindowsSettingsLoggingHelp");
+			LblLoggingHelp.StringValue = LanguageManager.GetText(LanguageItems.WindowsSettingsLoggingHelp);
 
 			TableRoutingController = new TableRoutingController(this.TableRoutes);
 			TableDnsServersController = new TableDnsServersController(this.TableDnsServers);
@@ -135,21 +134,21 @@ namespace Eddie.UI.Cocoa.Osx
 						
 			CmdResetToDefault.Activated += (object sender, EventArgs e) =>
 			{
-                if (GuiUtils.MessageYesNo(LanguageManager.GetText("ResetSettingsConfirm")))
+                if (GuiUtils.MessageYesNo(LanguageManager.GetText(LanguageItems.ResetSettingsConfirm)))
 				{
 					Engine.Instance.ProfileOptions.ResetAll(false);
 					ReadOptions();
-					GuiUtils.MessageBoxInfo(LanguageManager.GetText("ResetSettingsDone"));
+					GuiUtils.MessageBoxInfo(LanguageManager.GetText(LanguageItems.ResetSettingsDone));
 				}
 			};
 
             // General
             LblSystemService.StringValue = Core.Platform.Instance.AllowServiceUserDescription();
             CboStorageMode.RemoveAllItems();
-            CboStorageMode.AddItem(LanguageManager.GetText("WindowsSettingsStorageModeNone"));
-			CboStorageMode.AddItem(LanguageManager.GetText("WindowsSettingsStorageModePassword"));
+            CboStorageMode.AddItem(LanguageManager.GetText(LanguageItems.WindowsSettingsStorageModeNone));
+			CboStorageMode.AddItem(LanguageManager.GetText(LanguageItems.WindowsSettingsStorageModePassword));
 			if (Core.Platform.Instance.OsCredentialSystemName() != "")
-                CboStorageMode.AddItem(LanguageManager.GetText("WindowsSettingsStorageModeOs", Core.Platform.Instance.OsCredentialSystemName()));
+                CboStorageMode.AddItem(LanguageManager.GetText(LanguageItems.WindowsSettingsStorageModeOs, Core.Platform.Instance.OsCredentialSystemName()));
             CboStorageMode.Activated += (object sender, EventArgs e) =>
             {
                 EnableIde();
@@ -157,9 +156,9 @@ namespace Eddie.UI.Cocoa.Osx
 
             // UI
             CboUiUnit.RemoveAllItems();
-			CboUiUnit.AddItem(LanguageManager.GetText("WindowsSettingsUiUnit0"));
-			CboUiUnit.AddItem(LanguageManager.GetText("WindowsSettingsUiUnit1"));
-			CboUiUnit.AddItem(LanguageManager.GetText("WindowsSettingsUiUnit2"));
+			CboUiUnit.AddItem(LanguageManager.GetText(LanguageItems.WindowsSettingsUiUnit0));
+			CboUiUnit.AddItem(LanguageManager.GetText(LanguageItems.WindowsSettingsUiUnit1));
+			CboUiUnit.AddItem(LanguageManager.GetText(LanguageItems.WindowsSettingsUiUnit2));
 
 			// Protocols
 			CmdProtocolsHelp1.Activated += (object sender, EventArgs e) =>
@@ -187,10 +186,10 @@ namespace Eddie.UI.Cocoa.Osx
 			CboProxyType.AddItem("Socks");
 			CboProxyType.AddItem("Tor");
 			CboProxyWhen.RemoveAllItems();
-			CboProxyWhen.AddItem(LanguageManager.GetText("WindowsSettingsProxyWhenAlways"));
-			CboProxyWhen.AddItem(LanguageManager.GetText("WindowsSettingsProxyWhenWeb"));
-			CboProxyWhen.AddItem(LanguageManager.GetText("WindowsSettingsProxyWhenOpenVPN"));
-			CboProxyWhen.AddItem(LanguageManager.GetText("WindowsSettingsProxyWhenNone"));
+			CboProxyWhen.AddItem(LanguageManager.GetText(LanguageItems.WindowsSettingsProxyWhenAlways));
+			CboProxyWhen.AddItem(LanguageManager.GetText(LanguageItems.WindowsSettingsProxyWhenWeb));
+			CboProxyWhen.AddItem(LanguageManager.GetText(LanguageItems.WindowsSettingsProxyWhenOpenVPN));
+			CboProxyWhen.AddItem(LanguageManager.GetText(LanguageItems.WindowsSettingsProxyWhenNone));
 
 			CmdProxyTorHelp.Activated += (object sender, EventArgs e) =>
 			{
@@ -261,18 +260,18 @@ namespace Eddie.UI.Cocoa.Osx
 			// Networking
 
 			CboNetworkIPv4Mode.RemoveAllItems();
-			CboNetworkIPv4Mode.AddItem(LanguageManager.GetText("WindowsSettingsNetworkIpModeInAlways"));
-			CboNetworkIPv4Mode.AddItem(LanguageManager.GetText("WindowsSettingsNetworkIpModeInOrOut"));
-			CboNetworkIPv4Mode.AddItem(LanguageManager.GetText("WindowsSettingsNetworkIpModeInOrBlock"));
-			CboNetworkIPv4Mode.AddItem(LanguageManager.GetText("WindowsSettingsNetworkIpModeOut"));
-			CboNetworkIPv4Mode.AddItem(LanguageManager.GetText("WindowsSettingsNetworkIpModeBlock"));
+			CboNetworkIPv4Mode.AddItem(LanguageManager.GetText(LanguageItems.WindowsSettingsNetworkIpModeInAlways));
+			CboNetworkIPv4Mode.AddItem(LanguageManager.GetText(LanguageItems.WindowsSettingsNetworkIpModeInOrOut));
+			CboNetworkIPv4Mode.AddItem(LanguageManager.GetText(LanguageItems.WindowsSettingsNetworkIpModeInOrBlock));
+			CboNetworkIPv4Mode.AddItem(LanguageManager.GetText(LanguageItems.WindowsSettingsNetworkIpModeOut));
+			CboNetworkIPv4Mode.AddItem(LanguageManager.GetText(LanguageItems.WindowsSettingsNetworkIpModeBlock));
 
 			CboNetworkIPv6Mode.RemoveAllItems();
-			CboNetworkIPv6Mode.AddItem(LanguageManager.GetText("WindowsSettingsNetworkIpModeInAlways"));
-			CboNetworkIPv6Mode.AddItem(LanguageManager.GetText("WindowsSettingsNetworkIpModeInOrOut"));
-			CboNetworkIPv6Mode.AddItem(LanguageManager.GetText("WindowsSettingsNetworkIpModeInOrBlock"));
-			CboNetworkIPv6Mode.AddItem(LanguageManager.GetText("WindowsSettingsNetworkIpModeOut"));
-			CboNetworkIPv6Mode.AddItem(LanguageManager.GetText("WindowsSettingsNetworkIpModeBlock"));
+			CboNetworkIPv6Mode.AddItem(LanguageManager.GetText(LanguageItems.WindowsSettingsNetworkIpModeInAlways));
+			CboNetworkIPv6Mode.AddItem(LanguageManager.GetText(LanguageItems.WindowsSettingsNetworkIpModeInOrOut));
+			CboNetworkIPv6Mode.AddItem(LanguageManager.GetText(LanguageItems.WindowsSettingsNetworkIpModeInOrBlock));
+			CboNetworkIPv6Mode.AddItem(LanguageManager.GetText(LanguageItems.WindowsSettingsNetworkIpModeOut));
+			CboNetworkIPv6Mode.AddItem(LanguageManager.GetText(LanguageItems.WindowsSettingsNetworkIpModeBlock));
 
 			CboProtocolIPEntry.RemoveAllItems();
 			CboProtocolIPEntry.AddItem("IPv6, IPv4");
@@ -305,11 +304,11 @@ namespace Eddie.UI.Cocoa.Osx
 				}
 			}
 
-			LblOpenVpnRcvBuf.StringValue = LanguageManager.GetText("WindowsSettingsOpenVpnRcvBuf") + ":";
-			LblOpenVpnSndBuf.StringValue = LanguageManager.GetText("WindowsSettingsOpenVpnSndBuf") + ":";
+			LblOpenVpnRcvBuf.StringValue = LanguageManager.GetText(LanguageItems.WindowsSettingsOpenVpnRcvBuf) + ":";
+			LblOpenVpnSndBuf.StringValue = LanguageManager.GetText(LanguageItems.WindowsSettingsOpenVpnSndBuf) + ":";
 			CboOpenVpnRcvBuf.RemoveAllItems();
-			CboOpenVpnRcvBuf.AddItem(LanguageManager.GetText("Automatic"));
-			CboOpenVpnRcvBuf.AddItem(LanguageManager.GetText("WindowsSettingsOpenVpnDefault"));
+			CboOpenVpnRcvBuf.AddItem(LanguageManager.GetText(LanguageItems.Automatic));
+			CboOpenVpnRcvBuf.AddItem(LanguageManager.GetText(LanguageItems.WindowsSettingsOpenVpnDefault));
 			CboOpenVpnRcvBuf.AddItem("8 KB");
 			CboOpenVpnRcvBuf.AddItem("16 KB");
 			CboOpenVpnRcvBuf.AddItem("32 KB");
@@ -318,8 +317,8 @@ namespace Eddie.UI.Cocoa.Osx
 			CboOpenVpnRcvBuf.AddItem("256 KB");
 			CboOpenVpnRcvBuf.AddItem("512 KB");
 			CboOpenVpnSndBuf.RemoveAllItems();
-			CboOpenVpnSndBuf.AddItem(LanguageManager.GetText("Automatic"));
-			CboOpenVpnSndBuf.AddItem(LanguageManager.GetText("WindowsSettingsOpenVpnDefault"));
+			CboOpenVpnSndBuf.AddItem(LanguageManager.GetText(LanguageItems.Automatic));
+			CboOpenVpnSndBuf.AddItem(LanguageManager.GetText(LanguageItems.WindowsSettingsOpenVpnDefault));
 			CboOpenVpnSndBuf.AddItem("8 KB");
 			CboOpenVpnSndBuf.AddItem("16 KB");
 			CboOpenVpnSndBuf.AddItem("32 KB");
@@ -348,7 +347,7 @@ namespace Eddie.UI.Cocoa.Osx
 			CboLockOutgoing.AddItem("Block");
 			CboLockOutgoing.AddItem("Allow");
 
-			LblRoutesNetworkLockWarning.StringValue = LanguageManager.GetText("WindowsSettingsRouteLockHelp");
+			LblRoutesNetworkLockWarning.StringValue = LanguageManager.GetText(LanguageItems.WindowsSettingsRouteLockHelp);
 			
 			// Advanced
 
@@ -392,14 +391,14 @@ namespace Eddie.UI.Cocoa.Osx
 				foreach (string path in paths)
 				{
 					if (Core.Platform.Instance.OpenDirectoryInFileManager(path) == false)
-						GuiUtils.MessageBoxError(LanguageManager.GetText("WindowsSettingsLogsCannotOpenDirectory", path));
+						GuiUtils.MessageBoxError(LanguageManager.GetText(LanguageItems.WindowsSettingsLogsCannotOpenDirectory, path));
 				}
 			};
 
 			// Directives
 			CboOpenVpnDirectivesSkipDefault.RemoveAllItems();
-			CboOpenVpnDirectivesSkipDefault.AddItem(LanguageManager.GetText("WindowsSettingsOpenVpnDirectivesDefaultSkip1"));
-			CboOpenVpnDirectivesSkipDefault.AddItem(LanguageManager.GetText("WindowsSettingsOpenVpnDirectivesDefaultSkip2"));
+			CboOpenVpnDirectivesSkipDefault.AddItem(LanguageManager.GetText(LanguageItems.WindowsSettingsOpenVpnDirectivesDefaultSkip1));
+			CboOpenVpnDirectivesSkipDefault.AddItem(LanguageManager.GetText(LanguageItems.WindowsSettingsOpenVpnDirectivesDefaultSkip2));
 			CmdOpenVpnDirectivesHelp.Activated += (object sender, EventArgs e) =>
 			{
                 GuiUtils.OpenUrl(UiClient.Instance.Data["links"]["help"]["directives"].Value as string);
@@ -663,13 +662,13 @@ namespace Eddie.UI.Cocoa.Osx
 			GuiUtils.SetCheck(ChkExitConfirm, o.GetBool("gui.exit_confirm"));
 
             if (s.SaveFormat == "v2n")
-                GuiUtils.SetSelected(CboStorageMode, LanguageManager.GetText("WindowsSettingsStorageModeNone"));
+                GuiUtils.SetSelected(CboStorageMode, LanguageManager.GetText(LanguageItems.WindowsSettingsStorageModeNone));
             else if (s.SaveFormat == "v2p")
-                GuiUtils.SetSelected(CboStorageMode, LanguageManager.GetText("WindowsSettingsStorageModePassword"));
+                GuiUtils.SetSelected(CboStorageMode, LanguageManager.GetText(LanguageItems.WindowsSettingsStorageModePassword));
             else if ((s.SaveFormat == "v2s") && (Core.Platform.Instance.OsCredentialSystemName() != ""))
-                GuiUtils.SetSelected(CboStorageMode, LanguageManager.GetText("WindowsSettingsStorageModeOs", Core.Platform.Instance.OsCredentialSystemName()));
+                GuiUtils.SetSelected(CboStorageMode, LanguageManager.GetText(LanguageItems.WindowsSettingsStorageModeOs, Core.Platform.Instance.OsCredentialSystemName()));
             else
-				GuiUtils.SetSelected(CboStorageMode, LanguageManager.GetText("WindowsSettingsStorageModeNone"));
+				GuiUtils.SetSelected(CboStorageMode, LanguageManager.GetText(LanguageItems.WindowsSettingsStorageModeNone));
 
             if (s.SaveFormat == "v2p")
             {
@@ -681,11 +680,11 @@ namespace Eddie.UI.Cocoa.Osx
             GuiUtils.SetCheck(ChkGeneralOsxNotifications, o.GetBool("gui.notifications"));
 			string uiUnit = o.Get("ui.unit");
 			if (uiUnit == "bytes")
-				GuiUtils.SetSelected(CboUiUnit, LanguageManager.GetText("WindowsSettingsUiUnit1"));
+				GuiUtils.SetSelected(CboUiUnit, LanguageManager.GetText(LanguageItems.WindowsSettingsUiUnit1));
 			else if (uiUnit == "bits")
-				GuiUtils.SetSelected(CboUiUnit, LanguageManager.GetText("WindowsSettingsUiUnit2"));
+				GuiUtils.SetSelected(CboUiUnit, LanguageManager.GetText(LanguageItems.WindowsSettingsUiUnit2));
 			else
-				GuiUtils.SetSelected(CboUiUnit, LanguageManager.GetText("WindowsSettingsUiUnit0"));
+				GuiUtils.SetSelected(CboUiUnit, LanguageManager.GetText(LanguageItems.WindowsSettingsUiUnit0));
 			GuiUtils.SetCheck(ChkUiIEC, o.GetBool("ui.iec"));
             GuiUtils.SetCheck(ChkUiSkipProviderManifestFailed, o.GetBool("ui.skip.provider.manifest.failed"));
             GuiUtils.SetCheck(ChkUiSkipPromotional, o.GetBool("ui.skip.promotional"));
@@ -700,10 +699,19 @@ namespace Eddie.UI.Cocoa.Osx
 			*/
 
 			// Protocols
-			String modeType = o.Get("mode.type").ToLowerInvariant();
-            String protocol = o.Get("mode.protocol").ToUpperInvariant();
+			string modeType = o.Get("mode.type").ToLowerInvariant();
+			string protocol = o.Get("mode.protocol").ToUpperInvariant();
 			int port = o.GetInt("mode.port");
 			int entryIP = o.GetInt("mode.alt");
+			if ((modeType != "auto") && (Engine.Instance.AirVPN != null))
+			{
+				ConnectionMode mode = Engine.Instance.AirVPN.GetMode();
+				modeType = mode.Type;
+				protocol = mode.Protocol;
+				port = mode.Port;
+				entryIP = mode.EntryIndex;
+			}
+
 			if (modeType == "auto")
 			{
 				GuiUtils.SetCheck(ChkProtocolsAutomatic, true);
@@ -740,15 +748,15 @@ namespace Eddie.UI.Cocoa.Osx
 
 			GuiUtils.SetSelected(CboProxyType, o.Get("proxy.mode"));
 			if (o.Get("proxy.when") == "always")
-				GuiUtils.SetSelected(CboProxyWhen, LanguageManager.GetText("WindowsSettingsProxyWhenAlways"));
+				GuiUtils.SetSelected(CboProxyWhen, LanguageManager.GetText(LanguageItems.WindowsSettingsProxyWhenAlways));
 			else if (o.Get("proxy.when") == "web")
-				GuiUtils.SetSelected(CboProxyWhen, LanguageManager.GetText("WindowsSettingsProxyWhenWeb"));
+				GuiUtils.SetSelected(CboProxyWhen, LanguageManager.GetText(LanguageItems.WindowsSettingsProxyWhenWeb));
 			else if (o.Get("proxy.when") == "openvpn")
-				GuiUtils.SetSelected(CboProxyWhen, LanguageManager.GetText("WindowsSettingsProxyWhenOpenVPN"));
+				GuiUtils.SetSelected(CboProxyWhen, LanguageManager.GetText(LanguageItems.WindowsSettingsProxyWhenOpenVPN));
 			else if (o.Get("proxy.when") == "none")
-				GuiUtils.SetSelected(CboProxyWhen, LanguageManager.GetText("WindowsSettingsProxyWhenNone"));
+				GuiUtils.SetSelected(CboProxyWhen, LanguageManager.GetText(LanguageItems.WindowsSettingsProxyWhenNone));
 			else
-				GuiUtils.SetSelected(CboProxyWhen, LanguageManager.GetText("WindowsSettingsProxyWhenAlways"));
+				GuiUtils.SetSelected(CboProxyWhen, LanguageManager.GetText(LanguageItems.WindowsSettingsProxyWhenAlways));
 			TxtProxyHost.StringValue = o.Get("proxy.host");
 			TxtProxyPort.StringValue = o.Get("proxy.port");
 			GuiUtils.SetSelected(CboProxyAuthentication, o.Get("proxy.auth"));
@@ -799,32 +807,32 @@ namespace Eddie.UI.Cocoa.Osx
 
 			string networkIPv4Mode = o.Get("network.ipv4.mode");
 			if (networkIPv4Mode == "in")
-				GuiUtils.SetSelected(CboNetworkIPv4Mode, LanguageManager.GetText("WindowsSettingsNetworkIpModeInAlways"));
+				GuiUtils.SetSelected(CboNetworkIPv4Mode, LanguageManager.GetText(LanguageItems.WindowsSettingsNetworkIpModeInAlways));
 			else if (networkIPv4Mode == "in-out")
-				GuiUtils.SetSelected(CboNetworkIPv4Mode, LanguageManager.GetText("WindowsSettingsNetworkIpModeInOrOut"));
+				GuiUtils.SetSelected(CboNetworkIPv4Mode, LanguageManager.GetText(LanguageItems.WindowsSettingsNetworkIpModeInOrOut));
 			else if (networkIPv4Mode == "in-block")
-				GuiUtils.SetSelected(CboNetworkIPv4Mode, LanguageManager.GetText("WindowsSettingsNetworkIpModeInOrBlock"));
+				GuiUtils.SetSelected(CboNetworkIPv4Mode, LanguageManager.GetText(LanguageItems.WindowsSettingsNetworkIpModeInOrBlock));
 			else if (networkIPv4Mode == "out")
-				GuiUtils.SetSelected(CboNetworkIPv4Mode, LanguageManager.GetText("WindowsSettingsNetworkIpModeOut"));
+				GuiUtils.SetSelected(CboNetworkIPv4Mode, LanguageManager.GetText(LanguageItems.WindowsSettingsNetworkIpModeOut));
 			else if (networkIPv4Mode == "block")
-				GuiUtils.SetSelected(CboNetworkIPv4Mode, LanguageManager.GetText("WindowsSettingsNetworkIpModeBlock"));
+				GuiUtils.SetSelected(CboNetworkIPv4Mode, LanguageManager.GetText(LanguageItems.WindowsSettingsNetworkIpModeBlock));
 			else
-				GuiUtils.SetSelected(CboNetworkIPv4Mode, LanguageManager.GetText("WindowsSettingsNetworkIpModeInOrBlock"));
+				GuiUtils.SetSelected(CboNetworkIPv4Mode, LanguageManager.GetText(LanguageItems.WindowsSettingsNetworkIpModeInOrBlock));
 			GuiUtils.SetCheck(ChkNetworkIPv4AutoSwitch, o.GetBool("network.ipv4.autoswitch"));
 
 			string networkIPv6Mode = o.Get("network.ipv6.mode");
 			if (networkIPv6Mode == "in")
-				GuiUtils.SetSelected(CboNetworkIPv6Mode, LanguageManager.GetText("WindowsSettingsNetworkIpModeInAlways"));
+				GuiUtils.SetSelected(CboNetworkIPv6Mode, LanguageManager.GetText(LanguageItems.WindowsSettingsNetworkIpModeInAlways));
 			else if (networkIPv6Mode == "in-out")
-				GuiUtils.SetSelected(CboNetworkIPv6Mode, LanguageManager.GetText("WindowsSettingsNetworkIpModeInOrOut"));
+				GuiUtils.SetSelected(CboNetworkIPv6Mode, LanguageManager.GetText(LanguageItems.WindowsSettingsNetworkIpModeInOrOut));
 			else if (networkIPv6Mode == "in-block")
-				GuiUtils.SetSelected(CboNetworkIPv6Mode, LanguageManager.GetText("WindowsSettingsNetworkIpModeInOrBlock"));
+				GuiUtils.SetSelected(CboNetworkIPv6Mode, LanguageManager.GetText(LanguageItems.WindowsSettingsNetworkIpModeInOrBlock));
 			else if (networkIPv6Mode == "out")
-				GuiUtils.SetSelected(CboNetworkIPv6Mode, LanguageManager.GetText("WindowsSettingsNetworkIpModeOut"));
+				GuiUtils.SetSelected(CboNetworkIPv6Mode, LanguageManager.GetText(LanguageItems.WindowsSettingsNetworkIpModeOut));
 			else if (networkIPv6Mode == "block")
-				GuiUtils.SetSelected(CboNetworkIPv6Mode, LanguageManager.GetText("WindowsSettingsNetworkIpModeBlock"));
+				GuiUtils.SetSelected(CboNetworkIPv6Mode, LanguageManager.GetText(LanguageItems.WindowsSettingsNetworkIpModeBlock));
 			else
-				GuiUtils.SetSelected(CboNetworkIPv6Mode, LanguageManager.GetText("WindowsSettingsNetworkIpModeInOrBlock"));
+				GuiUtils.SetSelected(CboNetworkIPv6Mode, LanguageManager.GetText(LanguageItems.WindowsSettingsNetworkIpModeInOrBlock));
 			GuiUtils.SetCheck(ChkNetworkIPv6AutoSwitch, o.GetBool("network.ipv6.autoswitch"));
 
 			string networkEntryIpLayer = o.Get("network.entry.iplayer");
@@ -850,9 +858,9 @@ namespace Eddie.UI.Cocoa.Osx
 
 			int openVpnSndBuf = o.GetInt("openvpn.sndbuf");
 			if (openVpnSndBuf == -2)
-				GuiUtils.SetSelected(CboOpenVpnSndBuf, LanguageManager.GetText("Automatic"));
+				GuiUtils.SetSelected(CboOpenVpnSndBuf, LanguageManager.GetText(LanguageItems.Automatic));
 			else if (openVpnSndBuf == -1)
-				GuiUtils.SetSelected(CboOpenVpnSndBuf, LanguageManager.GetText("WindowsSettingsOpenVpnDefault"));
+				GuiUtils.SetSelected(CboOpenVpnSndBuf, LanguageManager.GetText(LanguageItems.WindowsSettingsOpenVpnDefault));
 			else if (openVpnSndBuf == 1024 * 8)
 				GuiUtils.SetSelected(CboOpenVpnSndBuf, "8 KB");
 			else if (openVpnSndBuf == 1024 * 16)
@@ -870,9 +878,9 @@ namespace Eddie.UI.Cocoa.Osx
 
 			int openVpnRcvBuf = o.GetInt("openvpn.rcvbuf");
 			if (openVpnRcvBuf == -2)
-				GuiUtils.SetSelected(CboOpenVpnRcvBuf, LanguageManager.GetText("Automatic"));
+				GuiUtils.SetSelected(CboOpenVpnRcvBuf, LanguageManager.GetText(LanguageItems.Automatic));
 			else if (openVpnRcvBuf == -1)
-				GuiUtils.SetSelected(CboOpenVpnRcvBuf, LanguageManager.GetText("WindowsSettingsOpenVpnDefault"));
+				GuiUtils.SetSelected(CboOpenVpnRcvBuf, LanguageManager.GetText(LanguageItems.WindowsSettingsOpenVpnDefault));
 			else if (openVpnRcvBuf == 1024 * 8)
 				GuiUtils.SetSelected(CboOpenVpnRcvBuf, "8 KB");
 			else if (openVpnRcvBuf == 1024 * 16)
@@ -887,10 +895,12 @@ namespace Eddie.UI.Cocoa.Osx
 				GuiUtils.SetSelected(CboOpenVpnRcvBuf, "256 KB");
 			else if (openVpnRcvBuf == 1024 * 512)
 				GuiUtils.SetSelected(CboOpenVpnRcvBuf, "512 KB");
-            			
-			// Network Lock
 
-			string lockMode = o.Get("netlock.mode");
+            GuiUtils.SetCheck(ChkNetworkingDnsLookupIPv6, o.GetBool("macos.ipv6.dnslookup"));
+
+			// Network Lock
+			GuiUtils.SetCheck(ChkNetLockConnection, o.GetBool("netlock.connection"));
+            string lockMode = o.Get("netlock.mode");
 			GuiUtils.SetSelected(CboLockMode, "None");
 			if (lockMode == "auto")
 				GuiUtils.SetSelected(CboLockMode, "Automatic");
@@ -934,7 +944,7 @@ namespace Eddie.UI.Cocoa.Osx
 			GuiUtils.SetCheck(ChkHummingbirdPrefer, o.GetBool("tools.hummingbird.preferred"));
 			TxtHummingbirdPath.StringValue = o.Get("tools.hummingbird.path");
 
-			if (Core.Platform.Instance.GetVersion().VersionUnder("10.13")) // Hummingbird require High Sierra
+			if (Core.Platform.Instance.GetVersion().VersionUnder("10.14")) // Hummingbird require Mojave
 			{
 				GuiUtils.SetEnabled(ChkHummingbirdPrefer, false);
 				GuiUtils.SetCheck(ChkHummingbirdPrefer, false);
@@ -968,7 +978,7 @@ namespace Eddie.UI.Cocoa.Osx
 			TxtLoggingPath.StringValue = o.Get("log.file.path");
 
 			// OpenVPN Directives
-			GuiUtils.SetSelected(CboOpenVpnDirectivesSkipDefault, (o.GetBool("openvpn.skip_defaults") ? LanguageManager.GetText("WindowsSettingsOpenVpnDirectivesDefaultSkip2") : LanguageManager.GetText("WindowsSettingsOpenVpnDirectivesDefaultSkip1")));
+			GuiUtils.SetSelected(CboOpenVpnDirectivesSkipDefault, (o.GetBool("openvpn.skip_defaults") ? LanguageManager.GetText(LanguageItems.WindowsSettingsOpenVpnDirectivesDefaultSkip2) : LanguageManager.GetText(LanguageItems.WindowsSettingsOpenVpnDirectivesDefaultSkip1)));
 			TxtAdvancedOpenVpnDirectivesDefault.StringValue = o.Get("openvpn.directives");
 			TxtAdvancedOpenVpnDirectivesCustom.StringValue = o.Get("openvpn.custom");
 			TxtOpenVpnDirectivesCustomPath.StringValue = o.Get("openvpn.directives.path");
@@ -990,11 +1000,11 @@ namespace Eddie.UI.Cocoa.Osx
 
 		bool Check()
 		{
-            if (GuiUtils.GetSelected(CboStorageMode) == LanguageManager.GetText("WindowsSettingsStorageModePassword"))
+            if (GuiUtils.GetSelected(CboStorageMode) == LanguageManager.GetText(LanguageItems.WindowsSettingsStorageModePassword))
             {
                 if( (TxtStoragePassword.StringValue == "") || (TxtStoragePassword.StringValue != TxtStoragePasswordConfirm.StringValue) )
                 {
-                    GuiUtils.MessageBoxError(LanguageManager.GetText("WindowsSettingsStoragePasswordMismatch"));
+                    GuiUtils.MessageBoxError(LanguageManager.GetText(LanguageItems.WindowsSettingsStoragePasswordMismatch));
                     return false;
                 }
             }
@@ -1012,7 +1022,7 @@ namespace Eddie.UI.Cocoa.Osx
 				}
 
 				if (hostNameUsed)
-                    if (GuiUtils.MessageYesNo(LanguageManager.GetText("WindowsSettingsRouteWithHostname")) == false)
+                    if (GuiUtils.MessageYesNo(LanguageManager.GetText(LanguageItems.WindowsSettingsRouteWithHostname)) == false)
 						return false;
 			}
 
@@ -1044,16 +1054,16 @@ namespace Eddie.UI.Cocoa.Osx
 
 
 
-            if(GuiUtils.GetSelected(CboStorageMode) == LanguageManager.GetText("WindowsSettingsStorageModeNone"))
+            if(GuiUtils.GetSelected(CboStorageMode) == LanguageManager.GetText(LanguageItems.WindowsSettingsStorageModeNone))
 			{
                 s.SaveFormat = "v2n";
             }
-            else if (GuiUtils.GetSelected(CboStorageMode) == LanguageManager.GetText("WindowsSettingsStorageModePassword"))
+            else if (GuiUtils.GetSelected(CboStorageMode) == LanguageManager.GetText(LanguageItems.WindowsSettingsStorageModePassword))
 			{
                 s.SaveFormat = "v2p";
                 s.SavePassword = TxtStoragePassword.StringValue;
             }
-            else if (GuiUtils.GetSelected(CboStorageMode) == LanguageManager.GetText("WindowsSettingsStorageModeOs", Core.Platform.Instance.OsCredentialSystemName()))
+            else if (GuiUtils.GetSelected(CboStorageMode) == LanguageManager.GetText(LanguageItems.WindowsSettingsStorageModeOs, Core.Platform.Instance.OsCredentialSystemName()))
 			{
                 s.SaveFormat = "v2s";
                 s.SavePassword = s.LoadPassword;
@@ -1063,9 +1073,9 @@ namespace Eddie.UI.Cocoa.Osx
 
             o.SetBool("gui.notifications", GuiUtils.GetCheck(ChkGeneralOsxNotifications));
 			string uiUnit = "";
-			if (GuiUtils.GetSelected(CboUiUnit) == LanguageManager.GetText("WindowsSettingsUiUnit1"))
+			if (GuiUtils.GetSelected(CboUiUnit) == LanguageManager.GetText(LanguageItems.WindowsSettingsUiUnit1))
 				uiUnit = "bytes";
-			else if (GuiUtils.GetSelected(CboUiUnit) == LanguageManager.GetText("WindowsSettingsUiUnit2"))
+			else if (GuiUtils.GetSelected(CboUiUnit) == LanguageManager.GetText(LanguageItems.WindowsSettingsUiUnit2))
 				uiUnit = "bits";
 			o.Set("ui.unit", uiUnit);
 			o.SetBool("ui.iec", GuiUtils.GetCheck(ChkUiIEC));
@@ -1102,13 +1112,13 @@ namespace Eddie.UI.Cocoa.Osx
 
 			o.Set("proxy.mode", GuiUtils.GetSelected(CboProxyType));
 
-			if (GuiUtils.GetSelected(CboProxyWhen) == LanguageManager.GetText("WindowsSettingsProxyWhenAlways"))
+			if (GuiUtils.GetSelected(CboProxyWhen) == LanguageManager.GetText(LanguageItems.WindowsSettingsProxyWhenAlways))
 				o.Set("proxy.when", "always");
-			else if (GuiUtils.GetSelected(CboProxyWhen) == LanguageManager.GetText("WindowsSettingsProxyWhenWeb"))
+			else if (GuiUtils.GetSelected(CboProxyWhen) == LanguageManager.GetText(LanguageItems.WindowsSettingsProxyWhenWeb))
 				o.Set("proxy.when", "web");
-			else if (GuiUtils.GetSelected(CboProxyWhen) == LanguageManager.GetText("WindowsSettingsProxyWhenOpenVPN"))
+			else if (GuiUtils.GetSelected(CboProxyWhen) == LanguageManager.GetText(LanguageItems.WindowsSettingsProxyWhenOpenVPN))
 				o.Set("proxy.when", "openvpn");
-			else if (GuiUtils.GetSelected(CboProxyWhen) == LanguageManager.GetText("WindowsSettingsProxyWhenNone"))
+			else if (GuiUtils.GetSelected(CboProxyWhen) == LanguageManager.GetText(LanguageItems.WindowsSettingsProxyWhenNone))
 				o.Set("proxy.when", "none");
 			else
 				o.Set("proxy.when", "always");
@@ -1152,30 +1162,30 @@ namespace Eddie.UI.Cocoa.Osx
 			// Networking
 
 			string networkIPv4Mode = GuiUtils.GetSelected(CboNetworkIPv4Mode);
-			if (networkIPv4Mode == LanguageManager.GetText("WindowsSettingsNetworkIpModeInAlways"))
+			if (networkIPv4Mode == LanguageManager.GetText(LanguageItems.WindowsSettingsNetworkIpModeInAlways))
 				o.Set("network.ipv4.mode", "in");
-			else if (networkIPv4Mode == LanguageManager.GetText("WindowsSettingsNetworkIpModeInOrOut"))
+			else if (networkIPv4Mode == LanguageManager.GetText(LanguageItems.WindowsSettingsNetworkIpModeInOrOut))
 				o.Set("network.ipv4.mode", "in-out");
-			else if (networkIPv4Mode == LanguageManager.GetText("WindowsSettingsNetworkIpModeInOrBlock"))
+			else if (networkIPv4Mode == LanguageManager.GetText(LanguageItems.WindowsSettingsNetworkIpModeInOrBlock))
 				o.Set("network.ipv4.mode", "in-block");
-			else if (networkIPv4Mode == LanguageManager.GetText("WindowsSettingsNetworkIpModeOut"))
+			else if (networkIPv4Mode == LanguageManager.GetText(LanguageItems.WindowsSettingsNetworkIpModeOut))
 				o.Set("network.ipv4.mode", "out");
-			else if (networkIPv4Mode == LanguageManager.GetText("WindowsSettingsNetworkIpModeBlock"))
+			else if (networkIPv4Mode == LanguageManager.GetText(LanguageItems.WindowsSettingsNetworkIpModeBlock))
 				o.Set("network.ipv4.mode", "block");
 			else
 				o.Set("network.ipv4.mode", "in");
             o.SetBool("network.ipv4.autoswitch", GuiUtils.GetCheck(ChkNetworkIPv4AutoSwitch));
 
 			string networkIPv6Mode = GuiUtils.GetSelected(CboNetworkIPv6Mode);
-			if (networkIPv6Mode == LanguageManager.GetText("WindowsSettingsNetworkIpModeInAlways"))
+			if (networkIPv6Mode == LanguageManager.GetText(LanguageItems.WindowsSettingsNetworkIpModeInAlways))
 				o.Set("network.ipv6.mode", "in");
-			else if (networkIPv6Mode == LanguageManager.GetText("WindowsSettingsNetworkIpModeInOrOut"))
+			else if (networkIPv6Mode == LanguageManager.GetText(LanguageItems.WindowsSettingsNetworkIpModeInOrOut))
 				o.Set("network.ipv6.mode", "in-out");
-			else if (networkIPv6Mode == LanguageManager.GetText("WindowsSettingsNetworkIpModeInOrBlock"))
+			else if (networkIPv6Mode == LanguageManager.GetText(LanguageItems.WindowsSettingsNetworkIpModeInOrBlock))
 				o.Set("network.ipv6.mode", "in-block");
-			else if (networkIPv6Mode == LanguageManager.GetText("WindowsSettingsNetworkIpModeOut"))
+			else if (networkIPv6Mode == LanguageManager.GetText(LanguageItems.WindowsSettingsNetworkIpModeOut))
 				o.Set("network.ipv6.mode", "out");
-			else if (networkIPv6Mode == LanguageManager.GetText("WindowsSettingsNetworkIpModeBlock"))
+			else if (networkIPv6Mode == LanguageManager.GetText(LanguageItems.WindowsSettingsNetworkIpModeBlock))
 				o.Set("network.ipv6.mode", "block");
 			else
 				o.Set("network.ipv6.mode", "in-block");
@@ -1204,9 +1214,9 @@ namespace Eddie.UI.Cocoa.Osx
 			}
 
 			string openVpnSndBuf = GuiUtils.GetSelected(CboOpenVpnSndBuf);
-			if (openVpnSndBuf == LanguageManager.GetText("Automatic"))
+			if (openVpnSndBuf == LanguageManager.GetText(LanguageItems.Automatic))
 				o.SetInt("openvpn.sndbuf", -2);
-			else if (openVpnSndBuf == LanguageManager.GetText("WindowsSettingsOpenVpnDefault"))
+			else if (openVpnSndBuf == LanguageManager.GetText(LanguageItems.WindowsSettingsOpenVpnDefault))
 				o.SetInt("openvpn.sndbuf", -1);
 			else if (openVpnSndBuf == "8 KB")
 				o.SetInt("openvpn.sndbuf", 1024 * 8);
@@ -1224,9 +1234,9 @@ namespace Eddie.UI.Cocoa.Osx
 				o.SetInt("openvpn.sndbuf", 1024 * 512);
 
 			string openVpnRcvBuf = GuiUtils.GetSelected(CboOpenVpnRcvBuf);
-			if (openVpnRcvBuf == LanguageManager.GetText("Automatic"))
+			if (openVpnRcvBuf == LanguageManager.GetText(LanguageItems.Automatic))
 				o.SetInt("openvpn.rcvbuf", -2);
-			else if (openVpnRcvBuf == LanguageManager.GetText("WindowsSettingsOpenVpnDefault"))
+			else if (openVpnRcvBuf == LanguageManager.GetText(LanguageItems.WindowsSettingsOpenVpnDefault))
 				o.SetInt("openvpn.rcvbuf", -1);
 			else if (openVpnRcvBuf == "8 KB")
 				o.SetInt("openvpn.rcvbuf", 1024 * 8);
@@ -1243,9 +1253,12 @@ namespace Eddie.UI.Cocoa.Osx
 			else if (openVpnRcvBuf == "512 KB")
 				o.SetInt("openvpn.rcvbuf", 1024 * 512);
 
-			// Network Lock
+            o.SetBool("macos.ipv6.dnslookup", GuiUtils.GetCheck(ChkNetworkingDnsLookupIPv6));
 
-			string lockMode = GuiUtils.GetSelected(CboLockMode);
+            // Network Lock
+			            
+			o.Set("netlock.connection", GuiUtils.GetCheck(ChkNetLockConnection));
+            string lockMode = GuiUtils.GetSelected(CboLockMode);
 			o.Set("netlock.mode", "none");
 			if (lockMode == "Automatic")
 			{
@@ -1319,7 +1332,7 @@ namespace Eddie.UI.Cocoa.Osx
 			o.Set("log.file.path", TxtLoggingPath.StringValue);
 
 			// OpenVPN Directives
-			o.SetBool("openvpn.skip_defaults", GuiUtils.GetSelected(CboOpenVpnDirectivesSkipDefault) == LanguageManager.GetText("WindowsSettingsOpenVpnDirectivesDefaultSkip2"));
+			o.SetBool("openvpn.skip_defaults", GuiUtils.GetSelected(CboOpenVpnDirectivesSkipDefault) == LanguageManager.GetText(LanguageItems.WindowsSettingsOpenVpnDirectivesDefaultSkip2));
 			o.Set("openvpn.directives", TxtAdvancedOpenVpnDirectivesDefault.StringValue);
 			o.Set("openvpn.custom", TxtAdvancedOpenVpnDirectivesCustom.StringValue);
 			o.Set("openvpn.directives.path", TxtOpenVpnDirectivesCustomPath.StringValue);
@@ -1342,7 +1355,7 @@ namespace Eddie.UI.Cocoa.Osx
 		public void EnableIde()
 		{
 			// General
-			GuiUtils.SetEnabled(TxtStoragePassword, (GuiUtils.GetSelected(CboStorageMode) == LanguageManager.GetText("WindowsSettingsStorageModePassword")));
+			GuiUtils.SetEnabled(TxtStoragePassword, (GuiUtils.GetSelected(CboStorageMode) == LanguageManager.GetText(LanguageItems.WindowsSettingsStorageModePassword)));
 			GuiUtils.SetEnabled(TxtStoragePasswordConfirm, TxtStoragePassword.Enabled);
 
 			// Protocols

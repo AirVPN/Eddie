@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -30,8 +30,8 @@ namespace Eddie.Core
 		public static string PasswordIfEmpty = "e6552ddf3ac5c8755a82870d91273a63eab0da1e";
 		public static string WintunPool = "Eddie";
 		public static string Thanks = "Clodo, PJ, reiandrea, ProMIND, Berserker, OpenSourcerer, zhang888, LZ1, giganerd, Uncle Hunto, go558a83nk, sheivoko, NaDre, pfSense_fan, x0wllaar, cmaves";
-		public static int VersionInt = 286;
-		public static string VersionDesc = "2.22.2"; // Used by deploy system also to generate filenames
+		public static int VersionInt = 287;
+		public static string VersionDesc = "2.23.0"; // Used by deploy system also to generate filenames
 		public static bool VersionBeta = false;
 		public static string Domain = "eddie.website";
 		public static string WebSite = "https://eddie.website";
@@ -39,7 +39,7 @@ namespace Eddie.Core
 		public static string WebSiteIPv6 = "2a03:b0c0:2:d0::11b4:6001"; // Used only in Test Report (Log>Lifebeft)
 		public static string DnsVpn = "10.4.0.1"; // < 2.9, TOCLEAN
 		public static DateTime dateForPastChecking = new DateTime(2014, 08, 26);
-		public static string ElevatedVersionExpected = "v1376";
+		public static string ElevatedVersionExpected = "v1377";
 		public static int ElevatedServicePort = 9349;
 
 		// Feature activation at compilation-time

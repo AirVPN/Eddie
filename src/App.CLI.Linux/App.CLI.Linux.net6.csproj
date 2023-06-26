@@ -1,11 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
-		<Platform Condition=" '$(Platform)' == '' ">x86</Platform>
 		<OutputType>Exe</OutputType>
+		<TargetFramework>net6.0</TargetFramework>
+		<Platforms>x86;x64</Platforms>
+		<PublishSingleFile>true</PublishSingleFile>
+		<PublishReadyToRun>true</PublishReadyToRun>		
+    	<SelfContained>true</SelfContained>
+		<PublishTrimmed>false</PublishTrimmed>
+		<Platform Condition=" '$(Platform)' == '' ">x86</Platform>		
 		<RootNamespace>Eddie.CLI.Linux</RootNamespace>
-		<ReleaseVersion>2.19</ReleaseVersion>
-		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>		
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
 		<OutputPath>bin\x86\Debug\</OutputPath>

@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -53,7 +53,7 @@ namespace Eddie.Forms.Forms
 		protected override void OnLoad(EventArgs e)
 		{
 			base.OnLoad(e);
-			CommonInit(LanguageManager.GetText("WindowsProviderEditOpenVPNTitle"));
+			CommonInit(LanguageManager.GetText(LanguageItems.WindowsProviderEditOpenVPNTitle));
 
 			lblTitle.Text = Provider.DefinitionTitle;
 			lblSubtitle.Text = Provider.DefinitionSubTitle;
@@ -62,7 +62,7 @@ namespace Eddie.Forms.Forms
 			txtTitle2.Text = Provider.Title;
 			txtPath.Text = Provider.Path;
 
-			chkSupportIPv6.Text = LanguageManager.GetText("WindowsProviderEditOpenVPNSupportIPv6");
+			chkSupportIPv6.Text = LanguageManager.GetText(LanguageItems.WindowsProviderEditOpenVPNSupportIPv6);
 			chkSupportIPv6.Checked = Provider.SupportIPv6;
 
 			txtAuthPassUsername.Text = Provider.AuthPassUsername;
@@ -88,7 +88,7 @@ namespace Eddie.Forms.Forms
 
 		private void cmdPathBrowse_Click(object sender, EventArgs e)
 		{
-			string result = GuiUtils.DirectoryPicker(LanguageManager.GetText("WindowsProviderEditOpenVPNPathBrowse"), txtPath.Text);
+			string result = GuiUtils.DirectoryPicker(LanguageManager.GetText(LanguageItems.WindowsProviderEditOpenVPNPathBrowse), txtPath.Text);
 			if (result != "")
 				txtPath.Text = result;
 		}

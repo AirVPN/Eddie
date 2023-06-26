@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -49,7 +49,7 @@ namespace Eddie.Forms.Skin
 
 		public static bool IsWindows()
 		{
-			return (Environment.OSVersion.VersionString.IndexOf("Windows") != -1);
+			return (Environment.OSVersion.VersionString.IndexOf("Windows", StringComparison.InvariantCulture) != -1);
 		}
 
 		public static bool IsUnix()
@@ -83,7 +83,7 @@ namespace Eddie.Forms.Skin
 				if (gsettingsPath != "")
 				{
 					string uFontSystem = SkinUtilsCore.Exec(gsettingsPath, "get org.gnome.desktop.interface font-name").Trim('\'');
-					int uFontSystemSep = uFontSystem.LastIndexOf(" ");
+					int uFontSystemSep = uFontSystem.LastIndexOf(" ", StringComparison.InvariantCulture);
 					if (uFontSystemSep != -1)
 					{
 						m_unixFontSystemName = uFontSystem.Substring(0, uFontSystemSep).TrimChars(",; \n\r");
@@ -91,7 +91,7 @@ namespace Eddie.Forms.Skin
 					}
 
 					string uFontMono = SkinUtilsCore.Exec(gsettingsPath, "get org.gnome.desktop.interface monospace-font-name").Trim('\'');
-					int uFontMonoSep = uFontMono.LastIndexOf(" ");
+					int uFontMonoSep = uFontMono.LastIndexOf(" ", StringComparison.InvariantCulture);
 					if (uFontMonoSep != -1)
 					{
 						m_unixFontMonoSpaceName = uFontMono.Substring(0, uFontMonoSep).TrimChars(",; \n\r");
@@ -166,10 +166,8 @@ namespace Eddie.Forms.Skin
 		{
 			using (var testFont = new Font(fontName, 8))
 			{
-				return 0 == string.Compare(
-				  fontName,
-				  testFont.Name,
-				  StringComparison.InvariantCultureIgnoreCase);
+				//return 0 == string.Compare(fontName, testFont.Name, StringComparison.InvariantCultureIgnoreCase); // TOCLEAN
+				return string.Equals(fontName, testFont.Name, StringComparison.InvariantCultureIgnoreCase);
 			}
 		}
 

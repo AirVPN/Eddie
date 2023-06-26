@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -45,8 +45,7 @@ namespace Eddie.Platform.Linux
 		private string m_systemdUnitsPath = "/usr/lib/systemd/system";
 		private string m_systemdUnitPath = "/usr/lib/systemd/system/eddie-elevated.service";
 
-		private string m_dnsSwitchRenameBody = "";
-
+		private IpAddresses m_dnsSwitch = new IpAddresses();
 
 		private NetworkLockNftables m_netlockPluginNftables;
 		private NetworkLockIptablesLegacy m_netlockPluginIptablesLegacy;
@@ -374,7 +373,7 @@ namespace Eddie.Platform.Linux
 			if (lddPath != "")
 				return SystemExec.Exec1(lddPath, SystemExec.EscapePath(path));
 			else
-				return "'ldd' " + LanguageManager.GetText("NotFound");
+				return "'ldd' " + LanguageManager.GetText(LanguageItems.NotFound);
 		}
 
 		public override string GetExecutablePathEx()
@@ -447,44 +446,30 @@ namespace Eddie.Platform.Linux
 				process.StartInfo.FileName = FileAdaptProcessExec(path);
 				process.StartInfo.Arguments = String.Join(" ", arguments);
 			}
+			else if (IsElevatedPrivileges())
+			{
+				process.StartInfo.FileName = FileAdaptProcessExec(path);
+				process.StartInfo.Arguments = String.Join(" ", arguments);
+			}
+			else if ( (Engine.Instance.StartCommandLine.Exists("sudo")) && (LocateExecutable("sudo") != "") )
+			{
+				// This mode don't work well, under Ubuntu (where pkexec works) break terminal, and in general different behiavour in different distro
+
+				// Under Manjaro, seem works even if not in groups
+				//List<string> groups = new List<string>(SystemExec.Exec0(LocateExecutable("groups")).ToLowerInv().Split(' '));
+				//if (groups.Contains("sudo"))
+
+				// Ask for password, but for unknown reason, password mismatch (endofline at first character), stdin issue, probably related to Mono.
+				//process.StartInfo.FileName = "su";
+				//process.StartInfo.Arguments = "-c \"'" + path + "' " + String.Join(" ", arguments) + "\"";
+
+				process.StartInfo.FileName = LocateExecutable("sudo");
+				process.StartInfo.Arguments = "\"" + path + "\" " + String.Join(" ", arguments);
+			}
 			else
 			{
-				if (consoleMode)
-				{
-					if (IsElevatedPrivileges())
-					{
-						process.StartInfo.FileName = FileAdaptProcessExec(path);
-						process.StartInfo.Arguments = String.Join(" ", arguments);
-					}
-					else
-					{
-						string sudoPath = LocateExecutable("sudo");
-						if (sudoPath != "")
-						{
-							List<string> groups = new List<string>(SystemExec.Exec0(LocateExecutable("groups")).ToLowerInv().Split(' '));
-							if (groups.Contains("sudo"))
-							{
-								process.StartInfo.FileName = "sudo";
-								process.StartInfo.Arguments = "\"" + path + "\" " + String.Join(" ", arguments);
-							}
-							else
-							{
-								// Ask for password, but for unknown reason, password mismatch (endofline at first character), stdin issue, probably related to Mono.
-								//process.StartInfo.FileName = "su";
-								//process.StartInfo.Arguments = "-c \"'" + path + "' " + String.Join(" ", arguments) + "\"";
-
-								// This works in Manjaro
-								process.StartInfo.FileName = "sudo";
-								process.StartInfo.Arguments = "\"" + path + "\" " + String.Join(" ", arguments);
-							}
-						}
-					}
-				}
-				else
-				{
-					process.StartInfo.FileName = "pkexec";
-					process.StartInfo.Arguments = "\"" + path + "\" " + String.Join(" ", arguments);
-				}
+				process.StartInfo.FileName = LocateExecutable("pkexec");
+				process.StartInfo.Arguments = "\"" + path + "\" " + String.Join(" ", arguments);
 			}
 
 			if (process.StartInfo.FileName == "")
@@ -683,11 +668,11 @@ namespace Eddie.Platform.Linux
 		{
 			base.OnReport(report);
 
-			report.Add("ip addr show", (LocateExecutable("ip") != "") ? SystemExec.Exec2(LocateExecutable("ip"), "addr", "show") : "'ip' " + LanguageManager.GetText("NotFound"));
-			report.Add("ip link show", (LocateExecutable("ip") != "") ? SystemExec.Exec2(LocateExecutable("ip"), "link", "show") : "'ip' " + LanguageManager.GetText("NotFound"));
+			report.Add("ip addr show", (LocateExecutable("ip") != "") ? SystemExec.Exec2(LocateExecutable("ip"), "addr", "show") : "'ip' " + LanguageManager.GetText(LanguageItems.NotFound));
+			report.Add("ip link show", (LocateExecutable("ip") != "") ? SystemExec.Exec2(LocateExecutable("ip"), "link", "show") : "'ip' " + LanguageManager.GetText(LanguageItems.NotFound));
 			/*
-			report.Add("ip -4 route show", (LocateExecutable("ip") != "") ? SystemExec.Exec3(LocateExecutable("ip"), "-4", "route", "show") : "'ip' " + LanguageManager.GetText("NotFound"));
-			report.Add("ip -6 route show", (LocateExecutable("ip") != "") ? SystemExec.Exec3(LocateExecutable("ip"), "-6", "route", "show") : "'ip' " + LanguageManager.GetText("NotFound"));
+			report.Add("ip -4 route show", (LocateExecutable("ip") != "") ? SystemExec.Exec3(LocateExecutable("ip"), "-4", "route", "show") : "'ip' " + LanguageManager.GetText(LanguageItems.NotFound));
+			report.Add("ip -6 route show", (LocateExecutable("ip") != "") ? SystemExec.Exec3(LocateExecutable("ip"), "-6", "route", "show") : "'ip' " + LanguageManager.GetText(LanguageItems.NotFound));
 			*/
 		}
 
@@ -771,16 +756,16 @@ namespace Eddie.Platform.Linux
 		{
 			string getentPath = LocateExecutable("getent");
 			if (getentPath == "")
-				throw new Exception("'getent' " + LanguageManager.GetText("NotFound"));
+				throw new Exception("'getent' " + LanguageManager.GetText(LanguageItems.NotFound));
 
 			string ipPath = LocateExecutable("ip");
 			if (ipPath == "")
-				throw new Exception("'ip' " + LanguageManager.GetText("NotFound"));
+				throw new Exception("'ip' " + LanguageManager.GetText(LanguageItems.NotFound));
 		}
 
 		public override void OnCheckUpMonitor()
 		{
-			DnsSwitchRenameCheck();
+			DnsSwitchCheck();
 		}
 
 		public override bool OnCheckSingleInstance()
@@ -873,7 +858,7 @@ namespace Eddie.Platform.Linux
 					entry.Interface = interfaceName;
 					m_listIpV6Mode.Add(entry);
 
-					Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("OsLinuxNetworkAdapterIPv6Disabled", interfaceName));
+					Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText(LanguageItems.OsLinuxNetworkAdapterIPv6Disabled, interfaceName));
 				}
 			}
 
@@ -893,7 +878,7 @@ namespace Eddie.Platform.Linux
 				c.Parameters["interface"] = entry.Interface;
 				Engine.Instance.Elevated.DoCommandSync(c);
 
-				Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("OsLinuxNetworkAdapterIPv6Restored", entry.Interface));
+				Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText(LanguageItems.OsLinuxNetworkAdapterIPv6Restored, entry.Interface));
 			}
 
 			m_listIpV6Mode.Clear();
@@ -905,34 +890,25 @@ namespace Eddie.Platform.Linux
 			return true;
 		}
 
-		public void DnsSwitchRenameCheck()
+		public void DnsSwitchCheck()
 		{
-			if (GetDnsSwitchMode() == "rename")
+			if (GetDnsSwitchMode() == "auto")
 			{
-				if (m_dnsSwitchRenameBody != "")
+				if (m_dnsSwitch.Count > 0)
 				{
-					string result = Engine.Instance.Elevated.DoCommandSync("dns-switch-rename-do", "text", m_dnsSwitchRenameBody);
-
-					if (result == "1")
-					{
-						Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("OsLinuxDnsRenameDone"));
-					}
+					Engine.Instance.Elevated.DoCommandSync("dns-switch-do", "dns", m_dnsSwitch.ToString(), "check", "1");
 				}
 			}
 		}
 
 		public override bool OnDnsSwitchDo(Core.ConnectionTypes.IConnectionType connection, IpAddresses dns)
 		{
-			if (GetDnsSwitchMode() == "rename")
+			if (GetDnsSwitchMode() == "auto")
 			{
-				string text = "# " + Utils.GenerateFileHeader() + EndOfLineSep + EndOfLineSep;
+				m_dnsSwitch = dns.Clone();
 
-				foreach (IpAddress dnsSingle in dns.IPs)
-					text += "nameserver " + dnsSingle.Address + EndOfLineSep;
-
-				m_dnsSwitchRenameBody = text;
-
-				DnsSwitchRenameCheck();
+				if(m_dnsSwitch.Count > 0)
+					Engine.Instance.Elevated.DoCommandSync("dns-switch-do", "dns", m_dnsSwitch.ToString());
 			}
 
 			base.OnDnsSwitchDo(connection, dns);
@@ -941,14 +917,9 @@ namespace Eddie.Platform.Linux
 		}
 
 		public override bool OnDnsSwitchRestore()
-		{
-			// Cleaning rename method if pending			
-			string result = Engine.Instance.Elevated.DoCommandSync("dns-switch-rename-restore");
-			if(result == "1")
-			{
-				Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("OsLinuxDnsRenameRestored"));
-			}
-			m_dnsSwitchRenameBody = "";
+		{			
+			Engine.Instance.Elevated.DoCommandSync("dns-switch-restore");
+			m_dnsSwitch.Clear();
 
 			base.OnDnsSwitchRestore();
 
@@ -982,9 +953,16 @@ namespace Eddie.Platform.Linux
 
 		public override string OsCredentialSystemRead(string name)
 		{
+			// See comment in OsCredentialsSystemWrite
+			string timeoutPath = LocateExecutable("timeout");
+			if (timeoutPath == "")
+				return "";
 			string secretToolPath = LocateExecutable("secret-tool");
 			SystemExec exec = new SystemExec();
-			exec.Path = secretToolPath;
+			//exec.Path = secretToolPath;
+			exec.Path = timeoutPath;
+			exec.Arguments.Add("10");
+			exec.Arguments.Add(secretToolPath);
 			exec.Arguments.Add("lookup");
 			exec.Arguments.Add("'Eddie Profile'");
 			exec.Arguments.Add("'" + SystemExec.EscapeInsideQuote(name) + "'");
@@ -998,9 +976,19 @@ namespace Eddie.Platform.Linux
 
 		public override bool OsCredentialSystemWrite(string name, string password)
 		{
+			// Due to unresolved bug (that occur also in fresh Kali installed in 2023-06
+			// https://gitlab.gnome.org/GNOME/gnome-keyring/-/issues/116
+			// if gnome-keyring is stuck, timeout never occur. Mono timeout don't work.
+			// TOFIX: migrate to a better tool.
+			string timeoutPath = LocateExecutable("timeout");
+			if (timeoutPath == "")
+				return false;
 			string secretToolPath = LocateExecutable("secret-tool");
 			SystemExec exec = new SystemExec();
-			exec.Path = secretToolPath;
+			//exec.Path = secretToolPath;
+			exec.Path = timeoutPath;
+			exec.Arguments.Add("10");
+			exec.Arguments.Add(secretToolPath);
 			exec.Arguments.Add("store");
 			exec.Arguments.Add("--label='Eddie, saved password for " + SystemExec.EscapeInsideQuote(name) + " profile'");
 			exec.Arguments.Add("'Eddie Profile'");
@@ -1064,20 +1052,10 @@ namespace Eddie.Platform.Linux
 		{
 			string current = Engine.Instance.ProfileOptions.GetLower("dns.mode");
 
-			if (current == "auto")
-				current = "rename";
-
-			if (current == "resolvconf")
-				current = "rename";
-
-			/*
-            // Fallback
-            if ((current == "resolvconv") && (Software.FindResource("update-resolv-conf") == ""))
-                current = "rename";
-
-            if ((current == "resolvconv") && (Platform.Instance.FileExists("/sbin/resolvconf") == false))
-                current = "rename";
-            */
+			if (current == "resolvconf") // Compatibility, Deprecated
+				current = "auto";
+			if (current == "rename") // Compatibility, Deprecated
+				current = "auto";
 
 			return current;
 		}

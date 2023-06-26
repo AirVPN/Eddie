@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -255,7 +255,7 @@ namespace Eddie.Core
 
 				if (Platform.Instance.OnCheckSingleInstance() == false)
 				{
-					Logs.Log(LogType.Fatal, LanguageManager.GetText("OsInstanceAlreadyRunning"));
+					Logs.Log(LogType.Fatal, LanguageManager.GetText(LanguageItems.OsInstanceAlreadyRunning));
 					return false;
 				}
 
@@ -271,7 +271,7 @@ namespace Eddie.Core
 
 						UiManager.Broadcast("webui.init", "url", m_webserver.ListenUrl + "/?app=" + Platform.Instance.GetCode());
 
-						UiManager.Broadcast("init.step", "message", LanguageManager.GetText("InitStepStartingWebserver"));
+						UiManager.Broadcast("init.step", "message", LanguageManager.GetText(LanguageItems.InitStepStartingWebserver));
 					}
 				}
 
@@ -281,11 +281,11 @@ namespace Eddie.Core
 
 				// Init Elevation
 				{
-					UiManager.Broadcast("init.step", "message", LanguageManager.GetText("InitStepWaitSystemPrivileges"));
+					UiManager.Broadcast("init.step", "message", LanguageManager.GetText(LanguageItems.InitStepWaitSystemPrivileges));
 
 					Platform.Instance.WaitService();
 
-					UiManager.Broadcast("init.step", "message", LanguageManager.GetText("InitStepConnectSystemPrivileges"));
+					UiManager.Broadcast("init.step", "message", LanguageManager.GetText(LanguageItems.InitStepConnectSystemPrivileges));
 
 					m_elevated = Platform.Instance.StartElevated();
 					if (m_elevated == null)
@@ -298,7 +298,7 @@ namespace Eddie.Core
 					Platform.Instance.OnElevated();
 				}
 
-				UiManager.Broadcast("init.step", "message", LanguageManager.GetText("InitStepInitialization"));
+				UiManager.Broadcast("init.step", "message", LanguageManager.GetText(LanguageItems.InitStepInitialization));
 
 				// Compute paths
 				{
@@ -350,7 +350,7 @@ namespace Eddie.Core
 				StartCommandLine.Check();
 
 				// Providers
-				UiManager.Broadcast("init.step", "message", LanguageManager.GetText("InitStepLoadingProviders"));
+				UiManager.Broadcast("init.step", "message", LanguageManager.GetText(LanguageItems.InitStepLoadingProviders));
 				m_providersManager = new ProvidersManager();
 				if (m_providersManager.Init() == false)
 				{
@@ -359,7 +359,7 @@ namespace Eddie.Core
 				}
 
 				// Network info
-				UiManager.Broadcast("init.step", "message", LanguageManager.GetText("CollectNetworkInfo"));
+				UiManager.Broadcast("init.step", "message", LanguageManager.GetText(LanguageItems.CollectNetworkInfo));
 				NetworkInfoUpdate();
 
 				CountriesManager.Init();
@@ -382,7 +382,7 @@ namespace Eddie.Core
 				if (m_storage != null)
 					throw new Exception("Unexpected profile already init");
 
-				UiManager.Broadcast("init.step", "message", LanguageManager.GetText("InitStepLoadingData"));
+				UiManager.Broadcast("init.step", "message", LanguageManager.GetText(LanguageItems.InitStepLoadingData));
 
 				CompatibilityManager.FixOldProfilePath(GetProfilePath()); // 2.15
 
@@ -392,7 +392,7 @@ namespace Eddie.Core
 				m_storage.SavePath = GetProfilePath();
 				if (Platform.Instance.FileExists(GetProfilePath()) == false)
 				{
-					Logs.Log(LogType.Verbose, LanguageManager.GetText("OptionsNotFound"));
+					Logs.Log(LogType.Verbose, LanguageManager.GetText(LanguageItems.OptionsNotFound));
 				}
 				else
 				{
@@ -403,7 +403,7 @@ namespace Eddie.Core
 					}
 					else
 					{
-						Logs.Log(LogType.Verbose, LanguageManager.GetText("OptionsRead", GetProfilePath()));
+						Logs.Log(LogType.Verbose, LanguageManager.GetText(LanguageItems.OptionsRead, GetProfilePath()));
 					}
 				}
 
@@ -415,7 +415,7 @@ namespace Eddie.Core
 				j["command"].Value = "ui.manifest";
 				UiManager.Broadcast(j);
 
-				UiManager.Broadcast("init.step", "message", LanguageManager.GetText("InitStepStartingPlatform"));
+				UiManager.Broadcast("init.step", "message", LanguageManager.GetText(LanguageItems.InitStepStartingPlatform));
 				Platform.Instance.OnStart();
 
 				m_jobsManager = new JobsManager();
@@ -426,7 +426,7 @@ namespace Eddie.Core
 				m_pingManager = new PingManager();
 				m_pingManager.Init();
 
-				UiManager.Broadcast("init.step", "message", LanguageManager.GetText("InitStepCheckingSoftware"));
+				UiManager.Broadcast("init.step", "message", LanguageManager.GetText(LanguageItems.InitStepCheckingSoftware));
 				Software.Checking();
 				Software.Log();
 
@@ -434,26 +434,34 @@ namespace Eddie.Core
 
 				CheckEnvironmentApp();
 
-				UiManager.Broadcast("init.step", "message", LanguageManager.GetText("InitStepCheckRecoveryStatus"));
+				foreach (Providers.IProvider provider in ProvidersManager.Providers)
+				{
+					if (provider.Enabled)
+					{
+						provider.OnCheck();
+					}
+				}
+
+				UiManager.Broadcast("init.step", "message", LanguageManager.GetText(LanguageItems.InitStepCheckRecoveryStatus));
 				Platform.Instance.OnRecoveryAlways();
 				Recovery.Load();
 
-				UiManager.Broadcast("init.step", "message", LanguageManager.GetText("InitStepComputeData"));
+				UiManager.Broadcast("init.step", "message", LanguageManager.GetText(LanguageItems.InitStepComputeData));
 				PostManifestUpdate();
 
-				UiManager.Broadcast("init.step", "message", LanguageManager.GetText("InitStepAppStartEvents"));
+				UiManager.Broadcast("init.step", "message", LanguageManager.GetText(LanguageItems.InitStepAppStartEvents));
 				RunEventCommand("app.start");
 
 				if (ProfileOptions.GetLower("netlock.mode") != "none")
 				{
 					if (ProfileOptions.GetBool("netlock")) // 2.8
 					{
-						UiManager.Broadcast("init.step", "message", LanguageManager.GetText("NetworkLockActivation"));
-						if (m_networkLockManager.Activation() == false)
+						UiManager.Broadcast("init.step", "message", LanguageManager.GetText(LanguageItems.NetworkLockActivation));
+						if (m_networkLockManager.Activation(true) == false)
 						{
 							if (ProfileOptions.GetBool("connect"))
 							{
-								Logs.Log(LogType.Fatal, LanguageManager.GetText("NetworkLockActivationConnectStop"));
+								Logs.Log(LogType.Fatal, LanguageManager.GetText(LanguageItems.NetworkLockActivationConnectStop));
 								ProfileOptions.SetBool("connect", false);
 							}
 						}
@@ -462,13 +470,13 @@ namespace Eddie.Core
 
 				WaitMessageClear();
 
-				UiManager.Broadcast("init.step", "message", LanguageManager.GetText("InitStepUi"));
+				UiManager.Broadcast("init.step", "message", LanguageManager.GetText(LanguageItems.InitStepUi));
 				UiManager.Broadcast("engine.ui");
 
 				if (OnInitUi() == false)
 					return false;
 
-				Logs.Log(LogType.Info, LanguageManager.GetText("Ready"));
+				Logs.Log(LogType.Info, LanguageManager.GetText(LanguageItems.Ready));
 				UiManager.Broadcast("engine.ready");
 
 				UiManager.Broadcast("webui.ready");
@@ -478,7 +486,7 @@ namespace Eddie.Core
 				if (ConsoleMode)
 					Auth();
 
-				if (ProfileOptions.GetBool("connect"))
+				if ((StartCommandLine.Exists("batch")) || (ProfileOptions.GetBool("connect")))
 					Connect();
 
 				return true;
@@ -531,7 +539,7 @@ namespace Eddie.Core
 				}
 				else if (currentAction == ActionService.NetLockIn)
 				{
-					m_networkLockManager.Activation();
+					m_networkLockManager.Activation(false);
 					WaitMessageClear();
 				}
 				else if (currentAction == ActionService.NetLockOut)
@@ -566,13 +574,20 @@ namespace Eddie.Core
 					}
 				}
 
-
+				// If batch mode, if the session don't started or ended, exit
+				if (StartCommandLine.Exists("batch"))
+				{
+					if (m_threadSession == null)
+					{						
+						RequestStop();
+					}
+				}
 			}
 		}
 
 		public void MainStepDeInit()
 		{
-			Logs.Log(LogType.Verbose, LanguageManager.GetText("AppShutdownStart"));
+			Logs.Log(LogType.Verbose, LanguageManager.GetText(LanguageItems.AppShutdownStart));
 
 			OnDeInit();
 
@@ -580,7 +595,7 @@ namespace Eddie.Core
 
 			OnDeInit2();
 
-			Logs.Log(LogType.Verbose, LanguageManager.GetText("AppShutdownComplete"));
+			Logs.Log(LogType.Verbose, LanguageManager.GetText(LanguageItems.AppShutdownComplete));
 		}
 
 		public override void OnRun()
@@ -617,7 +632,7 @@ namespace Eddie.Core
 		{
 			SessionStop();
 
-			WaitMessageSet(LanguageManager.GetText("AppExiting"), false);
+			WaitMessageSet(LanguageManager.GetText(LanguageItems.AppExiting), false);
 
 			if (m_jobsManager != null)
 			{
@@ -702,7 +717,7 @@ namespace Eddie.Core
 
 		public virtual void OnSignal(string signal)
 		{
-			Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("ReceivedOsSignal", signal));
+			Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText(LanguageItems.ReceivedOsSignal, signal));
 			m_breakRequests++;
 			Exit();
 		}
@@ -960,9 +975,7 @@ namespace Eddie.Core
 			{
 				string lines = l.GetStringLines().Trim();
 
-				if (StartCommandLine.Get("console.mode", "keys") == "batch")
-					Console.WriteLine(lines);
-				if (StartCommandLine.Get("console.mode", "keys") == "keys")
+				if (StartCommandLine.Get("stdinoutcontrol", "") == "")
 					Console.WriteLine(lines);
 
 				if (ProfileOptions != null)
@@ -984,7 +997,7 @@ namespace Eddie.Core
 						}
 						catch (Exception ex)
 						{
-							Logs.Log(LogType.Warning, LanguageManager.GetText("LogsDisabledForError", ex.Message));
+							Logs.Log(LogType.Warning, LanguageManager.GetText(LanguageItems.LogsDisabledForError, ex.Message));
 							ProfileOptions.SetBool("log.file.enabled", false);
 						}
 					}
@@ -1101,13 +1114,13 @@ namespace Eddie.Core
 					connectionInfo.WarningAdd(connectionInfo.WarningClosed, ConnectionInfoWarning.WarningType.Error);
 
 				if ((Engine.Instance.ProfileOptions.Get("network.entry.iplayer") == "ipv6-only") && (connectionInfo.IpsEntry.CountIPv6 == 0))
-					connectionInfo.WarningAdd(LanguageManager.GetText("ConnectionWarningNoEntryIPv6"), ConnectionInfoWarning.WarningType.Error);
+					connectionInfo.WarningAdd(LanguageManager.GetText(LanguageItems.ConnectionWarningNoEntryIPv6), ConnectionInfoWarning.WarningType.Error);
 				if ((Engine.Instance.ProfileOptions.Get("network.entry.iplayer") == "ipv4-only") && (connectionInfo.IpsEntry.CountIPv4 == 0))
-					connectionInfo.WarningAdd(LanguageManager.GetText("ConnectionWarningNoEntryIPv4"), ConnectionInfoWarning.WarningType.Error);
+					connectionInfo.WarningAdd(LanguageManager.GetText(LanguageItems.ConnectionWarningNoEntryIPv4), ConnectionInfoWarning.WarningType.Error);
 				if ((Engine.Instance.ProfileOptions.Get("network.ipv4.mode") == "in") && (connectionInfo.SupportIPv4 == false))
-					connectionInfo.WarningAdd(LanguageManager.GetText("ConnectionWarningNoExitIPv4"), ConnectionInfoWarning.WarningType.Error);
+					connectionInfo.WarningAdd(LanguageManager.GetText(LanguageItems.ConnectionWarningNoExitIPv4), ConnectionInfoWarning.WarningType.Error);
 				if ((Engine.Instance.GetNetworkIPv6Mode() == "in") && (connectionInfo.SupportIPv6 == false))
-					connectionInfo.WarningAdd(LanguageManager.GetText("ConnectionWarningNoExitIPv6"), ConnectionInfoWarning.WarningType.Error);
+					connectionInfo.WarningAdd(LanguageManager.GetText(LanguageItems.ConnectionWarningNoExitIPv6), ConnectionInfoWarning.WarningType.Error);
 
 				try
 				{
@@ -1167,15 +1180,15 @@ namespace Eddie.Core
 					}
 					else
 					{
-						Stats.UpdateValue("VpnStart", LanguageManager.GetText("StatsNotConnected"));
-						Stats.UpdateValue("VpnTotalDownload", LanguageManager.GetText("StatsNotConnected"));
-						Stats.UpdateValue("VpnTotalUpload", LanguageManager.GetText("StatsNotConnected"));
-						Stats.UpdateValue("VpnSpeedDownload", LanguageManager.GetText("StatsNotConnected"));
-						Stats.UpdateValue("VpnSpeedUpload", LanguageManager.GetText("StatsNotConnected"));
+						Stats.UpdateValue("VpnStart", LanguageManager.GetText(LanguageItems.StatsNotConnected));
+						Stats.UpdateValue("VpnTotalDownload", LanguageManager.GetText(LanguageItems.StatsNotConnected));
+						Stats.UpdateValue("VpnTotalUpload", LanguageManager.GetText(LanguageItems.StatsNotConnected));
+						Stats.UpdateValue("VpnSpeedDownload", LanguageManager.GetText(LanguageItems.StatsNotConnected));
+						Stats.UpdateValue("VpnSpeedUpload", LanguageManager.GetText(LanguageItems.StatsNotConnected));
 
-						Stats.UpdateValue("SessionStart", LanguageManager.GetText("StatsNotConnected"));
-						Stats.UpdateValue("SessionTotalDownload", LanguageManager.GetText("StatsNotConnected"));
-						Stats.UpdateValue("SessionTotalUpload", LanguageManager.GetText("StatsNotConnected"));
+						Stats.UpdateValue("SessionStart", LanguageManager.GetText(LanguageItems.StatsNotConnected));
+						Stats.UpdateValue("SessionTotalDownload", LanguageManager.GetText(LanguageItems.StatsNotConnected));
+						Stats.UpdateValue("SessionTotalUpload", LanguageManager.GetText(LanguageItems.StatsNotConnected));
 					}
 				}
 
@@ -1209,64 +1222,62 @@ namespace Eddie.Core
 						if (Engine.Connection.ExitIPs.CountIPv4 != 0)
 							Stats.UpdateValue("VpnExitIPv4", Engine.Connection.ExitIPs.OnlyIPv4.ToString());
 						else
-							Stats.UpdateValue("VpnExitIPv4", LanguageManager.GetText("NotAvailable"));
+							Stats.UpdateValue("VpnExitIPv4", LanguageManager.GetText(LanguageItems.NotAvailable));
 						if (Engine.Connection.ExitIPs.CountIPv6 != 0)
 							Stats.UpdateValue("VpnExitIPv6", Engine.Connection.ExitIPs.OnlyIPv6.ToString());
 						else
-							Stats.UpdateValue("VpnExitIPv6", LanguageManager.GetText("NotAvailable"));
+							Stats.UpdateValue("VpnExitIPv6", LanguageManager.GetText(LanguageItems.NotAvailable));
 						Stats.UpdateValue("VpnType", Engine.Connection.GetTypeName());
 						Stats.UpdateValue("VpnProtocol", Engine.Connection.GetProtocolDescription());
 						Stats.UpdateValue("VpnPort", Engine.Connection.EntryPort.ToString());
 						if (Engine.Connection.RealIp != "")
 							Stats.UpdateValue("VpnRealIp", Engine.Connection.RealIp);
 						else if (Engine.CurrentServer.SupportCheck)
-							Stats.UpdateValue("VpnRealIp", LanguageManager.GetText("CheckingRequired"));
+							Stats.UpdateValue("VpnRealIp", LanguageManager.GetText(LanguageItems.CheckingRequired));
 						else
-							Stats.UpdateValue("VpnRealIp", LanguageManager.GetText("NotAvailable"));
+							Stats.UpdateValue("VpnRealIp", LanguageManager.GetText(LanguageItems.NotAvailable));
 						Stats.UpdateValue("VpnIp", Engine.Connection.GetVpnIPs().ToString());
 						Stats.UpdateValue("VpnDns", Engine.Connection.GetDns().ToString());
 						if (Engine.Connection.Interface != null)
 							Stats.UpdateValue("VpnInterface", Engine.Connection.Interface.Name);
 						else
 							Stats.UpdateValue("VpnInterface", "");
-						Stats.UpdateValue("VpnDataChannel", Engine.Connection.DataChannel);
-						Stats.UpdateValue("VpnControlChannel", Engine.Connection.ControlChannel);
+						Stats.UpdateValue("VpnCipherInfo", Engine.Connection.CipherInfo);
 						Stats.UpdateValue("VpnGeneratedConfig", "");
 						Stats.UpdateValue("VpnGeneratedConfigPush", "");
 
 						if (Engine.Connection.TimeServer != 0)
 							Stats.UpdateValue("SystemTimeServerDifference", (Engine.Connection.TimeServer - Engine.Connection.TimeClient).ToString() + " seconds");
 						else if (Engine.CurrentServer.SupportCheck)
-							Stats.UpdateValue("SystemTimeServerDifference", LanguageManager.GetText("CheckingRequired"));
+							Stats.UpdateValue("SystemTimeServerDifference", LanguageManager.GetText(LanguageItems.CheckingRequired));
 						else
-							Stats.UpdateValue("SystemTimeServerDifference", LanguageManager.GetText("NotAvailable"));
+							Stats.UpdateValue("SystemTimeServerDifference", LanguageManager.GetText(LanguageItems.NotAvailable));
 					}
 					else
 					{
-						Stats.UpdateValue("ServerName", LanguageManager.GetText("StatsNotConnected"));
-						Stats.UpdateValue("ServerLatency", LanguageManager.GetText("StatsNotConnected"));
-						Stats.UpdateValue("ServerLocation", LanguageManager.GetText("StatsNotConnected"));
-						Stats.UpdateValue("ServerLoad", LanguageManager.GetText("StatsNotConnected"));
-						Stats.UpdateValue("ServerUsers", LanguageManager.GetText("StatsNotConnected"));
+						Stats.UpdateValue("ServerName", LanguageManager.GetText(LanguageItems.StatsNotConnected));
+						Stats.UpdateValue("ServerLatency", LanguageManager.GetText(LanguageItems.StatsNotConnected));
+						Stats.UpdateValue("ServerLocation", LanguageManager.GetText(LanguageItems.StatsNotConnected));
+						Stats.UpdateValue("ServerLoad", LanguageManager.GetText(LanguageItems.StatsNotConnected));
+						Stats.UpdateValue("ServerUsers", LanguageManager.GetText(LanguageItems.StatsNotConnected));
 
-						Stats.UpdateValue("AccountLogin", LanguageManager.GetText("StatsNotConnected"));
-						Stats.UpdateValue("AccountKey", LanguageManager.GetText("StatsNotConnected"));
+						Stats.UpdateValue("AccountLogin", LanguageManager.GetText(LanguageItems.StatsNotConnected));
+						Stats.UpdateValue("AccountKey", LanguageManager.GetText(LanguageItems.StatsNotConnected));
 
-						Stats.UpdateValue("VpnEntryIP", LanguageManager.GetText("StatsNotConnected"));
-						Stats.UpdateValue("VpnExitIPv4", LanguageManager.GetText("StatsNotConnected"));
-						Stats.UpdateValue("VpnExitIPv6", LanguageManager.GetText("StatsNotConnected"));
-						Stats.UpdateValue("VpnType", LanguageManager.GetText("StatsNotConnected"));
-						Stats.UpdateValue("VpnProtocol", LanguageManager.GetText("StatsNotConnected"));
-						Stats.UpdateValue("VpnPort", LanguageManager.GetText("StatsNotConnected"));
-						Stats.UpdateValue("VpnRealIp", LanguageManager.GetText("StatsNotConnected"));
-						Stats.UpdateValue("VpnIp", LanguageManager.GetText("StatsNotConnected"));
-						Stats.UpdateValue("VpnDns", LanguageManager.GetText("StatsNotConnected"));
-						Stats.UpdateValue("VpnInterface", LanguageManager.GetText("StatsNotConnected"));
-						Stats.UpdateValue("VpnDataChannel", LanguageManager.GetText("StatsNotConnected"));
-						Stats.UpdateValue("VpnControlChannel", LanguageManager.GetText("StatsNotConnected"));
-						Stats.UpdateValue("VpnGeneratedConfig", LanguageManager.GetText("StatsNotConnected"));
-						Stats.UpdateValue("VpnGeneratedConfigPush", LanguageManager.GetText("StatsNotConnected"));
-						Stats.UpdateValue("SystemTimeServerDifference", LanguageManager.GetText("StatsNotConnected"));
+						Stats.UpdateValue("VpnEntryIP", LanguageManager.GetText(LanguageItems.StatsNotConnected));
+						Stats.UpdateValue("VpnExitIPv4", LanguageManager.GetText(LanguageItems.StatsNotConnected));
+						Stats.UpdateValue("VpnExitIPv6", LanguageManager.GetText(LanguageItems.StatsNotConnected));
+						Stats.UpdateValue("VpnType", LanguageManager.GetText(LanguageItems.StatsNotConnected));
+						Stats.UpdateValue("VpnProtocol", LanguageManager.GetText(LanguageItems.StatsNotConnected));
+						Stats.UpdateValue("VpnPort", LanguageManager.GetText(LanguageItems.StatsNotConnected));
+						Stats.UpdateValue("VpnRealIp", LanguageManager.GetText(LanguageItems.StatsNotConnected));
+						Stats.UpdateValue("VpnIp", LanguageManager.GetText(LanguageItems.StatsNotConnected));
+						Stats.UpdateValue("VpnDns", LanguageManager.GetText(LanguageItems.StatsNotConnected));
+						Stats.UpdateValue("VpnInterface", LanguageManager.GetText(LanguageItems.StatsNotConnected));
+						Stats.UpdateValue("VpnCipherInfo", LanguageManager.GetText(LanguageItems.StatsNotConnected));
+						Stats.UpdateValue("VpnGeneratedConfig", LanguageManager.GetText(LanguageItems.StatsNotConnected));
+						Stats.UpdateValue("VpnGeneratedConfigPush", LanguageManager.GetText(LanguageItems.StatsNotConnected));
+						Stats.UpdateValue("SystemTimeServerDifference", LanguageManager.GetText(LanguageItems.StatsNotConnected));
 					}
 				}
 
@@ -1327,7 +1338,7 @@ namespace Eddie.Core
 				ignore = true;
 
 			if (ignore == false)
-				Logs.Log(LogType.Fatal, LanguageManager.GetText("UnhandledException") + " - " + source + " - " + ex.Message + " - " + ex.StackTrace.ToString());
+				Logs.Log(LogType.Fatal, LanguageManager.GetText(LanguageItems.UnhandledException) + " - " + source + " - " + ex.Message + " - " + ex.StackTrace.ToString());
 		}
 
 		// ----------------------------------------------------
@@ -1450,7 +1461,7 @@ namespace Eddie.Core
 				}
 			}
 
-			Engine.Instance.Logs.Log(LogType.Fatal, LanguageManager.GetText("ServerByNameNotFound", name));
+			Engine.Instance.Logs.Log(LogType.Fatal, LanguageManager.GetText(LanguageItems.ServerByNameNotFound, name));
 			return null;
 		}
 
@@ -1529,7 +1540,7 @@ namespace Eddie.Core
 
 			if (filename.Trim() != "")
 			{
-				string message = LanguageManager.GetText("AppEvent", name);
+				string message = LanguageManager.GetText(LanguageItems.AppEvent, name);
 				WaitMessageSet(message, false);
 				Logs.Log(LogType.Info, message);
 
@@ -1598,15 +1609,15 @@ namespace Eddie.Core
 			if (AirVPN == null)
 				return;
 
-			Engine.Instance.WaitMessageSet(LanguageManager.GetText("AuthorizeLogin"), false);
-			Logs.Log(LogType.Info, LanguageManager.GetText("AuthorizeLogin"));
+			Engine.Instance.WaitMessageSet(LanguageManager.GetText(LanguageItems.AuthorizeLogin), false);
+			Logs.Log(LogType.Info, LanguageManager.GetText(LanguageItems.AuthorizeLogin));
 
 			Dictionary<string, string> parameters = new Dictionary<string, string>();
 			parameters["act"] = "user";
 
 			try
 			{
-				XmlDocument xmlDoc = AirVPN.Fetch(LanguageManager.GetText("AuthorizeLogin"), parameters);
+				XmlDocument xmlDoc = AirVPN.Fetch(LanguageManager.GetText(LanguageItems.AuthorizeLogin), parameters);
 				string userMessage = xmlDoc.DocumentElement.GetAttributeString("message", "");
 
 				if (userMessage != "")
@@ -1615,7 +1626,7 @@ namespace Eddie.Core
 				}
 				else
 				{
-					Logs.Log(LogType.InfoImportant, LanguageManager.GetText("AuthorizeLoginDone"));
+					Logs.Log(LogType.InfoImportant, LanguageManager.GetText(LanguageItems.AuthorizeLoginDone));
 
 					AirVPN.Auth(xmlDoc.DocumentElement);
 
@@ -1626,7 +1637,7 @@ namespace Eddie.Core
 			}
 			catch (Exception ex)
 			{
-				Logs.Log(LogType.Fatal, LanguageManager.GetText("AuthorizeLoginFailed", ex.Message));
+				Logs.Log(LogType.Fatal, LanguageManager.GetText(LanguageItems.AuthorizeLoginFailed, ex.Message));
 			}
 
 			SaveSettings(); // 2.8
@@ -1641,7 +1652,7 @@ namespace Eddie.Core
 
 			if (IsLogged())
 			{
-				Engine.Instance.WaitMessageSet(LanguageManager.GetText("AuthorizeLogout"), false);
+				Engine.Instance.WaitMessageSet(LanguageManager.GetText(LanguageItems.AuthorizeLogout), false);
 
 				AirVPN.DeAuth();
 
@@ -1649,7 +1660,7 @@ namespace Eddie.Core
 
 				OnRefreshUi(RefreshUiMode.Full);
 
-				Logs.Log(LogType.InfoImportant, LanguageManager.GetText("AuthorizeLogoutDone"));
+				Logs.Log(LogType.InfoImportant, LanguageManager.GetText(LanguageItems.AuthorizeLogoutDone));
 
 				Engine.Instance.WaitMessageClear();
 
@@ -1686,9 +1697,9 @@ namespace Eddie.Core
 		{
 			try
 			{
-				Logs.Log(LogType.Info, LanguageManager.GetText("SessionStart"));
+				Logs.Log(LogType.Info, LanguageManager.GetText(LanguageItems.SessionStart));
 
-				WaitMessageSet(LanguageManager.GetText("CheckingEnvironment"), true);
+				WaitMessageSet(LanguageManager.GetText(LanguageItems.CheckingEnvironment), true);
 
 				if (CheckEnvironmentSession() == false)
 				{
@@ -1709,11 +1720,6 @@ namespace Eddie.Core
 				Logs.Log(LogType.Fatal, ex);
 
 				WaitMessageClear();
-
-				if (StartCommandLine.Get("console.mode") == "batch")
-				{
-					Engine.Instance.RequestStop();
-				}
 			}
 		}
 
@@ -1736,7 +1742,7 @@ namespace Eddie.Core
 
 				WaitMessageClear();
 
-				Logs.Log(LogType.InfoImportant, LanguageManager.GetText("SessionStop"));
+				Logs.Log(LogType.InfoImportant, LanguageManager.GetText(LanguageItems.SessionStop));
 			}
 		}
 
@@ -1868,7 +1874,7 @@ namespace Eddie.Core
 
 			// Local Time in the past
 			if (DateTime.UtcNow < Constants.dateForPastChecking)
-				throw new Exception(LanguageManager.GetText("WarningLocalTimeInPast"));
+				throw new Exception(LanguageManager.GetText(LanguageItems.WarningLocalTimeInPast));
 
 			Platform.Instance.OnCheckEnvironmentApp();
 		}
@@ -1883,14 +1889,14 @@ namespace Eddie.Core
 			string protocol = ProfileOptions.Get("mode.protocol").ToUpperInvariant();
 
 			if ((protocol != "AUTO") && (protocol != "UDP") && (protocol != "TCP") && (protocol != "SSH") && (protocol != "SSL"))
-				throw new Exception(LanguageManager.GetText("CheckingProtocolUnknown"));
+				throw new Exception(LanguageManager.GetText(LanguageItems.CheckingProtocolUnknown));
 
 			// TOCLEAN : Must be moved at provider level
 			if ((protocol == "SSH") && (Software.GetTool("ssh").Available() == false))
-				throw new Exception("SSH " + LanguageManager.GetText("NotFound"));
+				throw new Exception("SSH " + LanguageManager.GetText(LanguageItems.NotFound));
 
 			if ((protocol == "SSL") && (Software.GetTool("ssl").Available() == false))
-				throw new Exception("SSL " + LanguageManager.GetText("NotFound"));
+				throw new Exception("SSL " + LanguageManager.GetText(LanguageItems.NotFound));
 
 			if (ProfileOptions.GetBool("advanced.skip_alreadyrun") == false)
 			{
@@ -1899,7 +1905,7 @@ namespace Eddie.Core
 				foreach (string cmd in processes.Values)
 				{
 					if (cmd.StartsWith(Engine.Instance.GetOpenVpnTool().Path, StringComparison.InvariantCulture))
-						throw new Exception(LanguageManager.GetText("AlreadyRunningOpenVPN", cmd));
+						throw new Exception(LanguageManager.GetText(LanguageItems.AlreadyRunningOpenVPN, cmd));
 				}
 			}
 
@@ -1908,16 +1914,16 @@ namespace Eddie.Core
 				string proxyHost = ProfileOptions.Get("proxy.host").Trim();
 				int proxyPort = ProfileOptions.GetInt("proxy.port");
 				if (proxyHost == "")
-					throw new Exception(LanguageManager.GetText("CheckingProxyHostMissing"));
+					throw new Exception(LanguageManager.GetText(LanguageItems.CheckingProxyHostMissing));
 				if ((proxyPort <= 0) || (proxyPort >= 256 * 256))
-					throw new Exception(LanguageManager.GetText("CheckingProxyPortWrong"));
+					throw new Exception(LanguageManager.GetText(LanguageItems.CheckingProxyPortWrong));
 
 				if (protocol == "UDP")
-					throw new Exception(LanguageManager.GetText("CheckingProxyNoUdp"));
+					throw new Exception(LanguageManager.GetText(LanguageItems.CheckingProxyNoUdp));
 			}
 
 			if (Engine.Instance.ProfileOptions.Get("network.ipv4.mode") == "block")
-				throw new Exception(LanguageManager.GetText("CheckingIPv4BlockNotYetImplemented"));
+				throw new Exception(LanguageManager.GetText(LanguageItems.CheckingIPv4BlockNotYetImplemented));
 
 			return Platform.Instance.OnCheckEnvironmentSession();
 		}
@@ -2010,7 +2016,7 @@ namespace Eddie.Core
 
 		public void ManifestBuild()
 		{
-			UiManager.Broadcast("init.step", "message", LanguageManager.GetText("InitStepCollectSystemInfo"));
+			UiManager.Broadcast("init.step", "message", LanguageManager.GetText(LanguageItems.InitStepCollectSystemInfo));
 
 			// Data static
 			Manifest = Json.Parse(Platform.Instance.FileContentsReadText(LocateResource("manifest.json")));
@@ -2088,7 +2094,7 @@ namespace Eddie.Core
 					}
 				}
 
-				string speedText = LanguageManager.GetText("StatusConnectedSpeed", LanguageManager.FormatBytes(Connection.BytesLastDownloadStep, true, false), LanguageManager.FormatBytes(Connection.BytesLastUploadStep, true, false));
+				string speedText = LanguageManager.GetText(LanguageItems.StatusConnectedSpeed, LanguageManager.FormatBytes(Connection.BytesLastDownloadStep, true, false), LanguageManager.FormatBytes(Connection.BytesLastUploadStep, true, false));
 				string serverText = CurrentServer.DisplayName;
 				string country = CountriesManager.GetNameFromCode(CurrentServer.CountryCode);
 				if (country != "")
@@ -2140,7 +2146,7 @@ namespace Eddie.Core
 				j["app_color"].Value = "green";
 				j["action_icon"].Value = "connected";
 				j["action_command"].Value = "mainaction.disconnect";
-				j["action_text"].Value = LanguageManager.GetText("MainActionDisconnect");
+				j["action_text"].Value = LanguageManager.GetText(LanguageItems.MainActionDisconnect);
 			}
 			else if (CanConnect() == false)
 			{
@@ -2148,7 +2154,7 @@ namespace Eddie.Core
 				j["app_color"].Value = "red";
 				j["action_icon"].Value = "cantconnect";
 				j["action_command"].Value = "";
-				j["action_text"].Value = LanguageManager.GetText("MainActionCantConnect");
+				j["action_text"].Value = LanguageManager.GetText(LanguageItems.MainActionCantConnect);
 			}
 			else if (IsWaiting())
 			{
@@ -2158,12 +2164,12 @@ namespace Eddie.Core
 				if ((IsWaitingCancelAllowed()) && (IsWaitingCancelPending() == false))
 				{
 					j["action_command"].Value = "mainaction.disconnect";
-					j["action_text"].Value = LanguageManager.GetText("MainActionCancel");
+					j["action_text"].Value = LanguageManager.GetText(LanguageItems.MainActionCancel);
 				}
 				else
 				{
 					j["action_command"].Value = "";
-					j["action_text"].Value = LanguageManager.GetText("MainActionCancel");
+					j["action_text"].Value = LanguageManager.GetText(LanguageItems.MainActionCancel);
 				}
 			}
 			else
@@ -2172,7 +2178,7 @@ namespace Eddie.Core
 				j["app_color"].Value = "red";
 				j["action_icon"].Value = "disconnected";
 				j["action_command"].Value = "mainaction.connect";
-				j["action_text"].Value = LanguageManager.GetText("MainActionConnect");
+				j["action_text"].Value = LanguageManager.GetText(LanguageItems.MainActionConnect);
 			}
 			j["netlock"].Value = ((NetworkLockManager != null) && (NetworkLockManager.IsActive()));
 			return j;
@@ -2192,7 +2198,7 @@ namespace Eddie.Core
 
 		public Json NetworkInfoUpdate()
 		{
-			Engine.Logs.LogVerbose(LanguageManager.GetText("CollectNetworkInfo"));
+			Engine.Logs.LogVerbose(LanguageManager.GetText(LanguageItems.CollectNetworkInfo));
 			m_networkInfo = NetworkInfoBuild();
 
 			Json j = m_networkInfo.Clone();

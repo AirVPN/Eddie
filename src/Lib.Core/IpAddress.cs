@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -15,6 +15,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Eddie. If not, see <http://www.gnu.org/licenses/>.
 // </eddie_source_header>
+
+using System.Net;
+using System;
 
 namespace Eddie.Core
 {
@@ -179,17 +182,24 @@ namespace Eddie.Core
 				return m_ip.ToString() + "/" + m_bitmask.ToString();
 		}
 
-		public string ToOpenVPN()
+		public string ToNetwork()
 		{
+			// This is basically used to normalize when users enter route like 192.168.1.1/24 (must be 192.168.1.0/24). IPv6 missing implementation.
 			if (Valid == false)
 				return "";
 
 			if (IsV4)
-				return m_ip.ToString() + " " + BitMask2netMaskV4(m_bitmask);
+			{
+				uint iAddress = BitConverter.ToUInt32(m_ip.GetAddressBytes(), 0);
+				uint iMask = (uint)Math.Pow(2, m_bitmask) - 1;
+				return new IPAddress(iAddress & iMask).ToString() + "/" + m_bitmask.ToString();
+			}
 			else if (IsV6)
-				return ToCIDR();
-			else
-				return "";
+			{
+				return m_ip + "/" + m_bitmask.ToString(); // TOFIX
+			}
+
+			return "";
 		}
 
 		public string Address

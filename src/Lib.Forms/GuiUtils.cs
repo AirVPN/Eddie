@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -61,7 +61,7 @@ namespace Eddie.Forms
 
 		public static string FilePicker()
 		{
-			return FilePicker(LanguageManager.GetText("FilterAllFiles"));
+			return FilePicker(LanguageManager.GetText(LanguageItems.FilterAllFiles));
 		}
 
 		public static string FilePicker(string filter)
@@ -128,7 +128,7 @@ namespace Eddie.Forms
 			Application.UseWaitCursor = false;
 
 			if (error == "")
-				MessageBoxInfo(parent, LanguageManager.GetText("LogsCopyClipboardDone"));
+				MessageBoxInfo(parent, LanguageManager.GetText(LanguageItems.LogsCopyClipboardDone));
 			else
 				MessageBoxError(parent, error);
 		}

@@ -25,16 +25,15 @@ macos_common/presign.sh
 # Mojave works witn 10.9, don't work with 10.15 (throw a SystemNetworkInformation exception, due libc.dylib link issue)
 # High Sierra works with 10.15 AND 10.9.
 
-ARCH=$(uname -m)
+macos_portable/build.sh ui x64 macos-10.9 net4
+macos_pkg/build.sh ui x64 macos-10.9 net4
+macos_dmg/build.sh ui x64 macos-10.9 net4
+macos_portable/build.sh ui x64 macos-10.15 net4
+macos_pkg/build.sh ui x64 macos-10.15 net4
+macos_dmg/build.sh ui x64 macos-10.15 net4
 
-if [ ${ARCH} = "x86_64" ]; then
-    macos_portable/build.sh ui macos-10.9
-    macos_pkg/build.sh ui macos-10.9
-    macos_dmg/build.sh ui macos-10.9
-fi
-
-macos_portable/build.sh ui macos-10.15
-macos_pkg/build.sh ui macos-10.15
-macos_dmg/build.sh ui macos-10.15
+macos_portable/build.sh ui arm64 macos-10.15 net4
+macos_pkg/build.sh ui arm64 macos-10.15 net4
+macos_dmg/build.sh ui arm64 macos-10.15 net4
 
 echo "Done."

@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -57,7 +57,7 @@ namespace Eddie.Forms.Forms
 		protected override void OnLoad(EventArgs e)
 		{
 			base.OnLoad(e);
-			CommonInit(LanguageManager.GetText("WindowsMessageTitle"));
+			CommonInit(LanguageManager.GetText(LanguageItems.WindowsMessageTitle));
 
 			cmdYes.Visible = false;
 			cmdNo.Visible = false;
@@ -66,7 +66,7 @@ namespace Eddie.Forms.Forms
 			if (Kind == MessageKind.Info)
 			{
 				cmdOk.Visible = true;
-				cmdOk.Text = LanguageManager.GetText("Ok");
+				cmdOk.Text = LanguageManager.GetText(LanguageItems.Ok);
 				AcceptButton = cmdOk;
 				CancelButton = cmdOk;
 				lblIcon.Image = Properties.Resources.log_info;
@@ -74,7 +74,7 @@ namespace Eddie.Forms.Forms
 			else if (Kind == MessageKind.Error)
 			{
 				cmdOk.Visible = true;
-				cmdOk.Text = LanguageManager.GetText("Ok");
+				cmdOk.Text = LanguageManager.GetText(LanguageItems.Ok);
 				AcceptButton = cmdOk;
 				CancelButton = cmdOk;
 				lblIcon.Image = Properties.Resources.log_error;
@@ -82,9 +82,9 @@ namespace Eddie.Forms.Forms
 			else if (Kind == MessageKind.YesNo)
 			{
 				cmdYes.Visible = true;
-				cmdYes.Text = LanguageManager.GetText("Yes");
+				cmdYes.Text = LanguageManager.GetText(LanguageItems.Yes);
 				cmdNo.Visible = true;
-				cmdNo.Text = LanguageManager.GetText("No");
+				cmdNo.Text = LanguageManager.GetText(LanguageItems.No);
 				CancelButton = cmdNo;
 				AcceptButton = cmdYes;
 				lblIcon.Image = Properties.Resources.log_warning;

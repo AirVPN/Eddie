@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -221,7 +221,7 @@ namespace Eddie.Platform.Windows
 					catch (Exception ex)
 					{
 						if (e.Message.Contains("MpsSvc"))
-							throw new Exception(LanguageManager.GetText("NetworkLockWindowsFirewallUnableToStartService"));
+							throw new Exception(LanguageManager.GetText(LanguageItems.NetworkLockWindowsFirewallUnableToStartService));
 						else
 							throw ex;
 					}
@@ -244,7 +244,7 @@ namespace Eddie.Platform.Windows
 					Platform.Instance.FileDelete(rulesBackupSession);
 				NetShAdvFirewall("export \"" + SystemExec.EscapePath(rulesBackupSession) + "\"");
 				if (Platform.Instance.FileExists(rulesBackupSession) == false)
-					throw new Exception(LanguageManager.GetText("NetworkLockWindowsFirewallBackupFailed"));
+					throw new Exception(LanguageManager.GetText(LanguageItems.NetworkLockWindowsFirewallBackupFailed));
 
 				foreach (NetworkLockWindowsFirewallProfile profile in Profiles)
 					profile.Fetch();

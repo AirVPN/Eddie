@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -51,12 +51,12 @@ namespace Eddie.Forms.Forms
 		{
 			base.OnLoad(e);
 
-			CommonInit(LanguageManager.GetText("WindowsLoginTitle"));
+			CommonInit(LanguageManager.GetText(LanguageItems.WindowsLoginTitle));
 
-			cboRemember.Items.Add(LanguageManager.GetText("WindowsCredentialsRememberNo"));
-			cboRemember.Items.Add(LanguageManager.GetText("WindowsCredentialsRememberRun"));
-			cboRemember.Items.Add(LanguageManager.GetText("WindowsCredentialsRememberPermanent"));
-			cboRemember.Text = LanguageManager.GetText("WindowsCredentialsRememberRun");
+			cboRemember.Items.Add(LanguageManager.GetText(LanguageItems.WindowsCredentialsRememberNo));
+			cboRemember.Items.Add(LanguageManager.GetText(LanguageItems.WindowsCredentialsRememberRun));
+			cboRemember.Items.Add(LanguageManager.GetText(LanguageItems.WindowsCredentialsRememberPermanent));
+			cboRemember.Text = LanguageManager.GetText(LanguageItems.WindowsCredentialsRememberRun);
 
 			EnableIde();
 		}
@@ -77,11 +77,11 @@ namespace Eddie.Forms.Forms
 
 			Credentials.UserName = txtUsername.Text;
 			Credentials.Password = txtPassword.Text;
-			if (cboRemember.Text == LanguageManager.GetText("WindowsCredentialsRememberNo"))
+			if (cboRemember.Text == LanguageManager.GetText(LanguageItems.WindowsCredentialsRememberNo))
 				Credentials.Remember = "no";
-			else if (cboRemember.Text == LanguageManager.GetText("WindowsCredentialsRememberRun"))
+			else if (cboRemember.Text == LanguageManager.GetText(LanguageItems.WindowsCredentialsRememberRun))
 				Credentials.Remember = "run";
-			else if (cboRemember.Text == LanguageManager.GetText("WindowsCredentialsRememberPermanent"))
+			else if (cboRemember.Text == LanguageManager.GetText(LanguageItems.WindowsCredentialsRememberPermanent))
 				Credentials.Remember = "permanent";
 			else
 				Credentials.Remember = "no";

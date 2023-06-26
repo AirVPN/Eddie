@@ -16,9 +16,15 @@ if "%~3"=="" (
 	goto :error
 )
 
+if "%~4"=="" (
+	echo "Framework missing"
+	goto :error
+)
+
 set VARPROJECT=%1
 set VARARCH=%2
 set VAROS=%3
+set VARFRAMEWORK=%4
 set VARCONFIG=Release
 
 set VARSCRIPTDIR=%~dp0
@@ -27,16 +33,15 @@ set VARTARGETDIR=%TEMP%\eddie_deploy\eddie-%VARPROJECT%_%VARVERSION%_%VAROS%_%VA
 set VARFINALPATH=%TEMP%\eddie_deploy\eddie-%VARPROJECT%_%VARVERSION%_%VAROS%_%VARARCH%_installer.exe
 set VARDEPLOYPATH=%VARSCRIPTDIR%\..\files\eddie-%VARPROJECT%_%VARVERSION%_%VAROS%_%VARARCH%_installer.exe
 
-rem Dependencies
-CALL %VARSCRIPTDIR%\..\windows_portable\build.bat %VARPROJECT% %VARARCH% %VAROS% || goto :error
+echo Step: Dependencies
+CALL %VARSCRIPTDIR%\..\windows_portable\build.bat %VARPROJECT% %VARARCH% %VAROS% %VARFRAMEWORK% || goto :error
 
-rem Cleanup
+echo Step: Cleanup
 IF EXIST "%VARTARGETDIR%" (
 	rmdir /s /q "%VARTARGETDIR%" 
 )
 
-rem Build
-echo Build Windows Installer, Project: %VARPROJECT%, OS: %VAROS%, Arch: %VARARCH%
+echo Build Windows Installer, Project: %VARPROJECT%, OS: %VAROS%, Arch: %VARARCH%, Framework: %VARFRAMEWORK%
 
 IF exist %VARDEPLOYPATH% (
 	echo "Already builded: %VARDEPLOYPATH%"

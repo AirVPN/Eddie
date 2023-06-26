@@ -138,6 +138,12 @@ namespace Eddie.UI.Cocoa.Osx
 		[Outlet]
 		AppKit.NSButton ChkNetLock { get; set; }
 
+        [Outlet]
+        AppKit.NSButton ChkNetLockConnection { get; set; }
+
+        [Outlet]
+		AppKit.NSButton ChkNetworkingDnsLookupIPv6 { get; set; }
+
 		[Outlet]
 		AppKit.NSButton ChkNetworkIPv4AutoSwitch { get; set; }
 
@@ -634,14 +640,14 @@ namespace Eddie.UI.Cocoa.Osx
 				ChkUiIEC = null;
 			}
 
-			if (ChkUiSkipPromotional != null) {
-				ChkUiSkipPromotional.Dispose ();
-				ChkUiSkipPromotional = null;
-			}
-
 			if (ChkUiSkipNetlockConfirm != null) {
 				ChkUiSkipNetlockConfirm.Dispose ();
 				ChkUiSkipNetlockConfirm = null;
+			}
+
+			if (ChkUiSkipPromotional != null) {
+				ChkUiSkipPromotional.Dispose ();
+				ChkUiSkipPromotional = null;
 			}
 
 			if (ChkUiSkipProviderManifestFailed != null) {
@@ -667,6 +673,11 @@ namespace Eddie.UI.Cocoa.Osx
 			if (CmdAdvancedEventsClear != null) {
 				CmdAdvancedEventsClear.Dispose ();
 				CmdAdvancedEventsClear = null;
+			}
+
+			if (ChkNetworkingDnsLookupIPv6 != null) {
+				ChkNetworkingDnsLookupIPv6.Dispose ();
+				ChkNetworkingDnsLookupIPv6 = null;
 			}
 
 			if (CmdAdvancedEventsEdit != null) {

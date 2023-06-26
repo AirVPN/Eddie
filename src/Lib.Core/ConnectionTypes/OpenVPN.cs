@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -54,6 +54,7 @@ namespace Eddie.Core.ConnectionTypes
 		public int TransportSslLocalPort = 0;
 
 		private bool m_deleteAfterStart = false;
+		private string m_initSteps = ""; // We need at least init and data-cipher to proceed
 
 		private StringWriterLine m_stdout = new StringWriterLine();
 		private StringWriterLine m_stderr = new StringWriterLine();
@@ -87,12 +88,12 @@ namespace Eddie.Core.ConnectionTypes
 						}
 						else
 						{
-							Engine.Instance.Logs.Log(LogType.Warning, LanguageManager.GetText("FileNotFound", directivesPath));
+							Engine.Instance.Logs.Log(LogType.Warning, LanguageManager.GetText(LanguageItems.FileNotFound, directivesPath));
 						}
 					}
 					catch (Exception ex)
 					{
-						Engine.Instance.Logs.Log(LogType.Warning, LanguageManager.GetText("FileErrorRead", directivesPath, ex.Message));
+						Engine.Instance.Logs.Log(LogType.Warning, LanguageManager.GetText(LanguageItems.FileErrorRead, directivesPath, ex.Message));
 					}
 				}
 				Info.Provider.OnBuildOvpnDefaults(m_configStartup);
@@ -333,13 +334,6 @@ namespace Eddie.Core.ConnectionTypes
 
 			m_configStartup.AppendDirectives(Engine.Instance.ProfileOptions.Get("openvpn.custom"), "Custom level");
 
-			foreach (ConnectionRoute route in Routes)
-			{
-				// We never find a better method to manage IPv6 route via OpenVPN, at least <2.4.4.                
-				// Eddie manage this kind of routes by itself. Anyway, this is need by WireGuard.
-				//m_configStartup.AppendDirective("route", route.Address.ToOpenVPN() + " " + route.Gateway, route.Notes.Safe());
-			}
-
 			m_configStartup.Adaptation();
 		}
 
@@ -369,6 +363,8 @@ namespace Eddie.Core.ConnectionTypes
 		public override void OnCleanAfterStart()
 		{
 			base.OnCleanAfterStart();
+
+			// We remove temporary files (that contain sensitive date) as soon as possible.
 
 			if (m_fileConfig != null)
 			{
@@ -416,7 +412,7 @@ namespace Eddie.Core.ConnectionTypes
 					{
 						m_vpnLastSignalTime = Utils.UnixTimeStamp();
 						m_vpnLastSignalType = "soft";
-						Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("KillWithSoft"));
+						Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText(LanguageItems.KillWithSoft));
 
 						Engine.Instance.Elevated.DoCommandSync(tool, "action", "stop", "id", Id, "signal", "sigint");
 					}
@@ -424,7 +420,7 @@ namespace Eddie.Core.ConnectionTypes
 					{
 						m_vpnLastSignalTime = Utils.UnixTimeStamp();
 						m_vpnLastSignalType = "hard";
-						Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("KillWithHard"));
+						Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText(LanguageItems.KillWithHard));
 
 						Engine.Instance.Elevated.DoCommandSync(tool, "action", "stop", "id", Id, "signal", "sigterm");
 					}
@@ -442,19 +438,19 @@ namespace Eddie.Core.ConnectionTypes
 						m_transportLastSignalType = "soft";
 
 						if (Platform.Instance.ProcessKillSoft(m_processTransport))
-							Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("KillWithSoft"));
+							Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText(LanguageItems.KillWithSoft));
 						else
 						{
 							m_transportLastSignalType = "hard";
 							m_processTransport.Kill();
-							Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("KillWithHard"));
+							Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText(LanguageItems.KillWithHard));
 						}
 					}
 					else
 					{
 						m_transportLastSignalTime = Utils.UnixTimeStamp();
 						m_transportLastSignalType = "hard";
-						Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("KillWithHard"));
+						Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText(LanguageItems.KillWithHard));
 						m_processTransport.Kill();
 					}
 				}
@@ -527,13 +523,7 @@ namespace Eddie.Core.ConnectionTypes
 			{
 				bool log = true;
 				LogType logType = LogType.Verbose;
-
-				if (m_fileConfig != null)
-				{
-					// First feedback from OpenVPN process. We can remove temporary files.
-					OnCleanAfterStart();
-				}
-
+								
 				// Ignore
 				if (message.IndexOfInv("MANAGEMENT: CMD 'status'") != -1)
 					return;
@@ -615,6 +605,12 @@ namespace Eddie.Core.ConnectionTypes
 				if ((message.Contains("WARNING: 'keysize' is used inconsistently")) && (Engine.Instance.GetOpenVpnTool().VersionUnder("2.4")))
 					log = false;
 
+				// OpenVPN <2.6, when talking with servers that have CBC fallback, throw useless (false positive) warnings, fixed in 2.6.
+				if ((message.Contains("WARNING: 'link-mtu' is used inconsistently")) && (Engine.Instance.GetOpenVpnTool().VersionUnder("2.6")))
+					log = false;
+				if ((message.Contains("WARNING: 'auth' is used inconsistently")) && (Engine.Instance.GetOpenVpnTool().VersionUnder("2.6")))
+					log = false;
+
 				if (message.StartsWithInv("Options error:"))
 				{
 					if (log)
@@ -627,7 +623,7 @@ namespace Eddie.Core.ConnectionTypes
 
 							if (context != "[PUSH-OPTIONS]")
 							{
-								Engine.Instance.Logs.Log(LogType.Fatal, LanguageManager.GetText("DirectiveError", unrecognizedOption));
+								Engine.Instance.Logs.Log(LogType.Fatal, LanguageManager.GetText(LanguageItems.DirectiveError, unrecognizedOption));
 								DumpConfigToLog();
 								Session.SetReset("FATAL");
 							}
@@ -635,24 +631,31 @@ namespace Eddie.Core.ConnectionTypes
 					}
 				}
 
-				// Forse qui
 				if (log)
 					Engine.Instance.Logs.Log(logType, "OpenVPN > " + message);
 
 				// Actions - Remember, dump log and after actions
 
-				if (message.StartsWithInv("Data Channel: "))
+				if (messageLower.Contains("initial packet from"))
 				{
-					string c = message.Substring("Data Channel: ".Length);
-					string c2 = c.RegExMatchOne("using negotiated cipher '(.+?)'");
-					if (c2 != "")
-						c = c2;
-					DataChannel = c;
+					OnCleanAfterStart();
+				}
+
+				if (messageLower.Contains("data channel: cipher '"))
+				{
+					string cipher = messageLower.RegExMatchOne("cipher '(.+?)'");
+					if (cipher != "")
+					{
+						OpenVpnDataChannel = cipher.ToUpperInvariant();
+						CipherInfo = "Data Channel: " + OpenVpnDataChannel + "; Control Channel: " + OpenVpnControlChannel;
+						m_initSteps += "data-channel;";
+					}
 				}
 
 				if (message.StartsWithInv("Control Channel: "))
 				{
-					ControlChannel = message.Substring("Control Channel: ".Length);
+					OpenVpnControlChannel = message.Substring("Control Channel: ".Length);
+					CipherInfo = "Data Channel: " + OpenVpnDataChannel + "; Control Channel: " + OpenVpnControlChannel;
 				}
 
 				if (message.IndexOfInv("Connection reset, restarting") != -1)
@@ -699,7 +702,7 @@ namespace Eddie.Core.ConnectionTypes
 
 				if (message.IndexOfInv("TLS: tls_process: killed expiring key") != -1)
 				{
-					Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("RenewingTls"));
+					Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText(LanguageItems.RenewingTls));
 				}
 
 				if (message.IndexOfInv("Initialization Sequence Completed With Errors") != -1)
@@ -760,13 +763,20 @@ namespace Eddie.Core.ConnectionTypes
 
 				if (message.IndexOfInv("Initialization Sequence Completed") != -1)
 				{
-					Session.ConnectedStep();
+					m_initSteps += "init;";
 				}
 
 				// Windows
-				if (Platform.Instance.IsUnixSystem() == false)
+				if (Platform.Instance.IsWindowsSystem())
 				{
 					// Note: Windows allow [] chars in interface name, but OpenVPN use ] to close the name and don't escape it, so "\\sopened" it's required for lazy regex.
+
+					// ovpn-dco - OpenVPN 2.6
+					{
+						Match match = Regex.Match(message, "ovpn-dco device \\[(.*?)\\] opened", regexOptions);
+						if (match.Success)
+							SearchTunNetworkInterfaceByName(match.Groups[1].Value); // Note: Name, not ID.
+					}
 
 					// TAP-WIN32 - OpenVPN 2.5
 					{
@@ -804,7 +814,7 @@ namespace Eddie.Core.ConnectionTypes
 					}
 				}
 
-				// Unix
+				// Unix, without DCO
 				if (Platform.Instance.IsUnixSystem())
 				{
 					Match match = Regex.Match(message, "TUN/TAP device (.*?) opened", regexOptions);
@@ -812,7 +822,15 @@ namespace Eddie.Core.ConnectionTypes
 						SearchTunNetworkInterfaceByName(match.Groups[1].Value);
 				}
 
-				// OSX
+				// Unix, with DCO
+				if (Platform.Instance.IsUnixSystem())
+				{
+					Match match = Regex.Match(message, "DCO device (.*?) opened", regexOptions);
+					if (match.Success)
+						SearchTunNetworkInterfaceByName(match.Groups[1].Value);
+				}
+
+				// OSX, without DCO
 				{
 					Match match = Regex.Match(message, "Opened utun device (.*?)$", regexOptions);
 					if (match.Success)
@@ -884,6 +902,16 @@ namespace Eddie.Core.ConnectionTypes
 							m_configWithPush.AppendDirectives(directive, "Push");
 						m_pendingPushDetected.Clear();
 					}
+				}
+
+				if ((m_initSteps.Contains("init;")) && (m_initSteps.Contains("data-channel;")))
+				{
+					// Remember: <2.5 log data-channel and after init, >=2.6 log init and after data-channel
+					m_initSteps = "";
+
+					RefreshNetworkInterface();
+
+					Session.ConnectedStep();
 				}
 			}
 			else if (source == "SSH")
@@ -972,9 +1000,9 @@ namespace Eddie.Core.ConnectionTypes
 			if (m_configStartup != null)
 			{
 				if ((m_configStartup.ExistsDirective("<tls-crypt>")) && (Engine.Instance.GetOpenVpnTool().VersionUnder("2.4")))
-					Info.WarningAdd(LanguageManager.GetText("ConnectionWarningOlderOpenVpnTlsCrypt"), ConnectionInfoWarning.WarningType.Error);
+					Info.WarningAdd(LanguageManager.GetText(LanguageItems.ConnectionWarningOlderOpenVpnTlsCrypt), ConnectionInfoWarning.WarningType.Error);
 				if ((m_configStartup.ExistsDirective("tls-crypt")) && (Engine.Instance.GetOpenVpnTool().VersionUnder("2.4")))
-					Info.WarningAdd(LanguageManager.GetText("ConnectionWarningOlderOpenVpnTlsCrypt"), ConnectionInfoWarning.WarningType.Error);
+					Info.WarningAdd(LanguageManager.GetText(LanguageItems.ConnectionWarningOlderOpenVpnTlsCrypt), ConnectionInfoWarning.WarningType.Error);
 			}
 		}
 
@@ -1005,7 +1033,7 @@ namespace Eddie.Core.ConnectionTypes
 		public override void EnsureDriver()
 		{
 			// Remember: WireGuard ALWAYS create and destroy adapter, for this the code below is OpenVPN-specific.
-			if (Engine.Instance.ProfileOptions.GetBool("advanced.skip_tun_detect") == false)
+			if (Engine.Instance.ProfileOptions.Get("windows.driver") != "none")
 			{
 				string driverRequested = Platform.Instance.GetConnectionTunDriver(this);
 				string interfaceName = Core.Engine.Instance.ProfileOptions.Get("network.iface.name");

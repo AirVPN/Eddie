@@ -73,7 +73,7 @@ namespace Eddie.UI.Cocoa.Osx
 
         public void RequestCloseForReady()
         {
-            SetStatus(LanguageManager.GetText("Ready"));
+            SetStatus(LanguageManager.GetText(LanguageItems.Ready));
 
 			if (m_closePending)
                 return;

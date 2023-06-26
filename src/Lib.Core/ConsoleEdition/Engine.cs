@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -48,11 +48,11 @@ namespace Eddie.Core.ConsoleEdition
 				EnableLogOnConsole = false;
 				ProfileOptions o = new ProfileOptions();
 				Console.WriteLine(o.GetMan(StartCommandLine.Get("help.format", "text")));
+
 				return false;
 			}
 
-			if (StartCommandLine.Get("console.mode", "keys") == "keys")
-				Console.CancelKeyPress += new ConsoleCancelEventHandler(Console_CancelKeyPress);
+			Console.CancelKeyPress += new ConsoleCancelEventHandler(Console_CancelKeyPress);
 
 			return base.OnInit();
 		}
@@ -64,16 +64,18 @@ namespace Eddie.Core.ConsoleEdition
 
 			if ((login == "") || (password == ""))
 			{
-				Logs.Log(LogType.Fatal, LanguageManager.GetText("ConsoleHelp"));
+				Logs.Log(LogType.Fatal, LanguageManager.GetText(LanguageItems.ConsoleHelp));
 				return false;
 			}
 			else
 			{
-				if (StartCommandLine.Get("console.mode", "keys") == "keys")
-					Logs.Log(LogType.Info, LanguageManager.GetText("ConsoleKeyboardHelp"));
+				if (StartCommandLine.Exists("batch") == false)
+				{
+					Logs.Log(LogType.Info, LanguageManager.GetText(LanguageItems.ConsoleKeyboardHelp));
 
-				if (ProfileOptions.GetBool("connect") == false)
-					Logs.Log(LogType.Info, LanguageManager.GetText("ConsoleKeyboardHelpNoConnect"));
+					if (ProfileOptions.GetBool("connect") == false)
+						Logs.Log(LogType.Info, LanguageManager.GetText(LanguageItems.ConsoleKeyboardHelpNoConnect));
+				}
 			}
 
 			return true;
@@ -85,7 +87,7 @@ namespace Eddie.Core.ConsoleEdition
 
 			if (ConsoleMode)
 			{
-				if (StartCommandLine.Get("console.mode", "keys") == "keys")
+				if (StartCommandLine.Exists("batch") == false)
 				{
 					try
 					{
@@ -97,12 +99,19 @@ namespace Eddie.Core.ConsoleEdition
 
 							if (ch == 'x')
 							{
-								Logs.Log(LogType.Info, LanguageManager.GetText("ConsoleKeyCancel"));
-								Exit();
+								Logs.Log(LogType.Info, LanguageManager.GetText(LanguageItems.ConsoleKeyCancel));
+								if (Engine.IsConnected())
+								{
+									Disconnect();
+								}
+								else
+								{
+									Exit();
+								}
 							}
 							else if (ch == 'n')
 							{
-								Logs.Log(LogType.Info, LanguageManager.GetText("ConsoleKeySwitch"));
+								Logs.Log(LogType.Info, LanguageManager.GetText(LanguageItems.ConsoleKeySwitch));
 								if (Engine.IsConnected())
 								{
 									SwitchServer = true;
@@ -134,9 +143,9 @@ namespace Eddie.Core.ConsoleEdition
 		public override string OnAskProfilePassword(bool authFailed)
 		{
 			if (authFailed == false)
-				Logs.Log(LogType.Info, LanguageManager.GetText("WindowsUnlockFirstAuth"));
+				Logs.Log(LogType.Info, LanguageManager.GetText(LanguageItems.WindowsUnlockFirstAuth));
 			else
-				Logs.Log(LogType.Info, LanguageManager.GetText("WindowsUnlockFailedAuth"));
+				Logs.Log(LogType.Info, LanguageManager.GetText(LanguageItems.WindowsUnlockFailedAuth));
 
 			string password = Console.ReadLine();
 			return password;
@@ -162,14 +171,14 @@ namespace Eddie.Core.ConsoleEdition
 
 			for (; ; )
 			{
-				Logs.Log(LogType.Info, LanguageManager.GetText("WindowsExecExternalPermissionTop", data["path"].Value as string));
-				Logs.Log(LogType.Verbose, "N: " + LanguageManager.GetText("WindowsExecExternalPermissionNo"));
-				Logs.Log(LogType.Verbose, "Y: " + LanguageManager.GetText("WindowsExecExternalPermissionYes"));
+				Logs.Log(LogType.Info, LanguageManager.GetText(LanguageItems.WindowsExecExternalPermissionTop, data["path"].Value as string));
+				Logs.Log(LogType.Verbose, "N: " + LanguageManager.GetText(LanguageItems.WindowsExecExternalPermissionNo));
+				Logs.Log(LogType.Verbose, "Y: " + LanguageManager.GetText(LanguageItems.WindowsExecExternalPermissionYes));
 				if ((data["sign-id"].Value as string).StartsWith("No: ") == false)
-					Logs.Log(LogType.Verbose, "S: " + LanguageManager.GetText("WindowsExecExternalPermissionRuleSign", data["sign-id"].Value as string));
-				Logs.Log(LogType.Verbose, "H: " + LanguageManager.GetText("WindowsExecExternalPermissionRuleHash", data["sha256"].Value as string));
-				Logs.Log(LogType.Verbose, "P: " + LanguageManager.GetText("WindowsExecExternalPermissionRulePath", data["path"].Value as string));
-				Logs.Log(LogType.Verbose, "A: " + LanguageManager.GetText("WindowsExecExternalPermissionRuleAll"));
+					Logs.Log(LogType.Verbose, "S: " + LanguageManager.GetText(LanguageItems.WindowsExecExternalPermissionRuleSign, data["sign-id"].Value as string));
+				Logs.Log(LogType.Verbose, "H: " + LanguageManager.GetText(LanguageItems.WindowsExecExternalPermissionRuleHash, data["sha256"].Value as string));
+				Logs.Log(LogType.Verbose, "P: " + LanguageManager.GetText(LanguageItems.WindowsExecExternalPermissionRulePath, data["path"].Value as string));
+				Logs.Log(LogType.Verbose, "A: " + LanguageManager.GetText(LanguageItems.WindowsExecExternalPermissionRuleAll));
 
 				char ch = ReadConsoleKeyInsensitive();
 
@@ -229,7 +238,7 @@ namespace Eddie.Core.ConsoleEdition
 			{
 				e.Cancel = true;
 
-				Logs.Log(LogType.Info, LanguageManager.GetText("ConsoleKeyBreak"));
+				Logs.Log(LogType.Info, LanguageManager.GetText(LanguageItems.ConsoleKeyBreak));
 
 				Exit();
 			}

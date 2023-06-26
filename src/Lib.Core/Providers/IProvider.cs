@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -228,6 +228,10 @@ namespace Eddie.Core.Providers
 				ID = RandomGenerator.GetHash();
 		}
 
+		public virtual void OnCheck()
+		{
+		}
+
 		public virtual void OnBuildOvpnDefaults(ConfigBuilder.OpenVPN ovpn)
 		{
 
@@ -239,7 +243,7 @@ namespace Eddie.Core.Providers
 
 		public virtual void OnAuthFailed()
 		{
-			Engine.Instance.Logs.Log(LogType.Fatal, LanguageManager.GetText("AuthFailed"));
+			Engine.Instance.Logs.Log(LogType.Fatal, LanguageManager.GetText(LanguageItems.AuthFailed));
 
 			ClearCredentials();
 		}
@@ -258,6 +262,11 @@ namespace Eddie.Core.Providers
 		{
 			m_lastTryRefresh = Utils.UnixTimeStamp();
 			return "";
+		}
+
+		public virtual bool OnPreFilterLog(string source, string message)
+		{
+			return true;
 		}
 
 		public virtual void OnBuildConnections()

@@ -69,6 +69,9 @@ gzip -n -9 $TARGETDIR/usr/share/man/man8/eddie-${PROJECT}.8
 # Remove unneed
 rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/openvpn
 rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/liblzo*
+rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/liblz4*
+rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/libcap-ng*
+rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/libnl*
 rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/libcrypto*
 rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/libssl*
 rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/libpkcs*

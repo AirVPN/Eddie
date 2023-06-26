@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -122,7 +122,7 @@ namespace Eddie.Core.Jobs
 			{
 				canRun = false;
 			}
-			else if (Engine.Instance.IsWaiting() && (Engine.Instance.WaitMessage.StartsWithInv(LanguageManager.GetText("WaitingLatencyTestsTitle")) == false))
+			else if (Engine.Instance.IsWaiting() && (Engine.Instance.WaitMessage.StartsWithInv(LanguageManager.GetText(LanguageItems.WaitingLatencyTestsTitle)) == false))
 				canRun = false;
 
 			return canRun;

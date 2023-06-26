@@ -74,6 +74,9 @@ gzip -n -9 $TARGETDIR/usr/share/man/man8/eddie-${PROJECT}.8
 # Remove unneed
 rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/openvpn
 rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/liblzo*
+rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/liblz4*
+rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/libcap-ng*
+rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/libnl*
 rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/libcrypto*
 rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/libssl*
 rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/libpkcs*
@@ -95,11 +98,11 @@ sed -i "s/{@version}/${VERSION}/g" ${TARGETDIR}/../rpmbuild.spec
 
 REQUIRES="mono-core sudo openvpn stunnel libcurl4 libsecret-tools" # Diff between OpenSuse and Fedora
 if [ $PROJECT = "cli" ]; then
-    REQUIRES="${REQUIRES}"
+    REQUIRES="${REQUIRES} "
 elif [ $PROJECT = "ui" ]; then
-    REQUIRES="${REQUIRES} mono-winforms libgdiplus-devel libnotify"
+    REQUIRES="${REQUIRES} polkit mono-winforms libgdiplus-devel libnotify"
 elif [ $PROJECT = "ui3" ]; then
-    REQUIRES="${REQUIRES} gtk-sharp3 libnotify"
+    REQUIRES="${REQUIRES} polkit gtk-sharp3 libnotify"
 fi
 sed -i "s/{@requires}/${REQUIRES}/g" ${TARGETDIR}/../rpmbuild.spec
 

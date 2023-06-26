@@ -7,27 +7,44 @@ realpath() {
 }
 SCRIPTDIR=$(dirname $(realpath "$0"))
 
+# Check args
+
 if [ "$1" == "" ]; then
-    echo First arg must be Project: cli,ui
-    exit 1
+	echo First arg must be Project: cli,ui
+	exit 1
 fi
 
 if [ "$2" == "" ]; then
-	echo Second arg must be OS: 10.9,10.15
+	echo Second arg must be Arch: x86_64, arm64
+	exit 1
+fi
+
+if [ "$3" == "" ]; then
+	echo Third arg must be OS: 10.9,10.15
+	exit 1
+fi
+
+if [ "$4" == "" ]; then
+	echo Fourth arg must be framework: net4,net6
 	exit 1
 fi
 
 PROJECT=$1
-VAROS=$2
+ARCH=$2
+VAROS=$3
+FRAMEWORK=$4
 CONFIG=Release
-
-VARSTAFF="no"
+VERSION=$($SCRIPTDIR/../macos_common/get-version.sh)
+STAFF="no"
 if test -f "${SCRIPTDIR}/../signing/apple-dev-id.txt"; then # Staff AirVPN
-    VARSTAFF="yes"
+    STAFF="yes"
 fi
 
-ARCH=$($SCRIPTDIR/../macos_common/get-arch.sh)
-VERSION=$($SCRIPTDIR/../macos_common/get-version.sh)
+ARCHOS=$($SCRIPTDIR/../macos_common/get-arch.sh)
+if [ ${ARCH} != ${ARCHOS} ]; then
+    echo "Skip on this OS"
+    exit 0;
+fi
 
 TARGETDIR=/tmp/eddie_deploy/eddie-${PROJECT}_${VERSION}_${VAROS}_${ARCH}_disk_temp.dmg
 FINALPATH=/tmp/eddie_deploy/eddie-${PROJECT}_${VERSION}_${VAROS}_${ARCH}_disk.dmg
@@ -46,7 +63,7 @@ rm -rf $FINALPATH
 
 # Package dependencies
 echo Step: Package dependencies - Build Portable
-"${SCRIPTDIR}/../macos_portable/build.sh" ${PROJECT} ${VAROS}
+"${SCRIPTDIR}/../macos_portable/build.sh" ${PROJECT} ${ARCH} ${VAROS} ${FRAMEWORK}
 mkdir -p ${TARGETDIR}
 DEPPACKAGEPATH=${SCRIPTDIR}/../files/eddie-${PROJECT}_${VERSION}_${VAROS}_${ARCH}_portable.zip
 # DMG
@@ -84,12 +101,12 @@ fi
 
 # Sign package
 
-if [ ${VARSTAFF} = "yes" ]; then
+if [ ${STAFF} = "yes" ]; then
     "${SCRIPTDIR}/../macos_common/sign.sh" "${FINALPATH}" yes ${VARHARDENING}
 fi
 
 # Notarization - Not need
-# if [ ${VARSTAFF} = "yes" ]; then
+# if [ ${STAFF} = "yes" ]; then
 #     "${SCRIPTDIR}/../macos_common/notarize.sh" "${FINALPATH}" "org.airvpn.eddie.${PROJECT}"
 # fi
 

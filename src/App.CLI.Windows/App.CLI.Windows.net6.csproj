@@ -1,12 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
-		<Platform Condition=" '$(Platform)' == '' ">x86</Platform>
 		<OutputType>Exe</OutputType>
+		<TargetFramework>net6.0</TargetFramework>
+		<Platforms>x86;x64</Platforms>
+		<PublishSingleFile>true</PublishSingleFile>
+		<PublishReadyToRun>true</PublishReadyToRun>		
+    	<SelfContained>true</SelfContained>
+		<PublishTrimmed>false</PublishTrimmed>
+		<Platform Condition=" '$(Platform)' == '' ">x86</Platform>		
 		<RootNamespace>Eddie.CLI.Windows</RootNamespace>
-		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-		<Platforms>x86;x64</Platforms>		
-		<PublishTrimmed>true</PublishTrimmed>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>		
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
 		<OutputPath>bin\x86\Debug\</OutputPath>
@@ -58,6 +61,8 @@
 		<PackageId>Eddie.App.CLI.Windows</PackageId>
 		<Authors>Eddie Team</Authors>
 		<PackageProjectUrl>https://eddie.website</PackageProjectUrl>
+		<AssemblyName>Eddie-CLI</AssemblyName>
+		<Title>Eddie-CLI</Title>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" Version="0.2.222702">
@@ -65,6 +70,6 @@
 		</PackageReference>
 	</ItemGroup>
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
-		<Exec Command="$(ProjectDir)\..\eddie.windows.postbuild.bat &quot;$(TargetDir)&quot; cli $(PlatformName) $(ConfigurationName)&#xD;&#xA;" />
+		<Exec Command="$(ProjectDir)\..\eddie.windows.postbuild.bat &quot;$(PublishDir)&quot; cli $(PlatformName) $(ConfigurationName)&#xD;&#xA;" />
 	</Target>
 </Project>

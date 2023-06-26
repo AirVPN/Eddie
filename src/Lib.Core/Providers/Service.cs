@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Security.Cryptography;
+using System.Text.RegularExpressions;
 using System.Xml;
 
 namespace Eddie.Core.Providers
@@ -58,8 +59,8 @@ namespace Eddie.Core.Providers
 			base.OnInit();
 
 #if (EDDIE3)
-            Engine.Instance.Storage.SetDefaultBool("providers." + GetCode() + ".dns.check", true, LanguageManager.GetText("ManOptionServicesDnsCheck"));
-            Engine.Instance.Storage.SetDefaultBool("providers." + GetCode() + ".tunnel.check", true, LanguageManager.GetText("ManOptionServicesTunnelCheck"));
+            Engine.Instance.Storage.SetDefaultBool("providers." + GetCode() + ".dns.check", true, LanguageManager.GetText(LanguageItems.ManOptionServicesDnsCheck));
+            Engine.Instance.Storage.SetDefaultBool("providers." + GetCode() + ".tunnel.check", true, LanguageManager.GetText(LanguageItems.ManOptionServicesTunnelCheck));
 #endif
 		}
 
@@ -79,6 +80,24 @@ namespace Eddie.Core.Providers
 			}
 
 			User = Storage.DocumentElement.SelectSingleNode("user");
+		}
+
+		public override void OnCheck()
+		{
+			base.OnCheck();
+
+			if (User == null)
+				return;
+
+			if (User.Attributes["login"] == null)
+				return;
+
+			long ts = User.GetAttributeInt64("ts", 0);
+
+			if (ts < 1685348074) // AirVPN, date of migration of certs SHA1 to SHA512
+			{
+				Engine.Instance.ReAuth();
+			}
 		}
 
 		public override void OnBuildOvpnDefaults(ConfigBuilder.OpenVPN ovpn)
@@ -257,7 +276,7 @@ namespace Eddie.Core.Providers
 
 		public override void OnAuthFailed()
 		{
-			Engine.Instance.Logs.Log(LogType.Warning, LanguageManager.GetText("AirVpnAuthFailed"));
+			Engine.Instance.Logs.Log(LogType.Warning, LanguageManager.GetText(LanguageItems.AirVpnAuthFailed));
 		}
 
 		public override void OnVpnEstablished(Session session)
@@ -269,7 +288,7 @@ namespace Eddie.Core.Providers
 
 			if (session.Connection.Info.SupportCheck == false)
 			{
-				Engine.Instance.Logs.Log(LogType.Warning, LanguageManager.GetText("ConnectionCheckingRouteNotAvailable"));
+				Engine.Instance.Logs.Log(LogType.Warning, LanguageManager.GetText(LanguageItems.ConnectionCheckingRouteNotAvailable));
 			}
 			else
 			{
@@ -279,8 +298,8 @@ namespace Eddie.Core.Providers
 					{
 						bool ok = false;
 						string lastError = "";
-						Engine.Instance.WaitMessageSet(LanguageManager.GetText("ConnectionCheckingRouteIPv4"), true);
-						Engine.Instance.Logs.Log(LogType.Info, LanguageManager.GetText("ConnectionCheckingRouteIPv4"));
+						Engine.Instance.WaitMessageSet(LanguageManager.GetText(LanguageItems.ConnectionCheckingRouteIPv4), true);
+						Engine.Instance.Logs.Log(LogType.Info, LanguageManager.GetText(LanguageItems.ConnectionCheckingRouteIPv4));
 						for (int t = 0; t < nTry; t++)
 						{
 							if (session.InReset)
@@ -289,7 +308,7 @@ namespace Eddie.Core.Providers
 							System.Threading.Thread.Sleep(t * 1000);
 
 							if (t > 2)
-								Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("ConnectionCheckingTryRoute", (t + 1).ToString()));
+								Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText(LanguageItems.ConnectionCheckingTryRoute, (t + 1).ToString()));
 
 							try
 							{
@@ -313,7 +332,7 @@ namespace Eddie.Core.Providers
 								}
 
 								if (session.Connection.GetVpnIPs().OnlyIPv4.ContainsAddress(ip) == false)
-									throw new Exception(LanguageManager.GetText("ConnectionCheckingTryRouteFail", ip));
+									throw new Exception(LanguageManager.GetText(LanguageItems.ConnectionCheckingTryRouteFail, ip));
 
 								session.Connection.TimeServer = Conversions.ToInt64(ts);
 								session.Connection.TimeClient = Utils.UnixTimeStamp();
@@ -330,7 +349,7 @@ namespace Eddie.Core.Providers
 
 						if ((session.InReset == false) && (ok == false))
 						{
-							Engine.Instance.Logs.Log(LogType.Error, LanguageManager.GetText("ConnectionCheckingRouteIPv4Failed", lastError));
+							Engine.Instance.Logs.Log(LogType.Error, LanguageManager.GetText(LanguageItems.ConnectionCheckingRouteIPv4Failed, lastError));
 							session.SetReset("ERROR");
 						}
 					}
@@ -339,8 +358,8 @@ namespace Eddie.Core.Providers
 					{
 						bool ok = false;
 						string lastError = "";
-						Engine.Instance.WaitMessageSet(LanguageManager.GetText("ConnectionCheckingRouteIPv6"), true);
-						Engine.Instance.Logs.Log(LogType.Info, LanguageManager.GetText("ConnectionCheckingRouteIPv6"));
+						Engine.Instance.WaitMessageSet(LanguageManager.GetText(LanguageItems.ConnectionCheckingRouteIPv6), true);
+						Engine.Instance.Logs.Log(LogType.Info, LanguageManager.GetText(LanguageItems.ConnectionCheckingRouteIPv6));
 						for (int t = 0; t < nTry; t++)
 						{
 							if (session.InReset)
@@ -349,7 +368,7 @@ namespace Eddie.Core.Providers
 							System.Threading.Thread.Sleep(t * 1000);
 
 							if (t > 2)
-								Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("ConnectionCheckingTryRoute", (t + 1).ToString()));
+								Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText(LanguageItems.ConnectionCheckingTryRoute, (t + 1).ToString()));
 
 							try
 							{
@@ -373,7 +392,7 @@ namespace Eddie.Core.Providers
 								}
 
 								if (session.Connection.GetVpnIPs().OnlyIPv6.ContainsAddress(ip) == false)
-									throw new Exception(LanguageManager.GetText("ConnectionCheckingTryRouteFail", ip));
+									throw new Exception(LanguageManager.GetText(LanguageItems.ConnectionCheckingTryRouteFail, ip));
 
 								session.Connection.TimeServer = Conversions.ToInt64(ts);
 								session.Connection.TimeClient = Utils.UnixTimeStamp();
@@ -390,7 +409,7 @@ namespace Eddie.Core.Providers
 
 						if ((session.InReset == false) && (ok == false))
 						{
-							Engine.Instance.Logs.Log(LogType.Error, LanguageManager.GetText("ConnectionCheckingRouteIPv6Failed", lastError));
+							Engine.Instance.Logs.Log(LogType.Error, LanguageManager.GetText(LanguageItems.ConnectionCheckingRouteIPv6Failed, lastError));
 							session.SetReset("ERROR");
 						}
 					}
@@ -402,7 +421,7 @@ namespace Eddie.Core.Providers
 						// But if a proxy is active, don't work.
 						if (session.Connection.GetProxyMode())
 						{
-							session.Connection.RealIp = LanguageManager.GetText("NotAvailable");
+							session.Connection.RealIp = LanguageManager.GetText(LanguageItems.NotAvailable);
 							session.Connection.TimeServer = 0;
 						}
 						else
@@ -441,7 +460,7 @@ namespace Eddie.Core.Providers
 								// Engine.Instance.Logs.Log(ex);
 								string m = ex.Message;
 
-								session.Connection.RealIp = LanguageManager.GetText("NotAvailable");
+								session.Connection.RealIp = LanguageManager.GetText(LanguageItems.NotAvailable);
 								session.Connection.TimeServer = 0;
 							}
 						}
@@ -456,8 +475,8 @@ namespace Eddie.Core.Providers
 				// DNS test
 				if ((session.InReset == false) && (CheckDns) && (Engine.Instance.ProfileOptions.Get("dns.servers") == ""))
 				{
-					Engine.Instance.WaitMessageSet(LanguageManager.GetText("ConnectionCheckingDNS"), true);
-					Engine.Instance.Logs.Log(LogType.Info, LanguageManager.GetText("ConnectionCheckingDNS"));
+					Engine.Instance.WaitMessageSet(LanguageManager.GetText(LanguageItems.ConnectionCheckingDNS), true);
+					Engine.Instance.Logs.Log(LogType.Info, LanguageManager.GetText(LanguageItems.ConnectionCheckingDNS));
 
 					bool ok = false;
 					string lastError = "";
@@ -470,7 +489,7 @@ namespace Eddie.Core.Providers
 						System.Threading.Thread.Sleep(t * 1000);
 
 						if (t > 2)
-							Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("ConnectionCheckingTryDNS", (t + 1).ToString()));
+							Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText(LanguageItems.ConnectionCheckingTryDNS, (t + 1).ToString()));
 
 						try
 						{
@@ -490,7 +509,7 @@ namespace Eddie.Core.Providers
 							//        So result is empty, but CheckDNS below works (parallel DNS execution?)
 							//if(result.Count == 0)
 							//if ((Engine.CurrentServer.SupportIPv6) && (result.Count == 0))
-							//	throw new Exception(LanguageManager.GetText("ConnectionCheckingTryDNSFail, "No DNS answer"));								
+							//	throw new Exception(LanguageManager.GetText(LanguageItems.ConnectionCheckingTryDNSFail, "No DNS answer"));								
 
 							// Check if the server has received the above DNS query
 							string checkProtocol = GetKeyValue("check_protocol", "https"); // 2.21.2
@@ -516,7 +535,7 @@ namespace Eddie.Core.Providers
 								answer = j["dns"].ValueString;
 
 							if (hash != answer)
-								throw new Exception(LanguageManager.GetText("ConnectionCheckingTryDNSFail", answer));
+								throw new Exception(LanguageManager.GetText(LanguageItems.ConnectionCheckingTryDNSFail, answer));
 
 							ok = true;
 							lastError = "";
@@ -530,7 +549,7 @@ namespace Eddie.Core.Providers
 
 					if ((session.InReset == false) && (ok == false))
 					{
-						Engine.Instance.Logs.Log(LogType.Error, LanguageManager.GetText("ConnectionCheckingDNSFailed", lastError));
+						Engine.Instance.Logs.Log(LogType.Error, LanguageManager.GetText(LanguageItems.ConnectionCheckingDNSFailed, lastError));
 						session.SetReset("ERROR");
 					}
 				}
@@ -567,7 +586,7 @@ namespace Eddie.Core.Providers
 		{
 			base.OnRefresh();
 
-			// Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("ProviderRefreshStart, Title));
+			// Engine.Instance.Logs.LogVerbose(LanguageManager.GetText(LanguageItems.ProviderRefreshStart, Title));
 
 			try
 			{
@@ -575,7 +594,7 @@ namespace Eddie.Core.Providers
 				parameters["act"] = "manifest";
 				parameters["ts"] = Conversions.ToString(m_lastFetchTime);
 
-				XmlDocument xmlDoc = Fetch(LanguageManager.GetText("ProviderRefreshStart", Title), parameters);
+				XmlDocument xmlDoc = Fetch(LanguageManager.GetText(LanguageItems.ProviderRefreshStart, Title), parameters);
 				lock (Storage)
 				{
 					if (Manifest != null)
@@ -590,7 +609,7 @@ namespace Eddie.Core.Providers
 					m_lastFetchTime = Utils.UnixTimeStamp();
 				}
 
-				Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("ProviderRefreshDone", Title));
+				Engine.Instance.Logs.LogVerbose(LanguageManager.GetText(LanguageItems.ProviderRefreshDone, Title));
 
 				// Show important messages
 				foreach (XmlElement xmlMessage in Manifest.SelectNodes("messages/message"))
@@ -632,12 +651,34 @@ namespace Eddie.Core.Providers
 			}
 			catch (Exception ex)
 			{
-				Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("ProviderRefreshFail", Title, ex.Message));
+				Engine.Instance.Logs.LogVerbose(LanguageManager.GetText(LanguageItems.ProviderRefreshFail, Title, ex.Message));
 
-				return LanguageManager.GetText("ProviderRefreshFail", Title, ex.Message);
+				return LanguageManager.GetText(LanguageItems.ProviderRefreshFail, Title, ex.Message);
 			}
 		}
 
+		public override bool OnPreFilterLog(string source, string message)
+		{
+			RegexOptions regexOptions = RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Multiline;
+
+			XmlNodeList xmlRules = Manifest.SelectNodes("logs_skip/rule");
+			foreach (XmlElement xmlRule in xmlRules)
+			{
+				string regexSource = xmlRule.GetAttributeString("source", "");
+				Match matchSource = Regex.Match(source, regexSource, regexOptions);
+				if (matchSource.Success)
+				{
+					string regexMessage = xmlRule.GetAttributeString("message", "");
+					Match matchMessage = Regex.Match(message, regexMessage, regexOptions);
+					if (matchMessage.Success)
+					{
+						return false;
+					}
+				}
+			}
+
+			return true;
+		}
 		public override IpAddresses GetNetworkLockAllowlistOutgoingIPs()
 		{
 			IpAddresses result = base.GetNetworkLockAllowlistOutgoingIPs();
@@ -750,10 +791,10 @@ namespace Eddie.Core.Providers
 						continue;
 
 					if (User == null)
-						connection.WarningAdd(LanguageManager.GetText("ConnectionWarningLoginRequired"), ConnectionInfoWarning.WarningType.Error);
+						connection.WarningAdd(LanguageManager.GetText(LanguageItems.ConnectionWarningLoginRequired), ConnectionInfoWarning.WarningType.Error);
 
 					if (mode.EntryIndex >= connection.IpsEntry.CountIPv4)
-						connection.WarningAdd(LanguageManager.GetText("ConnectionWarningModeUnsupported"), ConnectionInfoWarning.WarningType.Error);
+						connection.WarningAdd(LanguageManager.GetText(LanguageItems.ConnectionWarningModeUnsupported), ConnectionInfoWarning.WarningType.Error);
 				}
 			}
 		}
@@ -993,7 +1034,7 @@ namespace Eddie.Core.Providers
 				{
 					string message = "";
 					if (response.GetHeader("location") != "")
-						message = LanguageManager.GetText("ProviderRefreshFailUnexpected302", Title, response.GetHeader("location"));
+						message = LanguageManager.GetText(LanguageItems.ProviderRefreshFailUnexpected302, Title, response.GetHeader("location"));
 					else
 						message = ex.Message + " - " + response.GetLineReport();
 					throw new Exception(message);
@@ -1005,6 +1046,8 @@ namespace Eddie.Core.Providers
 		{
 			parameters["login"] = Engine.Instance.ProfileOptions.Get("login");
 			parameters["password"] = Engine.Instance.ProfileOptions.Get("password");
+			parameters["software"] = "EddieDesktop_" + Constants.VersionDesc; // >=2.23.0
+			parameters["arch"] = Platform.Instance.GetOsArchitecture(); // >=2.23.0
 			parameters["system"] = Platform.Instance.GetSystemCode();
 			parameters["version"] = Constants.VersionInt.ToString(CultureInfo.InvariantCulture);
 
@@ -1025,10 +1068,7 @@ namespace Eddie.Core.Providers
 
 				try
 				{
-					XmlDocument xmlDoc = FetchUrl(url, parameters);
-					if (xmlDoc == null)
-						throw new Exception("No answer.");
-
+					XmlDocument xmlDoc = FetchUrl(url, parameters) ?? throw new Exception("No answer.");
 					if (xmlDoc.DocumentElement.Attributes["error"] != null)
 						throw new Exception(xmlDoc.DocumentElement.Attributes["error"].Value);
 
@@ -1044,7 +1084,7 @@ namespace Eddie.Core.Providers
 						info += " - with '" + proxyMode + "' (" + proxyWhen + ") proxy and '" + proxyAuth + "' auth";
 
 					if (Engine.Instance.ProfileOptions.GetBool("advanced.expert"))
-						Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("ExchangeTryFailed", title, hostN.ToString(), info));
+						Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText(LanguageItems.ExchangeTryFailed, title, hostN.ToString(), info));
 
 					if (firstError == "")
 						firstError = info;
@@ -1073,25 +1113,39 @@ namespace Eddie.Core.Providers
 
 		public ConnectionMode GetMode()
 		{
-			String type = Engine.Instance.ProfileOptions.Get("mode.type").ToLowerInvariant();
-			String protocol = Engine.Instance.ProfileOptions.Get("mode.protocol").ToUpperInvariant();
+			string type = Engine.Instance.ProfileOptions.Get("mode.type").ToLowerInvariant();
+			string protocol = Engine.Instance.ProfileOptions.Get("mode.protocol").ToUpperInvariant();
 			int port = Engine.Instance.ProfileOptions.GetInt("mode.port");
 			int entry = Engine.Instance.ProfileOptions.GetInt("mode.alt");
 
 			if (type == "auto")
-			{
 				return GetModeAuto();
-			}
-			else
+
+			// Lap 1: Find exact mode
+			// Lap 2: Find first mode with same type+protocol+port
+			// Lap 3: Find first mode with same type+protocol
+			// Lap 4: Find first mode with same type
+			// return Auto
+
+			for (int lap = 1; lap < 4; lap++)
 			{
 				foreach (ConnectionMode mode in Modes)
 				{
-					if (
-						(mode.Type.ToLowerInvariant() == type.ToLowerInvariant()) &&
-						(mode.Protocol.ToLowerInvariant() == protocol.ToLowerInvariant()) &&
-						(mode.Port == port) &&
-						(mode.EntryIndex == entry)
-					)
+					bool accept = true;
+
+					if (mode.Type.ToLowerInvariant() != type.ToLowerInvariant())
+						accept = false;
+
+					if ((lap <= 3) && (mode.Protocol.ToLowerInvariant() != protocol.ToLowerInvariant()))
+						accept = false;
+
+					if ((lap <= 2) && (mode.Port != port))
+						accept = false;
+
+					if ((lap <= 1) && (mode.EntryIndex != entry))
+						accept = false;
+
+					if (accept)
 						return mode;
 				}
 			}

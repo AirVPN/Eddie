@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -393,7 +393,7 @@ namespace Eddie.Forms.Skin
 		public virtual int OnSortItem(int col, SortOrder order, ListViewItem pi1, ListViewItem pi2)
 		{
 			int returnVal = -1;
-			returnVal = String.Compare(pi1.SubItems[col].Text, pi2.SubItems[col].Text);
+			returnVal = String.Compare(pi1.SubItems[col].Text, pi2.SubItems[col].Text, StringComparison.InvariantCulture);
 			// Determine whether the sort order is descending.
 			if (order == SortOrder.Descending)
 				// Invert the value returned by String.Compare.

@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@ namespace Eddie.Forms.Forms
 
 		private void WindowCommand_Load(object sender, EventArgs e)
 		{
-			CommonInit(LanguageManager.GetText("WindowsCommandTitle"));
+			CommonInit(LanguageManager.GetText(LanguageItems.WindowsCommandTitle));
 
 			Command = "";
 

@@ -1,19 +1,29 @@
 ;NSIS Eddie Main Setup
 
-;--------------------------------
-;Include Modern UI
+Unicode True
 
-!include "MUI.nsh"
-	
+!include "MUI.nsh"	
 
 ;--------------------------------
 ;General
 
-	;Compression mode
-	SetCompressor /SOLID /FINAL lzma  
-			
-	;Name and file
-	Name "Eddie - VPN Tunnel"
+	SetCompressor /SOLID /FINAL lzma  		
+	
+	Name "Eddie - VPN Tunnel"	
+	VIAddVersionKey ProductName "Eddie - VPN Tunnel"
+	VIProductVersion {@version}.0
+	VIAddVersionKey ProductVersion "{@version}.0"
+	VIAddVersionKey CompanyName "eddie.website & AirVPN"	
+	VIAddVersionKey LegalCopyright "eddie.website & AirVPN"	
+	VIAddVersionKey "FileVersion" "{@version}.0"
+	VIFileVersion {@version}.0
+	VIAddVersionKey "FileDescription" "OpenVPN/WireGuard UI with additional user-friendly features. Open-Source, GPLv3, developed by AirVPN"
+	;VIAddVersionKey "Comments" ""	
+	;VIAddVersionKey "LegalTrademarks" ""
+	
+	
+	
+
 	OutFile "{@out}"
 	
 	; Adds an XP manifest to the installer
@@ -219,6 +229,8 @@
 		
 		;Compatibility Clean
 		Delete "$SMPROGRAMS\$STARTMENU_FOLDER\AirVPN.lnk"
+		Delete "$SMPROGRAMS\$STARTMENU_FOLDER\Eddie-UI.lnk"
+		Delete "$SMPROGRAMS\$STARTMENU_FOLDER\Website.lnk"
 		Delete "$INSTDIR\CLI.exe"
 		Delete "$INSTDIR\AirVPN.exe"
 		Delete "$INSTDIR\ssleay32.dll"
@@ -262,9 +274,10 @@
 		
 		;Create shortcuts
 		CreateDirectory "$SMPROGRAMS\$STARTMENU_FOLDER"
-		CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\Eddie-UI.lnk" "$INSTDIR\Eddie-UI.exe" -path=home
+		CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\Eddie VPN - AirVPN.lnk" "$INSTDIR\Eddie-UI.exe" -path=home
 		CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\Website.lnk" "https://airvpn.org"
 		CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\Uninstall.lnk" "$INSTDIR\uninstall.exe"
+		CreateShortcut "$Desktop\Eddie VPN.lnk" "$INSTDIR\Eddie-UI.exe" -path=home
 				
 		ExecWait '"$INSTDIR\Eddie-CLI-Elevated.exe" service=install'
 		

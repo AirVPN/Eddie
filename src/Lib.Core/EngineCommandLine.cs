@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,7 +16,6 @@
 // along with Eddie. If not, see <http://www.gnu.org/licenses/>.
 // </eddie_source_header>
 
-using System;
 using System.Collections.Generic;
 
 namespace Eddie.Core
@@ -32,24 +31,30 @@ namespace Eddie.Core
 		public void Init()
 		{
 			KnownCommands["cli"] = "";
-			KnownCommands["version"] = LanguageManager.GetText("ManCommandLineVersion");
-			KnownCommands["version.short"] = LanguageManager.GetText("ManCommandLineVersionShort");
-			KnownCommands["help"] = LanguageManager.GetText("ManCommandLineHelp");
-			KnownCommands["help.format"] = LanguageManager.GetText("ManCommandLineHelpFormat");
+			KnownCommands["version"] = LanguageManager.GetText(LanguageItems.ManCommandLineVersion);
+			KnownCommands["version.short"] = LanguageManager.GetText(LanguageItems.ManCommandLineVersionShort);
+			KnownCommands["help"] = LanguageManager.GetText(LanguageItems.ManCommandLineHelp);
+			KnownCommands["help.format"] = LanguageManager.GetText(LanguageItems.ManCommandLineHelpFormat);
 
-			KnownCommands["linux.xhost"] = ""; // Internal
-			KnownCommands["linux.dbus"] = ""; // Internal
-			KnownCommands["console.mode"] = ""; // Internal	
-			KnownCommands["path.exec"] = "";  // Internal
-			KnownCommands["advanced.skip_privileges"] = "";  // Internal
+			KnownCommands["profile"] = LanguageManager.GetText(LanguageItems.ManCommandLineProfile);
+			KnownCommands["path"] = LanguageManager.GetText(LanguageItems.ManCommandLinePath);
 
-			KnownCommands["elevated.service.port"] = "";
+			KnownCommands["batch"] = "";
+			KnownCommands["stdinoutcontrol"] = ""; // WIP
 
-			KnownCommands["profile"] = LanguageManager.GetText("ManCommandLineProfile");
-			KnownCommands["path"] = LanguageManager.GetText("ManCommandLinePath");
+			// Internal:
 
 			KnownCommands["path.resources"] = "";
 			KnownCommands["path.tools"] = "";
+
+			KnownCommands["linux.xhost"] = "";
+			KnownCommands["linux.dbus"] = "";
+			KnownCommands["path.exec"] = "";
+			KnownCommands["advanced.skip_privileges"] = "";
+
+			KnownCommands["elevated.service.port"] = "";
+
+			KnownCommands["sudo"] = "";
 		}
 
 		public bool Check()
@@ -60,7 +65,7 @@ namespace Eddie.Core
 			{
 				// 2.10.1
 				// macOS sometime pass as command-line arguments a 'psn_0_16920610' or similar. Ignore it.
-				if (commandLineParamKey.StartsWith("psn_", StringComparison.InvariantCultureIgnoreCase))
+				if (commandLineParamKey.ToLowerInvariant().StartsWithInv("psn_"))
 					continue;
 
 				// 2.11.11 - Used to avoid a Mono crash if pressed Win key
@@ -71,7 +76,7 @@ namespace Eddie.Core
 					continue;
 
 				// No warning, because can override profile options
-				//Engine.Instance.Logs.Log(LogType.Error, LanguageManager.GetText("CommandLineUnknownOption", commandLineParamKey));
+				//Engine.Instance.Logs.Log(LogType.Error, LanguageManager.GetText(LanguageItems.CommandLineUnknownOption, commandLineParamKey));
 				//result = false;
 			}
 

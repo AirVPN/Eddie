@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -27,6 +27,9 @@ protected:
 	virtual bool IsServiceInstalled();
 	virtual bool ServiceInstall();
 	virtual bool ServiceUninstall();
+
+	virtual std::vector<std::string> GetNetworkInterfacesNames();	
+
 	virtual std::string CheckIfClientPathIsAllowed(const std::string& path);
 	/*virtual void CheckIfExecutableIsAllowed(const std::string& path);*/
 	virtual int GetProcessIdMatchingIPEndPoints(struct sockaddr_in& addrClient, struct sockaddr_in& addrServer);
@@ -44,8 +47,9 @@ private:
 	int FileGetFlags(const std::string& path);
 
 	std::string GetRoutesAsJson();	
-	std::vector<std::string> GetNetworkInterfaces();
 	std::string GetNetworkInterfaceInfoAsJson(const std::string& id);
 	unsigned long WireGuardLastHandshake(const std::string& wgPath, const std::string& interfaceId);
+	std::string WorkaroundDnsLookupIPv6Enable(const std::string& iface);
+	std::string WorkaroundDnsLookupIPv6Disable(const std::string& iface);
 };
 

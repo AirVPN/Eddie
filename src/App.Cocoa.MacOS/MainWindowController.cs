@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org )
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org )
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -106,36 +106,36 @@ namespace Eddie.UI.Cocoa.Osx
 			GuiUtils.SetSelected(CboServersScoringRule, Engine.ProfileOptions.Get("servers.scoretype"));
 
 			CboSpeedResolutions.RemoveAllItems();
-			CboSpeedResolutions.AddItem(LanguageManager.GetText("WindowsMainSpeedResolution1"));
-			CboSpeedResolutions.AddItem(LanguageManager.GetText("WindowsMainSpeedResolution2"));
-			CboSpeedResolutions.AddItem(LanguageManager.GetText("WindowsMainSpeedResolution3"));
-			CboSpeedResolutions.AddItem(LanguageManager.GetText("WindowsMainSpeedResolution4"));
-			CboSpeedResolutions.AddItem(LanguageManager.GetText("WindowsMainSpeedResolution5"));
+			CboSpeedResolutions.AddItem(LanguageManager.GetText(LanguageItems.WindowsMainSpeedResolution1));
+			CboSpeedResolutions.AddItem(LanguageManager.GetText(LanguageItems.WindowsMainSpeedResolution2));
+			CboSpeedResolutions.AddItem(LanguageManager.GetText(LanguageItems.WindowsMainSpeedResolution3));
+			CboSpeedResolutions.AddItem(LanguageManager.GetText(LanguageItems.WindowsMainSpeedResolution4));
+			CboSpeedResolutions.AddItem(LanguageManager.GetText(LanguageItems.WindowsMainSpeedResolution5));
 			CboSpeedResolutions.SelectItem(0);
 
-			CmdConnect.Title = LanguageManager.GetText("CommandConnect");
-			LblConnect.StringValue = LanguageManager.GetText("CommandConnectSubtitle");
-			CmdDisconnect.Title = LanguageManager.GetText("CommandDisconnect");
-			CmdCancel.Title = LanguageManager.GetText("CommandCancel");
+			CmdConnect.Title = LanguageManager.GetText(LanguageItems.CommandConnect);
+			LblConnect.StringValue = LanguageManager.GetText(LanguageItems.CommandConnectSubtitle);
+			CmdDisconnect.Title = LanguageManager.GetText(LanguageItems.CommandDisconnect);
+			CmdCancel.Title = LanguageManager.GetText(LanguageItems.CommandCancel);
 
-			CboServersScoringRule.ToolTip = LanguageManager.GetText("TooltipServersScoreType");
-			ChkServersLockCurrent.ToolTip = LanguageManager.GetText("TooltipServersLockCurrent");
-			ChkServersShowAll.ToolTip = LanguageManager.GetText("TooltipServersShowAll");
-			CmdServersConnect.ToolTip = LanguageManager.GetText("TooltipServersConnect");
-			CmdServersUndefined.ToolTip = LanguageManager.GetText("TooltipServersUndefined");
-			CmdServersDenylist.ToolTip = LanguageManager.GetText("TooltipServersDenylist");
-			CmdServersAllowlist.ToolTip = LanguageManager.GetText("TooltipServersAllowlist");
-			CmdServersRename.ToolTip = LanguageManager.GetText("TooltipServersRename");
-			CmdServersMore.ToolTip = LanguageManager.GetText("TooltipServersMore");
-			CmdServersRefresh.ToolTip = LanguageManager.GetText("TooltipServersRefresh");
-			CmdAreasUndefined.ToolTip = LanguageManager.GetText("TooltipAreasUndefined");
-			CmdAreasDenylist.ToolTip = LanguageManager.GetText("TooltipAreasDenylist");
-			CmdAreasAllowlist.ToolTip = LanguageManager.GetText("TooltipAreasAllowlist");
-			CmdLogsCommand.ToolTip = LanguageManager.GetText("TooltipLogsCommand");
-			CmdLogsClean.ToolTip = LanguageManager.GetText("TooltipLogsClean");
-			CmdLogsCopy.ToolTip = LanguageManager.GetText("TooltipLogsCopy");
-			CmdLogsSave.ToolTip = LanguageManager.GetText("TooltipLogsSave");
-			CmdLogsSupport.ToolTip = LanguageManager.GetText("TooltipLogsSupport");
+			CboServersScoringRule.ToolTip = LanguageManager.GetText(LanguageItems.TooltipServersScoreType);
+			ChkServersLockCurrent.ToolTip = LanguageManager.GetText(LanguageItems.TooltipServersLockCurrent);
+			ChkServersShowAll.ToolTip = LanguageManager.GetText(LanguageItems.TooltipServersShowAll);
+			CmdServersConnect.ToolTip = LanguageManager.GetText(LanguageItems.TooltipServersConnect);
+			CmdServersUndefined.ToolTip = LanguageManager.GetText(LanguageItems.TooltipServersUndefined);
+			CmdServersDenylist.ToolTip = LanguageManager.GetText(LanguageItems.TooltipServersDenylist);
+			CmdServersAllowlist.ToolTip = LanguageManager.GetText(LanguageItems.TooltipServersAllowlist);
+			CmdServersRename.ToolTip = LanguageManager.GetText(LanguageItems.TooltipServersRename);
+			CmdServersMore.ToolTip = LanguageManager.GetText(LanguageItems.TooltipServersMore);
+			CmdServersRefresh.ToolTip = LanguageManager.GetText(LanguageItems.TooltipServersRefresh);
+			CmdAreasUndefined.ToolTip = LanguageManager.GetText(LanguageItems.TooltipAreasUndefined);
+			CmdAreasDenylist.ToolTip = LanguageManager.GetText(LanguageItems.TooltipAreasDenylist);
+			CmdAreasAllowlist.ToolTip = LanguageManager.GetText(LanguageItems.TooltipAreasAllowlist);
+			CmdLogsCommand.ToolTip = LanguageManager.GetText(LanguageItems.TooltipLogsCommand);
+			CmdLogsClean.ToolTip = LanguageManager.GetText(LanguageItems.TooltipLogsClean);
+			CmdLogsCopy.ToolTip = LanguageManager.GetText(LanguageItems.TooltipLogsCopy);
+			CmdLogsSave.ToolTip = LanguageManager.GetText(LanguageItems.TooltipLogsSave);
+			CmdLogsSupport.ToolTip = LanguageManager.GetText(LanguageItems.TooltipLogsSupport);
 
 			if (Engine.ProfileOptions.GetBool("remember"))
 			{
@@ -506,8 +506,8 @@ namespace Eddie.UI.Cocoa.Osx
 				Shutdown();
 			};
 
-			CboServersScoringRule.ToolTip = LanguageManager.GetText("TooltipServersScoreType");
-			CmdAreasDenylist.ToolTip = LanguageManager.GetText("TooltipAreasDenylist");
+			CboServersScoringRule.ToolTip = LanguageManager.GetText(LanguageItems.TooltipServersScoreType);
+			CmdAreasDenylist.ToolTip = LanguageManager.GetText(LanguageItems.TooltipAreasDenylist);
 
 			Engine.OnRefreshUi();
 
@@ -525,7 +525,7 @@ namespace Eddie.UI.Cocoa.Osx
 		{
 			if (Engine.AskExitConfirm())
 			{
-				bool result = GuiUtils.MessageYesNo(LanguageManager.GetText("ExitConfirm"));
+				bool result = GuiUtils.MessageYesNo(LanguageManager.GetText(LanguageItems.ExitConfirm));
 				if (result == false)
 				{
 					Engine.Instance.OnExitRejected();
@@ -578,7 +578,7 @@ namespace Eddie.UI.Cocoa.Osx
 						ImgProgress.StopAnimation(this);
 						ImgTopPanel.Image = NSImage.ImageNamed("topbar_osx_green.png");
 						MnuTrayStatus.Image = NSImage.ImageNamed("status_green_16.png");
-						LblTopStatus.StringValue = LanguageManager.GetText("TopBarConnected", Engine.CurrentServer.DisplayName);
+						LblTopStatus.StringValue = LanguageManager.GetText(LanguageItems.TopBarConnected, Engine.CurrentServer.DisplayName);
 
 
                         TabOverview.SelectAt(2);
@@ -594,9 +594,9 @@ namespace Eddie.UI.Cocoa.Osx
 						ImgTopPanel.Image = NSImage.ImageNamed("topbar_osx_red.png");
 						MnuTrayStatus.Image = NSImage.ImageNamed("status_red_16.png");
 						if (Engine.Instance.NetworkLockManager.IsActive())
-                            LblTopStatus.StringValue = LanguageManager.GetText("TopBarNotConnectedLocked");
+                            LblTopStatus.StringValue = LanguageManager.GetText(LanguageItems.TopBarNotConnectedLocked);
 						else
-                            LblTopStatus.StringValue = LanguageManager.GetText("TopBarNotConnectedExposed");
+                            LblTopStatus.StringValue = LanguageManager.GetText(LanguageItems.TopBarNotConnectedExposed);
 
 						TabOverview.SelectAt(0);
 					}
@@ -694,18 +694,18 @@ namespace Eddie.UI.Cocoa.Osx
             if (appColor == "green")
 			{
 				StatusItem.Image = NSImage.ImageNamed("menubar_" + colorMode.ToLowerInvariant() + "_green.png");
-				MnuTrayConnect.Title = LanguageManager.GetText("CommandDisconnect");
+				MnuTrayConnect.Title = LanguageManager.GetText(LanguageItems.CommandDisconnect);
 			}
 			else if (appColor == "yellow")
 			{
 				StatusItem.Image = NSImage.ImageNamed("menubar_" + colorMode.ToLowerInvariant() + "_yellow.png");
 				
-				MnuTrayConnect.Title = LanguageManager.GetText("CommandCancel");
+				MnuTrayConnect.Title = LanguageManager.GetText(LanguageItems.CommandCancel);
 			}
 			else if (appColor == "red")
 			{
 				StatusItem.Image = NSImage.ImageNamed("menubar_" + colorMode.ToLowerInvariant() + "_red.png");
-				MnuTrayConnect.Title = LanguageManager.GetText("CommandConnect");
+				MnuTrayConnect.Title = LanguageManager.GetText(LanguageItems.CommandConnect);
 			}
 
             MnuTrayConnect.Title = mainActionText;
@@ -793,9 +793,9 @@ namespace Eddie.UI.Cocoa.Osx
         public void ChangeVisibility(bool vis)
         {
             if (vis)
-                MnuTrayRestore.Title = LanguageManager.GetText("WindowsMainHide");
+                MnuTrayRestore.Title = LanguageManager.GetText(LanguageItems.WindowsMainHide);
             else
-                MnuTrayRestore.Title = LanguageManager.GetText("WindowsMainShow");
+                MnuTrayRestore.Title = LanguageManager.GetText(LanguageItems.WindowsMainShow);
         }
 
 		public void EnabledUI()
@@ -822,9 +822,9 @@ namespace Eddie.UI.Cocoa.Osx
 				bool airvpnLogged = Engine.IsLogged();
 
 				if (airvpnLogged == false)
-					CmdLogin.Title = LanguageManager.GetText("CommandLoginButton");
+					CmdLogin.Title = LanguageManager.GetText(LanguageItems.CommandLoginButton);
 				else
-					CmdLogin.Title = LanguageManager.GetText("CommandLogout");
+					CmdLogin.Title = LanguageManager.GetText(LanguageItems.CommandLogout);
 
 				GuiUtils.SetEnabled(CmdLogin,((waiting == false) && (connected == false) && (TxtAirU.StringValue.Trim() != "") && (TxtPassword.StringValue.Trim() != "")));
 				GuiUtils.SetEnabled(TxtAirU, (airvpnLogged == false));
@@ -883,20 +883,20 @@ namespace Eddie.UI.Cocoa.Osx
 				GuiUtils.SetHidden(ImgNetworkLock, CmdNetworkLock.Hidden);
 				if (Engine.Instance.NetworkLockManager.IsActive())
 				{
-					CmdNetworkLock.Title = LanguageManager.GetText("NetworkLockButtonActive");
+					CmdNetworkLock.Title = LanguageManager.GetText(LanguageItems.NetworkLockButtonActive);
 					ImgNetworkLock.Image = NSImage.ImageNamed("netlock_on.png");
 
 					LblNetLockStatus.Image = NSImage.ImageNamed("netlock_status_on.png");
-					LblNetLockStatus.ToolTip = LanguageManager.GetText("NetworkLockStatusActive");
+					LblNetLockStatus.ToolTip = LanguageManager.GetText(LanguageItems.NetworkLockStatusActive);
 
 				}
 				else
 				{
-					CmdNetworkLock.Title = LanguageManager.GetText("NetworkLockButtonDeactive");
+					CmdNetworkLock.Title = LanguageManager.GetText(LanguageItems.NetworkLockButtonDeactive);
 					ImgNetworkLock.Image = NSImage.ImageNamed("netlock_off.png");
 
 					LblNetLockStatus.Image = NSImage.ImageNamed("netlock_status_off.png");
-					LblNetLockStatus.ToolTip = LanguageManager.GetText("NetworkLockStatusDeactive");
+					LblNetLockStatus.ToolTip = LanguageManager.GetText(LanguageItems.NetworkLockStatusDeactive);
 				}
 			}
 
@@ -955,7 +955,7 @@ namespace Eddie.UI.Cocoa.Osx
 			if (Engine.Instance.ProfileOptions.GetBool("ui.skip.netlock.confirm"))
 				return true;
 
-			string msg = LanguageManager.GetText("NetworkLockWarning");
+			string msg = LanguageManager.GetText(LanguageItems.NetworkLockWarning);
 
 			return (GuiUtils.MessageYesNo(msg));
 		}
@@ -1211,7 +1211,7 @@ namespace Eddie.UI.Cocoa.Osx
 				string[] pboardTypes = new string[] { "NSStringPboardType" };
 				NSPasteboard.GeneralPasteboard.DeclareTypes(pboardTypes, null);
 				NSPasteboard.GeneralPasteboard.SetStringForType(t, pboardTypes[0]);
-				GuiUtils.MessageBoxInfo(LanguageManager.GetText("LogsCopyClipboardDone"));
+				GuiUtils.MessageBoxInfo(LanguageManager.GetText(LanguageItems.LogsCopyClipboardDone));
 			}
 		}
 
@@ -1230,7 +1230,7 @@ namespace Eddie.UI.Cocoa.Osx
 				{
 					Core.Platform.Instance.FileContentsWriteText(panel.Url.Path, t, System.Text.Encoding.UTF8);
 
-					GuiUtils.MessageBoxInfo(LanguageManager.GetText("LogsSaveToFileDone"));
+					GuiUtils.MessageBoxInfo(LanguageManager.GetText(LanguageItems.LogsSaveToFileDone));
 				}
 			}
 		}

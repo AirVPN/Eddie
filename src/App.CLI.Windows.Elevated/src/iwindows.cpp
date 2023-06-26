@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -32,14 +32,12 @@
 #include "psapi.h"
 #include "tlhelp32.h"
 
-#include <iphlpapi.h>
-
+//#include <iphlpapi.h>
 #include <codecvt> // For StringUTF8ToWString
-
 #include "sddl.h"	// For ConvertSidToStringSid
-
-#include "accctrl.h" // for GetSecurityInfo
-#include "aclapi.h" // for GetSecurityInfo
+#include "accctrl.h" // For GetSecurityInfo
+#include "aclapi.h" // For GetSecurityInfo
+#include <VersionHelpers.h> // For IsWindows8OrGreater
 
 void IWindows::Do(const std::string& commandId, const std::string& command, std::map<std::string, std::string>& params)
 {
@@ -48,7 +46,7 @@ void IWindows::Do(const std::string& commandId, const std::string& command, std:
 		std::string mode = params["mode"];
 
 		std::string netPath = FsLocateExecutable("net.exe", false);
-		std::string ipconfigPath = FsLocateExecutable("net.exe", false);
+		std::string ipconfigPath = FsLocateExecutable("ipconfig.exe", false);
 
 		if (mode == "max")
 		{
@@ -259,37 +257,14 @@ void IWindows::Do(const std::string& commandId, const std::string& command, std:
 		{
 			std::string signal = params["signal"];
 
-			if (m_keypair.find("openvpn_" + id + "_pid") != m_keypair.end())
+			if (m_keypair.find("openvpn_pid_" + id) != m_keypair.end())
 			{
-				pid_t pid = atoi(m_keypair["openvpn_" + id + "_pid"].c_str());
+				pid_t pid = atoi(m_keypair["openvpn_pid_" + id].c_str());
 
 				if (GetParentProcessId(pid) != GetCurrentProcessId())
 					ThrowException("Requested a kill to a non-child elevated process");
 
-				if (signal == "sigint")
-				{
-					if (AttachConsole(pid))
-					{
-						SetConsoleCtrlHandler(NULL, true);
-						try
-						{
-							GenerateConsoleCtrlEvent(CTRL_C_EVENT, 0);
-							Sleep(3000);
-						}
-						catch (...)
-						{
-						}
-						FreeConsole();
-						SetConsoleCtrlHandler(NULL, false);
-					}
-				}
-				else if (signal == "sigterm")
-				{
-					HANDLE processHandle;
-					processHandle = OpenProcess(PROCESS_ALL_ACCESS, false, pid);
-					TerminateProcess(processHandle, 1);
-					CloseHandle(processHandle);
-				}
+				KillProcess(signal, pid);
 			}
 		}
 		else if (action == "start")
@@ -316,7 +291,7 @@ void IWindows::Do(const std::string& commandId, const std::string& command, std:
 				if (info.lastErrorCode != 0)
 					ThrowException(info.lastError);
 
-				m_keypair["openvpn_" + id + "_pid"] = std::to_string(info.pid);
+				m_keypair["openvpn_pid_" + id] = std::to_string(info.pid);				
 				ReplyCommand(commandId, "procid:" + std::to_string(info.pid));
 
 				for (;;)
@@ -363,8 +338,8 @@ void IWindows::Do(const std::string& commandId, const std::string& command, std:
 					}
 				}
 
-				m_keypair.erase("openvpn_" + id + "_pid");
-
+				m_keypair.erase("openvpn_pid_" + id);
+				
 				int exitCode = ExecEnd(info);
 				ReplyCommand(commandId, "return:" + std::to_string(exitCode));
 			}
@@ -395,7 +370,7 @@ void IWindows::Do(const std::string& commandId, const std::string& command, std:
 	else if (command == "wireguard-version")
 	{
 		std::string version = "";
-		if (IsWin8OrGreater()) // see WintunEnsureLibrary
+		if (IsWindows8OrGreater()) // see WintunEnsureLibrary
 			version = "0.5.2"; // Embedded, wgtunnel.dll
 		ReplyCommand(commandId, version);
 	}
@@ -1056,6 +1031,34 @@ pid_t IWindows::GetProcessIdOfName(const std::string& name)
 	return 0;
 }
 
+void IWindows::KillProcess(const std::string& signal, pid_t pid)
+{
+	if (signal == "sigint")
+	{
+		if (AttachConsole(pid))
+		{
+			SetConsoleCtrlHandler(NULL, true);
+			try
+			{
+				GenerateConsoleCtrlEvent(CTRL_C_EVENT, 0);
+				Sleep(3000);
+			}
+			catch (...)
+			{
+			}
+			FreeConsole();
+			SetConsoleCtrlHandler(NULL, false);
+		}
+	}
+	else if (signal == "sigterm")
+	{
+		HANDLE processHandle;
+		processHandle = OpenProcess(PROCESS_ALL_ACCESS, false, pid);
+		TerminateProcess(processHandle, 1);
+		CloseHandle(processHandle);
+	}
+}
+
 std::string IWindows::GetCmdlineOfProcessId(pid_t pid)
 {
 	// Never used in Windows
@@ -1522,37 +1525,12 @@ int IWindows::GetProcessIdMatchingIPEndPoints(struct sockaddr_in& addrClient, st
 // Protected
 // --------------------------
 
-bool IWindows::IsWin8OrGreater()
-{
-	NTSTATUS(WINAPI * RtlGetVersion)(LPOSVERSIONINFOEXW);
-	OSVERSIONINFOEXW osInfo;
-
-	//*(FARPROC*)&RtlGetVersion = GetProcAddress(GetModuleHandleA("ntdll"), "RtlGetVersion");
-	*reinterpret_cast<FARPROC*>(&RtlGetVersion) = GetProcAddress(GetModuleHandleA("ntdll"), "RtlGetVersion");
-
-	if (RtlGetVersion != NULL)
-	{
-		osInfo.dwOSVersionInfoSize = sizeof(osInfo);
-		RtlGetVersion(&osInfo);
-		return (osInfo.dwMajorVersion >= 6 && osInfo.dwMinorVersion >= 3) || osInfo.dwMajorVersion >= 10;
-	}
-
-	return false;
-}
-
 std::string IWindows::GetLastErrorAsString()
 {
 	DWORD errorMessageID = ::GetLastError();
 	if (errorMessageID == 0)
 		return std::string();
 
-	/*
-	LPSTR messageBuffer = nullptr;
-	size_t size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-		NULL, errorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, NULL);
-	std::string message(messageBuffer, size);
-	LocalFree(messageBuffer);
-	*/
 	wchar_t buf[2048];
 	FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), buf, (sizeof(buf) / sizeof(wchar_t)), NULL);
 	std::string message = StringWStringToUTF8(buf);
@@ -1570,15 +1548,13 @@ IWindows::t_shellinfo IWindows::ExecStart(const std::string& path, const std::ve
 
 	std::wstring pathW = StringUTF8ToWString(path);
 
-	//std::wstring cmdline = L""; // <2.21.4
-	std::wstring cmdline = L"\"" + pathW + L"\""; // >2.21.4
+	std::wstring cmdline = L"\"" + pathW + L"\"";
 	for (std::vector<std::string>::const_iterator i = args.begin(); i != args.end(); ++i)
 		cmdline += L" " + StringUTF8ToWString(*i);
 
 	const int lMaxCmdLine = 1024;
 	TCHAR pcmdline[lMaxCmdLine + 1];
 
-	//strcpy_s(pcmdline, sizeof(pcmdline), cmdline.c_str());
 	wcscpy_s(pcmdline, lMaxCmdLine, cmdline.c_str());
 
 	memset(&saAttr, 0, sizeof(saAttr));
@@ -1771,7 +1747,7 @@ bool IWindows::WintunEnsureLibrary()
 		// Maybe because it's signed with SHA256 (not supported). KB3033929 may resolve, but fail to install on our lab win7 clean (and don't exists x86 version).
 		// Maybe because perform dependencies delay load.
 		// Anyway, with Win7 almost updated, fail to create adapter
-		if (IsWin8OrGreater())
+		if (IsWindows8OrGreater())
 		{
 			std::string path = GetProcessPathCurrentDir() + FsPathSeparator + "wintun.dll";
 			std::wstring pathW = StringUTF8ToWString(path);
@@ -1913,6 +1889,16 @@ void IWindows::WintunAdapterRemovePool(const std::wstring& pool)
 #endif
 }
 
+void IWindows::TapCreateInterface(const std::wstring& hwid, const std::string& name)
+{
+	// WIP
+}
+
+void IWindows::TapDeleteInterface(const std::wstring& id)
+{
+	// WIP
+}
+
 // Note 2021-05-06:
 // It's not possible to call directly the wgtunnel.dll entrypoint, because throw
 // "Service run error: An instance of the service is already running."
@@ -2025,3 +2011,210 @@ std::string IWindows::StringWStringToUTF8(const std::wstring& str)
 	return conv.to_bytes(str);
 }
 
+
+
+/*
+
+#include "setupapi.h"
+
+// Temp, to understand issues
+const static GUID GUID_DEVCLASS_NET = { 0x4d36e972L, 0xe325, 0x11ce, { 0xbf, 0xc1, 0x08, 0x00, 0x2b, 0xe1, 0x03, 0x18 } };
+
+#define M_DEBUG_LEVEL     (0x0F)         // debug level mask 
+#define M_FATAL           (1<<4)         // exit program 
+#define M_NONFATAL        (1<<5)         // non-fatal error 
+#define M_ERRNO           (1<<8)         // show errno description 
+
+#define EXIT_FATAL(flags) do { if ((flags) & M_FATAL) {_exit(1);}} while (false)
+#define msg(flags, ...) do { if (msg_test(flags)) {x_msg((flags), __VA_ARGS__);} EXIT_FATAL(flags); } while (false)
+void x_msg(const unsigned int flags, const char* format, ...);     // should be called via msg above
+
+bool dont_mute(unsigned int flags);
+
+unsigned int x_debug_level;
+static inline bool
+check_debug_level(unsigned int level)
+{
+	return (level & M_DEBUG_LEVEL) <= x_debug_level;
+}
+
+// Return true if flags represent and enabled, not muted log level 
+static inline bool
+msg_test(unsigned int flags)
+{
+	return check_debug_level(flags) && dont_mute(flags);
+}
+
+
+DWORD
+tap_create_adapter(
+	_In_opt_ HWND hwndParent,
+	_In_opt_ LPCTSTR szDeviceDescription,
+	_In_ LPCTSTR szHwId,
+	_Inout_ LPBOOL pbRebootRequired,
+	_Out_ LPGUID pguidAdapter)
+{
+	DWORD dwResult;
+	HMODULE libnewdev = NULL;
+
+	if (szHwId == NULL
+		|| pbRebootRequired == NULL
+		|| pguidAdapter == NULL)
+	{
+		return ERROR_BAD_ARGUMENTS;
+	}
+
+	// Create an empty device info set for network adapter device class
+	HDEVINFO hDevInfoList = SetupDiCreateDeviceInfoList(&GUID_DEVCLASS_NET, hwndParent);
+	if (hDevInfoList == INVALID_HANDLE_VALUE)
+	{
+		dwResult = GetLastError();
+		msg(M_NONFATAL, "%s: SetupDiCreateDeviceInfoList failed", __FUNCTION__);
+		return dwResult;
+	}
+
+	// Get the device class name from GUID.
+	TCHAR szClassName[MAX_CLASS_NAME_LEN];
+	if (!SetupDiClassNameFromGuid(
+		&GUID_DEVCLASS_NET,
+		szClassName,
+		_countof(szClassName),
+		NULL))
+	{
+		dwResult = GetLastError();
+		msg(M_NONFATAL, "%s: SetupDiClassNameFromGuid failed", __FUNCTION__);
+		goto cleanup_hDevInfoList;
+	}
+
+	// Create a new device info element and add it to the device info set.
+	SP_DEVINFO_DATA devinfo_data = { .cbSize = sizeof(SP_DEVINFO_DATA) };
+	if (!SetupDiCreateDeviceInfo(
+		hDevInfoList,
+		szClassName,
+		&GUID_DEVCLASS_NET,
+		szDeviceDescription,
+		hwndParent,
+		DICD_GENERATE_ID,
+		&devinfo_data))
+	{
+		dwResult = GetLastError();
+		msg(M_NONFATAL, "%s: SetupDiCreateDeviceInfo failed", __FUNCTION__);
+		goto cleanup_hDevInfoList;
+	}
+
+	// Set a device information element as the selected member of a device information set.
+	if (!SetupDiSetSelectedDevice(
+		hDevInfoList,
+		&devinfo_data))
+	{
+		dwResult = GetLastError();
+		msg(M_NONFATAL, "%s: SetupDiSetSelectedDevice failed", __FUNCTION__);
+		goto cleanup_hDevInfoList;
+	}
+
+	// Set Plug&Play device hardware ID property.
+	if (!SetupDiSetDeviceRegistryProperty(
+		hDevInfoList,
+		&devinfo_data,
+		SPDRP_HARDWAREID,
+		(const BYTE*)szHwId, (DWORD)((_tcslen(szHwId) + 1) * sizeof(TCHAR))))
+	{
+		dwResult = GetLastError();
+		msg(M_NONFATAL, "%s: SetupDiSetDeviceRegistryProperty failed", __FUNCTION__);
+		goto cleanup_hDevInfoList;
+	}
+
+	// Register the device instance with the PnP Manager
+	if (!SetupDiCallClassInstaller(
+		DIF_REGISTERDEVICE,
+		hDevInfoList,
+		&devinfo_data))
+	{
+		dwResult = GetLastError();
+		msg(M_NONFATAL, "%s: SetupDiCallClassInstaller(DIF_REGISTERDEVICE) failed", __FUNCTION__);
+		goto cleanup_hDevInfoList;
+	}
+
+	// Install the device using DiInstallDevice()
+	// We instruct the system to use the best driver in the driver store
+	// by setting the drvinfo argument of DiInstallDevice as NULL. This
+	// assumes a driver is already installed in the driver store.
+	 
+#ifdef HAVE_DIINSTALLDEVICE
+	if (!DiInstallDevice(hwndParent, hDevInfoList, &devinfo_data, NULL, 0, pbRebootRequired))
+#else
+	 // mingw does not resolve DiInstallDevice, so load it at run time. 
+	typedef BOOL(WINAPI* DiInstallDeviceFn)(HWND, HDEVINFO, SP_DEVINFO_DATA*,
+		SP_DRVINFO_DATA*, DWORD, BOOL*);
+	DiInstallDeviceFn installfn
+		= find_function(L"newdev.dll", "DiInstallDevice", &libnewdev);
+
+	if (!installfn)
+	{
+		dwResult = GetLastError();
+		msg(M_NONFATAL | M_ERRNO, "%s: Failed to locate DiInstallDevice()", __FUNCTION__);
+		goto cleanup_hDevInfoList;
+	}
+
+	if (!installfn(hwndParent, hDevInfoList, &devinfo_data, NULL, 0, pbRebootRequired))
+#endif
+	{
+		dwResult = GetLastError();
+		msg(M_NONFATAL | M_ERRNO, "%s: DiInstallDevice failed", __FUNCTION__);
+		goto cleanup_remove_device;
+	}
+
+	// Get network adapter ID from registry. Retry for max 30sec. 
+	dwResult = get_net_adapter_guid(hDevInfoList, &devinfo_data, 30, pguidAdapter);
+
+cleanup_remove_device:
+	if (dwResult != ERROR_SUCCESS)
+	{
+		// The adapter was installed. But, the adapter ID was unobtainable. Clean-up. 
+		SP_REMOVEDEVICE_PARAMS removedevice_params =
+		{
+			.ClassInstallHeader =
+			{
+				.cbSize = sizeof(SP_CLASSINSTALL_HEADER),
+				.InstallFunction = DIF_REMOVE,
+			},
+			.Scope = DI_REMOVEDEVICE_GLOBAL,
+			.HwProfile = 0,
+		};
+
+		// Set class installer parameters for DIF_REMOVE. 
+		if (SetupDiSetClassInstallParams(
+			hDevInfoList,
+			&devinfo_data,
+			&removedevice_params.ClassInstallHeader,
+			sizeof(SP_REMOVEDEVICE_PARAMS)))
+		{
+			// Call appropriate class installer. 
+			if (SetupDiCallClassInstaller(
+				DIF_REMOVE,
+				hDevInfoList,
+				&devinfo_data))
+			{
+				// Check if a system reboot is required. 
+				check_reboot(hDevInfoList, &devinfo_data, pbRebootRequired);
+			}
+			else
+			{
+				msg(M_NONFATAL | M_ERRNO, "%s: SetupDiCallClassInstaller(DIF_REMOVE) failed", __FUNCTION__);
+			}
+		}
+		else
+		{
+			msg(M_NONFATAL | M_ERRNO, "%s: SetupDiSetClassInstallParams failed", __FUNCTION__);
+		}
+	}
+
+cleanup_hDevInfoList:
+	if (libnewdev)
+	{
+		FreeLibrary(libnewdev);
+	}
+	SetupDiDestroyDeviceInfoList(hDevInfoList);
+	return dwResult;
+}
+*/

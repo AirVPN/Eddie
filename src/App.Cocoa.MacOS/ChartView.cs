@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -312,16 +312,16 @@ namespace Eddie.UI.Cocoa.Osx
 			/*
 			{
 				string legend = "";
-				legend += LanguageManager.GetText("ChartRange") + ": " + Utils.FormatSeconds(m_chart.Resolution * m_chart.TimeStep);
+				legend += LanguageManager.GetText(LanguageItems.ChartRange") + ": " + Utils.FormatSeconds(m_chart.Resolution * m_chart.TimeStep);
 				legend += "   ";
-				legend += LanguageManager.GetText("ChartGrid") + ": " + Utils.FormatSeconds(m_chart.Resolution / m_chart.Grid * m_chart.TimeStep);
+				legend += LanguageManager.GetText(LanguageItems.ChartGrid") + ": " + Utils.FormatSeconds(m_chart.Resolution / m_chart.Grid * m_chart.TimeStep);
 				legend += "   ";
-				legend += LanguageManager.GetText("ChartStep") + ": " + Utils.FormatSeconds(m_chart.TimeStep);
+				legend += LanguageManager.GetText(LanguageItems.ChartStep") + ": " + Utils.FormatSeconds(m_chart.TimeStep);
 
 				Point mp = Cursor.Position;
 				mp = PointToClient(mp);
 				if ((mp.X > 0) && (mp.Y < chartDX) && (mp.Y > chartDY) && (mp.Y < DY))
-					legend += " - " + LanguageManager.GetText("ChartClickToChangeResolution");
+					legend += " - " + LanguageManager.GetText(LanguageItems.ChartClickToChangeResolution");
 
 				e.Graphics.DrawString(legend, FontLabel, BrushLegendText, ChartRectangle(0, chartStartY, chartDX, m_legendDY), formatTopCenter);
 			}
@@ -360,7 +360,7 @@ namespace Eddie.UI.Cocoa.Osx
 				long v = m_chart.GetLastDownload();
 				downCurY = ((v) * (m_chartDY - m_marginTopY)) / maxY;
 				DrawLine(context, m_colorDownloadLine, 0, m_chartStartY - downCurY, m_chartDX, m_chartStartY - downCurY);
-				DrawStringOutline(context, LanguageManager.GetText("ChartDownload") + ": " + ValToDesc(v), m_colorDownloadText, ChartRectangle(0, 0, m_chartDX - 10, m_chartStartY - downCurY), 8);
+				DrawStringOutline(context, LanguageManager.GetText(LanguageItems.ChartDownload) + ": " + ValToDesc(v), m_colorDownloadText, ChartRectangle(0, 0, m_chartDX - 10, m_chartStartY - downCurY), 8);
 			}
 
 			// Upload line
@@ -370,7 +370,7 @@ namespace Eddie.UI.Cocoa.Osx
 				nfloat dly = 0;
 				if (Math.Abs(downCurY - y) < 10) dly = 15; // Download and upload overwrap, distance it.
 				DrawLine(context, m_colorUploadLine, 0, m_chartStartY - y, m_chartDX, m_chartStartY - y);
-				DrawStringOutline(context, LanguageManager.GetText("ChartUpload") + ": " + ValToDesc(v), m_colorUploadText, ChartRectangle(0, 0, m_chartDX - 10, m_chartStartY - y - dly), 8);
+				DrawStringOutline(context, LanguageManager.GetText(LanguageItems.ChartUpload) + ": " + ValToDesc(v), m_colorUploadText, ChartRectangle(0, 0, m_chartDX - 10, m_chartStartY - y - dly), 8);
 
 			}
 

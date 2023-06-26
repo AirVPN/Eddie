@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -17,64 +17,69 @@
 // </eddie_source_header>
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Text.RegularExpressions;
 
-namespace Checking
-{
-	class Program
+string repoDir = new DirectoryInfo(new FileInfo(System.Reflection.Assembly.GetExecutingAssembly().Location).Directory + "\\..\\..\\..\\..\\..\\").FullName;
+
+string srcDir = repoDir + "/src/";
+List<FileInfo> srcFiles = new List<FileInfo>();
+FilesList(srcDir, srcFiles);
+
+List<string> Extensions = new List<string>();
+Extensions.Add(".cs");
+Extensions.Add(".cpp");
+Extensions.Add(".c");
+Extensions.Add(".hpp");
+Extensions.Add(".h");
+
+foreach (FileInfo f in srcFiles)
+{	
+	if(Extensions.Contains(f.Extension.ToLowerInvariant()))
 	{
-		static void Main(string[] args)
+		string original = File.ReadAllText(f.FullName);
+		string adapted = original;
+
+		//Console.WriteLine("Checking " + f.FullName);
+
+		if (f.Name == "AssemblyInfo.cs")
 		{
-			string repoDir = new DirectoryInfo(new FileInfo(System.Reflection.Assembly.GetExecutingAssembly().Location).Directory + "\\..\\..\\..\\..\\..\\").FullName;
+			//Console.WriteLine(content);
 
-			string srcDir = repoDir + "/src/";
-			List<FileInfo> srcFiles = new List<FileInfo>();
-			FilesList(srcDir, srcFiles);
-
-			foreach (FileInfo f in srcFiles)
-			{
-				if (f.Name == "AssemblyInfo.cs")
-				{
-					string original = File.ReadAllText(f.FullName);
-					string content = original;
-
-					Console.WriteLine(content);
-
-					content = content.Replace("AssemblyCopyright(\"Copyright ©  2011-2018\")", "AssemblyCopyright(\"Copyright © 2011 - 2021\")");
-					content = content.Replace("AssemblyCopyright(\"Copyright ©  2011 - 2018\")", "AssemblyCopyright(\"Copyright © 2011 - 2021\")");
-					content = content.Replace("AssemblyCopyright(\"Copyright ©  2011 - 2019\")", "AssemblyCopyright(\"Copyright © 2011 - 2021\")");
-					content = content.Replace("[assembly: AssemblyVersion(\"2.17.0.0\")]", "[assembly: AssemblyVersion(\"2.21.0.0\")]");
-					content = content.Replace("[assembly: AssemblyFileVersion(\"2.17.0.0\")]", "[assembly: AssemblyFileVersion(\"2.21.0.0\")]");
-					content = content.Replace("[assembly: AssemblyVersion(\"2.19.0.0\")]", "[assembly: AssemblyVersion(\"2.21.0.0\")]");
-					content = content.Replace("[assembly: AssemblyFileVersion(\"2.19.0.0\")]", "[assembly: AssemblyFileVersion(\"2.21.0.0\")]");
-
-					if (original != content)
-					{
-						Console.WriteLine("Updated " + f.FullName);
-
-						File.WriteAllText(f.FullName, content);
-					}
-					else
-					{
-						Console.WriteLine("Untouch " + f.FullName);
-					}
-				}
-			}
+			adapted = adapted.Replace("[assembly: AssemblyCopyright(\"Copyright © 2011 - 2021\")]", "[assembly: AssemblyCopyright(\"Copyright © 2011 - 2023\")]");
+			adapted = adapted.Replace("[assembly: AssemblyVersion(\"2.21.0.0\")]", "[assembly: AssemblyVersion(\"2.23.0.0\")]");
+			adapted = adapted.Replace("[assembly: AssemblyFileVersion(\"2.21.0.0\")]", "[assembly: AssemblyFileVersion(\"2.23.0.0\")]");
 		}
 
-		static void FilesList(string dir, List<FileInfo> result)
+		if(f.Extension == ".cs")
 		{
-			foreach (string d in Directory.GetDirectories(dir))
-			{
-				foreach (string f in Directory.GetFiles(d))
-				{
-					result.Add(new FileInfo(f));
-				}
-				FilesList(d, result);
-			}
+			adapted = adapted.Replace("// Copyright (C)2014-2023 AirVPN", "// Copyright (C)2014-2023 AirVPN");
 		}
+
+		if (original != adapted)
+		{
+			Console.WriteLine("Updated " + f.FullName);
+
+			File.WriteAllText(f.FullName, adapted);
+		}
+		else
+		{
+			//Console.WriteLine("Untouch " + f.FullName);
+		}
+	}
+}
+
+Console.WriteLine("Done.");
+Console.ReadLine();
+
+void FilesList(string dir, List<FileInfo> result)
+{
+	foreach (string d in Directory.GetDirectories(dir))
+	{
+		foreach (string f in Directory.GetFiles(d))
+		{
+			result.Add(new FileInfo(f));
+		}
+		FilesList(d, result);
 	}
 }

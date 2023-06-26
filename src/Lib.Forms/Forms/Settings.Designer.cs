@@ -52,8 +52,9 @@ namespace Eddie.Forms.Forms
 			this.lblAdvancedManifestRefresh = new Eddie.Forms.Skin.Label();
 			this.cboAdvancedManifestRefresh = new Eddie.Forms.Skin.ComboBox();
 			this.pnlAdvancedGeneralWindowsOnly = new System.Windows.Forms.GroupBox();
+			this.lblWindowsDriver = new Eddie.Forms.Skin.Label();
+			this.cboWindowsDriver = new Eddie.Forms.Skin.ComboBox();
 			this.cmdAdvancedDeleteOldTapAdapter = new Eddie.Forms.Skin.Button();
-			this.chkWindowsForceOldTunDriver = new Eddie.Forms.Skin.CheckBox();
 			this.chkWindowsSshPlinkForce = new Eddie.Forms.Skin.CheckBox();
 			this.chkWindowsDisableDriverUpgrade = new Eddie.Forms.Skin.CheckBox();
 			this.chkWindowsDebugWorkaround = new Eddie.Forms.Skin.CheckBox();
@@ -85,6 +86,9 @@ namespace Eddie.Forms.Forms
 			this.columnHeader3 = ((Eddie.Forms.Skin.ColumnHeader)(new Eddie.Forms.Skin.ColumnHeader()));
 			this.columnHeader4 = ((Eddie.Forms.Skin.ColumnHeader)(new Eddie.Forms.Skin.ColumnHeader()));
 			this.label1 = new Eddie.Forms.Skin.Label();
+			this.tabWireGuard = new Eddie.Forms.Skin.TabPage();
+			this.lblWireGuardMTU = new Eddie.Forms.Skin.Label();
+			this.cboWireGuardMTU = new Eddie.Forms.Skin.ComboBox();
 			this.tabNetworking = new Eddie.Forms.Skin.TabPage();
 			this.lblWindowsAdaptersCleanup = new Eddie.Forms.Skin.Label();
 			this.chkWindowsAdaptersCleanup = new Eddie.Forms.Skin.CheckBox();
@@ -138,6 +142,8 @@ namespace Eddie.Forms.Forms
 			this.chkNetLock = new Eddie.Forms.Skin.CheckBox();
 			this.chkGeneralStartLast = new Eddie.Forms.Skin.CheckBox();
 			this.tabUI = new Eddie.Forms.Skin.TabPage();
+			this.lblUiSkipNetlockConfirm = new Eddie.Forms.Skin.Label();
+			this.chkUiSkipNetlockConfirm = new Eddie.Forms.Skin.CheckBox();
 			this.lbUiSkipPromotional = new Eddie.Forms.Skin.Label();
 			this.chkUiSkipPromotional = new Eddie.Forms.Skin.CheckBox();
 			this.lblUiStartMinimized = new Eddie.Forms.Skin.Label();
@@ -224,6 +230,8 @@ namespace Eddie.Forms.Forms
 			this.cboDnsSwitchMode = new Eddie.Forms.Skin.ComboBox();
 			this.chkDnsCheck = new Eddie.Forms.Skin.CheckBox();
 			this.tabNetworkLock = new Eddie.Forms.Skin.TabPage();
+			this.lblLockConnection = new Eddie.Forms.Skin.Label();
+			this.chkLockConnection = new Eddie.Forms.Skin.CheckBox();
 			this.lblLockAllowlistOutgoingIPs = new Eddie.Forms.Skin.Label();
 			this.txtLockAllowlistOutgoingIPs = new Eddie.Forms.Skin.TextBox();
 			this.lblLockAllowDHCP = new Eddie.Forms.Skin.Label();
@@ -252,8 +260,6 @@ namespace Eddie.Forms.Forms
 			this.lblLogPath = new Eddie.Forms.Skin.Label();
 			this.chkLoggingEnabled = new Eddie.Forms.Skin.CheckBox();
 			this.tabExperimentals = new System.Windows.Forms.TabPage();
-			this.lblUiSkipNetlockConfirm = new Eddie.Forms.Skin.Label();
-			this.chkUiSkipNetlockConfirm = new Eddie.Forms.Skin.CheckBox();
 			tabAdvanced = new Eddie.Forms.Skin.TabPage();
 			tabDirectives = new Eddie.Forms.Skin.TabPage();
 			tabEvents = new Eddie.Forms.Skin.TabPage();
@@ -264,6 +270,7 @@ namespace Eddie.Forms.Forms
 			this.pnlAdvancedGeneralWindowsOnly.SuspendLayout();
 			tabDirectives.SuspendLayout();
 			tabEvents.SuspendLayout();
+			this.tabWireGuard.SuspendLayout();
 			this.tabNetworking.SuspendLayout();
 			this.mnuRoutes.SuspendLayout();
 			this.pnlCommands.SuspendLayout();
@@ -521,8 +528,9 @@ namespace Eddie.Forms.Forms
 			// pnlAdvancedGeneralWindowsOnly
 			// 
 			this.pnlAdvancedGeneralWindowsOnly.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.lblWindowsDriver);
+			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.cboWindowsDriver);
 			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.cmdAdvancedDeleteOldTapAdapter);
-			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsForceOldTunDriver);
 			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsSshPlinkForce);
 			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsDisableDriverUpgrade);
 			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsDebugWorkaround);
@@ -535,6 +543,28 @@ namespace Eddie.Forms.Forms
 			this.pnlAdvancedGeneralWindowsOnly.TabIndex = 69;
 			this.pnlAdvancedGeneralWindowsOnly.TabStop = false;
 			this.pnlAdvancedGeneralWindowsOnly.Text = "Microsoft Windows Only";
+			// 
+			// lblWindowsDriver
+			// 
+			this.lblWindowsDriver.BackColor = System.Drawing.Color.Transparent;
+			this.lblWindowsDriver.ForeColor = System.Drawing.Color.Black;
+			this.lblWindowsDriver.Location = new System.Drawing.Point(21, 40);
+			this.lblWindowsDriver.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.lblWindowsDriver.Name = "lblWindowsDriver";
+			this.lblWindowsDriver.Size = new System.Drawing.Size(104, 32);
+			this.lblWindowsDriver.TabIndex = 96;
+			this.lblWindowsDriver.Text = "Driver:";
+			this.lblWindowsDriver.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// cboWindowsDriver
+			// 
+			this.cboWindowsDriver.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this.cboWindowsDriver.FormattingEnabled = true;
+			this.cboWindowsDriver.Location = new System.Drawing.Point(132, 40);
+			this.cboWindowsDriver.Margin = new System.Windows.Forms.Padding(4);
+			this.cboWindowsDriver.Name = "cboWindowsDriver";
+			this.cboWindowsDriver.Size = new System.Drawing.Size(198, 28);
+			this.cboWindowsDriver.TabIndex = 95;
 			// 
 			// cmdAdvancedDeleteOldTapAdapter
 			// 
@@ -551,18 +581,6 @@ namespace Eddie.Forms.Forms
 			this.cmdAdvancedDeleteOldTapAdapter.Text = "Delete old Tap adapter";
 			this.cmdAdvancedDeleteOldTapAdapter.UseVisualStyleBackColor = true;
 			this.cmdAdvancedDeleteOldTapAdapter.Click += new System.EventHandler(this.cmdAdvancedDeleteOldTapAdapter_Click);
-			// 
-			// chkWindowsForceOldTunDriver
-			// 
-			this.chkWindowsForceOldTunDriver.BackColor = System.Drawing.Color.Transparent;
-			this.chkWindowsForceOldTunDriver.ForeColor = System.Drawing.Color.Black;
-			this.chkWindowsForceOldTunDriver.Location = new System.Drawing.Point(24, 57);
-			this.chkWindowsForceOldTunDriver.Margin = new System.Windows.Forms.Padding(4);
-			this.chkWindowsForceOldTunDriver.Name = "chkWindowsForceOldTunDriver";
-			this.chkWindowsForceOldTunDriver.Size = new System.Drawing.Size(356, 33);
-			this.chkWindowsForceOldTunDriver.TabIndex = 90;
-			this.chkWindowsForceOldTunDriver.Text = "Force usage of old Tap driver";
-			this.chkWindowsForceOldTunDriver.UseVisualStyleBackColor = false;
 			// 
 			// chkWindowsSshPlinkForce
 			// 
@@ -1036,6 +1054,47 @@ namespace Eddie.Forms.Forms
 			columnHeader5.Text = "IP Address";
 			columnHeader5.Width = 150;
 			// 
+			// tabWireGuard
+			// 
+			this.tabWireGuard.BackColor = System.Drawing.Color.White;
+			this.tabWireGuard.Controls.Add(this.lblWireGuardMTU);
+			this.tabWireGuard.Controls.Add(this.cboWireGuardMTU);
+			this.tabWireGuard.Location = new System.Drawing.Point(4, 24);
+			this.tabWireGuard.Margin = new System.Windows.Forms.Padding(4);
+			this.tabWireGuard.Name = "tabWireGuard";
+			this.tabWireGuard.Padding = new System.Windows.Forms.Padding(4);
+			this.tabWireGuard.Size = new System.Drawing.Size(1014, 635);
+			this.tabWireGuard.TabIndex = 1;
+			this.tabWireGuard.Text = "WireGuard";
+			// 
+			// lblWireGuardMTU
+			// 
+			this.lblWireGuardMTU.BackColor = System.Drawing.Color.Transparent;
+			this.lblWireGuardMTU.ForeColor = System.Drawing.Color.Black;
+			this.lblWireGuardMTU.Location = new System.Drawing.Point(24, 18);
+			this.lblWireGuardMTU.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.lblWireGuardMTU.Name = "lblWireGuardMTU";
+			this.lblWireGuardMTU.Size = new System.Drawing.Size(208, 32);
+			this.lblWireGuardMTU.TabIndex = 99;
+			this.lblWireGuardMTU.Text = "MTU:";
+			this.lblWireGuardMTU.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// cboWireGuardMTU
+			// 
+			this.cboWireGuardMTU.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this.cboWireGuardMTU.FormattingEnabled = true;
+			this.cboWireGuardMTU.Items.AddRange(new object[] {
+            "Automatic",
+            "Never",
+            "Every minute",
+            "Every ten minute",
+            "Every one hour"});
+			this.cboWireGuardMTU.Location = new System.Drawing.Point(240, 18);
+			this.cboWireGuardMTU.Margin = new System.Windows.Forms.Padding(4);
+			this.cboWireGuardMTU.Name = "cboWireGuardMTU";
+			this.cboWireGuardMTU.Size = new System.Drawing.Size(290, 28);
+			this.cboWireGuardMTU.TabIndex = 98;
+			// 
 			// tabNetworking
 			// 
 			this.tabNetworking.Controls.Add(this.lblWindowsAdaptersCleanup);
@@ -1415,6 +1474,7 @@ namespace Eddie.Forms.Forms
 			this.tabSettings.Controls.Add(tabAdvanced);
 			this.tabSettings.Controls.Add(this.tabLogging);
 			this.tabSettings.Controls.Add(tabDirectives);
+			this.tabSettings.Controls.Add(this.tabWireGuard);
 			this.tabSettings.Controls.Add(tabEvents);
 			this.tabSettings.Controls.Add(this.tabExperimentals);
 			this.tabSettings.ItemSize = new System.Drawing.Size(80, 20);
@@ -1725,6 +1785,29 @@ namespace Eddie.Forms.Forms
 			this.tabUI.Size = new System.Drawing.Size(1014, 635);
 			this.tabUI.TabIndex = 3;
 			this.tabUI.Text = "UI";
+			// 
+			// lblUiSkipNetlockConfirm
+			// 
+			this.lblUiSkipNetlockConfirm.BackColor = System.Drawing.Color.Transparent;
+			this.lblUiSkipNetlockConfirm.ForeColor = System.Drawing.Color.Black;
+			this.lblUiSkipNetlockConfirm.Location = new System.Drawing.Point(26, 342);
+			this.lblUiSkipNetlockConfirm.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.lblUiSkipNetlockConfirm.Name = "lblUiSkipNetlockConfirm";
+			this.lblUiSkipNetlockConfirm.Size = new System.Drawing.Size(398, 34);
+			this.lblUiSkipNetlockConfirm.TabIndex = 118;
+			this.lblUiSkipNetlockConfirm.Text = "Hide network lock confirmation";
+			this.lblUiSkipNetlockConfirm.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// chkUiSkipNetlockConfirm
+			// 
+			this.chkUiSkipNetlockConfirm.BackColor = System.Drawing.Color.Transparent;
+			this.chkUiSkipNetlockConfirm.ForeColor = System.Drawing.Color.Black;
+			this.chkUiSkipNetlockConfirm.Location = new System.Drawing.Point(432, 342);
+			this.chkUiSkipNetlockConfirm.Margin = new System.Windows.Forms.Padding(4);
+			this.chkUiSkipNetlockConfirm.Name = "chkUiSkipNetlockConfirm";
+			this.chkUiSkipNetlockConfirm.Size = new System.Drawing.Size(42, 34);
+			this.chkUiSkipNetlockConfirm.TabIndex = 117;
+			this.chkUiSkipNetlockConfirm.UseVisualStyleBackColor = false;
 			// 
 			// lbUiSkipPromotional
 			// 
@@ -2795,6 +2878,8 @@ namespace Eddie.Forms.Forms
 			// 
 			// tabNetworkLock
 			// 
+			this.tabNetworkLock.Controls.Add(this.lblLockConnection);
+			this.tabNetworkLock.Controls.Add(this.chkLockConnection);
 			this.tabNetworkLock.Controls.Add(this.lblLockAllowlistOutgoingIPs);
 			this.tabNetworkLock.Controls.Add(this.txtLockAllowlistOutgoingIPs);
 			this.tabNetworkLock.Controls.Add(this.lblLockAllowDHCP);
@@ -2822,11 +2907,35 @@ namespace Eddie.Forms.Forms
 			this.tabNetworkLock.Text = "Network lock";
 			this.tabNetworkLock.UseVisualStyleBackColor = true;
 			// 
+			// lblLockConnection
+			// 
+			this.lblLockConnection.BackColor = System.Drawing.Color.Transparent;
+			this.lblLockConnection.ForeColor = System.Drawing.Color.Black;
+			this.lblLockConnection.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
+			this.lblLockConnection.Location = new System.Drawing.Point(22, 15);
+			this.lblLockConnection.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.lblLockConnection.Name = "lblLockConnection";
+			this.lblLockConnection.Size = new System.Drawing.Size(261, 38);
+			this.lblLockConnection.TabIndex = 109;
+			this.lblLockConnection.Text = "Ensure in session:";
+			this.lblLockConnection.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// chkLockConnection
+			// 
+			this.chkLockConnection.BackColor = System.Drawing.Color.Transparent;
+			this.chkLockConnection.ForeColor = System.Drawing.Color.Black;
+			this.chkLockConnection.Location = new System.Drawing.Point(292, 15);
+			this.chkLockConnection.Margin = new System.Windows.Forms.Padding(4);
+			this.chkLockConnection.Name = "chkLockConnection";
+			this.chkLockConnection.Size = new System.Drawing.Size(244, 38);
+			this.chkLockConnection.TabIndex = 108;
+			this.chkLockConnection.UseVisualStyleBackColor = false;
+			// 
 			// lblLockAllowlistOutgoingIPs
 			// 
 			this.lblLockAllowlistOutgoingIPs.BackColor = System.Drawing.Color.Transparent;
 			this.lblLockAllowlistOutgoingIPs.ForeColor = System.Drawing.Color.Black;
-			this.lblLockAllowlistOutgoingIPs.Location = new System.Drawing.Point(418, 388);
+			this.lblLockAllowlistOutgoingIPs.Location = new System.Drawing.Point(418, 413);
 			this.lblLockAllowlistOutgoingIPs.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.lblLockAllowlistOutgoingIPs.Name = "lblLockAllowlistOutgoingIPs";
 			this.lblLockAllowlistOutgoingIPs.Size = new System.Drawing.Size(262, 38);
@@ -2840,7 +2949,7 @@ namespace Eddie.Forms.Forms
 			this.txtLockAllowlistOutgoingIPs.AcceptsTab = true;
 			this.txtLockAllowlistOutgoingIPs.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
-			this.txtLockAllowlistOutgoingIPs.Location = new System.Drawing.Point(421, 427);
+			this.txtLockAllowlistOutgoingIPs.Location = new System.Drawing.Point(421, 452);
 			this.txtLockAllowlistOutgoingIPs.Margin = new System.Windows.Forms.Padding(4);
 			this.txtLockAllowlistOutgoingIPs.Multiline = true;
 			this.txtLockAllowlistOutgoingIPs.Name = "txtLockAllowlistOutgoingIPs";
@@ -2853,7 +2962,7 @@ namespace Eddie.Forms.Forms
 			this.lblLockAllowDHCP.BackColor = System.Drawing.Color.Transparent;
 			this.lblLockAllowDHCP.ForeColor = System.Drawing.Color.Black;
 			this.lblLockAllowDHCP.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
-			this.lblLockAllowDHCP.Location = new System.Drawing.Point(22, 224);
+			this.lblLockAllowDHCP.Location = new System.Drawing.Point(22, 259);
 			this.lblLockAllowDHCP.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.lblLockAllowDHCP.Name = "lblLockAllowDHCP";
 			this.lblLockAllowDHCP.Size = new System.Drawing.Size(261, 38);
@@ -2865,7 +2974,7 @@ namespace Eddie.Forms.Forms
 			// 
 			this.chkLockAllowDHCP.BackColor = System.Drawing.Color.Transparent;
 			this.chkLockAllowDHCP.ForeColor = System.Drawing.Color.Black;
-			this.chkLockAllowDHCP.Location = new System.Drawing.Point(292, 224);
+			this.chkLockAllowDHCP.Location = new System.Drawing.Point(292, 259);
 			this.chkLockAllowDHCP.Margin = new System.Windows.Forms.Padding(4);
 			this.chkLockAllowDHCP.Name = "chkLockAllowDHCP";
 			this.chkLockAllowDHCP.Size = new System.Drawing.Size(244, 38);
@@ -2876,7 +2985,7 @@ namespace Eddie.Forms.Forms
 			// 
 			this.lblLockOutgoing.BackColor = System.Drawing.Color.Transparent;
 			this.lblLockOutgoing.ForeColor = System.Drawing.Color.Black;
-			this.lblLockOutgoing.Location = new System.Drawing.Point(21, 117);
+			this.lblLockOutgoing.Location = new System.Drawing.Point(21, 162);
 			this.lblLockOutgoing.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.lblLockOutgoing.Name = "lblLockOutgoing";
 			this.lblLockOutgoing.Size = new System.Drawing.Size(261, 32);
@@ -2891,7 +3000,7 @@ namespace Eddie.Forms.Forms
 			this.cboLockOutgoing.Items.AddRange(new object[] {
             "Block",
             "Allow"});
-			this.cboLockOutgoing.Location = new System.Drawing.Point(291, 118);
+			this.cboLockOutgoing.Location = new System.Drawing.Point(291, 163);
 			this.cboLockOutgoing.Margin = new System.Windows.Forms.Padding(4);
 			this.cboLockOutgoing.Name = "cboLockOutgoing";
 			this.cboLockOutgoing.Size = new System.Drawing.Size(342, 28);
@@ -2901,7 +3010,7 @@ namespace Eddie.Forms.Forms
 			// 
 			this.lblLockIncoming.BackColor = System.Drawing.Color.Transparent;
 			this.lblLockIncoming.ForeColor = System.Drawing.Color.Black;
-			this.lblLockIncoming.Location = new System.Drawing.Point(21, 76);
+			this.lblLockIncoming.Location = new System.Drawing.Point(21, 121);
 			this.lblLockIncoming.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.lblLockIncoming.Name = "lblLockIncoming";
 			this.lblLockIncoming.Size = new System.Drawing.Size(261, 32);
@@ -2916,7 +3025,7 @@ namespace Eddie.Forms.Forms
 			this.cboLockIncoming.Items.AddRange(new object[] {
             "Block",
             "Allow"});
-			this.cboLockIncoming.Location = new System.Drawing.Point(291, 78);
+			this.cboLockIncoming.Location = new System.Drawing.Point(291, 123);
 			this.cboLockIncoming.Margin = new System.Windows.Forms.Padding(4);
 			this.cboLockIncoming.Name = "cboLockIncoming";
 			this.cboLockIncoming.Size = new System.Drawing.Size(342, 28);
@@ -2927,7 +3036,7 @@ namespace Eddie.Forms.Forms
 			this.lblLockAllowDNS.BackColor = System.Drawing.Color.Transparent;
 			this.lblLockAllowDNS.ForeColor = System.Drawing.Color.Black;
 			this.lblLockAllowDNS.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
-			this.lblLockAllowDNS.Location = new System.Drawing.Point(21, 316);
+			this.lblLockAllowDNS.Location = new System.Drawing.Point(21, 351);
 			this.lblLockAllowDNS.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.lblLockAllowDNS.Name = "lblLockAllowDNS";
 			this.lblLockAllowDNS.Size = new System.Drawing.Size(261, 38);
@@ -2939,7 +3048,7 @@ namespace Eddie.Forms.Forms
 			// 
 			this.chkLockAllowDNS.BackColor = System.Drawing.Color.Transparent;
 			this.chkLockAllowDNS.ForeColor = System.Drawing.Color.Black;
-			this.chkLockAllowDNS.Location = new System.Drawing.Point(291, 316);
+			this.chkLockAllowDNS.Location = new System.Drawing.Point(291, 351);
 			this.chkLockAllowDNS.Margin = new System.Windows.Forms.Padding(4);
 			this.chkLockAllowDNS.Name = "chkLockAllowDNS";
 			this.chkLockAllowDNS.Size = new System.Drawing.Size(244, 38);
@@ -2951,7 +3060,7 @@ namespace Eddie.Forms.Forms
 			this.lblLockAllowPing.BackColor = System.Drawing.Color.Transparent;
 			this.lblLockAllowPing.ForeColor = System.Drawing.Color.Black;
 			this.lblLockAllowPing.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
-			this.lblLockAllowPing.Location = new System.Drawing.Point(21, 270);
+			this.lblLockAllowPing.Location = new System.Drawing.Point(21, 305);
 			this.lblLockAllowPing.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.lblLockAllowPing.Name = "lblLockAllowPing";
 			this.lblLockAllowPing.Size = new System.Drawing.Size(261, 38);
@@ -2964,7 +3073,7 @@ namespace Eddie.Forms.Forms
 			this.lblLockAllowPrivate.BackColor = System.Drawing.Color.Transparent;
 			this.lblLockAllowPrivate.ForeColor = System.Drawing.Color.Black;
 			this.lblLockAllowPrivate.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
-			this.lblLockAllowPrivate.Location = new System.Drawing.Point(21, 178);
+			this.lblLockAllowPrivate.Location = new System.Drawing.Point(21, 213);
 			this.lblLockAllowPrivate.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.lblLockAllowPrivate.Name = "lblLockAllowPrivate";
 			this.lblLockAllowPrivate.Size = new System.Drawing.Size(261, 38);
@@ -2978,7 +3087,7 @@ namespace Eddie.Forms.Forms
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.lnkLockHelp.Cursor = System.Windows.Forms.Cursors.Hand;
 			this.lnkLockHelp.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(70)))), ((int)(((byte)(141)))));
-			this.lnkLockHelp.Location = new System.Drawing.Point(20, 572);
+			this.lnkLockHelp.Location = new System.Drawing.Point(20, 597);
 			this.lnkLockHelp.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.lnkLockHelp.Name = "lnkLockHelp";
 			this.lnkLockHelp.Size = new System.Drawing.Size(975, 33);
@@ -2992,7 +3101,7 @@ namespace Eddie.Forms.Forms
 			// 
 			this.chkLockAllowPing.BackColor = System.Drawing.Color.Transparent;
 			this.chkLockAllowPing.ForeColor = System.Drawing.Color.Black;
-			this.chkLockAllowPing.Location = new System.Drawing.Point(291, 270);
+			this.chkLockAllowPing.Location = new System.Drawing.Point(291, 305);
 			this.chkLockAllowPing.Margin = new System.Windows.Forms.Padding(4);
 			this.chkLockAllowPing.Name = "chkLockAllowPing";
 			this.chkLockAllowPing.Size = new System.Drawing.Size(244, 38);
@@ -3003,7 +3112,7 @@ namespace Eddie.Forms.Forms
 			// 
 			this.chkLockAllowPrivate.BackColor = System.Drawing.Color.Transparent;
 			this.chkLockAllowPrivate.ForeColor = System.Drawing.Color.Black;
-			this.chkLockAllowPrivate.Location = new System.Drawing.Point(291, 178);
+			this.chkLockAllowPrivate.Location = new System.Drawing.Point(291, 213);
 			this.chkLockAllowPrivate.Margin = new System.Windows.Forms.Padding(4);
 			this.chkLockAllowPrivate.Name = "chkLockAllowPrivate";
 			this.chkLockAllowPrivate.Size = new System.Drawing.Size(244, 38);
@@ -3014,7 +3123,7 @@ namespace Eddie.Forms.Forms
 			// 
 			this.lblLockAllowlistIncomingIPs.BackColor = System.Drawing.Color.Transparent;
 			this.lblLockAllowlistIncomingIPs.ForeColor = System.Drawing.Color.Black;
-			this.lblLockAllowlistIncomingIPs.Location = new System.Drawing.Point(21, 388);
+			this.lblLockAllowlistIncomingIPs.Location = new System.Drawing.Point(21, 413);
 			this.lblLockAllowlistIncomingIPs.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.lblLockAllowlistIncomingIPs.Name = "lblLockAllowlistIncomingIPs";
 			this.lblLockAllowlistIncomingIPs.Size = new System.Drawing.Size(262, 38);
@@ -3028,7 +3137,7 @@ namespace Eddie.Forms.Forms
 			this.txtLockAllowlistIncomingIPs.AcceptsTab = true;
 			this.txtLockAllowlistIncomingIPs.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
-			this.txtLockAllowlistIncomingIPs.Location = new System.Drawing.Point(24, 427);
+			this.txtLockAllowlistIncomingIPs.Location = new System.Drawing.Point(24, 452);
 			this.txtLockAllowlistIncomingIPs.Margin = new System.Windows.Forms.Padding(4);
 			this.txtLockAllowlistIncomingIPs.Multiline = true;
 			this.txtLockAllowlistIncomingIPs.Name = "txtLockAllowlistIncomingIPs";
@@ -3041,7 +3150,7 @@ namespace Eddie.Forms.Forms
 			this.lblLockMode.BackColor = System.Drawing.Color.Transparent;
 			this.lblLockMode.ForeColor = System.Drawing.Color.Black;
 			this.lblLockMode.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
-			this.lblLockMode.Location = new System.Drawing.Point(21, 15);
+			this.lblLockMode.Location = new System.Drawing.Point(21, 70);
 			this.lblLockMode.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.lblLockMode.Name = "lblLockMode";
 			this.lblLockMode.Size = new System.Drawing.Size(261, 32);
@@ -3053,7 +3162,7 @@ namespace Eddie.Forms.Forms
 			// 
 			this.cboLockMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.cboLockMode.FormattingEnabled = true;
-			this.cboLockMode.Location = new System.Drawing.Point(291, 15);
+			this.cboLockMode.Location = new System.Drawing.Point(291, 70);
 			this.cboLockMode.Margin = new System.Windows.Forms.Padding(4);
 			this.cboLockMode.Name = "cboLockMode";
 			this.cboLockMode.Size = new System.Drawing.Size(342, 28);
@@ -3176,29 +3285,6 @@ namespace Eddie.Forms.Forms
 			this.tabExperimentals.Text = "Experimentals";
 			this.tabExperimentals.UseVisualStyleBackColor = true;
 			// 
-			// lblUiSkipNetlockConfirm
-			// 
-			this.lblUiSkipNetlockConfirm.BackColor = System.Drawing.Color.Transparent;
-			this.lblUiSkipNetlockConfirm.ForeColor = System.Drawing.Color.Black;
-			this.lblUiSkipNetlockConfirm.Location = new System.Drawing.Point(26, 342);
-			this.lblUiSkipNetlockConfirm.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-			this.lblUiSkipNetlockConfirm.Name = "lblUiSkipNetlockConfirm";
-			this.lblUiSkipNetlockConfirm.Size = new System.Drawing.Size(398, 34);
-			this.lblUiSkipNetlockConfirm.TabIndex = 118;
-			this.lblUiSkipNetlockConfirm.Text = "Hide network lock confirmation";
-			this.lblUiSkipNetlockConfirm.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-			// 
-			// chkUiSkipNetlockConfirm
-			// 
-			this.chkUiSkipNetlockConfirm.BackColor = System.Drawing.Color.Transparent;
-			this.chkUiSkipNetlockConfirm.ForeColor = System.Drawing.Color.Black;
-			this.chkUiSkipNetlockConfirm.Location = new System.Drawing.Point(432, 342);
-			this.chkUiSkipNetlockConfirm.Margin = new System.Windows.Forms.Padding(4);
-			this.chkUiSkipNetlockConfirm.Name = "chkUiSkipNetlockConfirm";
-			this.chkUiSkipNetlockConfirm.Size = new System.Drawing.Size(42, 34);
-			this.chkUiSkipNetlockConfirm.TabIndex = 117;
-			this.chkUiSkipNetlockConfirm.UseVisualStyleBackColor = false;
-			// 
 			// Settings
 			// 
 			this.AcceptButton = this.cmdOk;
@@ -3221,6 +3307,7 @@ namespace Eddie.Forms.Forms
 			tabDirectives.ResumeLayout(false);
 			tabDirectives.PerformLayout();
 			tabEvents.ResumeLayout(false);
+			this.tabWireGuard.ResumeLayout(false);
 			this.tabNetworking.ResumeLayout(false);
 			this.tabNetworking.PerformLayout();
 			this.mnuRoutes.ResumeLayout(false);
@@ -3461,9 +3548,15 @@ namespace Eddie.Forms.Forms
 		private Skin.Label lblProxyTorControlCookiePath;
 		private Skin.Label lblWindowsAdaptersCleanup;
 		private Skin.CheckBox chkWindowsAdaptersCleanup;
-		private Skin.CheckBox chkWindowsForceOldTunDriver;
 		private Skin.Button cmdAdvancedDeleteOldTapAdapter;
 		private Skin.Label lblUiSkipNetlockConfirm;
 		private Skin.CheckBox chkUiSkipNetlockConfirm;
+		private Skin.Label lblLockConnection;
+		private Skin.CheckBox chkLockConnection;
+		private Skin.Label lblWindowsDriver;
+		private Skin.ComboBox cboWindowsDriver;
+		private Skin.TabPage tabWireGuard;
+		private Skin.Label lblWireGuardMTU;
+		private Skin.ComboBox cboWireGuardMTU;
 	}
 }

@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -46,10 +46,11 @@ namespace Eddie.Core.ConnectionTypes
 		public IpAddresses ExitIPs = new IpAddresses(); // Here because computed
 
 		public System.Net.NetworkInformation.NetworkInterface Interface = null;
-		public string DataChannel = LanguageManager.GetText("NotAvailable");
-		public string ControlChannel = LanguageManager.GetText("NotAvailable");
+		public string OpenVpnDataChannel = LanguageManager.GetText(LanguageItems.NotAvailable);
+		public string OpenVpnControlChannel = LanguageManager.GetText(LanguageItems.NotAvailable);
+		public string CipherInfo = LanguageManager.GetText(LanguageItems.NotAvailable);
 
-		public string RealIp = LanguageManager.GetText("NotAvailable");
+		public string RealIp = LanguageManager.GetText(LanguageItems.NotAvailable);
 		public Int64 TimeServer = 0;
 		public Int64 TimeClient = 0;
 
@@ -69,7 +70,7 @@ namespace Eddie.Core.ConnectionTypes
 		public void AddRoute(IpAddress destination, string gateway, string notes)
 		{
 			ConnectionRoute route = new ConnectionRoute();
-			route.Destination = destination;
+			route.Destination = destination.ToNetwork();
 			route.Gateway = gateway;
 			route.Notes = notes;
 			Routes.Add(route);
@@ -259,7 +260,7 @@ namespace Eddie.Core.ConnectionTypes
 
 				if (ipsCustomRoute.Count == 0)
 				{
-					Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("CustomRouteInvalid", ipCustomRoute.ToString()));
+					Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText(LanguageItems.CustomRouteInvalid, ipCustomRoute.ToString()));
 				}
 				else
 				{
@@ -470,21 +471,39 @@ namespace Eddie.Core.ConnectionTypes
 
 			if ((ConfigIPv4) && (jInfo != null) && (jInfo.HasKey("support_ipv4")) && (Conversions.ToBool(jInfo["support_ipv4"].Value) == false))
 			{
-				Engine.Instance.Logs.LogWarning(LanguageManager.GetText("IPv4NotSupportedByNetworkAdapter"));
+				Engine.Instance.Logs.LogWarning(LanguageManager.GetText(LanguageItems.IPv4NotSupportedByNetworkAdapter));
 				if ((Engine.Instance.ProfileOptions.GetBool("network.ipv4.autoswitch")) && (Engine.Instance.ProfileOptions.Get("network.ipv4.mode") != "block"))
 				{
-					Engine.Instance.Logs.LogWarning(LanguageManager.GetText("IPv4NotSupportedByNetworkAdapterAutoSwitch"));
+					Engine.Instance.Logs.LogWarning(LanguageManager.GetText(LanguageItems.IPv4NotSupportedByNetworkAdapterAutoSwitch));
 					Engine.Instance.ProfileOptions.Set("network.ipv4.mode", "block");
 				}
 			}
 
 			if ((ConfigIPv6) && (jInfo != null) && (jInfo.HasKey("support_ipv6")) && (Conversions.ToBool(jInfo["support_ipv6"].Value) == false))
 			{
-				Engine.Instance.Logs.LogWarning(LanguageManager.GetText("IPv6NotSupportedByNetworkAdapter"));
+				Engine.Instance.Logs.LogWarning(LanguageManager.GetText(LanguageItems.IPv6NotSupportedByNetworkAdapter));
 				if ((Engine.Instance.ProfileOptions.GetBool("network.ipv6.autoswitch")) && (Engine.Instance.ProfileOptions.Get("network.ipv6.mode") != "block"))
 				{
-					Engine.Instance.Logs.LogWarning(LanguageManager.GetText("IPv6NotSupportedByNetworkAdapterAutoSwitch"));
+					Engine.Instance.Logs.LogWarning(LanguageManager.GetText(LanguageItems.IPv6NotSupportedByNetworkAdapterAutoSwitch));
 					Engine.Instance.ProfileOptions.Set("network.ipv6.mode", "block");
+				}
+			}
+		}
+
+		protected void RefreshNetworkInterface()
+		{
+			// Used because previous fetched NetworkInterface don't change OperationalStatus with ovpn-dco
+			if (Interface == null)
+				return;
+
+			NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
+
+			foreach (NetworkInterface networkInterface in interfaces)
+			{
+				if (networkInterface.Id == Interface.Id)
+				{
+					Interface = networkInterface;
+					break;
 				}
 			}
 		}

@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lib.Core.net6", "Lib.Core\L
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lib.Platform.MacOS.net6", "Lib.Platform.MacOS\Lib.Platform.MacOS.net6.csproj", "{E6AAEA13-46B6-45C3-99F2-0485556052D1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "App.CLI.MacOS.net6", "App.CLI.MacOS\App.CLI.MacOS.net6.csproj", "{0952DFF2-5464-4BD5-98D5-D111CC2016D0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +43,18 @@ Global
 		{E6AAEA13-46B6-45C3-99F2-0485556052D1}.Release|x64.Build.0 = Release|Any CPU
 		{E6AAEA13-46B6-45C3-99F2-0485556052D1}.Release|x86.ActiveCfg = Release|Any CPU
 		{E6AAEA13-46B6-45C3-99F2-0485556052D1}.Release|x86.Build.0 = Release|Any CPU
+		{0952DFF2-5464-4BD5-98D5-D111CC2016D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0952DFF2-5464-4BD5-98D5-D111CC2016D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0952DFF2-5464-4BD5-98D5-D111CC2016D0}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{0952DFF2-5464-4BD5-98D5-D111CC2016D0}.Debug|x64.Build.0 = Debug|Any CPU
+		{0952DFF2-5464-4BD5-98D5-D111CC2016D0}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{0952DFF2-5464-4BD5-98D5-D111CC2016D0}.Debug|x86.Build.0 = Debug|Any CPU
+		{0952DFF2-5464-4BD5-98D5-D111CC2016D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0952DFF2-5464-4BD5-98D5-D111CC2016D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0952DFF2-5464-4BD5-98D5-D111CC2016D0}.Release|x64.ActiveCfg = Release|Any CPU
+		{0952DFF2-5464-4BD5-98D5-D111CC2016D0}.Release|x64.Build.0 = Release|Any CPU
+		{0952DFF2-5464-4BD5-98D5-D111CC2016D0}.Release|x86.ActiveCfg = Release|Any CPU
+		{0952DFF2-5464-4BD5-98D5-D111CC2016D0}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

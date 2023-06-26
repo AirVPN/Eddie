@@ -48,9 +48,17 @@ dotnet_diagnostic.IDE0100.severity = none # Remove redundant equality
 
 dotnet_diagnostic.IDE0220.severity = none # 'x' statement implicitly converts 'x' to 'x'. Add an explicit cast to make intent clearer, as it may fail at runtime
 
+# Eddie - net6, fix not compatible with net4
+#dotnet_diagnostic.CS8370.severity = none # CS8370	Feature 'target-typed object creation' is not available in C# 7.3. Please use language version 9.0 or greater.	
+dotnet_diagnostic.CA1845.severity = none # CS1061	warning CA1845: Use span-based 'string.Concat' and 'AsSpan' instead of 'Substring'
+
+
 # Eddie - Right, but ignored
 
 dotnet_diagnostic.IDE1006.severity = none # Naming rule violation # WinForms code, will be deprecated
+dotnet_diagnostic.CA1825.severity = none # CA1825: Avoid unnecessary zero-length array allocations.
+dotnet_diagnostic.CA1805.severity = none # CA1805: Member 'x' is explicitly initialized to its default value
+
 
 # Eddie - Not accepted: We prefer to avoid complex syntax, or we need to check if cause issues under Mono or Xamarin compiler
 

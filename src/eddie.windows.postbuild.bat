@@ -1,5 +1,6 @@
 @echo off
 
+echo Post-Build Event - Start
 echo Command Line: %0 %*
 
 @if "%~1"=="" GOTO error
@@ -52,6 +53,7 @@ echo Something wrong
 EXIT /B 1
 
 :done
+echo Post-Build Event - End
 EXIT /B 0
 
 

@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -57,9 +57,9 @@ namespace Eddie.Forms.Forms
 			{
 				lnkWebsite.Visible = false;
 			}
-			cmdClose.Text = LanguageManager.GetText("WindowsFrontMessageAccept");
+			cmdClose.Text = LanguageManager.GetText(LanguageItems.WindowsFrontMessageAccept);
 
-			CommonInit(LanguageManager.GetText("WindowsFrontMessageTitle"));
+			CommonInit(LanguageManager.GetText(LanguageItems.WindowsFrontMessageTitle));
 		}
 
 		private void lnkWebsite_LinkClicked(object sender, EventArgs e)

@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -54,9 +54,9 @@ namespace Eddie.Forms.Forms
 		protected override void OnLoad(EventArgs e)
 		{
 			base.OnLoad(e);
-			CommonInit(LanguageManager.GetText("WindowsSettingsRouteTitle"));
+			CommonInit(LanguageManager.GetText(LanguageItems.WindowsSettingsRouteTitle));
 
-			lblHostHelp.Text = LanguageManager.GetText("WindowsSettingsRouteEditIp");
+			lblHostHelp.Text = LanguageManager.GetText(LanguageItems.WindowsSettingsRouteEditIp);
 
 			cboAction.Items.Add(Settings.RouteDirectionToDescription("none"));
 			cboAction.Items.Add(Settings.RouteDirectionToDescription("in"));
@@ -74,12 +74,12 @@ namespace Eddie.Forms.Forms
 			IpAddresses ip = new IpAddresses(txtHost.Text);
 			if (ip.Count == 0)
 			{
-				lblHostHelp.Text = Platform.Instance.NormalizeString(LanguageManager.GetText("WindowsSettingsRouteInvalid") + "\n" + LanguageManager.GetText("WindowsSettingsRouteEditIp"));
+				lblHostHelp.Text = Platform.Instance.NormalizeString(LanguageManager.GetText(LanguageItems.WindowsSettingsRouteInvalid) + "\n" + LanguageManager.GetText(LanguageItems.WindowsSettingsRouteEditIp));
 				cmdOk.Enabled = false;
 			}
 			else
 			{
-				lblHostHelp.Text = ip.ToString() + "\n" + LanguageManager.GetText("WindowsSettingsRouteEditIp");
+				lblHostHelp.Text = ip.ToString() + "\n" + LanguageManager.GetText(LanguageItems.WindowsSettingsRouteEditIp);
 				cmdOk.Enabled = true;
 			}
 		}

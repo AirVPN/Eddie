@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -24,6 +24,26 @@ namespace Eddie.Core.ConfigBuilder
 		{
 			// Hummingbird bug: don't trim correctly # comments
 			return false;
+		}
+
+		public override void Adaptation()
+		{
+			base.Adaptation();
+
+			// Report here directive not supported
+
+			// Throw fatal error
+			//RemoveDirective("ping-exit"); // Removed in 2.23.0, supported in HB 1.3.0
+			//RemoveDirective("pull-filter"); // Removed in 2.23.0, supported in HB 1.3.0
+
+			// Throw notice "Unsupported option (ignored) - Based on HB 1.3.0
+			RemoveDirective("explicit-exit-notify");
+			RemoveDirective("connect-retry-max");
+			RemoveDirective("persist-tun");
+			RemoveDirective("persist-key");
+			RemoveDirective("resolv-retry");
+			RemoveDirective("auth-nocache");
+			RemoveDirective("data-ciphers-fallback");
 		}
 	}
 }

@@ -18,7 +18,7 @@ if ! [ -x "$(command -v tar)" ]; then
   echo 'Error: tar is not installed.' >&2
   exit 1
 fi
-if ! [ -x "$(command -v msbuild)" ]; then
+if ! [ -x "$(command -v /Library/Frameworks/Mono.framework/Versions/Current/Commands/msbuild)" ]; then
   echo 'Error: msbuild is not installed. Install Mono, Xamarin, VisualStudio.' >&2
   exit 1
 fi

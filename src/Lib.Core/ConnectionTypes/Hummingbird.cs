@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -58,7 +58,16 @@ namespace Eddie.Core.ConnectionTypes
 				if (messageLower.StartsWithInv("options error:"))
 					logType = LogType.Warning;
 
-				if (message.Contains("WARNING: Network filter and lock is disabled"))
+				if (messageLower.Contains("Contacting"))
+				{
+					OnCleanAfterStart();
+				}
+				else if (message.Contains("WARNING: Network filter and lock are disabled"))
+				{
+					// Don't warn user, are managed by Eddie.
+					log = false;
+				}
+				else if (message.Contains("WARNING: Network filter and lock is disabled")) // Old BH
 				{
 					// Don't warn user, are managed by Eddie.
 					log = false;
@@ -134,11 +143,13 @@ namespace Eddie.Core.ConnectionTypes
 				}
 				else if (messageLower.StartsWithInv("cipher: "))
 				{
-					DataChannel = message.Substring("cipher: ".Length);
+					OpenVpnDataChannel = message.Substring("cipher: ".Length);
+					CipherInfo = "Data Channel: " + OpenVpnDataChannel + "; Control Channel: " + OpenVpnControlChannel;
 				}
 				else if (messageLower.StartsWithInv("ssl handshake: "))
 				{
-					ControlChannel = message.Substring("SSL Handshake: ".Length);
+					OpenVpnControlChannel = message.Substring("SSL Handshake: ".Length);
+					CipherInfo = "Data Channel: " + OpenVpnDataChannel + "; Control Channel: " + OpenVpnControlChannel;
 				}
 				else if (messageLower.StartsWithInv("open ")) // MacOS
 				{

@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -546,7 +546,7 @@ namespace Eddie.Forms.Skin
 							{
 								string value = s.Substring(0, i).Trim();
 
-								if ((value.StartsWith("\"")) && (value.EndsWith("\"")))
+								if ((value.StartsWith("\"", StringComparison.InvariantCulture)) && (value.EndsWith("\"", StringComparison.InvariantCulture)))
 								{
 									result = DecodeString(value.Substring(1, value.Length - 2));
 									remain = s.Substring(i);

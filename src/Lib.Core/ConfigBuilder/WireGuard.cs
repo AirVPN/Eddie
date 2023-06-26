@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -77,8 +77,10 @@ namespace Eddie.Core.ConfigBuilder
 				s.Append("Table = " + InterfaceTable.ToString() + Platform.Instance.EndOfLineSep);
 
 			int buildInterfaceMTU = InterfaceMTU;
-			if (Engine.Instance.ProfileOptions.GetInt("network.mtu") != -1)
-				buildInterfaceMTU = Engine.Instance.ProfileOptions.GetInt("network.mtu");
+			if (Engine.Instance.ProfileOptions.GetInt("wireguard.interface.mtu") == -1)
+				buildInterfaceMTU = 1320;
+			if (Engine.Instance.ProfileOptions.GetInt("wireguard.interface.mtu") > 0)
+				buildInterfaceMTU = Engine.Instance.ProfileOptions.GetInt("wireguard.interface.mtu");
 			if (buildInterfaceMTU != 0)
 				s.Append("MTU = " + buildInterfaceMTU.ToString() + Platform.Instance.EndOfLineSep);
 

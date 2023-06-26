@@ -5,7 +5,7 @@ Maintainer: Eddie <maintainer@eddie.website>
 Priority: optional
 Architecture: {@architecture}
 Installed-Size: 8192
-Depends: libc6 (>= 2.3.2), sudo, curl, libnotify-bin, mono-runtime, mono-utils, libmono-system-core4.0-cil, libmono-system-windows-forms4.0-cil, openvpn, stunnel4, libcurl4, libsecret-tools, libayatana-appindicator3-1
+Depends: libc6 (>= 2.3.2), sudo, policykit-1, curl, libnotify-bin, mono-runtime, mono-utils, libmono-system-core4.0-cil, libmono-system-windows-forms4.0-cil, openvpn, stunnel4, libcurl4, libsecret-tools, libayatana-appindicator3-1
 Breaks: airvpn (<< 2.14.4)
 Replaces: airvpn (<< 2.14.4)
 Homepage: https://eddie.website/

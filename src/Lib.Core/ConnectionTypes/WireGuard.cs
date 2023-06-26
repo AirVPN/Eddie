@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -164,29 +164,28 @@ namespace Eddie.Core.ConnectionTypes
 				else if (messageLower == "setup-start")
 				{
 					log = false;
-					Engine.Instance.Logs.Log(LogType.Verbose, "WireGuard > " + LanguageManager.GetText("WireGuardSetupStart"));
+					Engine.Instance.Logs.Log(LogType.Verbose, "WireGuard > " + LanguageManager.GetText(LanguageItems.WireGuardSetupStart));
 				}
 				else if (messageLower == "setup-complete")
 				{
 					log = false;
-					Engine.Instance.Logs.Log(LogType.Verbose, "WireGuard > " + LanguageManager.GetText("WireGuardSetupComplete"));
+					Engine.Instance.Logs.Log(LogType.Verbose, "WireGuard > " + LanguageManager.GetText(LanguageItems.WireGuardSetupComplete));
 				}
 				else if (messageLower == "setup-interface")
 				{
 					log = false;
-					Engine.Instance.Logs.Log(LogType.Verbose, "WireGuard > " + LanguageManager.GetText("WireGuardSetupInterface"));
+					Engine.Instance.Logs.Log(LogType.Verbose, "WireGuard > " + LanguageManager.GetText(LanguageItems.WireGuardSetupInterface));
 					SearchTunNetworkInterfaceByName(m_interfaceName);
 				}
 				else if (messageLower == "handshake-first")
 				{
 					log = false;
-					Engine.Instance.Logs.Log(LogType.Verbose, "WireGuard > " + LanguageManager.GetText("WireGuardFirstHandshake"));
+					Engine.Instance.Logs.Log(LogType.Verbose, "WireGuard > " + LanguageManager.GetText(LanguageItems.WireGuardFirstHandshake));
 
 					if (Session.GetConnected() == false)
 					{
 						// Forced because actually exists only one version of WireGuard protocol, maybe in future detected based on protocol version
-						DataChannel = "WireGuard Data Channel"; // Need better description?
-						ControlChannel = "WireGuard Control Channel"; // Need better description?
+						CipherInfo = "Data packets symmatric encryption: ChaCha20 - Poly1305; Perfect Forward Secrecy(PFS): ECDH with Curve25519";
 
 						Session.ConnectedStep();
 					}
@@ -197,7 +196,7 @@ namespace Eddie.Core.ConnectionTypes
 
 					if (Session.InReset == false)
 					{
-						Engine.Instance.Logs.Log(LogType.Warning, "WireGuard > " + LanguageManager.GetText("WireGuardTimeoutHandshake"));
+						Engine.Instance.Logs.Log(LogType.Warning, "WireGuard > " + LanguageManager.GetText(LanguageItems.WireGuardTimeoutHandshake));
 						Session.SetResetError();
 					}
 				}
@@ -211,17 +210,17 @@ namespace Eddie.Core.ConnectionTypes
 				else if (messageLower == "stop-requested")
 				{
 					log = false;
-					Engine.Instance.Logs.Log(LogType.Verbose, "WireGuard > " + LanguageManager.GetText("WireGuardStopRequested"));
+					Engine.Instance.Logs.Log(LogType.Verbose, "WireGuard > " + LanguageManager.GetText(LanguageItems.WireGuardStopRequested));
 				}
 				else if (messageLower == "stop-interface")
 				{
 					log = false;
-					Engine.Instance.Logs.Log(LogType.Verbose, "WireGuard > " + LanguageManager.GetText("WireGuardStopInterface"));
+					Engine.Instance.Logs.Log(LogType.Verbose, "WireGuard > " + LanguageManager.GetText(LanguageItems.WireGuardStopInterface));
 				}
 				else if (messageLower == "stop")
 				{
 					log = false;
-					Engine.Instance.Logs.Log(LogType.Verbose, "WireGuard > " + LanguageManager.GetText("WireGuardStopCompleted"));
+					Engine.Instance.Logs.Log(LogType.Verbose, "WireGuard > " + LanguageManager.GetText(LanguageItems.WireGuardStopCompleted));
 				}
 
 				if (log)

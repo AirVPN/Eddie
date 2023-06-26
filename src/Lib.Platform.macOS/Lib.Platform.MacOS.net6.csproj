@@ -7,6 +7,7 @@
     <UseXamMacFullFramework>true</UseXamMacFullFramework>
     <ReleaseVersion>2.19</ReleaseVersion>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <Platforms>x64;x86;AnyCPU</Platforms>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
     <OutputPath>bin\Debug</OutputPath>

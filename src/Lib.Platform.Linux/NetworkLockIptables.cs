@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -67,7 +67,7 @@ namespace Eddie.Platform.Linux
 			base.Activation();
 
 			if (m_supportIPv6 == false)
-				Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("NetworkLockLinuxIPv6NotAvailable"));
+				Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText(LanguageItems.NetworkLockLinuxIPv6NotAvailable));
 
 			try
 			{
@@ -160,7 +160,6 @@ namespace Eddie.Platform.Linux
 
 						if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_dhcp") == true)
 						{
-							// Make sure you can communicate with any DHCP server
 							rulesIPv4.AppendLine("-A OUTPUT -d 255.255.255.255/32 -j ACCEPT");
 						}
 
@@ -264,6 +263,12 @@ namespace Eddie.Platform.Linux
 						// icmpv6-type:redirect - Rules which are required for your IPv6 address to be properly allocated
 						rulesIPv6.AppendLine("-A INPUT -p ipv6-icmp -m icmp6 --icmpv6-type 137 -m hl --hl-eq 255 -j ACCEPT");
 
+						if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_dhcp") == true)
+						{
+							rulesIPv6.AppendLine("-A INPUT -s ff02::1:2 -j ACCEPT");
+							rulesIPv6.AppendLine("-A INPUT -s ff05::1:3 -j ACCEPT");
+						}
+
 						if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_private"))
 						{
 							// Allow Link-Local addresses
@@ -310,6 +315,12 @@ namespace Eddie.Platform.Linux
 
 						// Disable processing of any RH0 packet which could allow a ping-pong of packets
 						rulesIPv6.AppendLine("-A OUTPUT -m rt --rt-type 0 -j DROP");
+
+						if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_dhcp") == true)
+						{
+							rulesIPv6.AppendLine("-A OUTPUT -d ff02::1:2 -j ACCEPT");
+							rulesIPv6.AppendLine("-A OUTPUT -d ff05::1:3 -j ACCEPT");
+						}
 
 						if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_private"))
 						{

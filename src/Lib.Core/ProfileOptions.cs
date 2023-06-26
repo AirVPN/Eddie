@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -72,14 +72,26 @@ namespace Eddie.Core
 			foreach (KeyValuePair<string, string> kp in Engine.Instance.StartCommandLine.KnownCommands)
 			{
 				if (kp.Value != "")
-					body += "[option_block][option_code]" + kp.Key + "[/option_code]\n\t\t" + kp.Value.Replace("\n", "\n\t") + "[/option_block]\n";
+				{
+					string code = kp.Key;
+					string desc = kp.Value.Replace("\n", "\n\t").Trim();
+					if (desc.EndsWithInv(".") == false)
+						desc += ".";
+					desc += " " + LanguageManager.GetText(LanguageItems.ManCommandLineOnly);
+
+					body += "[option_block][option_code]" + code + "[/option_code]\n\t\t" + desc + "[/option_block]\n";
+				}
 			}
 
 			foreach (ProfileOption option in Dict.Values)
 			{
 				if (option.Man != "")
 				{
-					body += "[option_block][option_code]" + option.Code + "[/option_code]\n\t\t" + option.Man.Replace("\n", "\n\t");
+					string code = option.Code;
+					string desc = option.Man.Replace("\n", "\n\t").Trim();
+					if (desc.EndsWithInv(".") == false)
+						desc += ".";
+					body += "[option_block][option_code]" + code + "[/option_code]\n\t\t" + desc;
 					if (option.Default != "")
 						body += " Default: [i]" + option.Default + "[/i]";
 					body += "[/option_block]\n";
@@ -88,20 +100,20 @@ namespace Eddie.Core
 
 			string o = "\n";
 			o += "[sh]NAME[/sh]\n";
-			o += "\t" + LanguageManager.GetText("ManName").Replace("\n", "[br]");
+			o += "\t" + LanguageManager.GetText(LanguageItems.ManName).Replace("\n", "[br]");
 			o += "\n\n[sh]SYNOPSIS[/sh]\n";
-			o += "\t" + LanguageManager.GetText("ManSynopsis").Replace("\n", "[br]");
+			o += "\t" + LanguageManager.GetText(LanguageItems.ManSynopsis).Replace("\n", "[br]");
 			o += "\n\n[sh]DESCRIPTION[/sh]\n";
-			o += "\t" + LanguageManager.GetText("ManDescription").Replace("\n", "[br]");
+			o += "\t" + LanguageManager.GetText(LanguageItems.ManDescription).Replace("\n", "[br]");
 			o += "\n\n[sh]OPTIONS[/sh]\n";
-			o += "\t" + LanguageManager.GetText("ManHeaderOption1").Replace("\n", "[br]");
-			o += "\t" + LanguageManager.GetText("ManHeaderOption2").Replace("\n", "[br]");
-			o += "\t" + LanguageManager.GetText("ManHeaderOption3").Replace("\n", "[br]");
-			o += "\t" + LanguageManager.GetText("ManHeaderOption4").Replace("\n", "[br]");
+			o += "\t" + LanguageManager.GetText(LanguageItems.ManHeaderOption1).Replace("\n", "[br]");
+			o += "\t" + LanguageManager.GetText(LanguageItems.ManHeaderOption2).Replace("\n", "[br]");
+			o += "\t" + LanguageManager.GetText(LanguageItems.ManHeaderOption3).Replace("\n", "[br]");
+			o += "\t" + LanguageManager.GetText(LanguageItems.ManHeaderOption4).Replace("\n", "[br]");
 			o += "\n\n";
 			o += "\t[options_list]" + body.Replace("\n", "\n\t") + "[/options_list]";
 			o += "\n\n[sh]COPYRIGHT[/sh]\n";
-			o += "\t" + LanguageManager.GetText("ManCopyright").Replace("\n", "[br]");
+			o += "\t" + LanguageManager.GetText(LanguageItems.ManCopyright).Replace("\n", "[br]");
 			o += "\n";
 
 			if (format == "man")
@@ -110,7 +122,7 @@ namespace Eddie.Core
 				o = o.Replace("].", "]\\[char46]");
 
 				// Header
-				o = ".\\\"" + LanguageManager.GetText("ManHeaderComment") + "\n.TH eddie-ui 8 \"" + DateTime.UtcNow.ToString(CultureInfo.InvariantCulture).EscapeQuote() + "\"" + o;
+				o = ".\\\"" + LanguageManager.GetText(LanguageItems.ManHeaderComment) + "\n.TH eddie-ui 8 \"" + DateTime.UtcNow.ToString(CultureInfo.InvariantCulture).EscapeQuote() + "\"" + o;
 
 				o = o.Replace("[sh]", "\n.SH ");
 				o = o.Replace("[/sh]", "\n");
@@ -236,7 +248,7 @@ namespace Eddie.Core
 			}
 			else
 			{
-				Engine.Instance.Logs.Log(LogType.Error, LanguageManager.GetText("OptionsUnknown", name));
+				Engine.Instance.Logs.Log(LogType.Error, LanguageManager.GetText(LanguageItems.OptionsUnknown, name));
 				return "";
 			}
 		}
@@ -306,7 +318,7 @@ namespace Eddie.Core
 		public void Set(string name, string val)
 		{
 			if (Exists(name) == false)
-				Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("OptionsUnknown", name));
+				Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText(LanguageItems.OptionsUnknown, name));
 			else
 			{
 				string oldValue = "";
@@ -407,106 +419,104 @@ namespace Eddie.Core
 
 		public void EnsureDefaults()
 		{
-			string NotInMan = ""; // Option not listed in 'man' documentation.
+			string NotInManNever = ""; // Option not listed in 'man' documentation.			
 #if DEBUG
 			bool devDefault = true;
 #else
             bool devDefault = false;
 #endif
 
-			SetDefault("login", "text", "", LanguageManager.GetText("ManOptionLogin"));
-			SetDefault("password", "password", "", LanguageManager.GetText("ManOptionPassword"));
-			SetDefaultBool("remember", false, LanguageManager.GetText("ManOptionRemember"));
-			SetDefault("key", "text", "Default", LanguageManager.GetText("ManOptionKey"));
-			SetDefault("server", "text", "", LanguageManager.GetText("ManOptionServer"));
-			SetDefaultBool("connect", false, LanguageManager.GetText("ManOptionConnect"));
-			SetDefaultBool("netlock", false, LanguageManager.GetText("ManOptionNetLock"));
+			SetDefault("login", "text", "", LanguageManager.GetText(LanguageItems.ManOptionLogin));
+			SetDefault("password", "password", "", LanguageManager.GetText(LanguageItems.ManOptionPassword));
+			SetDefaultBool("remember", false, LanguageManager.GetText(LanguageItems.ManOptionRemember));
+			SetDefault("key", "text", "Default", LanguageManager.GetText(LanguageItems.ManOptionKey));
+			SetDefault("server", "text", "", LanguageManager.GetText(LanguageItems.ManOptionServer));
+			SetDefaultBool("connect", false, LanguageManager.GetText(LanguageItems.ManOptionConnect));
 
-			SetDefaultChoice("updater.channel", "stable,beta,internal,none", "stable", LanguageManager.GetText("ManOptionUpdaterChannel"));
+			SetDefaultChoice("updater.channel", "stable,beta,internal,none", "stable", LanguageManager.GetText(LanguageItems.ManOptionUpdaterChannel));
 
-			SetDefault("servers.last", "text", "", NotInMan);
-			SetDefault("servers.allowlist", "text", "", LanguageManager.GetText("ManOptionServersAllowlist"));
-			SetDefault("servers.denylist", "text", "", LanguageManager.GetText("ManOptionServersDenylist"));
-			SetDefaultBool("servers.startlast", false, LanguageManager.GetText("ManOptionServersStartLast"));
-			SetDefaultBool("servers.locklast", false, LanguageManager.GetText("ManOptionServersLockLast"));
-			SetDefaultChoice("servers.scoretype", "Speed,Latency", "Speed", LanguageManager.GetText("ManOptionServersScoreType"));
+			SetDefault("servers.allowlist", "text", "", LanguageManager.GetText(LanguageItems.ManOptionServersAllowlist));
+			SetDefault("servers.denylist", "text", "", LanguageManager.GetText(LanguageItems.ManOptionServersDenylist));
+			SetDefaultBool("servers.startlast", false, LanguageManager.GetText(LanguageItems.ManOptionServersStartLast));
+			SetDefaultBool("servers.locklast", false, LanguageManager.GetText(LanguageItems.ManOptionServersLockLast));
+			SetDefaultChoice("servers.scoretype", "Speed,Latency", "Speed", LanguageManager.GetText(LanguageItems.ManOptionServersScoreType));
 
-			SetDefault("areas.allowlist", "text", "", LanguageManager.GetText("ManOptionAreasAllowlist"));
-			SetDefault("areas.denylist", "text", "", LanguageManager.GetText("ManOptionAreasDenylist"));
+			SetDefault("areas.allowlist", "text", "", LanguageManager.GetText(LanguageItems.ManOptionAreasAllowlist));
+			SetDefault("areas.denylist", "text", "", LanguageManager.GetText(LanguageItems.ManOptionAreasDenylist));
 
-			SetDefault("discover.ip_webservice.list", "text", "https://ipleak.net/json/{@ip};https://freegeoip.net/json/{@ip};http://ip-api.com/json/{@ip}", NotInMan);
-			SetDefaultBool("discover.ip_webservice.first", true, NotInMan);
-			SetDefaultInt("discover.interval", 60 * 60 * 24, NotInMan); // Delta between refresh discover data (country and other data) for non-service connections.
-			SetDefaultBool("discover.exit", true, NotInMan);
+			SetDefault("discover.ip_webservice.list", "text", "https://ipleak.net/json/{@ip};https://freegeoip.net/json/{@ip};http://ip-api.com/json/{@ip}", LanguageManager.GetText(LanguageItems.ManOptionDiscoverIpWebserviceList));
+			SetDefaultInt("discover.interval", 60 * 60 * 24, LanguageManager.GetText(LanguageItems.ManOptionDiscoverInterval));
+			SetDefaultBool("discover.exit", true, LanguageManager.GetText(LanguageItems.ManOptionDiscoverExit));
 
-			SetDefaultBool("log.file.enabled", false, NotInMan);
-			SetDefault("log.file.encoding", "encoding", "utf-8", NotInMan);
-			SetDefault("log.file.path", "text", "logs/eddie_%y-%m-%d.log", NotInMan);
-			SetDefaultBool("log.level.debug", false, NotInMan);
-			SetDefaultBool("log.repeat", false, NotInMan);
-			SetDefaultInt("log.limit", 1000, NotInMan);
+			SetDefaultBool("log.file.enabled", false, LanguageManager.GetText(LanguageItems.ManOptionLogFileEnabled));
+			SetDefault("log.file.encoding", "encoding", "utf-8", LanguageManager.GetText(LanguageItems.ManOptionLogFileEncoding));
+			SetDefault("log.file.path", "text", "logs/eddie_%y-%m-%d.log", LanguageManager.GetText(LanguageItems.ManOptionLogFilePath));
+			SetDefaultBool("log.level.debug", false, LanguageManager.GetText(LanguageItems.ManOptionLogLevelDebug));
+			SetDefaultBool("log.repeat", false, LanguageManager.GetText(LanguageItems.ManOptionLogRepeat));
+			SetDefaultInt("log.limit", 1000, LanguageManager.GetText(LanguageItems.ManOptionLogLimit));
 
-			SetDefaultInt("checking.ntry", 5, NotInMan); // Number of retry in some action (for example checking tun/dns)
+			SetDefaultInt("checking.ntry", 5, LanguageManager.GetText(LanguageItems.ManOptionCheckingNTry));
 
-			SetDefault("language.iso", "text", "auto", LanguageManager.GetText("ManOptionLanguageIso"));
+			SetDefault("language.iso", "text", "auto", LanguageManager.GetText(LanguageItems.ManOptionLanguageIso));
 
-			SetDefault("mode.type", "text", "auto", LanguageManager.GetText("ManOptionModeType"));
-			SetDefault("mode.protocol", "text", "udp", LanguageManager.GetText("ManOptionModeProtocol"));
-			SetDefaultInt("mode.port", 443, LanguageManager.GetText("ManOptionModePort"));
-			SetDefaultInt("mode.alt", 0, LanguageManager.GetText("ManOptionModeAlt"));
+			SetDefault("mode.type", "text", "auto", LanguageManager.GetText(LanguageItems.ManOptionModeType));
+			SetDefault("mode.protocol", "text", "udp", LanguageManager.GetText(LanguageItems.ManOptionModeProtocol));
+			SetDefaultInt("mode.port", 443, LanguageManager.GetText(LanguageItems.ManOptionModePort));
+			SetDefaultInt("mode.alt", 0, LanguageManager.GetText(LanguageItems.ManOptionModeAlt));
 
-			SetDefault("proxy.mode", "text", "None", LanguageManager.GetText("ManOptionProxyMode"));
-			SetDefaultChoice("proxy.when", "always/web/openvpn/none", "always", NotInMan);
-			SetDefault("proxy.host", "ip", "127.0.0.1", LanguageManager.GetText("ManOptionProxyHost"));
-			SetDefaultInt("proxy.port", 8080, LanguageManager.GetText("ManOptionProxyPort"));
-			SetDefault("proxy.auth", "text", "None", LanguageManager.GetText("ManOptionProxyAuth"));
-			SetDefault("proxy.login", "text", "", LanguageManager.GetText("ManOptionProxyLogin"));
-			SetDefault("proxy.password", "password", "", LanguageManager.GetText("ManOptionProxyPassword"));
-			SetDefaultInt("proxy.tor.control.port", 9151, LanguageManager.GetText("ManOptionProxyTorControlPort"));
-			SetDefaultBool("proxy.tor.control.auth", true, LanguageManager.GetText("ManOptionProxyTorControlAuth"));
-			SetDefault("proxy.tor.path", "", "", NotInMan);
-			SetDefault("proxy.tor.control.cookie.path", "", "", NotInMan);
-			SetDefault("proxy.tor.control.password", "password", "", LanguageManager.GetText("ManOptionProxyTorControlPassword"));
+			SetDefault("proxy.mode", "text", "None", LanguageManager.GetText(LanguageItems.ManOptionProxyMode));
+			SetDefaultChoice("proxy.when", "always/web/openvpn/none", "always", LanguageManager.GetText(LanguageItems.ManOptionProxyWhen));
+			SetDefault("proxy.host", "ip", "127.0.0.1", LanguageManager.GetText(LanguageItems.ManOptionProxyHost));
+			SetDefaultInt("proxy.port", 8080, LanguageManager.GetText(LanguageItems.ManOptionProxyPort));
+			SetDefault("proxy.auth", "text", "None", LanguageManager.GetText(LanguageItems.ManOptionProxyAuth));
+			SetDefault("proxy.login", "text", "", LanguageManager.GetText(LanguageItems.ManOptionProxyLogin));
+			SetDefault("proxy.password", "password", "", LanguageManager.GetText(LanguageItems.ManOptionProxyPassword));
+			SetDefaultInt("proxy.tor.control.port", 9151, LanguageManager.GetText(LanguageItems.ManOptionProxyTorControlPort));
+			SetDefaultBool("proxy.tor.control.auth", true, LanguageManager.GetText(LanguageItems.ManOptionProxyTorControlAuth));
+			SetDefault("proxy.tor.path", "", "", LanguageManager.GetText(LanguageItems.ManOptionProxyTorPath));
+			SetDefault("proxy.tor.control.cookie.path", "", "", LanguageManager.GetText(LanguageItems.ManOptionProxyTorControlCookiePath));
+			SetDefault("proxy.tor.control.password", "password", "", LanguageManager.GetText(LanguageItems.ManOptionProxyTorControlPassword));
 
-			SetDefault("routes.custom", "text", "", LanguageManager.GetText("ManOptionRoutesCustom"));
-			SetDefault("routes.catch_all_mode", "text", "auto", NotInMan);
+			SetDefault("routes.custom", "text", "", LanguageManager.GetText(LanguageItems.ManOptionRoutesCustom));
+			SetDefault("routes.catch_all_mode", "text", "auto", LanguageManager.GetText(LanguageItems.ManOptionRoutesCatchAllMode));
 
-			SetDefault("dns.mode", "text", "auto", LanguageManager.GetText("ManOptionDnsMode"));
-			SetDefault("dns.servers", "text", "", LanguageManager.GetText("ManOptionDnsServers"));
-			SetDefault("dns.interfaces.names", "text", "", NotInMan);
-			SetDefault("dns.interfaces.types", "text", "auto", NotInMan); // "auto", "all", comma-separated // TOFIX: not implemented yet in macOS, always 'all'
-			SetDefaultBool("dns.delegate", false, NotInMan);
-			SetDefaultBool("dns.check", true, LanguageManager.GetText("ManOptionDnsCheck"));
-			SetDefaultInt("dns.cache.ttl", 3600, NotInMan);
+			SetDefault("dns.mode", "text", "auto", LanguageManager.GetText(LanguageItems.ManOptionDnsMode));
+			SetDefault("dns.servers", "text", "", LanguageManager.GetText(LanguageItems.ManOptionDnsServers));
+			SetDefault("dns.interfaces.names", "text", "", NotInManNever);
+			SetDefault("dns.interfaces.types", "text", "auto", NotInManNever); // "auto", "all", comma-separated // not implemented yet in macOS, always 'all'
+			SetDefaultBool("dns.delegate", false, LanguageManager.GetText(LanguageItems.ManOptionDnsDelegate));
+			SetDefaultBool("dns.check", true, LanguageManager.GetText(LanguageItems.ManOptionDnsCheck));
+			SetDefaultInt("dns.cache.ttl", 3600, LanguageManager.GetText(LanguageItems.ManOptionDnsCacheTTL));
 
-			SetDefault("netlock.mode", "text", "auto", LanguageManager.GetText("ManOptionNetLockMode"));
-			SetDefaultBool("netlock.allow_private", true, LanguageManager.GetText("ManOptionNetLockAllowPrivate"));
-			SetDefaultBool("netlock.allow_dhcp", true, LanguageManager.GetText("ManOptionNetLockAllowDHCP")); // Win only
-			SetDefaultBool("netlock.allow_ping", true, LanguageManager.GetText("ManOptionNetLockAllowPing"));
-			SetDefaultBool("netlock.allow_dns", false, LanguageManager.GetText("ManOptionNetLockAllowDNS"));
-			SetDefaultChoice("netlock.incoming", "allow,block", "block", NotInMan);
-			SetDefaultChoice("netlock.outgoing", "allow,block", "block", NotInMan);
-			SetDefault("netlock.allowlist.incoming.ips", "text", "", LanguageManager.GetText("ManOptionNetLockAllowlistIncomingIps"));
-			SetDefault("netlock.allowlist.outgoing.ips", "text", "", LanguageManager.GetText("ManOptionNetLockAllowlistOutgoingIps"));
+			SetDefaultBool("netlock", false, LanguageManager.GetText(LanguageItems.ManOptionNetLock));
+			SetDefaultBool("netlock.connection", true, LanguageManager.GetText(LanguageItems.ManOptionNetLockConnection));
+			SetDefault("netlock.mode", "text", "auto", LanguageManager.GetText(LanguageItems.ManOptionNetLockMode));
+			SetDefaultBool("netlock.allow_private", true, LanguageManager.GetText(LanguageItems.ManOptionNetLockAllowPrivate));
+			SetDefaultBool("netlock.allow_dhcp", true, LanguageManager.GetText(LanguageItems.ManOptionNetLockAllowDHCP)); // Win only
+			SetDefaultBool("netlock.allow_ping", true, LanguageManager.GetText(LanguageItems.ManOptionNetLockAllowPing));
+			SetDefaultBool("netlock.allow_dns", false, LanguageManager.GetText(LanguageItems.ManOptionNetLockAllowDNS));
+			SetDefaultChoice("netlock.incoming", "allow,block", "block", LanguageManager.GetText(LanguageItems.ManOptionNetLockIncoming));
+			SetDefaultChoice("netlock.outgoing", "allow,block", "block", LanguageManager.GetText(LanguageItems.ManOptionNetLockOutgoing));
+			SetDefault("netlock.allowlist.incoming.ips", "text", "", LanguageManager.GetText(LanguageItems.ManOptionNetLockAllowlistIncomingIps));
+			SetDefault("netlock.allowlist.outgoing.ips", "text", "", LanguageManager.GetText(LanguageItems.ManOptionNetLockAllowlistOutgoingIps));
 
-			SetDefault("network.entry.iface", "text", "", NotInMan);
-			SetDefault("network.entry.iplayer", "text", "ipv4-ipv6", NotInMan); // ipv6-ipv4;ipv4-ipv6;ipv4-only;ipv6-only;
-			SetDefaultChoice("network.ipv4.mode", "in,in-out,in-block,out,block", "in", NotInMan);
-			SetDefaultChoice("network.ipv6.mode", "in,in-out,in-block,out,block", "in-block", NotInMan);
-			SetDefaultBool("network.ipv4.autoswitch", false, NotInMan);
-			SetDefaultBool("network.ipv6.autoswitch", true, NotInMan);
-			SetDefault("network.gateways.default_skip_types", "text", "Loopback;Tunnel", NotInMan);
-			SetDefaultInt("network.mtu", -1, NotInMan);
-			SetDefault("network.iface.name", "text", "", LanguageManager.GetText("ManOptionNetworkIfaceName"));
+			SetDefault("network.entry.iface", "text", "", LanguageManager.GetText(LanguageItems.ManOptionNetworkEntryIFace));
+			SetDefault("network.entry.iplayer", "text", "ipv4-ipv6", LanguageManager.GetText(LanguageItems.ManOptionNetworkEntryIpLayer)); // ipv6-ipv4;ipv4-ipv6;ipv4-only;ipv6-only;
+			SetDefaultChoice("network.ipv4.mode", "in,in-out,in-block,out,block", "in", LanguageManager.GetText(LanguageItems.ManOptionNetworkIPv4Mode));
+			SetDefaultChoice("network.ipv6.mode", "in,in-out,in-block,out,block", "in-block", LanguageManager.GetText(LanguageItems.ManOptionNetworkIPv6Mode));
+			SetDefaultBool("network.ipv4.autoswitch", false, LanguageManager.GetText(LanguageItems.ManOptionNetworkIPv4AutoSwitch));
+			SetDefaultBool("network.ipv6.autoswitch", true, LanguageManager.GetText(LanguageItems.ManOptionNetworkIPv6AutoSwitch));
+			//SetDefault("network.gateways.default_skip_types", "text", "Loopback;Tunnel", NotInMan); // TOCLEAN			
+			SetDefault("network.iface.name", "text", "", LanguageManager.GetText(LanguageItems.ManOptionNetworkIfaceName));
 
-			SetDefault("tools.openvpn.path", "path_file", "", LanguageManager.GetText("ManOptionToolsOpenVpnPath"));
-			SetDefaultBool("tools.hummingbird.preferred", Platform.Instance.PreferHummingbirdIfAvailable(), NotInMan);
-			SetDefault("tools.hummingbird.path", "path_file", "", NotInMan);
-			SetDefault("tools.ssh.path", "path_file", "", LanguageManager.GetText("ManOptionToolsSshPath"));
-			SetDefault("tools.ssl.path", "path_file", "", LanguageManager.GetText("ManOptionToolsSslPath"));
-			SetDefault("tools.curl.path", "path_file", "", LanguageManager.GetText("ManOptionToolsCurlPath"));
+			SetDefault("tools.openvpn.path", "path_file", "", LanguageManager.GetText(LanguageItems.ManOptionToolsOpenVpnPath));
+			SetDefaultBool("tools.hummingbird.preferred", Platform.Instance.PreferHummingbirdIfAvailable(), LanguageManager.GetText(LanguageItems.ManOptionToolsHummingbirdPreferred));
+			SetDefault("tools.hummingbird.path", "path_file", "", LanguageManager.GetText(LanguageItems.ManOptionToolsHummingbirdPath));
+			SetDefault("tools.ssh.path", "path_file", "", LanguageManager.GetText(LanguageItems.ManOptionToolsSshPath));
+			SetDefault("tools.ssl.path", "path_file", "", LanguageManager.GetText(LanguageItems.ManOptionToolsSslPath));
+			SetDefault("tools.curl.path", "path_file", "", LanguageManager.GetText(LanguageItems.ManOptionToolsCurlPath));
 
-			SetDefaultInt("http.timeout", 20, NotInMan);
+			SetDefaultInt("http.timeout", 20, LanguageManager.GetText(LanguageItems.ManOptionHttpTimeout));
 
 			/*
 			SetDefaultBool("webui.enabled", true, NotInMan); // WebUI it's a Eddie 3.* feature not yet committed on GitHub.
@@ -514,55 +524,54 @@ namespace Eddie.Core
 			SetDefaultInt("webui.port", 4649, NotInMan);
 			*/
 
-			SetDefaultBool("external.rules.recommended", true, NotInMan);
-			SetDefault("external.rules", "json", "[]", NotInMan);
+			SetDefaultBool("external.rules.recommended", true, NotInManNever);
+			SetDefault("external.rules", "json", "[]", NotInManNever);
 
-			SetDefault("openvpn.custom", "text", "", LanguageManager.GetText("ManOptionOpenVpnCustom"));
-			SetDefault("openvpn.dev_node", "text", "", LanguageManager.GetText("ManOptionOpenVpnDevNode"));
-			SetDefaultInt("openvpn.sndbuf", -2, LanguageManager.GetText("ManOptionOpenVpnSndBuf")); // 2.11
-			SetDefaultInt("openvpn.rcvbuf", -2, LanguageManager.GetText("ManOptionOpenVpnRcvBuf")); // 2.11
-			SetDefault("openvpn.directives", "text", "client\r\ndev tun\r\nauth-nocache\r\nresolv-retry infinite\r\nnobind\r\npersist-key\r\npersist-tun\r\nverb 3\r\nconnect-retry-max 1\r\nping 10\r\nping-exit 32\r\nexplicit-exit-notify 5", LanguageManager.GetText("ManOptionOpenVpnDirectives"));
-			SetDefault("openvpn.directives.path", "path_file", "", NotInMan);
-			SetDefault("openvpn.directives.data-ciphers", "text", "AES-256-GCM:AES-256-CBC:AES-192-GCM:AES-192-CBC:AES-128-GCM:AES-128-CBC", NotInMan);
-			SetDefault("openvpn.directives.data-ciphers-fallback", "text", "AES-256-CBC", NotInMan);
-			SetDefaultBool("openvpn.directives.chacha20", false, NotInMan); // Temporary
-			SetDefaultBool("openvpn.skip_defaults", false, LanguageManager.GetText("ManOptionOpenVpnSkipDefaults"));
-			//SetDefaultBool("openvpn.allow.script-security", false, NotInMan);
+			SetDefault("openvpn.custom", "text", "", LanguageManager.GetText(LanguageItems.ManOptionOpenVpnCustom));
+			SetDefault("openvpn.dev_node", "text", "", LanguageManager.GetText(LanguageItems.ManOptionOpenVpnDevNode));
+			SetDefaultInt("openvpn.sndbuf", -2, LanguageManager.GetText(LanguageItems.ManOptionOpenVpnSndBuf)); // 2.11
+			SetDefaultInt("openvpn.rcvbuf", -2, LanguageManager.GetText(LanguageItems.ManOptionOpenVpnRcvBuf)); // 2.11
+			SetDefault("openvpn.directives", "text", "client\r\ndev tun\r\nauth-nocache\r\nresolv-retry infinite\r\nnobind\r\npersist-key\r\npersist-tun\r\nverb 3\r\nconnect-retry-max 1\r\nping 10\r\nping-restart 60\r\nexplicit-exit-notify 5", LanguageManager.GetText(LanguageItems.ManOptionOpenVpnDirectives));
+			SetDefault("openvpn.directives.path", "path_file", "", LanguageManager.GetText(LanguageItems.ManOptionOpenVpnDirectivesPath));
+			//SetDefault("openvpn.directives.data-ciphers", "text", "AES-256-GCM:AES-256-CBC:AES-192-GCM:AES-192-CBC:AES-128-GCM:AES-128-CBC", LanguageManager.GetText(LanguageItems.ManOptionOpenVpnDirectivesDataCiphers)); // <2.23.0 // TOCLEAN
+			//SetDefault("openvpn.directives.data-ciphers-fallback", "text", "AES-256-CBC", LanguageManager.GetText(LanguageItems.ManOptionOpenVpnDirectivesDataCiphersFallback)); // <2.23.0 // TOCLEAN
+			SetDefault("openvpn.directives.data-ciphers", "text", "AES-256-GCM:AES-192-GCM:AES-128-GCM", LanguageManager.GetText(LanguageItems.ManOptionOpenVpnDirectivesDataCiphers));
+			SetDefault("openvpn.directives.data-ciphers-fallback", "text", "AES-256-GCM", LanguageManager.GetText(LanguageItems.ManOptionOpenVpnDirectivesDataCiphersFallback));
+			SetDefaultBool("openvpn.directives.chacha20", false, LanguageManager.GetText(LanguageItems.ManOptionOpenVpnDirectivesChacha20)); // Temporary
+			SetDefaultBool("openvpn.skip_defaults", false, LanguageManager.GetText(LanguageItems.ManOptionOpenVpnSkipDefaults));
+			//SetDefaultBool("openvpn.allow.script-security", false, NotInMan);  // TOCLEAN
 
-			SetDefaultBool("wireguard.interface.skip_commands", true, NotInMan); // Anyway are not implemented in Eddie, keep for future.
-			SetDefaultInt("wireguard.peer.persistentkeepalive", 15, LanguageManager.GetText("ManOptionWireGuardPeerPersistentKeepalive"));
-			SetDefaultInt("wireguard.handshake.timeout.first", 50, NotInMan);
-			SetDefaultInt("wireguard.handshake.timeout.connected", 180 + 20, NotInMan); // To maintain the session a client must handshake at least once every 180 seconds
+			SetDefaultBool("wireguard.interface.skip_commands", true, NotInManNever); // Anyway are not implemented in Eddie, keep for future.
+			SetDefaultInt("wireguard.peer.persistentkeepalive", 15, LanguageManager.GetText(LanguageItems.ManOptionWireGuardPeerPersistentKeepalive));
+			SetDefaultInt("wireguard.handshake.timeout.first", 50, NotInManNever);
+			SetDefaultInt("wireguard.handshake.timeout.connected", 180 + 20, NotInManNever); // To maintain the session a client must handshake at least once every 180 seconds.
+			SetDefaultInt("wireguard.interface.mtu", -1, LanguageManager.GetText(LanguageItems.ManOptionWireGuardInterfaceMTU));
 
 			// Not in Settings			
-			SetDefaultInt("ssh.port", 0, LanguageManager.GetText("ManOptionSshPort"));
-			SetDefaultInt("ssl.port", 0, LanguageManager.GetText("ManOptionSslPort"));
-			SetDefault("ssl.options", "text", "", NotInMan); // "NO_SSLv2" < 2.11.10
-			SetDefaultInt("ssl.verify", -1, NotInMan);
+			SetDefaultInt("ssh.port", 0, LanguageManager.GetText(LanguageItems.ManOptionSshPort));
+			SetDefaultInt("ssl.port", 0, LanguageManager.GetText(LanguageItems.ManOptionSslPort));
+			SetDefault("ssl.options", "text", "", NotInManNever); // "NO_SSLv2" < 2.11.10
+			SetDefaultInt("ssl.verify", -1, NotInManNever);
 
-			//SetDefaultBool("os.single_instance", true, LanguageManager.GetText("ManOptionOsSingleInstance")); // Removed in 2.21 - Elevated accept only one instance
+			SetDefaultBool("advanced.expert", false, LanguageManager.GetText(LanguageItems.ManOptionAdvancedExpert));
+			SetDefaultBool("advanced.check.route", true, LanguageManager.GetText(LanguageItems.ManOptionAdvancedCheckRoute));
 
-			SetDefaultBool("advanced.expert", false, LanguageManager.GetText("ManOptionAdvancedExpert"));
-			SetDefaultBool("advanced.check.route", true, LanguageManager.GetText("ManOptionAdvancedCheckRoute"));
+			SetDefaultBool("pinger.enabled", true, LanguageManager.GetText(LanguageItems.ManOptionAdvancedPingerEnabled));
+			SetDefaultInt("pinger.delay", 0, LanguageManager.GetText(LanguageItems.ManOptionAdvancedPingerDelay));
+			SetDefaultInt("pinger.retry", 0, LanguageManager.GetText(LanguageItems.ManOptionAdvancedPingerRetry));
+			SetDefaultInt("pinger.jobs", 25, LanguageManager.GetText(LanguageItems.ManOptionAdvancedPingerJobs));
+			SetDefaultInt("pinger.valid", 0, LanguageManager.GetText(LanguageItems.ManOptionAdvancedPingerValid));
+			SetDefaultInt("pinger.timeout", 3000, LanguageManager.GetText(LanguageItems.ManOptionAdvancedPingerTimeout));
 
-			SetDefaultInt("advanced.penality_on_error", 30, NotInMan);
+			SetDefaultInt("advanced.manifest.refresh", -1, LanguageManager.GetText(LanguageItems.ManOptionAdvancedManifestRefresh));
+			SetDefaultBool("advanced.providers", false, LanguageManager.GetText(LanguageItems.ManOptionAdvancedProviders));
 
-			SetDefaultBool("pinger.enabled", true, LanguageManager.GetText("ManOptionAdvancedPingerEnabled"));
-			SetDefaultInt("pinger.delay", 0, LanguageManager.GetText("ManOptionAdvancedPingerDelay"));
-			SetDefaultInt("pinger.retry", 0, LanguageManager.GetText("ManOptionAdvancedPingerRetry"));
-			SetDefaultInt("pinger.jobs", 25, LanguageManager.GetText("ManOptionAdvancedPingerJobs"));
-			SetDefaultInt("pinger.valid", 0, LanguageManager.GetText("ManOptionAdvancedPingerValid"));
-			SetDefaultInt("pinger.timeout", 3000, NotInMan);
+			SetDefault("bootstrap.urls", "text", "", LanguageManager.GetText(LanguageItems.ManOptionBootstrapUrls)); // WIP: move to provider level
 
-			SetDefaultInt("advanced.manifest.refresh", -1, NotInMan);
-			SetDefaultBool("advanced.providers", false, NotInMan);
-
-			SetDefault("bootstrap.urls", "text", "", NotInMan); // WIP: move to provider level
-
-			SetDefaultBool("advanced.skip_tun_detect", false, NotInMan); // Skip TUN driver detection.
-			SetDefaultBool("advanced.skip_alreadyrun", false, NotInMan); // Continue even if openvpn is already running.
-			SetDefaultBool("connections.allow_anyway", devDefault, NotInMan); // Allow connection even if in 'Not available' status.
-			SetDefaultBool("advanced.testonly", false, NotInMan); // Disconnect when connection occur.
+			SetDefaultInt("advanced.penality_on_error", 30, NotInManNever);
+			SetDefaultBool("advanced.skip_alreadyrun", false, NotInManNever); // Continue even if openvpn is already running.
+			SetDefaultBool("connections.allow_anyway", devDefault, NotInManNever); // Allow connection even if in 'Not available' status.
+			SetDefaultBool("advanced.testonly", false, NotInManNever); // Disconnect when connection occur.
 
 			EnsureDefaultsEvent("app.start");
 			EnsureDefaultsEvent("app.stop");
@@ -573,56 +582,59 @@ namespace Eddie.Core
 			EnsureDefaultsEvent("vpn.down");
 
 			// Windows only			
-			SetDefaultBool("windows.adapters.cleanup", true, NotInMan);
-			SetDefault("windows.adapter_service", "text", "tap0901", LanguageManager.GetText("ManOptionWindowsAdapterService"));
-			SetDefaultBool("windows.disable_driver_upgrade", false, LanguageManager.GetText("ManOptionWindowsDisableDriverUpgrade"));
-			SetDefaultBool("windows.tap_up", true, LanguageManager.GetText("ManOptionWindowsTapUp"));
-			//SetDefaultBool("windows.dhcp_disable", false, LanguageManager.GetText("ManOptionWindowsDhcpDisable")); // Deprecated in 2.18
-			SetDefaultBool("windows.wfp.enable", true, LanguageManager.GetText("ManOptionWindowsWfp"));
-			SetDefaultBool("windows.wfp.dynamic", false, LanguageManager.GetText("ManOptionWindowsWfpDynamic"));
-			//SetDefaultBool("windows.ipv6.os_disable", false, NotInMan); // Must be default FALSE if WFP works well // Removed in 2.14, in W10 require reboot
-			//SetDefaultBool("windows.dns.force_all_interfaces", false, NotInMan); // Important: With WFP can be false, but users report DNS leak. Maybe not a real DNS Leak, simply request on DNS of other interfaces through VPN tunnel.
-			SetDefaultBool("windows.dns.lock", true, LanguageManager.GetText("ManOptionWindowsDnsLock"));
-			SetDefaultInt("windows.metrics.tap.ipv4", -2, NotInMan); // 2.13:   0: Windows Automatic, >0 value, -1: Don't change, -2: Automatic
-			SetDefaultInt("windows.metrics.tap.ipv6", -2, NotInMan); // 2.13:   0: Windows Automatic, >0 value, -1: Don't change, -2: Automatic
-			SetDefaultBool("windows.workarounds", false, NotInMan); // If true, some variants to identify issues
-			SetDefaultBool("windows.ipv6.bypass_dns", false, NotInMan); // 2.14: Workaround, skip DNS6.
-			SetDefaultBool("windows.ssh.plink.force", true, NotInMan); // Switch to false when stable/tested.
-			SetDefaultBool("windows.force_old_driver", false, NotInMan);
-			//SetDefaultBool("windows.wintun", true, NotInMan); // 2.21.4 deprecated
+			SetDefaultChoice("windows.driver", "auto,ovpn-dco,wintun,tap-windows6,none", "auto", LanguageManager.GetText(LanguageItems.ManOptionWindowsDriver));
+			SetDefaultBool("windows.adapters.cleanup", true, LanguageManager.GetText(LanguageItems.ManOptionWindowsDriverCleanup));
+			SetDefault("windows.adapter_service", "text", "tap0901", LanguageManager.GetText(LanguageItems.ManOptionWindowsAdapterService));
+			SetDefaultBool("windows.disable_driver_upgrade", false, LanguageManager.GetText(LanguageItems.ManOptionWindowsDisableDriverUpgrade));
+			SetDefaultBool("windows.tap_up", true, LanguageManager.GetText(LanguageItems.ManOptionWindowsTapUp));
+			SetDefaultBool("windows.wfp.enable", true, LanguageManager.GetText(LanguageItems.ManOptionWindowsWfp));
+			SetDefaultBool("windows.wfp.dynamic", false, LanguageManager.GetText(LanguageItems.ManOptionWindowsWfpDynamic));
+			SetDefaultBool("windows.dns.lock", true, LanguageManager.GetText(LanguageItems.ManOptionWindowsDnsLock));
+			SetDefaultInt("windows.metrics.tap.ipv4", -2, LanguageManager.GetText(LanguageItems.ManOptionWindowsMetricsTapIPv4)); // 2.13:   0: Windows Automatic, >0 value, -1: Don't change, -2: Automatic
+			SetDefaultInt("windows.metrics.tap.ipv6", -2, LanguageManager.GetText(LanguageItems.ManOptionWindowsMetricsTapIPv6)); // 2.13:   0: Windows Automatic, >0 value, -1: Don't change, -2: Automatic			
+			SetDefaultBool("windows.ipv6.bypass_dns", false, NotInManNever); // 2.14: Workaround, skip OpenVPN DNS6. Only with dns.delegate, for this not in MAN. Maybe deprecated in future.
+			SetDefaultBool("windows.ssh.plink.force", false, NotInManNever); // Switch to false when stable/tested. Not in MAN because need to be deprecated.
+			SetDefaultBool("windows.workarounds", false, NotInManNever); // If true, some variants to identify issues. Not in MAN because need to be deprecated.
+
+			// macOS only
+			SetDefaultBool("macos.ipv6.dnslookup", true, LanguageManager.GetText(LanguageItems.ManOptionMacosIPv6DnsLookup));
 
 			// Linux only
-			SetDefault("linux.dns.services", "text", "nscd;dnsmasq;named;bind9;systemd-resolved", NotInMan);
-
-			// General UI
-			SetDefault("ui.unit", "text", "", LanguageManager.GetText("ManOptionUiUnit"));
-			SetDefaultBool("ui.iec", false, LanguageManager.GetText("ManOptionUiIEC"));
-			SetDefaultBool("ui.skip.provider.manifest.failed", false, NotInMan);
-			SetDefaultBool("ui.skip.promotional", false, NotInMan);
-			SetDefaultBool("ui.skip.netlock.confirm", false, NotInMan);
-
-			// GUI only
-			SetDefaultBool("gui.start_minimized", false, NotInMan);
-			SetDefaultBool("gui.tray_show", true, NotInMan);
-			SetDefaultBool("gui.tray_minimized", (Platform.Instance.IsLinuxSystem() == false), NotInMan); // We can't know if the Linux Desktop Environment will support show tray.
-			SetDefaultBool("gui.notifications", true, NotInMan);
-			SetDefaultBool("gui.exit_confirm", true, NotInMan);
-			SetDefault("gui.font.normal.name", "text", "", NotInMan);
-			SetDefaultFloat("gui.font.normal.size", 0, NotInMan);
-
-			SetDefault("gui.window.main", "text", "", NotInMan);
-			SetDefault("gui.list.servers", "text", "", NotInMan);
-			SetDefault("gui.list.areas", "text", "", NotInMan);
-			SetDefault("gui.list.logs", "text", "", NotInMan);
-
-			// UI - OSX Only
-			// SetDefaultBool("gui.osx.dock", false, NotInMan); // See this FAQ: https://airvpn.org/topic/13331-its-possible-to-hide-the-icon-in-dock-bar-under-os-x/
-			SetDefaultBool("gui.osx.visible", false, NotInMan);
-			SetDefaultBool("gui.osx.sysbar.show_info", false, NotInMan);
-			SetDefaultBool("gui.osx.sysbar.show_speed", false, NotInMan); // Menu Status, Window Title, Tray Tooltip
-			SetDefaultBool("gui.osx.sysbar.show_server", false, NotInMan);
+			SetDefault("linux.dns.services", "text", "nscd;dnsmasq;named;bind9", LanguageManager.GetText(LanguageItems.ManOptionLinuxDnsServices));
 
 			// Internal only
+			SetDefault("servers.last", "text", "", NotInManNever);
+
+			// General UI
+			SetDefault("ui.unit", "text", "", LanguageManager.GetText(LanguageItems.ManOptionUiUnit));
+			SetDefaultBool("ui.iec", false, LanguageManager.GetText(LanguageItems.ManOptionUiIEC));
+			SetDefaultBool("ui.skip.provider.manifest.failed", false, LanguageManager.GetText(LanguageItems.ManOptionUiSkipProviderManifestFailed));
+			SetDefaultBool("ui.skip.promotional", false, LanguageManager.GetText(LanguageItems.ManOptionUiSkipPromotional));
+			SetDefaultBool("ui.skip.netlock.confirm", false, LanguageManager.GetText(LanguageItems.ManOptionUiSkipNetLockConfirm));
+
+			// UI only
+			SetDefaultBool("gui.start_minimized", false, NotInManNever);
+			SetDefaultBool("gui.tray_show", true, NotInManNever);
+			SetDefaultBool("gui.tray_minimized", (Platform.Instance.IsLinuxSystem() == false), NotInManNever); // We can't know if the Linux Desktop Environment will support show tray.
+			SetDefaultBool("gui.notifications", true, NotInManNever);
+			SetDefaultBool("gui.exit_confirm", true, NotInManNever);
+			SetDefault("gui.font.normal.name", "text", "", NotInManNever);
+			SetDefaultFloat("gui.font.normal.size", 0, NotInManNever);
+
+			SetDefault("gui.window.main", "text", "", NotInManNever);
+			SetDefault("gui.list.servers", "text", "", NotInManNever);
+			SetDefault("gui.list.areas", "text", "", NotInManNever);
+			SetDefault("gui.list.logs", "text", "", NotInManNever);
+
+			// UI - macOS Only
+			// SetDefaultBool("gui.osx.dock", false, NotInMan); // See this FAQ: https://airvpn.org/topic/13331-its-possible-to-hide-the-icon-in-dock-bar-under-os-x/
+			SetDefaultBool("gui.osx.visible", false, NotInManNever);
+			SetDefaultBool("gui.osx.sysbar.show_info", false, NotInManNever);
+			SetDefaultBool("gui.osx.sysbar.show_speed", false, NotInManNever); // Menu Status, Window Title, Tray Tooltip
+			SetDefaultBool("gui.osx.sysbar.show_server", false, NotInManNever);
+
+			// Internal only
+			m_options["servers.last"].InternalOnly = true;
 			m_options["gui.window.main"].InternalOnly = true;
 			m_options["gui.list.servers"].InternalOnly = true;
 			m_options["gui.list.areas"].InternalOnly = true;
@@ -650,9 +662,9 @@ namespace Eddie.Core
 
 		public void EnsureDefaultsEvent(string name)
 		{
-			SetDefault("event." + name + ".filename", "path_file", "", LanguageManager.GetText("ManOptionEventFileName"));
-			SetDefault("event." + name + ".arguments", "text", "", LanguageManager.GetText("ManOptionEventArguments"));
-			SetDefaultBool("event." + name + ".waitend", true, LanguageManager.GetText("ManOptionEventWaitEnd"));
+			SetDefault("event." + name + ".filename", "path_file", "", LanguageManager.GetText(LanguageItems.ManOptionEventFileName));
+			SetDefault("event." + name + ".arguments", "text", "", LanguageManager.GetText(LanguageItems.ManOptionEventArguments));
+			SetDefaultBool("event." + name + ".waitend", true, LanguageManager.GetText(LanguageItems.ManOptionEventWaitEnd));
 		}
 
 		public void ResetAll(bool force)

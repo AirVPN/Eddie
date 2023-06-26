@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -165,6 +165,17 @@ namespace Eddie.Platform.MacOS
 				pf += "pass out all\n";
 			else
 				pf += "block out all\n";
+
+			if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_dhcp") == true)
+			{
+				pf += "pass in quick inet from 255.255.255.255\n";
+				pf += "pass in quick inet6 from ff02::1:2\n";
+				pf += "pass in quick inet6 from ff05::1:3\n";
+
+				pf += "pass out quick inet to 255.255.255.255\n";
+				pf += "pass out quick inet6 to ff02::1:2\n";
+				pf += "pass out quick inet6 to ff05::1:3\n";
+			}
 
 			if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_private"))
 			{
