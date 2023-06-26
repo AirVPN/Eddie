@@ -122,6 +122,6 @@ tar cvfz "$DEPLOYPATH" "eddie-${PROJECTP}"
 
 # Cleanup
 echo Step: Final cleanup
-#pazzo rm -rf "${TARGETDIR}"
+rm -rf "${TARGETDIR}"
 
 
