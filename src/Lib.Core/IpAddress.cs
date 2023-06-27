@@ -184,6 +184,10 @@ namespace Eddie.Core
 
 		public string ToNetwork()
 		{
+			// TOFIX
+			return ToCIDR(true);
+
+			/*
 			// This is basically used to normalize when users enter route like 192.168.1.1/24 (must be 192.168.1.0/24). IPv6 missing implementation.
 			if (Valid == false)
 				return "";
@@ -200,6 +204,7 @@ namespace Eddie.Core
 			}
 
 			return "";
+			*/
 		}
 
 		public string Address
