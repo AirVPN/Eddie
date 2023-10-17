@@ -544,7 +544,7 @@ namespace Eddie.Core
 							{
 								string value = s.Substring(0, i).Trim();
 
-								if ((value.StartsWith("\"")) && (value.EndsWith("\"")))
+								if ((value.StartsWithInv("\"")) && (value.EndsWithInv("\"")))
 								{
 									result = DecodeString(value.Substring(1, value.Length - 2));
 									remain = s.Substring(i);

@@ -138,9 +138,9 @@ namespace Eddie.Core.ConfigBuilder
 				if (line == "")
 					continue;
 
-				if (line.StartsWith("["))
+				if (line.StartsWithInv("["))
 				{
-					int posEnd = line.IndexOf("]");
+					int posEnd = line.IndexOfInv("]");
 					if (posEnd != -1)
 					{
 						section = line.Substring(1, posEnd - 1).ToLowerInvariant();
@@ -149,7 +149,7 @@ namespace Eddie.Core.ConfigBuilder
 				else
 				{
 					// Expect keypair
-					int posValue = line.IndexOf("=");
+					int posValue = line.IndexOfInv("=");
 					if (posValue != -1)
 					{
 						string key = line.Substring(0, posValue).ToLowerInvariant().Trim();

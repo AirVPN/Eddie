@@ -140,7 +140,7 @@ namespace Eddie.Core.Jobs
 			{
 				try
 				{
-					if ((method.StartsWith("http://")) || (method.StartsWith("https://")))
+					if ((method.StartsWithInv("http://")) || (method.StartsWithInv("https://")))
 					{
 						string url = method;
 						url = url.Replace("{@ip}", ip);

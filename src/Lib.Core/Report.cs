@@ -167,7 +167,7 @@ namespace Eddie.Core
 			Add("OS name", Platform.Instance.GetName());
 			Add("OS version", Platform.Instance.GetVersion());
 			Add("OS architecture", Platform.Instance.GetOsArchitecture());
-			Add("Mono /.Net Framework", Platform.Instance.GetNetFrameworkVersion());
+			Add("Framework", Platform.Instance.GetNetFrameworkVersion());
 
 			Add("OpenVPN", Software.GetTool("openvpn").GetVersionDesc());
 			Add("Hummingbird", Software.GetTool("hummingbird").GetVersionDesc());

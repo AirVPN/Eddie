@@ -105,8 +105,8 @@ namespace Eddie.Core
 			value = value.Trim().Replace(" ", "/");
 
 			// Clean if there is interface, ex. fe80::21d:aaff:fef3:eb8%en0 . For example netstat output under macOs
-			if (value.IndexOf("%") != -1)
-				value = value.Substring(0, value.IndexOf("%"));
+			if (value.IndexOfInv("%") != -1)
+				value = value.Substring(0, value.IndexOfInv("%"));
 
 			string ip = "";
 			string mask = "";

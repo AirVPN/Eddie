@@ -64,7 +64,7 @@ namespace Eddie.Platform.Windows
 		{
 			uint resultMaxLen = 1000 * 1000 * 5;
 			byte[] resultBuf = new byte[resultMaxLen];
-			eddie_curl(jRequest.ToJson(), resultMaxLen, resultBuf); // TOFIX: occur that lock here with network problem
+			eddie_curl(jRequest.ToJson(), resultMaxLen, resultBuf);
 			Json jResult;
 			if (Json.TryParse(System.Text.Encoding.ASCII.GetString(resultBuf), out jResult))
 				return jResult;
@@ -211,12 +211,14 @@ namespace Eddie.Platform.Windows
 			public int owningPid;
 		}
 
+		// TOFIX, DotNet .7 throw a warning
+		// warning CS0618: 'UnmanagedType.Struct' is obsolete: 'Applying UnmanagedType.Struct is unnecessary when marshalling a struct.
+		// Support for UnmanagedType.Struct when marshalling a reference type may be unavailable in future releases.
 		[StructLayout(LayoutKind.Sequential)]
 		public struct MIB_TCPTABLE_OWNER_PID
 		{
 			public uint dwNumEntries;
-			[MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.Struct,
-				SizeConst = 1)]
+			[MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.Struct, SizeConst = 1)]
 			public MIB_TCPROW_OWNER_PID[] table;
 		}
 

@@ -371,7 +371,7 @@ void IWindows::Do(const std::string& commandId, const std::string& command, std:
 	{
 		std::string version = "";
 		if (IsWindows8OrGreater()) // see WintunEnsureLibrary
-			version = "0.5.2"; // Embedded, wgtunnel.dll
+			version = "0.10.1"; // Embedded, wgtunnel.dll
 		ReplyCommand(commandId, version);
 	}
 	else if (command == "wireguard")

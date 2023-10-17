@@ -12,6 +12,9 @@ namespace Eddie.UI.Cocoa.Osx
 	[Register ("WindowPreferencesController")]
 	partial class WindowPreferencesController
 	{
+        [Outlet]
+        AppKit.NSPopUpButton CboWireGuardMTU { get; set; }
+
 		[Outlet]
 		AppKit.NSPopUpButton CboAdvancedManifestRefresh { get; set; }
 

@@ -184,7 +184,7 @@ namespace Eddie.Core
 							foreach (object item in jChild.GetArray())
 							{
 								string subName = kp.Key;
-								if (subName.EndsWith("s")) subName = subName.Substring(0, subName.Length - 1);
+								if (subName.EndsWithInv("s")) subName = subName.Substring(0, subName.Length - 1);
 								XmlElement xmlChild2 = destination.OwnerDocument.CreateElement(subName);
 								xmlChild.AppendChild(xmlChild2);
 								if (item is Json)

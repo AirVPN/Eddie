@@ -52,6 +52,7 @@ namespace Eddie.Core.ConsoleEdition
 				return false;
 			}
 
+			// Not working on net7, see https://github.com/dotnet/runtime/issues/64969
 			Console.CancelKeyPress += new ConsoleCancelEventHandler(Console_CancelKeyPress);
 
 			return base.OnInit();
@@ -174,7 +175,7 @@ namespace Eddie.Core.ConsoleEdition
 				Logs.Log(LogType.Info, LanguageManager.GetText(LanguageItems.WindowsExecExternalPermissionTop, data["path"].Value as string));
 				Logs.Log(LogType.Verbose, "N: " + LanguageManager.GetText(LanguageItems.WindowsExecExternalPermissionNo));
 				Logs.Log(LogType.Verbose, "Y: " + LanguageManager.GetText(LanguageItems.WindowsExecExternalPermissionYes));
-				if ((data["sign-id"].Value as string).StartsWith("No: ") == false)
+				if ((data["sign-id"].Value as string).StartsWithInv("No: ") == false)
 					Logs.Log(LogType.Verbose, "S: " + LanguageManager.GetText(LanguageItems.WindowsExecExternalPermissionRuleSign, data["sign-id"].Value as string));
 				Logs.Log(LogType.Verbose, "H: " + LanguageManager.GetText(LanguageItems.WindowsExecExternalPermissionRuleHash, data["sha256"].Value as string));
 				Logs.Log(LogType.Verbose, "P: " + LanguageManager.GetText(LanguageItems.WindowsExecExternalPermissionRulePath, data["path"].Value as string));
@@ -192,7 +193,7 @@ namespace Eddie.Core.ConsoleEdition
 					Answer["allow"].Value = true;
 					break;
 				}
-				else if ((ch == 's') && ((data["sign-id"].Value as string).StartsWith("No: ") == false))
+				else if ((ch == 's') && ((data["sign-id"].Value as string).StartsWithInv("No: ") == false))
 				{
 					Answer.RemoveKey("allow");
 					Answer["type"].Value = "sign";

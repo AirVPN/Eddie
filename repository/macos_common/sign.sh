@@ -71,6 +71,8 @@ if [ ${VARSTAFF} = "yes" ]; then
         # See comment in macos_portable/build.sh
 
         if [ ${VARHARDENING} = "yes" ]; then
+            echo test
+            echo codesign -d -v --force --entitlements "${SCRIPTDIR}/Entitlements.plist" --options=runtime --sign "${APPLEID}" "${VARPATH}"    
             codesign -d -v --force --entitlements "${SCRIPTDIR}/Entitlements.plist" --options=runtime --sign "${APPLEID}" "${VARPATH}"    
         else
             codesign -d -v --force --sign "${APPLEID}" "${VARPATH}"

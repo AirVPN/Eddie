@@ -327,9 +327,9 @@ namespace Eddie.UI.Cocoa.Osx
 			CboOpenVpnSndBuf.AddItem("256 KB");
 			CboOpenVpnSndBuf.AddItem("512 KB");
 
-			// Network Lock
+            // Network Lock
 
-			CmdLockHelp.Activated += (object sender, EventArgs e) =>
+            CmdLockHelp.Activated += (object sender, EventArgs e) =>
 			{
                 GuiUtils.OpenUrl(UiClient.Instance.Data["links"]["help"]["netlock"].Value as string);
 			};
@@ -395,7 +395,7 @@ namespace Eddie.UI.Cocoa.Osx
 				}
 			};
 
-			// Directives
+			// OpenVPN Directives
 			CboOpenVpnDirectivesSkipDefault.RemoveAllItems();
 			CboOpenVpnDirectivesSkipDefault.AddItem(LanguageManager.GetText(LanguageItems.WindowsSettingsOpenVpnDirectivesDefaultSkip1));
 			CboOpenVpnDirectivesSkipDefault.AddItem(LanguageManager.GetText(LanguageItems.WindowsSettingsOpenVpnDirectivesDefaultSkip2));
@@ -408,9 +408,18 @@ namespace Eddie.UI.Cocoa.Osx
 				GuiUtils.SelectFile(this.Window, TxtOpenVpnDirectivesCustomPath);
 			};
 
-			// Events
+			// WireGuard
 
-			TableAdvancedEvents.DoubleClick += (object sender, EventArgs e) =>
+            CboWireGuardMTU.RemoveAllItems();
+            CboWireGuardMTU.AddItem("Recommended (1320)");
+            CboWireGuardMTU.AddItem("Omit (WG automatic)");
+            CboWireGuardMTU.AddItem("1400");
+            CboWireGuardMTU.AddItem("1320");
+            CboWireGuardMTU.AddItem("1280");
+
+            // Events
+
+            TableAdvancedEvents.DoubleClick += (object sender, EventArgs e) =>
 			{
 				AdvancedEventEdit();
 			};
@@ -489,8 +498,9 @@ namespace Eddie.UI.Cocoa.Osx
 
 			WindowPreferencesRouteController.Item = item;
 			WindowPreferencesRouteController dlg = new WindowPreferencesRouteController();
-			dlg.Window.ReleasedWhenClosed = true;
-			NSApplication.SharedApplication.RunModalForWindow(dlg.Window);
+			//dlg.Window.ReleasedWhenClosed = true;
+			dlg.Window.ReleaseWhenClosed(true);
+            NSApplication.SharedApplication.RunModalForWindow(dlg.Window);
 			dlg.Window.Close();
 
 			if (dlg.Accepted)
@@ -511,8 +521,9 @@ namespace Eddie.UI.Cocoa.Osx
 
 				WindowPreferencesRouteController.Item = item;
 				WindowPreferencesRouteController dlg = new WindowPreferencesRouteController();
-				dlg.Window.ReleasedWhenClosed = true;
-				NSApplication.SharedApplication.RunModalForWindow(dlg.Window);
+                //dlg.Window.ReleasedWhenClosed = true;
+                dlg.Window.ReleaseWhenClosed(true);
+                NSApplication.SharedApplication.RunModalForWindow(dlg.Window);
 				dlg.Window.Close();
 
 				TableRoutingController.RefreshUI();
@@ -535,8 +546,9 @@ namespace Eddie.UI.Cocoa.Osx
 		{
 			WindowPreferencesIpController.Ip = "";
 			WindowPreferencesIpController dlg = new WindowPreferencesIpController();
-			dlg.Window.ReleasedWhenClosed = true;
-			NSApplication.SharedApplication.RunModalForWindow(dlg.Window);
+            //dlg.Window.ReleasedWhenClosed = true;
+            dlg.Window.ReleaseWhenClosed(true);
+            NSApplication.SharedApplication.RunModalForWindow(dlg.Window);
 			dlg.Window.Close();
 
 			if (dlg.Accepted)
@@ -568,8 +580,9 @@ namespace Eddie.UI.Cocoa.Osx
 
 				WindowPreferencesIpController.Ip = dns;
 				WindowPreferencesIpController dlg = new WindowPreferencesIpController();
-				dlg.Window.ReleasedWhenClosed = true;
-				NSApplication.SharedApplication.RunModalForWindow(dlg.Window);
+                //dlg.Window.ReleasedWhenClosed = true;
+                dlg.Window.ReleaseWhenClosed(true);
+                NSApplication.SharedApplication.RunModalForWindow(dlg.Window);
 				dlg.Window.Close();
 
 				if (dlg.Accepted)
@@ -588,9 +601,10 @@ namespace Eddie.UI.Cocoa.Osx
 
 			WindowPreferencesEventController.Item = TableAdvancedEventsController.Items[(int)index];
 			WindowPreferencesEventController dlg = new WindowPreferencesEventController();
-			dlg.Window.ReleasedWhenClosed = true;
+            //dlg.Window.ReleasedWhenClosed = true;
+            dlg.Window.ReleaseWhenClosed(true);
 
-			NSApplication.SharedApplication.RunModalForWindow(dlg.Window);
+            NSApplication.SharedApplication.RunModalForWindow(dlg.Window);
 			dlg.Window.Close();
 
 			TableAdvancedEventsController.RefreshUI();
@@ -985,8 +999,24 @@ namespace Eddie.UI.Cocoa.Osx
 			//GuiUtils.SetCheck(ChkOpenVpnDirectivesAllowScriptSecurity, o.GetBool("openvpn.allow.script-security"));
 			GuiUtils.SetCheck(ChkOpenVpnDirectivesChaCha, o.GetBool("openvpn.directives.chacha20"));
 
-			// Events
-			ReadOptionsEvent("app.start", 0);
+            // WireGuard
+
+            string wireguardInterfaceMTU = o.Get("wireguard.interface.mtu");
+			if (wireguardInterfaceMTU == "-1")
+				GuiUtils.SetSelected(CboWireGuardMTU, "Recommended (1320)");
+			else if (wireguardInterfaceMTU == "0")
+				GuiUtils.SetSelected(CboWireGuardMTU, "Omit (WG automatic)");
+			else if (wireguardInterfaceMTU == "1400")
+				GuiUtils.SetSelected(CboWireGuardMTU, "1400");
+			else if (wireguardInterfaceMTU == "1320")
+				GuiUtils.SetSelected(CboWireGuardMTU, "1320");
+			else if (wireguardInterfaceMTU == "1280")
+				GuiUtils.SetSelected(CboWireGuardMTU, "1280");
+			else
+				GuiUtils.SetSelected(CboWireGuardMTU, "Recommended (1320)");
+
+            // Events
+            ReadOptionsEvent("app.start", 0);
 			ReadOptionsEvent("app.stop", 1);
 			ReadOptionsEvent("session.start", 2);
 			ReadOptionsEvent("session.stop", 3);
@@ -1339,8 +1369,23 @@ namespace Eddie.UI.Cocoa.Osx
 			//s.Set("openvpn.allow.script-security", GuiUtils.GetCheck(ChkOpenVpnDirectivesAllowScriptSecurity));
 			o.SetBool("openvpn.directives.chacha20", GuiUtils.GetCheck(ChkOpenVpnDirectivesChaCha));
 
-			// Events
-			SaveOptionsEvent("app.start", 0);
+			// WireGuard
+			string wireguardInterfaceMTU = GuiUtils.GetSelected(CboWireGuardMTU);
+            if (wireguardInterfaceMTU == "Recommended (1320)")
+                o.Set("wireguard.interface.mtu", "-1");
+            else if (wireguardInterfaceMTU == "Omit (WG automatic)")
+                o.Set("wireguard.interface.mtu", "0");
+            else if (wireguardInterfaceMTU == "1400")
+                o.Set("wireguard.interface.mtu", "1400");
+            else if (wireguardInterfaceMTU == "1320")
+                o.Set("wireguard.interface.mtu", "1320");
+            else if (wireguardInterfaceMTU == "1280")
+                o.Set("wireguard.interface.mtu", "1280");
+            else
+                o.Set("wireguard.interface.mtu", "-1");
+
+            // Events
+            SaveOptionsEvent("app.start", 0);
 			SaveOptionsEvent("app.stop", 1);
 			SaveOptionsEvent("session.start", 2);
 			SaveOptionsEvent("session.stop", 3);

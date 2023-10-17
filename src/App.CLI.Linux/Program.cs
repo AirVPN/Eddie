@@ -19,9 +19,9 @@
 using System;
 using Eddie.Core;
 
-namespace Eddie.CLI.Linux
+namespace Eddie.App.CLI.Linux
 {
-	class MainClass
+	internal sealed class Program
 	{
 		private static Core.ConsoleEdition.UiClient m_client;
 
@@ -31,7 +31,7 @@ namespace Eddie.CLI.Linux
 
 			Core.Platform.Instance = new Eddie.Platform.Linux.Platform();
 
-			m_client = new Core.ConsoleEdition.UiClient();
+            m_client = new Core.ConsoleEdition.UiClient();
 			m_client.Init(Environment.CommandLine);
 		}
 

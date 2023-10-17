@@ -950,8 +950,7 @@ std::string Impl::GetRoutesAsJson()
 					fields.push_back("");
 				if (fields.size() == header.size())
 				{
-					std::map<std::string, std::string> keypairs;
-					std::cout << "myline OK:" + line << "\n";
+					std::map<std::string, std::string> keypairs;					
 					for (int f = 0; f < fields.size(); f++)
 						keypairs[StringToLower(header[f])] = fields[f];
 

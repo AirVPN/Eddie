@@ -680,6 +680,9 @@ int IPosix::SocketGetLastErrorCode()
 
 bool IPosix::CheckIfExecutableIsAllowed(const std::string& path, const bool& throwException)
 {
+#if defined(Debug) || defined(_DEBUG)
+	return true;
+#endif	
 	std::string issues = "";
 
 	if (CheckIfExecutableIsWhitelisted(path)) // If true, skip other checks.

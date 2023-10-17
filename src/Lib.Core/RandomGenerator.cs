@@ -31,6 +31,9 @@ namespace Eddie.Core
 			return m_randomSeed.Next(minValue, maxValue);
 		}
 
+		// TOCLEAN
+		/*
+
 		public static byte[] GetBuffer(int length)
 		{
 			RNGCryptoServiceProvider rng = null;
@@ -50,10 +53,21 @@ namespace Eddie.Core
 					rng.Dispose();
 			}
 		}
+		*/
+
+		public static byte[] GetBuffer(int length)
+		{
+			using (RandomNumberGenerator rng = RandomNumberGenerator.Create())
+			{
+				byte[] output = new byte[length];
+				rng.GetBytes(output);
+				return output;
+			}
+		}
 
 		public static string GetHash()
 		{
-			string h = BitConverter.ToString(GetBuffer(32)).Replace("-", "").ToLower();
+			string h = BitConverter.ToString(GetBuffer(32)).Replace("-", "").ToLowerInvariant();
 			return h;
 		}
 
@@ -65,7 +79,7 @@ namespace Eddie.Core
 		// Used for profile ID, must be always 32 chars for compatibility (v2*)
 		public static string GetRandomId64()
 		{
-			string h = BitConverter.ToString(GetBuffer(32)).Replace("-", "").ToLower();
+			string h = BitConverter.ToString(GetBuffer(32)).Replace("-", "").ToLowerInvariant();
 			return h;
 		}
 

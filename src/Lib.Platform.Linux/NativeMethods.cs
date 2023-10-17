@@ -33,6 +33,7 @@ namespace Eddie.Platform.Linux
 			Mode0644 = 33188
 		}
 
+#if !EDDIE_DOTNET
 		public enum Signum
 		{
 			SIGHUP = 1,
@@ -71,6 +72,15 @@ namespace Eddie.Platform.Linux
 			SIGSYS = 31,
 			SIGUNUSED = 31
 		}
+
+		public delegate void eddie_sighandler(int signum);
+		[DllImport(NativeLibName)]
+		private static extern void eddie_signal(int signum, eddie_sighandler handler);
+		public static void Signal(int signum, eddie_sighandler handler)
+		{
+			eddie_signal(signum, handler);
+		}
+#endif
 
 		[DllImport(NativeLibName)]
 		private static extern int eddie_init();
@@ -119,15 +129,7 @@ namespace Eddie.Platform.Linux
 		public static int PipeWrite(string filename, string data)
 		{
 			return eddie_pipe_write(filename, data);
-		}
-
-		public delegate void eddie_sighandler(int signum);
-		[DllImport(NativeLibName)]
-		private static extern void eddie_signal(int signum, eddie_sighandler handler);
-		public static void Signal(int signum, eddie_sighandler handler)
-		{
-			eddie_signal(signum, handler);
-		}
+		}		
 
 		[DllImport(NativeLibName)]
 		private static extern int eddie_kill(int pid, int sig);
@@ -150,8 +152,10 @@ namespace Eddie.Platform.Linux
 				throw new Exception("curl unexpected json error");
 		}
 
+#if !EDDIE_DOTNET
 		[DllImport("__Internal", EntryPoint = "mono_get_runtime_build_info")]
 		public extern static string GetMonoVersion();
+#endif
 
 		[DllImport("libc")]
 		public static extern uint getuid();

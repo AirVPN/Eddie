@@ -40,7 +40,10 @@
 #include <net/if.h> // used by eddie_get_realtime_network_stats
 #include <net/route.h> // used by eddie_get_realtime_network_stats
 
+#include <Security/Security.h> // used by credential keyring
+
 #include <curl/curl.h> // Debian: libcurl4-openssl-dev
+
 #include "json.hpp"
 using json = nlohmann::json;
 
@@ -90,10 +93,12 @@ extern "C" {
 		return chmod(filename, (mode_t)mode);
 	}
 
+	/*
 	int eddie_file_set_mode_str(const char* filename, const char* mode)
 	{
 		return eddie_file_set_mode(filename, (int)strtol(mode, NULL, 8));
 	}
+	*/
 
 	int eddie_file_get_immutable(const char* filename)
 	{
@@ -228,7 +233,6 @@ extern "C" {
 		json jsonResponse;
 
 		CURL* hcurl;
-		//struct curl_slist *headersList = NULL;
 		struct curl_slist* resolveList = NULL;
 		CURLcode res;
 
@@ -254,6 +258,8 @@ extern "C" {
 				curl_easy_setopt(hcurl, CURLOPT_WRITEFUNCTION, eddie_curl_writecallback);
 				curl_easy_setopt(hcurl, CURLOPT_WRITEDATA, &bufferBody);
 				curl_easy_setopt(hcurl, CURLOPT_NOPROGRESS, 1L);
+
+				curl_easy_setopt(hcurl, CURLOPT_TIMEOUT, jsonRequest["timeout"].get<int>());
 
 				curl_easy_setopt(hcurl, CURLOPT_USERAGENT, std::string(jsonRequest["useragent"]).c_str());
 
@@ -282,8 +288,6 @@ extern "C" {
 					if (jsonRequest["proxyuserpwd"] != "")
 						curl_easy_setopt(hcurl, CURLOPT_PROXYUSERPWD, std::string(jsonRequest["proxyuserpwd"]).c_str());
 				}
-
-				//curl_easy_setopt(hcurl, CURLOPT_HTTPHEADER, headersList);
 
 				res = curl_easy_perform(hcurl);
 				if (res != CURLE_OK)
@@ -318,8 +322,7 @@ extern "C" {
 
 			if (hcurl)
 				curl_easy_cleanup(hcurl);
-			//if(headersList)
-			//    curl_slist_free_all(headersList);
+			
 			if (resolveList)
 				curl_slist_free_all(resolveList);
 		}
@@ -331,6 +334,81 @@ extern "C" {
 		strcpy(jResult, jResultStr.c_str());
 	}
 
+	void eddie_credential_system_read(const char* serviceName, const char* accountName, unsigned int outputMax, char* output)
+	{
+		UInt32 passwordLength = 0;
+		void* passwordData = NULL;
+
+		OSStatus status = SecKeychainFindGenericPassword(
+			NULL,                                // default keychain
+			strlen(serviceName),                 // length of service name
+			serviceName,                 		 // service name
+			strlen(accountName),                 // length of account name
+			accountName,                         // account name
+			&passwordLength,                     // length of password
+			&passwordData,                       // pointer to password data
+			NULL                                 // the item reference
+		);
+
+		if (status == errSecSuccess && passwordData != NULL) {
+			size_t copyLength = (passwordLength < outputMax) ? passwordLength : outputMax - 1;
+			strncpy(output, (char*)passwordData, copyLength);
+			output[copyLength] = '\0';
+			SecKeychainItemFreeContent(NULL, passwordData);
+		}		
+	}
+
+	bool eddie_credential_system_write(const char* serviceName, const char* accountName, const char* value)
+	{
+		OSStatus status = SecKeychainAddGenericPassword(
+			NULL, 
+			strlen(serviceName),
+			serviceName,
+			strlen(accountName),
+			accountName,
+			strlen(value),
+			value,
+			NULL
+		);
+
+		return (status == errSecSuccess);
+	}
+
+	bool eddie_credential_system_delete(const char* serviceName, const char* accountName)
+	{		
+		OSStatus status;
+		SecKeychainItemRef item = nullptr;
+
+		CFMutableDictionaryRef query = CFDictionaryCreateMutable(kCFAllocatorDefault, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+		CFDictionaryAddValue(query, kSecClass, kSecClassGenericPassword);
+		CFDictionaryAddValue(query, kSecAttrService, CFStringCreateWithCString(kCFAllocatorDefault, serviceName, kCFStringEncodingUTF8));
+		CFDictionaryAddValue(query, kSecAttrAccount, CFStringCreateWithCString(kCFAllocatorDefault, accountName, kCFStringEncodingUTF8));
+		CFDictionaryAddValue(query, kSecReturnRef, kCFBooleanTrue);
+
+		status = SecItemCopyMatching(query, (CFTypeRef*)&item);
+		
+		if (status == errSecSuccess) 
+		{
+			status = SecKeychainItemDelete(item);
+			CFRelease(item);
+			if (status == errSecSuccess) {
+				return true;
+			} else {
+				return false;
+			}
+		} 
+		else if (status == errSecItemNotFound) 
+		{
+			return true;
+		} 
+		else 
+		{
+			return false;
+		}
+
+		CFRelease(query);
+	}
+		
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __cplusplus

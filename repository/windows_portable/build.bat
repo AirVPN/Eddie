@@ -42,21 +42,45 @@ IF EXIST "!VARDEPLOYPATH!" (
 
 echo Step: Cleanup
 
-IF EXIST "!VARTARGETDIR!" (
-	rmdir /s /q "!VARTARGETDIR!" 
+rmdir "!VARTARGETDIR!" /S /Q 2>nul
+
+rmdir "!VARSCRIPTDIR!\..\..\src\Lib.Core\bin" /S /Q 2>nul
+rmdir "!VARSCRIPTDIR!\..\..\src\Lib.Core\obj" /S /Q 2>nul
+rmdir "!VARSCRIPTDIR!\..\..\src\Lib.Platform.Windows\bin" /S /Q 2>nul
+rmdir "!VARSCRIPTDIR!\..\..\src\Lib.Platform.Windows\obj" /S /Q 2>nul
+
+IF "!VARFRAMEWORK!"=="net7" (
+	rmdir "!VARSCRIPTDIR!\..\..\App.CLI\bin" /S /Q 2>nul
+	rmdir "!VARSCRIPTDIR!\..\..\App.CLI\obj" /S /Q 2>nul	
+) ELSE IF "!VARFRAMEWORK!"=="net4" (
+	rmdir "!VARSCRIPTDIR!\..\..\App.Forms.Windows\bin" /S /Q 2>nul
+	rmdir "!VARSCRIPTDIR!\..\..\App.Forms.Windows\obj" /S /Q 2>nul
+
+	rmdir "!VARSCRIPTDIR!\..\..\Lib.Forms\bin" /S /Q 2>nul
+	rmdir "!VARSCRIPTDIR!\..\..\Lib.Forms\obj" /S /Q 2>nul
+
+	rmdir "!VARSCRIPTDIR!\..\..\Lib.Forms.Skin\bin" /S /Q 2>nul
+	rmdir "!VARSCRIPTDIR!\..\..\Lib.Forms.Skin\obj" /S /Q 2>nul
 )
 	
 echo Step: Compilation
 
 set VARARCHCOMPILE=!VARARCH!
 
-CALL "!VARSCRIPTDIR!\..\windows_common\compile.bat" !VARPROJECT! !VARARCH! !VARFRAMEWORK! || goto :error
+call "!VARSCRIPTDIR!\..\windows_common\compile.bat" !VARPROJECT! !VARARCH! !VARFRAMEWORK! || goto :error
 
 echo Step: Copying
 
 mkdir !VARTARGETDIR!
 
-IF "!VARFRAMEWORK!"=="net4" (
+IF "!VARFRAMEWORK!"=="net7" (
+	IF "!VARPROJECT!"=="cli" (
+		echo copy !VARSCRIPTDIR!\..\..\src\App.CLI\bin\!VARCONFIG!\net7.0\win-x64\publish\* !VARTARGETDIR! || goto :error
+		copy !VARSCRIPTDIR!\..\..\src\App.CLI\bin\!VARCONFIG!\net7.0\win-x64\publish\* !VARTARGETDIR! || goto :error		
+	) ELSE IF "!VARPROJECT!"=="ui" (
+		echo WIP		
+	)	
+) ELSE IF "!VARFRAMEWORK!"=="net4" (
 	IF "!VARPROJECT!"=="cli" (
 		copy !VARSCRIPTDIR!\..\..\src\App.CLI.Windows\bin\!VARARCHCOMPILE!\!VARCONFIG!\* !VARTARGETDIR! || goto :error
 		move !VARTARGETDIR!\App.CLI.Windows.exe !VARTARGETDIR!\Eddie-CLI.exe || goto :error	
@@ -65,48 +89,24 @@ IF "!VARFRAMEWORK!"=="net4" (
 		copy !VARSCRIPTDIR!\..\..\src\App.Forms.Windows\bin\!VARARCHCOMPILE!\!VARCONFIG!\* !VARTARGETDIR! || goto :error
 		move !VARTARGETDIR!\App.Forms.Windows.exe !VARTARGETDIR!\Eddie-UI.exe || goto :error
 	)
-) ELSE IF "!VARFRAMEWORK!"=="net6" (
-	IF "!VARPROJECT!"=="cli" (
-		copy !VARSCRIPTDIR!\..\..\src\App.CLI.Windows\bin\!VARARCHCOMPILE!\!VARCONFIG!\net6.0\win-x64\publish\* !VARTARGETDIR! || goto :error
-		rem move !VARTARGETDIR!\App.CLI.Windows.exe !VARTARGETDIR!\Eddie-CLI.exe || goto :error	
-	) ELSE IF "!VARPROJECT!"=="ui" (
-		copy !VARSCRIPTDIR!\..\..\src\App.CLI.Windows\bin\!VARARCHCOMPILE!\!VARCONFIG!\net6.0\win-x64\publish\Eddie-CLI.exe !VARTARGETDIR!\Eddie-CLI.exe || goto :error
-		echo look for !VARSCRIPTDIR!\..\..\src\App.Forms.Windows\bin\!VARARCHCOMPILE!\!VARCONFIG!\net6.0-windows\win-x64\publish
-		copy !VARSCRIPTDIR!\..\..\src\App.Forms.Windows\bin\!VARARCHCOMPILE!\!VARCONFIG!\net6.0-windows\win-x64\publish\* !VARTARGETDIR! || goto :error
-		rem move !VARTARGETDIR!\App.Forms.Windows.exe !VARTARGETDIR!\Eddie-UI.exe || goto :error
-	) ELSE IF "!VARPROJECT!"=="ui3" (
-		copy !VARSCRIPTDIR!\..\..\src\UI.WPF.Windows\bin\!VARARCHCOMPILE!\!VARCONFIG!\net6.0\win-x64\publish\* !VARTARGETDIR! || goto :error
-		rem move !VARTARGETDIR!\UI.WPF.Windows.exe !VARTARGETDIR!\Eddie-UI.exe || goto :error
-	)
 )
 
 rem Resources
 echo Step: Resources
 copy !VARSCRIPTDIR!\..\..\deploy\!VAROS!_!VARARCH!\* !VARTARGETDIR! || goto :error
 robocopy !VARSCRIPTDIR!\..\..\common !VARTARGETDIR!\res /E
-
-IF "!VARPROJECT!"=="ui3" (
-	robocopy !VARSCRIPTDIR!\..\..\src\UI.WPF.Windows\bin\!VARARCHCOMPILE!\!VARCONFIG!\runtimes !VARTARGETDIR!\runtimes /E
-)
  
 rem Cleanup
 echo Step: Cleanup
-del !VARTARGETDIR!\*.profile 2> nul
-del !VARTARGETDIR!\*.pdb 2> nul
-del !VARTARGETDIR!\*.config 2> nul
-del !VARTARGETDIR!\temp.* 2> nul
-del !VARTARGETDIR!\Recovery.xml 2> nul
-del !VARTARGETDIR!\mono_crash.* 2> nul
-del !VARTARGETDIR!\*.xml 2> nul
-rem rmdir /s /q !VARTARGETDIR!\res\providers
+del !VARTARGETDIR!\*.profile 2>nul
+del !VARTARGETDIR!\*.pdb 2>nul
+del !VARTARGETDIR!\*.config 2>nul
+del !VARTARGETDIR!\temp.* 2>nul
+del !VARTARGETDIR!\Recovery.xml 2>nul
+del !VARTARGETDIR!\mono_crash.* 2>nul
+del !VARTARGETDIR!\*.xml 2>nul
 
-IF "!VARPROJECT!"=="cli" (
-	rmdir /s /q !VARTARGETDIR!\res\webui
-) ELSE IF "!VARPROJECT!"=="ui" (
-	rmdir /s /q !VARTARGETDIR!\res\webui	
-) ELSE IF "!VARPROJECT!"=="ui3" (
-	rmdir /s /q !VARTARGETDIR!\res\xx
-) 
+rmdir "!VARTARGETDIR!\res\webui" /S /Q 2>nul
 
 rem Signing
 

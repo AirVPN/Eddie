@@ -185,7 +185,7 @@ namespace Eddie.Core
 			}
 
 			string origin = context.Request.Headers["Origin"];
-			if ((requestHeaders.ContainsKey("origin")) && (requestHeaders["origin"].StartsWith(ListenUrl) == false))
+			if ((requestHeaders.ContainsKey("origin")) && (requestHeaders["origin"].StartsWithInv(ListenUrl) == false))
 			{
 				List<string> hostsAllowed = new List<string>(); // Option?
 				hostsAllowed.Add("127.0.0.1");

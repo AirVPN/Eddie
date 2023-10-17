@@ -26,11 +26,14 @@ set VARARCHCOMPILE=!VARARCH!
 
 echo Compilation
 
-IF "!VARFRAMEWORK!"=="net4" (
+IF "!VARFRAMEWORK!"=="net7" (
+	dotnet build "!VARSCRIPTDIR!\..\..\src\App.CLI\App.CLI.net7.csproj" --verbosity normal --runtime win-!VARARCH! --configuration Release
+) ELSE IF "!VARFRAMEWORK!"=="net4" (
+
 	set VARMSBUILD="C:\Program Files\Microsoft Visual Studio\2022\Community\Msbuild\Current\Bin\MSBuild.exe"
 	set VARTARGETFRAMEWORK="v4.8"
 	
-	set VARRULESETPATH="!VARSCRIPTDIR!\..\..\tools\ruleset\norules.ruleset"
+	set VARRULESETPATH="!VARSCRIPTDIR!\..\..\src\ruleset\norules.ruleset"
 
 	IF "!VARPROJECT!"=="cli" (
 		set VARSOLUTIONPATH="!VARSCRIPTDIR!\..\..\src\eddie.windows.cli.sln"
@@ -39,31 +42,7 @@ IF "!VARFRAMEWORK!"=="net4" (
 	)
 
 	!VARMSBUILD! /verbosity:minimal /property:CodeAnalysisRuleSet=!VARRULESETPATH! /p:Configuration=!VARCONFIG! /p:Platform=!VARARCHCOMPILE! /p:TargetFrameworkVersion=!VARTARGETFRAMEWORK! /t:Rebuild !VARSOLUTIONPATH! /p:DefineConstants="EDDIENET4" || goto :error	
-) ELSE IF "!VARFRAMEWORK!"=="net6" (
-
-	IF "!VARPROJECT!"=="cli" (
-		set VARSOLUTIONPATH="!VARSCRIPTDIR!\..\..\src\eddie.windows.cli.net6.sln"
-	) ELSE IF "!VARPROJECT!"=="ui" (
-		set VARSOLUTIONPATH="!VARSCRIPTDIR!\..\..\src\eddie2.windows.ui.net6.sln"
-	) ELSE IF "!VARPROJECT!"=="ui3" (
-		set VARSOLUTIONPATH="!VARSCRIPTDIR!\..\..\src\eddie3.windows.ui.net6.sln"
-	)
-	
-	rem dotnet publish !VARSOLUTIONPATH! --configuration !VARCONFIG! --runtime win-x64 --self-contained true -p:PublishSingleFile=true -p:DefineConstants="EDDIENET6"	
-	rem dotnet publish !VARSOLUTIONPATH! --configuration !VARCONFIG! --runtime win-x64 --self-contained true -p:DefineConstants="EDDIENET6"
-
-	rem dotnet publish !VARSOLUTIONPATH! --configuration !VARCONFIG! --runtime win-x64 --self-contained true -p:DefineConstants="EDDIENET6"
-	dotnet publish !VARSOLUTIONPATH! --configuration !VARCONFIG! --runtime win-x64 --self-contained true -p:PublishTrimmed=true -p:EnableCompressionInSingleFile=true -p:DefineConstants="EDDIENET6"
 )
-
-rem Dont need, VS already launch postbuild.bat event (under Linux / macOS , xbuild/msbuild dont do the same)
-rem IF "!VARPROJECT!"=="cli" (
-rem 	CALL !VARSCRIPTDIR!\..\..\src\eddie.windows.postbuild.bat !VARSCRIPTDIR!\..\..\src\App.CLI.Windows\bin\!VARARCHCOMPILE!\!VARCONFIG!/ !VARPROJECT! !VARARCH! !VARCONFIG! || goto :error
-rem ) ELSE IF "!VARPROJECT!"=="ui" (
-rem 	CALL !VARSCRIPTDIR!\..\..\src\eddie.windows.postbuild.bat !VARSCRIPTDIR!\..\..\src\App.Forms.Windows\bin\!VARARCHCOMPILE!\!VARCONFIG!/ !VARPROJECT! !VARARCH! !VARCONFIG! || goto :error
-rem ) ELSE IF "!VARPROJECT!"=="ui3" (
-rem 	CALL !VARSCRIPTDIR!\..\..\src\eddie.windows.postbuild.bat !VARSCRIPTDIR!\..\..\src\UI.WPF.Windows\bin\!VARARCHCOMPILE!\!VARCONFIG!/ !VARPROJECT! !VARARCH! !VARCONFIG! || goto :error
-rem )
 
 :done
 exit /b 0

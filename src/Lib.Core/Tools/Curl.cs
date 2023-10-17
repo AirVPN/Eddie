@@ -78,7 +78,7 @@ namespace Eddie.Core.Tools
 				{
 					if (dataParameters != "")
 						dataParameters += "&";
-					dataParameters += SystemExec.EscapeAlphaNumeric(k) + "=" + Uri.EscapeUriString(request.Parameters[k]);
+					dataParameters += SystemExec.EscapeAlphaNumeric(k) + "=" + Uri.EscapeDataString(request.Parameters[k]);
 				}
 			}
 

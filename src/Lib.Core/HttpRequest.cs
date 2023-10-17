@@ -39,7 +39,7 @@ namespace Eddie.Core
 			{
 				if (j["postfields"].ValueString != "")
 					j["postfields"].Value += "&";
-				j["postfields"].Value += Uri.EscapeUriString(k) + "=" + Uri.EscapeUriString(Parameters[k]);
+				j["postfields"].Value += Uri.EscapeDataString(k) + "=" + Uri.EscapeDataString(Parameters[k]);
 			}
 
 			j["iplayer"].Value = IpLayer;

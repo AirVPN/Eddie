@@ -691,6 +691,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets" />
 	<Target Name="BeforeBuild">
-		<Exec Command="&quot;$(SolutionDir)/eddie.macos.prebuild.sh&quot; &quot;$(TargetDir)&quot; ui $(Platform) $(Configuration)" />
+		<Exec Command="&quot;$(SolutionDir)/macos_prebuild.sh&quot; &quot;$(TargetDir)&quot; ui $(Platform) $(Configuration)" />
 	</Target>
 </Project>

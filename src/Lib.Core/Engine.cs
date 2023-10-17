@@ -275,7 +275,7 @@ namespace Eddie.Core
 					}
 				}
 
-				Logs.Log(LogType.Verbose, "Eddie version: " + GetVersionShow() + " / " + Platform.Instance.GetSystemCode() + ", System: " + Platform.Instance.GetCode() + ", Name: " + Platform.Instance.GetName() + ", Version: " + Platform.Instance.GetVersion() + ", Mono/.Net: " + Platform.Instance.GetNetFrameworkVersion());
+				Logs.Log(LogType.Verbose, "Eddie version: " + GetVersionShow() + " / " + Platform.Instance.GetSystemCode() + ", System: " + Platform.Instance.GetCode() + ", Name: " + Platform.Instance.GetName() + ", Version: " + Platform.Instance.GetVersion() + ", Framework: " + Platform.Instance.GetNetFrameworkVersion());
 				if (StartCommandLine.Params.Count != 0)
 					Logs.Log(LogType.Verbose, "Command line arguments (" + StartCommandLine.Params.Count.ToString() + "): " + StartCommandLine.GetFull());
 
@@ -761,6 +761,7 @@ namespace Eddie.Core
 		public string GetPathTools()
 		{
 			string pathTools = StartCommandLine.Get("path.tools", "");
+			pathTools = pathTools.Replace("{@arch}", Platform.Instance.GetOsArchitecture());
 			if (pathTools == "")
 				pathTools = Platform.Instance.GetApplicationPath();
 			else
@@ -1316,14 +1317,14 @@ namespace Eddie.Core
 			bool ignore = false;
 			string stackTrace = ex.StackTrace.ToString();
 
-			if (stackTrace.IndexOf("System.Windows.Forms.XplatUIX11") != -1)
+			if (stackTrace.Contains("System.Windows.Forms.XplatUIX11"))
 			{
 				// Mono bug https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=742774
 				// Mono bug https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=727651
 				ignore = true;
 			}
 
-			if (stackTrace.IndexOf("System.Windows.Forms.ToolStripItem.OnParentChanged") != -1)
+			if (stackTrace.Contains("System.Windows.Forms.ToolStripItem.OnParentChanged"))
 			{
 				// Mono bug https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=742774
 				// Mono bug https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=727651
@@ -2033,7 +2034,7 @@ namespace Eddie.Core
 				Manifest["os"].Value = jOs;
 				jOs["code"].Value = Platform.Instance.GetSystemCode();
 				jOs["name"].Value = Platform.Instance.GetName();
-				jOs["mono"].Value = Platform.Instance.GetNetFrameworkVersion();
+				jOs["framework"].Value = Platform.Instance.GetNetFrameworkVersion();
 
 				Json jVersion = new Json();
 				Manifest["version"].Value = jVersion;

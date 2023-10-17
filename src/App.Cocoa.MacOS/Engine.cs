@@ -150,7 +150,8 @@ namespace Eddie.UI.Cocoa.Osx
 				new NSObject().InvokeOnMainThread(() => // BeginInvokeOnMainThread
 				{
 					WindowCredentialsController dlg = new WindowCredentialsController();
-					dlg.Window.ReleasedWhenClosed = true;
+					//dlg.Window.ReleasedWhenClosed = true;
+					dlg.Window.ReleaseWhenClosed(true);
 					NSApplication.SharedApplication.RunModalForWindow(dlg.Window);
 					dlg.Window.Close();
 

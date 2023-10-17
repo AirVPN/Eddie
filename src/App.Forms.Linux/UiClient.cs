@@ -42,9 +42,11 @@ namespace Eddie.Forms.Linux
 					Tray.CancelRequested = true;
 					Tray.SendCommand("action.exit");
 
+					/* Removed in 2.23.2, Thread.Abort deprecated // TOCLEAN
 					// Tray.Join(); // sometime don't exit...
 					if (Tray.Join(2000) == false)
 						Tray.Abort();
+					*/
 
 					Tray = null;
 				}
@@ -81,7 +83,7 @@ namespace Eddie.Forms.Linux
 						exec.Arguments.Add("--icon=dialog-error");
 					else
 						exec.Arguments.Add("--icon=dialog-information");
-					exec.Arguments.Add("\"" + SystemExec.EscapeInsideQuote(Constants.Name) + "\"");
+					exec.Arguments.Add("\"" + SystemExec.EscapeInsideQuote(Constants.Name) + "\""); // TOCHECK, DOTNET may dump quote, if yes remove with preprocessor like Platform.OsCredentialSystemDelete
 					string message = SystemExec.EscapeInsideQuote(data["message"].Value as string);
 					message = message.Trim('-'); // Hack, bad notify-send args parse of quoted string
 					exec.Arguments.Add("\"" + message + "\"");

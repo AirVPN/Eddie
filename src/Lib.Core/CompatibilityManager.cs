@@ -50,7 +50,7 @@ namespace Eddie.Core
 		public static string AdaptProfileNameOption(string name)
 		{
 			// Eddie <2.17 use an old .xml format. If anyone use "profile=my.xml", it will adapted to "profile=my.profile"
-			if (name.EndsWith(".xml.profile"))
+			if (name.EndsWithInv(".xml.profile"))
 				name = name.Replace(".xml.", ".");
 			return name;
 		}
@@ -281,10 +281,10 @@ namespace Eddie.Core
 			if (Platform.Instance.FileExists(newPath))
 				return;
 
-			if ((newPath.EndsWith("default.profile")) && (Platform.Instance.FileExists(newPath.Replace("default.profile", "AirVPN.xml"))))
+			if ((newPath.EndsWithInv("default.profile")) && (Platform.Instance.FileExists(newPath.Replace("default.profile", "AirVPN.xml"))))
 				Platform.Instance.FileMove(newPath.Replace("default.profile", "AirVPN.xml"), newPath.Replace("default.profile", "default.xml"));
 
-			if ((newPath.EndsWith("default.profile")) && (Platform.Instance.FileExists(newPath.Replace("default.profile", "default.xml"))))
+			if ((newPath.EndsWithInv("default.profile")) && (Platform.Instance.FileExists(newPath.Replace("default.profile", "default.xml"))))
 			{
 				byte[] content = Platform.Instance.FileContentsReadBytes(newPath.Replace("default.profile", "default.xml"));
 				Platform.Instance.FileContentsWriteBytes(newPath, Storage.EncodeFormat("v2n", RandomGenerator.GetRandomId64(), content, Constants.PasswordIfEmpty));

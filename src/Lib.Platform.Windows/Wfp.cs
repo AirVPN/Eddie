@@ -19,6 +19,7 @@
 using Eddie.Core;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Xml;
 
 namespace Eddie.Platform.Windows
@@ -100,7 +101,7 @@ namespace Eddie.Platform.Windows
 
 		public static bool RemoveItemId(ulong id)
 		{
-			return Conversions.ToBool(Engine.Instance.Elevated.DoCommandSync("wfp", "action", "rule-remove", "id", id.ToString()));
+			return Conversions.ToBool(Engine.Instance.Elevated.DoCommandSync("wfp", "action", "rule-remove", "id", id.ToString(CultureInfo.InvariantCulture)));
 		}
 
 		public static WfpItem AddItem(string code, XmlElement xml)

@@ -87,7 +87,7 @@ namespace Eddie.Core
 		{
 			int returnVal = 0;
 			if (field == "Name")
-				returnVal = DisplayName.CompareTo(other.DisplayName);
+				returnVal = string.Compare(DisplayName, other.DisplayName, StringComparison.InvariantCulture);
 			else if (field == "Score")
 			{
 				int v1 = this.Score();
@@ -96,7 +96,7 @@ namespace Eddie.Core
 			}
 			else if (field == "Location")
 			{
-				returnVal = GetLocationForOrdering().CompareTo(other.GetLocationForOrdering());
+				returnVal = string.Compare(GetLocationForOrdering(), other.GetLocationForOrdering(), StringComparison.InvariantCulture);
 			}
 			else if (field == "Latency")
 			{
@@ -134,7 +134,7 @@ namespace Eddie.Core
 			}
 
 			if (returnVal == 0) // Second order, Name
-				returnVal = this.DisplayName.CompareTo(other.DisplayName);
+				returnVal = string.Compare(DisplayName, other.DisplayName, StringComparison.InvariantCulture);
 
 			// Invert the value returned by String.Compare.
 			if (ascending == false)

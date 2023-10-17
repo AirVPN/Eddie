@@ -106,9 +106,9 @@ if [ ${STAFF} = "yes" ]; then
 fi
 
 # Notarization - Not need
-# if [ ${STAFF} = "yes" ]; then
-#     "${SCRIPTDIR}/../macos_common/notarize.sh" "${FINALPATH}" "org.airvpn.eddie.${PROJECT}"
-# fi
+if [ ${STAFF} = "yes" ]; then
+    "${SCRIPTDIR}/../macos_common/notarize.sh" "${FINALPATH}" "org.airvpn.eddie.${PROJECT}"
+fi
 
 # Deploy to eddie.website
 

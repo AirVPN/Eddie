@@ -32,8 +32,10 @@ namespace Eddie.Core
 		public Thread(bool start)
 		{
 			m_Thread = new System.Threading.Thread(this.DoRun);
+			/* // TOCLEAN
 			if (NeedApartmentState())
 				m_Thread.SetApartmentState(ApartmentState.STA);
+			*/
 			m_Thread.Priority = GetPriority();
 			if (start)
 				m_Thread.Start();
@@ -62,10 +64,13 @@ namespace Eddie.Core
 			return m_Thread.Join(millisecondsTimeout);
 		}
 
+		// TOCLEAN
+		/*
 		public virtual void Abort()
 		{
 			m_Thread.Abort();
 		}
+		*/
 
 		public virtual void RequestStop()
 		{
@@ -99,10 +104,12 @@ namespace Eddie.Core
 			return ThreadPriority.Normal;
 		}
 
+		/* // TOCLEAN
 		public virtual bool NeedApartmentState()
 		{
 			return false;
 		}
+		*/
 
 		public virtual void OnRun()
 		{

@@ -1,13 +1,13 @@
 # <eddie_source_header>
 # This file is part of Eddie/AirVPN software.
-# Copyright (C)2014-2022 AirVPN (support@airvpn.org) / https://airvpn.org
+# Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
 #
 # Eddie is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 # 
-#/ Eddie is distributed in the hope that it will be useful,
+# Eddie is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
@@ -16,13 +16,11 @@
 # along with Eddie. If not, see <http://www.gnu.org/licenses/>.
 # </eddie_source_header>
 
-# NOTE: Requires **VS2019 16.3** or later
-
 # Eddie Rules
 
 # There are '#pragma warning' in files directly:
 # - When related to specific scope, generally linux/Mono.
-# - CA1416 for Windows-only code (net6 dev)
+# - CA1416 for Windows-only code (net7 dev)
 
 # Code files
 [*.{cs,vb}]
@@ -30,28 +28,56 @@
 # Default severity for analyzer diagnostics - Requires **VS2019 16.5** or later
 dotnet_analyzer_diagnostic.severity = warning
 
+dotnet_analyzer_diagnostic.category-Style.severity = warning
+dotnet_analyzer_diagnostic.category-CodeQuality.severity = warning
+
 # Eddie - Right, TODO, WIP
 
-dotnet_diagnostic.IDE0001.severity = none # Simplify name
-dotnet_diagnostic.IDE0002.severity = none # Simplify member access
-dotnet_diagnostic.IDE0003.severity = none # Name can be simplified.
-dotnet_diagnostic.IDE0004.severity = none # Cast is redundant
+dotnet_diagnostic.CA2020.severity = none # Starting with .NET 7 the explicit conversion '(IntPtr)Int64' will not throw when overflowing in an unchecked context.
+dotnet_diagnostic.CA1838.severity = none # Avoid 'StringBuilder' parameters for P/Invokes. Consider using a character buffer instead.
+dotnet_diagnostic.CA2101.severity = none # Specify marshaling for P/Invoke string arguments
+dotnet_diagnostic.CA1401.severity = none # P/Invoke method 'SetConsoleCtrlHandler' should not be visible 
+dotnet_diagnostic.CA1816.severity = none # UnmanagedPointer.Dispose(bool) calls GC.SuppressFinalize(object), a method that is typically only called within an implementation of 'IDisposable.Dispose'. Refer to the IDisposable pattern for more information.
+dotnet_diagnostic.CA1001.severity = none # Type 'Platform' owns disposable field(s) 'm_mutexSingleInstance' but is not disposable 
+
+# Eddie - Right, TODO, WIP, Crypto-related
+
+dotnet_diagnostic.SYSLIB0021.severity = none # 'SHA256Managed' is obsolete: 'Derived cryptographic types are obsolete. Use the Create method on the base type instead.'
+dotnet_diagnostic.SYSLIB0022.severity = none # 'RijndaelManaged' is obsolete: 'The Rijndael and RijndaelManaged types are obsolete.
+#dotnet_diagnostic.SYSLIB0023.severity = none # 'RNGCryptoServiceProvider' is obsolete: 'RNGCryptoServiceProvider is obsolete.
+dotnet_diagnostic.SYSLIB0041.severity = none # 'Rfc2898DeriveBytes.Rfc2898DeriveBytes(string, int, int)' is obsolete
+dotnet_diagnostic.CA5379.severity = none # Rfc2898DeriveBytes might be using a weak hash algorithm.
+dotnet_diagnostic.CA1850.severity = none # Prefer static 'System.Security.Cryptography.SHA256.HashData' method over 'ComputeHash'
+
+# Eddie - Right, TODO, WIP, Style
+
+#dotnet_diagnostic.IDE0001.severity = none # Simplify name
+#dotnet_diagnostic.IDE0002.severity = none # Simplify member access
+#dotnet_diagnostic.IDE0003.severity = none # Name can be simplified.
+#dotnet_diagnostic.IDE0004.severity = none # Cast is redundant
 dotnet_diagnostic.IDE0011.severity = none # Add braces # More than 1500 point, style only
 dotnet_diagnostic.IDE0040.severity = none # Accessibility modifiers required
-dotnet_diagnostic.IDE0044.severity = none # Add readonly modifier
-dotnet_diagnostic.IDE0045.severity = none # 'if' statement can be simplified
-dotnet_diagnostic.IDE0059.severity = none # Unnecessary assignment of a value to 'x' # Generally, unnecessary var initialization
+#dotnet_diagnostic.IDE0044.severity = none # Add readonly modifier
+#dotnet_diagnostic.IDE0045.severity = none # 'if' statement can be simplified
+dotnet_diagnostic.IDE0055.severity = none # Fix formatting
+#dotnet_diagnostic.IDE0059.severity = none # Unnecessary assignment of a value to 'x' # Generally, unnecessary var initialization
 dotnet_diagnostic.IDE0060.severity = none # Remove unused parameter 'x' if it is not part of a shipped public API
-dotnet_diagnostic.IDE0100.severity = none # Remove redundant equality
+#dotnet_diagnostic.IDE0100.severity = none # Remove redundant equality
+#dotnet_diagnostic.IDE0220.severity = none # 'x' statement implicitly converts 'x' to 'x'. Add an explicit cast to make intent clearer, as it may fail at runtime
+dotnet_diagnostic.CA1853.severity = none # Do not guard 'Dictionary.Remove(key)' with 'Dictionary.ContainsKey(key)'
+dotnet_diagnostic.CA1854.severity = none  # Prefer a 'TryGetValue' call over a Dictionary indexer access guarded by a 'ContainsKey' check to avoid double lookup
+dotnet_diagnostic.CA1822.severity = none # Member 'x' does not access instance data and can be marked as static
+dotnet_diagnostic.CA2201.severity = none # Exception type System.Exception is not sufficiently specific
+dotnet_diagnostic.CA1051.severity = none # Do not declare visible instance fields
+dotnet_diagnostic.CA1711.severity = none # Either replace the suffix 'Ex' in member name MaximumEx with the suggested numeric alternate '2' or provide a more meaningful suffix that distinguishes it from the member it replaces
+dotnet_diagnostic.CA1720.severity = none # Identifier 'Guid' contains type name 
+dotnet_diagnostic.CA1507.severity = none # Use nameof in place of string literal
 
-# Eddie - Right, WIP, need test before fix
+# Eddie - net7, fix not compatible with net4, avoid conditional pragma net4 vs net7 for this for now.
 
-dotnet_diagnostic.IDE0220.severity = none # 'x' statement implicitly converts 'x' to 'x'. Add an explicit cast to make intent clearer, as it may fail at runtime
-
-# Eddie - net6, fix not compatible with net4
-#dotnet_diagnostic.CS8370.severity = none # CS8370	Feature 'target-typed object creation' is not available in C# 7.3. Please use language version 9.0 or greater.	
-dotnet_diagnostic.CA1845.severity = none # CS1061	warning CA1845: Use span-based 'string.Concat' and 'AsSpan' instead of 'Substring'
-
+dotnet_diagnostic.CA1845.severity = none # CA1845: Use span-based 'string.Concat' and 'AsSpan' instead of 'Substring'
+dotnet_diagnostic.SYSLIB1054.severity = none # NativeMethods.cs(105,31): warning SYSLIB1054: Mark the method 'x' with 'LibraryImportAttribute' instead of 'DllImportAttribute' to generate P/Invoke marshalling code at compile time
+dotnet_diagnostic.SYSLIB1045.severity = none # Use 'GeneratedRegexAttribute' to generate the regular expression implementation at compile-time.
 
 # Eddie - Right, but ignored
 
@@ -59,8 +85,7 @@ dotnet_diagnostic.IDE1006.severity = none # Naming rule violation # WinForms cod
 dotnet_diagnostic.CA1825.severity = none # CA1825: Avoid unnecessary zero-length array allocations.
 dotnet_diagnostic.CA1805.severity = none # CA1805: Member 'x' is explicitly initialized to its default value
 
-
-# Eddie - Not accepted: We prefer to avoid complex syntax, or we need to check if cause issues under Mono or Xamarin compiler
+# Eddie - Not accepted: We prefer to avoid complex syntax, or we need to check if cause issues under Mono or Xamarin compiler or delay until net4 support is dropped
 
 dotnet_diagnostic.IDE0017.severity = none # Object initialization can be simplified
 dotnet_diagnostic.IDE0018.severity = none # Inline variable declaration
@@ -78,110 +103,20 @@ dotnet_diagnostic.IDE1005.severity = none # Delegate invocation can be simplifie
 
 # Eddie - Not accepted, we don't like the suggestion
 
+dotnet_diagnostic.CA1707.severity = none # Remove the underscores from member name Eddie.Platform.Windows.NativeMethods.AF_INET 
 dotnet_diagnostic.IDE0032.severity = none # Use auto property
 dotnet_diagnostic.IDE0047.severity = none # Parentheses can be removed
 dotnet_diagnostic.IDE0048.severity = none # Parentheses should be added for clarity
 dotnet_diagnostic.IDE0049.severity = none # Name can be simplified # Suggest for example to adapt 'Int64' to 'long', still think 'Int64' is more clear.
+dotnet_diagnostic.IDE0210.severity = none # Convert to top-level statements
 
 # Eddie - False positive
 
 dotnet_diagnostic.JSON002.severity = none # Probable JSON string detected
-dotnet_diagnostic.IDE0079.severity = none # Remove unnecessary suppression # Detect CA1416 as unnecessary, but if compiled on net6 are necessary
+dotnet_diagnostic.IDE0079.severity = none # Remove unnecessary suppression # Detect CA1416 as unnecessary, but if compiled on net7 are necessary
 
-# Eddie - Old, can be removed
 
-#dotnet_diagnostic.CA1001.severity = none
-#dotnet_diagnostic.CA1002.severity = none
-#dotnet_diagnostic.CA1003.severity = none
-#dotnet_diagnostic.CA1004.severity = none
-#dotnet_diagnostic.CA1006.severity = none
-#dotnet_diagnostic.CA1008.severity = none
-#dotnet_diagnostic.CA1009.severity = none
-#dotnet_diagnostic.CA1011.severity = none
-#dotnet_diagnostic.CA1014.severity = none
-#dotnet_diagnostic.CA1020.severity = none
-#dotnet_diagnostic.CA1021.severity = none
-#dotnet_diagnostic.CA1024.severity = none
-#dotnet_diagnostic.CA1026.severity = none
-#dotnet_diagnostic.CA1030.severity = none
-#dotnet_diagnostic.CA1031.severity = none
-#dotnet_diagnostic.CA1034.severity = none
-#dotnet_diagnostic.CA1036.severity = none
-#dotnet_diagnostic.CA1045.severity = none
-#dotnet_diagnostic.CA1049.severity = none
-#dotnet_diagnostic.CA1050.severity = none
-#dotnet_diagnostic.CA1051.severity = none
-#dotnet_diagnostic.CA1053.severity = none
-#dotnet_diagnostic.CA1054.severity = none
-#dotnet_diagnostic.CA1055.severity = none
-#dotnet_diagnostic.CA1059.severity = none
-#dotnet_diagnostic.CA1060.severity = none
-#dotnet_diagnostic.CA1062.severity = none
-#dotnet_diagnostic.CA1300.severity = none
-#dotnet_diagnostic.CA1302.severity = none
-#dotnet_diagnostic.CA1303.severity = none
-#dotnet_diagnostic.CA1304.severity = none
-#dotnet_diagnostic.CA1305.severity = none
-#dotnet_diagnostic.CA1307.severity = none
-#dotnet_diagnostic.CA1308.severity = none
-#dotnet_diagnostic.CA1309.severity = none
-#dotnet_diagnostic.CA1400.severity = none
-#dotnet_diagnostic.CA1401.severity = none
-#dotnet_diagnostic.CA1404.severity = none
-#dotnet_diagnostic.CA1414.severity = none
-#dotnet_diagnostic.CA1502.severity = none
-#dotnet_diagnostic.CA1504.severity = none
-#dotnet_diagnostic.CA1505.severity = none
-#dotnet_diagnostic.CA1506.severity = none
-#dotnet_diagnostic.CA1601.severity = none
-#dotnet_diagnostic.CA1701.severity = none
-#dotnet_diagnostic.CA1702.severity = none
-#dotnet_diagnostic.CA1704.severity = none
-#dotnet_diagnostic.CA1707.severity = none
-#dotnet_diagnostic.CA1709.severity = none
-#dotnet_diagnostic.CA1710.severity = none
-#dotnet_diagnostic.CA1711.severity = none
-#dotnet_diagnostic.CA1715.severity = none
-#dotnet_diagnostic.CA1716.severity = none
-#dotnet_diagnostic.CA1717.severity = none
-#dotnet_diagnostic.CA1719.severity = none
-#dotnet_diagnostic.CA1720.severity = none
-#dotnet_diagnostic.CA1721.severity = none
-#dotnet_diagnostic.CA1724.severity = none
-#dotnet_diagnostic.CA1726.severity = none
-#dotnet_diagnostic.CA1800.severity = none
-#dotnet_diagnostic.CA1801.severity = none
-#dotnet_diagnostic.CA1804.severity = none
-#dotnet_diagnostic.CA1806.severity = none
-#dotnet_diagnostic.CA1809.severity = none
-#dotnet_diagnostic.CA1811.severity = warning
-#dotnet_diagnostic.CA1815.severity = none
-#dotnet_diagnostic.CA1816.severity = none
-#dotnet_diagnostic.CA1819.severity = none
-#dotnet_diagnostic.CA1820.severity = none
-#dotnet_diagnostic.CA1822.severity = none
-#dotnet_diagnostic.CA1823.severity = warning
-#dotnet_diagnostic.CA1824.severity = none
-#dotnet_diagnostic.CA1901.severity = none
-#dotnet_diagnostic.CA2000.severity = none
-#dotnet_diagnostic.CA2001.severity = none
-#dotnet_diagnostic.CA2002.severity = none
-#dotnet_diagnostic.CA2006.severity = none
-#dotnet_diagnostic.CA2101.severity = none
-#dotnet_diagnostic.CA2111.severity = none
-#dotnet_diagnostic.CA2200.severity = none
-#dotnet_diagnostic.CA2201.severity = none
-#dotnet_diagnostic.CA2202.severity = none
-#dotnet_diagnostic.CA2204.severity = none
-#dotnet_diagnostic.CA2205.severity = none
-#dotnet_diagnostic.CA2208.severity = none
-#dotnet_diagnostic.CA2210.severity = none
-#dotnet_diagnostic.CA2211.severity = none
-#dotnet_diagnostic.CA2213.severity = none
-#dotnet_diagnostic.CA2214.severity = none
-#dotnet_diagnostic.CA2233.severity = none
-#dotnet_diagnostic.CA2237.severity = none
-#dotnet_diagnostic.CS0219.severity = none
+
 
 
 [*.{cs,vb}]
@@ -264,3 +199,4 @@ csharp_style_expression_bodied_accessors = true:silent
 csharp_style_expression_bodied_lambdas = true:silent
 csharp_style_expression_bodied_local_functions = false:silent
 csharp_indent_labels = one_less_than_current
+

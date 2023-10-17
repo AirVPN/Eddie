@@ -167,7 +167,6 @@ extern "C" {
 		json jsonResponse;
 
 		CURL* hcurl;
-		//struct curl_slist *headersList = NULL;
 		struct curl_slist* resolveList = NULL;
 		CURLcode res;
 
@@ -194,6 +193,8 @@ extern "C" {
 				curl_easy_setopt(hcurl, CURLOPT_WRITEFUNCTION, eddie_curl_writecallback);
 				curl_easy_setopt(hcurl, CURLOPT_WRITEDATA, &bufferBody);
 				curl_easy_setopt(hcurl, CURLOPT_NOPROGRESS, 1L);
+
+				curl_easy_setopt(hcurl, CURLOPT_TIMEOUT, jsonRequest["timeout"].get<int>());
 
 				curl_easy_setopt(hcurl, CURLOPT_USERAGENT, std::string(jsonRequest["useragent"]).c_str());
 
@@ -222,8 +223,6 @@ extern "C" {
 					if (jsonRequest["proxyuserpwd"] != "")
 						curl_easy_setopt(hcurl, CURLOPT_PROXYUSERPWD, std::string(jsonRequest["proxyuserpwd"]).c_str());
 				}
-
-				//curl_easy_setopt(hcurl, CURLOPT_HTTPHEADER, headersList);
 
 				res = curl_easy_perform(hcurl);
 				if (res != CURLE_OK)
@@ -258,8 +257,7 @@ extern "C" {
 
 			if (hcurl)
 				curl_easy_cleanup(hcurl);
-			//if(headersList)
-			//    curl_slist_free_all(headersList);
+			
 			if (resolveList)
 				curl_slist_free_all(resolveList);
 		}

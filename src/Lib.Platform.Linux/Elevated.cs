@@ -18,7 +18,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Xml;
@@ -60,7 +60,7 @@ namespace Eddie.Platform.Linux
 
 					int port = GetPortSpot();
 
-					int pid = Platform.Instance.StartProcessAsRoot(helperPath, new string[] { "mode=spot", "spot_port=" + port.ToString(), "service_port=" + Engine.Instance.GetElevatedServicePort().ToString() }, Engine.Instance.ConsoleMode);
+					int pid = Platform.Instance.StartProcessAsRoot(helperPath, new string[] { "mode=spot", "spot_port=" + port.ToString(CultureInfo.InvariantCulture), "service_port=" + Engine.Instance.GetElevatedServicePort().ToString(CultureInfo.InvariantCulture) }, Engine.Instance.ConsoleMode);
 					System.Diagnostics.Process process = null;
 					if (pid > 0)
 						process = System.Diagnostics.Process.GetProcessById(pid);

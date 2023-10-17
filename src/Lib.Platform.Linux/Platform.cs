@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -25,8 +26,6 @@ using System.Text;
 using System.Threading;
 using System.Xml;
 using Eddie.Core;
-// using Mono.Unix.Native; // Removed in 2.11
-// using Mono.Unix; // Removed in 2.14.4
 
 namespace Eddie.Platform.Linux
 {
@@ -36,7 +35,9 @@ namespace Eddie.Platform.Linux
 		private string m_version = "";
 		private string m_architecture = "";
 
-		private string m_monoVersion = "2-generic";
+#if !EDDIE_DOTNET
+		private string m_monoVersion = "";
+#endif
 
 		private UInt32 m_uid = 9999;
 
@@ -55,6 +56,7 @@ namespace Eddie.Platform.Linux
 		// Override
 		public Platform()
 		{
+#if !EDDIE_DOTNET
 			try
 			{
 				m_monoVersion = NativeMethods.GetMonoVersion();
@@ -68,6 +70,7 @@ namespace Eddie.Platform.Linux
 				// Workaround for https://github.com/mono/mono/issues/6752
 				Environment.SetEnvironmentVariable("TERM", "XTERM", EnvironmentVariableTarget.Process);
 			}
+#endif
 		}
 
 		public override string GetCode()
@@ -86,10 +89,12 @@ namespace Eddie.Platform.Linux
 			return m_version;
 		}
 
+#if !EDDIE_DOTNET
 		public override string GetNetFrameworkVersion()
 		{
 			return m_monoVersion + "; Framework: " + System.Reflection.Assembly.GetExecutingAssembly().ImageRuntimeVersion;
 		}
+#endif
 
 		public override bool OnInit()
 		{
@@ -114,11 +119,15 @@ namespace Eddie.Platform.Linux
 				if (result == false)
 					throw new Exception("fail");
 
+#if !EDDIE_DOTNET
+				// For MONO, used to listen CTRL+C in CLI edition, and perform a clean exit. Still don't listen a "kill -INT pid".
+				// dotnet catch well signal, both CTRL+C in terminal or "kill -INT pid"				
 				NativeMethods.Signal((int)NativeMethods.Signum.SIGHUP, SignalCallback);
 				NativeMethods.Signal((int)NativeMethods.Signum.SIGINT, SignalCallback);
 				NativeMethods.Signal((int)NativeMethods.Signum.SIGTERM, SignalCallback);
 				NativeMethods.Signal((int)NativeMethods.Signum.SIGUSR1, SignalCallback);
 				NativeMethods.Signal((int)NativeMethods.Signum.SIGUSR2, SignalCallback);
+#endif
 			}
 			catch
 			{
@@ -129,6 +138,7 @@ namespace Eddie.Platform.Linux
 			return true;
 		}
 
+#if !EDDIE_DOTNET
 		private static void SignalCallback(int signum)
 		{
 			NativeMethods.Signum sig = (NativeMethods.Signum)signum;
@@ -143,6 +153,7 @@ namespace Eddie.Platform.Linux
 			else if (sig == NativeMethods.Signum.SIGUSR2)
 				Engine.Instance.OnSignal("SIGUSR2");
 		}
+#endif
 
 		public override string GetOsArchitecture()
 		{
@@ -376,6 +387,7 @@ namespace Eddie.Platform.Linux
 				return "'ldd' " + LanguageManager.GetText(LanguageItems.NotFound);
 		}
 
+#if !EDDIE_DOTNET
 		public override string GetExecutablePathEx()
 		{
 			// We use this because querying .Net Assembly (what the base class do) doesn't work within Mkbundle.
@@ -401,6 +413,7 @@ namespace Eddie.Platform.Linux
 
 			return output;
 		}
+#endif
 
 		protected override string GetUserPathEx()
 		{
@@ -515,7 +528,7 @@ namespace Eddie.Platform.Linux
 
 		public override bool ProcessKillSoft(Process process)
 		{
-			return (NativeMethods.Kill(process.Id, (int)NativeMethods.Signum.SIGTERM) == 0);
+			return (NativeMethods.Kill(process.Id, 15) == 0);
 		}
 
 		public override Json FetchUrl(Json request)
@@ -772,8 +785,14 @@ namespace Eddie.Platform.Linux
 		{
 			try
 			{
-				int currentId = Process.GetCurrentProcess().Id;
-				string path = DirectoryTemp() + DirSep + Constants.Name + "_" + Constants.AppID + ".pid";
+#if EDDIE_DOTNET
+                int currentId = Environment.ProcessId;
+#else
+                int currentId = Process.GetCurrentProcess().Id;
+#endif
+
+
+                string path = DirectoryTemp() + DirSep + Constants.Name + "_" + Constants.AppID + ".pid";
 				if (File.Exists(path) == false)
 				{
 				}
@@ -782,7 +801,7 @@ namespace Eddie.Platform.Linux
 					int otherId;
 					if (int.TryParse(Platform.Instance.FileContentsReadText(path), out otherId))
 					{
-						string procFile = "/proc/" + otherId.ToString() + "/cmdline";
+						string procFile = "/proc/" + otherId.ToString(CultureInfo.InvariantCulture) + "/cmdline";
 						if (File.Exists(procFile))
 						{
 							return false;
@@ -790,7 +809,7 @@ namespace Eddie.Platform.Linux
 					}
 				}
 
-				Platform.Instance.FileContentsWriteText(path, currentId.ToString(), Encoding.ASCII);
+				Platform.Instance.FileContentsWriteText(path, currentId.ToString(CultureInfo.InvariantCulture), Encoding.ASCII);
 
 				return true;
 			}
@@ -805,8 +824,12 @@ namespace Eddie.Platform.Linux
 		{
 			try
 			{
-				int currentId = Process.GetCurrentProcess().Id;
-				string path = DirectoryTemp() + DirSep + Constants.Name + "_" + Constants.AppID + ".pid";
+#if EDDIE_DOTNET
+                int currentId = Environment.ProcessId;
+#else
+                int currentId = Process.GetCurrentProcess().Id;
+#endif
+                string path = DirectoryTemp() + DirSep + Constants.Name + "_" + Constants.AppID + ".pid";
 				if (File.Exists(path))
 				{
 					int otherId;
@@ -964,8 +987,13 @@ namespace Eddie.Platform.Linux
 			exec.Arguments.Add("10");
 			exec.Arguments.Add(secretToolPath);
 			exec.Arguments.Add("lookup");
+#if EDDIE_DOTNET
+			exec.Arguments.Add("Eddie Profile");
+			exec.Arguments.Add(SystemExec.EscapeInsideQuote(name));
+#else
 			exec.Arguments.Add("'Eddie Profile'");
 			exec.Arguments.Add("'" + SystemExec.EscapeInsideQuote(name) + "'");
+#endif
 			exec.Run();
 			int exitCode = exec.ExitCode;
 			if (exitCode == 0)
@@ -991,8 +1019,13 @@ namespace Eddie.Platform.Linux
 			exec.Arguments.Add(secretToolPath);
 			exec.Arguments.Add("store");
 			exec.Arguments.Add("--label='Eddie, saved password for " + SystemExec.EscapeInsideQuote(name) + " profile'");
+#if EDDIE_DOTNET
+			exec.Arguments.Add("Eddie Profile");
+			exec.Arguments.Add(SystemExec.EscapeInsideQuote(name));
+#else
 			exec.Arguments.Add("'Eddie Profile'");
 			exec.Arguments.Add("'" + SystemExec.EscapeInsideQuote(name) + "'");
+#endif
 			exec.AutoWriteStdin = password + "\n";
 			exec.Run();
 			int exitCode = exec.ExitCode;
@@ -1005,8 +1038,13 @@ namespace Eddie.Platform.Linux
 			SystemExec exec = new SystemExec();
 			exec.Path = secretToolPath;
 			exec.Arguments.Add("clear");
+#if EDDIE_DOTNET
+			exec.Arguments.Add("Eddie Profile");
+			exec.Arguments.Add(SystemExec.EscapeInsideQuote(name));
+#else
 			exec.Arguments.Add("'Eddie Profile'");
 			exec.Arguments.Add("'" + SystemExec.EscapeInsideQuote(name) + "'");
+#endif
 			exec.Run();
 			int exitCode = exec.ExitCode;
 			return (exitCode == 0);

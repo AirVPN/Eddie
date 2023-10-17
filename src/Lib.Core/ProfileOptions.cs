@@ -283,8 +283,6 @@ namespace Eddie.Core
 			string v = Get(name);
 			if (v == "utf-8")
 				return Encoding.UTF8;
-			else if (v == "utf-7")
-				return Encoding.UTF7;
 			else if (v == "utf-32")
 				return Encoding.UTF32;
 			else if (v == "utf-16")
@@ -321,10 +319,9 @@ namespace Eddie.Core
 				Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText(LanguageItems.OptionsUnknown, name));
 			else
 			{
-				string oldValue = "";
+				string oldValue = Get(name);
 				lock (m_options)
 				{
-					oldValue = m_options[name].Value;
 					m_options[name].Value = val;
 				}
 
@@ -355,9 +352,9 @@ namespace Eddie.Core
 				return false;
 			if (m_options[name].Type == "text")
 				Set(name, s);
-			else if (m_options[name].Type.StartsWith("choice:"))
+			else if (m_options[name].Type.StartsWithInv("choice:"))
 				Set(name, s.ToLowerInv());
-			else if (m_options[name].Type.StartsWith("path_file"))
+			else if (m_options[name].Type.StartsWithInv("path_file"))
 				Set(name, s);
 			else if (m_options[name].Type == "bool")
 				Set(name, Conversions.ToBool(s).ToString(CultureInfo.InvariantCulture));
@@ -420,11 +417,13 @@ namespace Eddie.Core
 		public void EnsureDefaults()
 		{
 			string NotInManNever = ""; // Option not listed in 'man' documentation.			
+			string NotInManYet = ""; // Option that will be added in 'man' documentation.
 #if DEBUG
 			bool devDefault = true;
 #else
             bool devDefault = false;
 #endif
+			SetDefaultBool("start_os", Platform.Instance.GetAutoStart(), NotInManYet);
 
 			SetDefault("login", "text", "", LanguageManager.GetText(LanguageItems.ManOptionLogin));
 			SetDefault("password", "password", "", LanguageManager.GetText(LanguageItems.ManOptionPassword));
@@ -506,7 +505,6 @@ namespace Eddie.Core
 			SetDefaultChoice("network.ipv6.mode", "in,in-out,in-block,out,block", "in-block", LanguageManager.GetText(LanguageItems.ManOptionNetworkIPv6Mode));
 			SetDefaultBool("network.ipv4.autoswitch", false, LanguageManager.GetText(LanguageItems.ManOptionNetworkIPv4AutoSwitch));
 			SetDefaultBool("network.ipv6.autoswitch", true, LanguageManager.GetText(LanguageItems.ManOptionNetworkIPv6AutoSwitch));
-			//SetDefault("network.gateways.default_skip_types", "text", "Loopback;Tunnel", NotInMan); // TOCLEAN			
 			SetDefault("network.iface.name", "text", "", LanguageManager.GetText(LanguageItems.ManOptionNetworkIfaceName));
 
 			SetDefault("tools.openvpn.path", "path_file", "", LanguageManager.GetText(LanguageItems.ManOptionToolsOpenVpnPath));
@@ -516,7 +514,7 @@ namespace Eddie.Core
 			SetDefault("tools.ssl.path", "path_file", "", LanguageManager.GetText(LanguageItems.ManOptionToolsSslPath));
 			SetDefault("tools.curl.path", "path_file", "", LanguageManager.GetText(LanguageItems.ManOptionToolsCurlPath));
 
-			SetDefaultInt("http.timeout", 20, LanguageManager.GetText(LanguageItems.ManOptionHttpTimeout));
+			SetDefaultInt("http.timeout", 10, LanguageManager.GetText(LanguageItems.ManOptionHttpTimeout));
 
 			/*
 			SetDefaultBool("webui.enabled", true, NotInMan); // WebUI it's a Eddie 3.* feature not yet committed on GitHub.
@@ -532,15 +530,12 @@ namespace Eddie.Core
 			SetDefaultInt("openvpn.sndbuf", -2, LanguageManager.GetText(LanguageItems.ManOptionOpenVpnSndBuf)); // 2.11
 			SetDefaultInt("openvpn.rcvbuf", -2, LanguageManager.GetText(LanguageItems.ManOptionOpenVpnRcvBuf)); // 2.11
 			SetDefault("openvpn.directives", "text", "client\r\ndev tun\r\nauth-nocache\r\nresolv-retry infinite\r\nnobind\r\npersist-key\r\npersist-tun\r\nverb 3\r\nconnect-retry-max 1\r\nping 10\r\nping-restart 60\r\nexplicit-exit-notify 5", LanguageManager.GetText(LanguageItems.ManOptionOpenVpnDirectives));
-			SetDefault("openvpn.directives.path", "path_file", "", LanguageManager.GetText(LanguageItems.ManOptionOpenVpnDirectivesPath));
-			//SetDefault("openvpn.directives.data-ciphers", "text", "AES-256-GCM:AES-256-CBC:AES-192-GCM:AES-192-CBC:AES-128-GCM:AES-128-CBC", LanguageManager.GetText(LanguageItems.ManOptionOpenVpnDirectivesDataCiphers)); // <2.23.0 // TOCLEAN
-			//SetDefault("openvpn.directives.data-ciphers-fallback", "text", "AES-256-CBC", LanguageManager.GetText(LanguageItems.ManOptionOpenVpnDirectivesDataCiphersFallback)); // <2.23.0 // TOCLEAN
+			SetDefault("openvpn.directives.path", "path_file", "", LanguageManager.GetText(LanguageItems.ManOptionOpenVpnDirectivesPath));			
 			SetDefault("openvpn.directives.data-ciphers", "text", "AES-256-GCM:AES-192-GCM:AES-128-GCM", LanguageManager.GetText(LanguageItems.ManOptionOpenVpnDirectivesDataCiphers));
 			SetDefault("openvpn.directives.data-ciphers-fallback", "text", "AES-256-GCM", LanguageManager.GetText(LanguageItems.ManOptionOpenVpnDirectivesDataCiphersFallback));
 			SetDefaultBool("openvpn.directives.chacha20", false, LanguageManager.GetText(LanguageItems.ManOptionOpenVpnDirectivesChacha20)); // Temporary
 			SetDefaultBool("openvpn.skip_defaults", false, LanguageManager.GetText(LanguageItems.ManOptionOpenVpnSkipDefaults));
-			//SetDefaultBool("openvpn.allow.script-security", false, NotInMan);  // TOCLEAN
-
+			
 			SetDefaultBool("wireguard.interface.skip_commands", true, NotInManNever); // Anyway are not implemented in Eddie, keep for future.
 			SetDefaultInt("wireguard.peer.persistentkeepalive", 15, LanguageManager.GetText(LanguageItems.ManOptionWireGuardPeerPersistentKeepalive));
 			SetDefaultInt("wireguard.handshake.timeout.first", 50, NotInManNever);
@@ -591,7 +586,7 @@ namespace Eddie.Core
 			SetDefaultBool("windows.wfp.dynamic", false, LanguageManager.GetText(LanguageItems.ManOptionWindowsWfpDynamic));
 			SetDefaultBool("windows.dns.lock", true, LanguageManager.GetText(LanguageItems.ManOptionWindowsDnsLock));
 			SetDefaultInt("windows.metrics.tap.ipv4", -2, LanguageManager.GetText(LanguageItems.ManOptionWindowsMetricsTapIPv4)); // 2.13:   0: Windows Automatic, >0 value, -1: Don't change, -2: Automatic
-			SetDefaultInt("windows.metrics.tap.ipv6", -2, LanguageManager.GetText(LanguageItems.ManOptionWindowsMetricsTapIPv6)); // 2.13:   0: Windows Automatic, >0 value, -1: Don't change, -2: Automatic			
+			SetDefaultInt("windows.metrics.tap.ipv6", -2, LanguageManager.GetText(LanguageItems.ManOptionWindowsMetricsTapIPv6)); // 2.13:   0: Windows Automatic, >0 value, -1: Don't change, -2: Automatic
 			SetDefaultBool("windows.ipv6.bypass_dns", false, NotInManNever); // 2.14: Workaround, skip OpenVPN DNS6. Only with dns.delegate, for this not in MAN. Maybe deprecated in future.
 			SetDefaultBool("windows.ssh.plink.force", false, NotInManNever); // Switch to false when stable/tested. Not in MAN because need to be deprecated.
 			SetDefaultBool("windows.workarounds", false, NotInManNever); // If true, some variants to identify issues. Not in MAN because need to be deprecated.
@@ -632,6 +627,9 @@ namespace Eddie.Core
 			SetDefaultBool("gui.osx.sysbar.show_info", false, NotInManNever);
 			SetDefaultBool("gui.osx.sysbar.show_speed", false, NotInManNever); // Menu Status, Window Title, Tray Tooltip
 			SetDefaultBool("gui.osx.sysbar.show_server", false, NotInManNever);
+
+			// Platform-specific
+			m_options["start_os"].Platforms = "Windows;";
 
 			// Internal only
 			m_options["servers.last"].InternalOnly = true;
@@ -680,7 +678,11 @@ namespace Eddie.Core
 
 		public void OnChange(string name)
 		{
-			if (name == "tools.openvpn.path")
+			if (name == "start_os")
+			{
+				Platform.Instance.SetAutoStart(GetBool("start_os"));
+			}
+			else if (name == "tools.openvpn.path")
 			{
 				Software.Checking();
 			}

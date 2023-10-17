@@ -54,7 +54,7 @@ namespace Eddie.Core
 		{
 			string t = GetCode() + "_" + GetOsArchitecture();
 			t = t.Replace(" ", "_");
-			t = t.ToLower();
+			t = t.ToLowerInvariant();
 			return t;
 		}
 
@@ -140,7 +140,11 @@ namespace Eddie.Core
 
 		public virtual string GetNetFrameworkVersion()
 		{
+#if EDDIE_DOTNET
+			return System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription;
+#else
 			return System.Reflection.Assembly.GetExecutingAssembly().ImageRuntimeVersion;
+#endif
 		}
 
 		public virtual string GetWireGuardVersion()
@@ -587,7 +591,36 @@ namespace Eddie.Core
 
 		public virtual string GetExecutablePathEx()
 		{
+#if EDDIE_DOTNET
+			// Remember, Assembly.Location is empty in dotnet publish single-file.
+			// See https://learn.microsoft.com/en-us/dotnet/core/deploying/single-file/overview?tabs=cli#api-incompatibility
+
+			// When run with VSCode, System.Environment.ProcessPath return dotnet executable
+			if(System.Diagnostics.Process.GetCurrentProcess().MainModule.ModuleName.ToLowerInvariant() == "dotnet")
+			{				
+				return System.Reflection.Assembly.GetEntryAssembly().Location;
+			}
+			else
+			{
+				return System.Environment.ProcessPath;
+			}
+#else
 			return System.Reflection.Assembly.GetEntryAssembly().Location;
+#endif
+			/* // TOCLEAN			
+			if(System.Diagnostics.Process.GetCurrentProcess().MainModule.ModuleName.ToLowerInvariant().StartsWith("dotnet"))
+			{
+				return Path.GetFullPath(System.Reflection.Assembly.GetEntryAssembly().Location);
+			}
+			else if(System.Diagnostics.Process.GetCurrentProcess().MainModule.ModuleName.ToLowerInvariant().StartsWith("mono"))
+			{
+				return Path.GetFullPath(System.Reflection.Assembly.GetEntryAssembly().Location);
+			}
+			else
+			{
+				return Path.GetFullPath(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName);
+			}
+			*/
 		}
 
 		protected virtual string GetUserPathEx()
@@ -664,9 +697,15 @@ namespace Eddie.Core
 				using (Process p = new Process())
 				{
 					p.StartInfo.FileName = FileAdaptProcessExec(path);
-					p.StartInfo.Arguments = String.Join(" ", arguments);
-					//p.StartInfo.WorkingDirectory = "";
-					p.StartInfo.WorkingDirectory = Path.GetDirectoryName(path); // 2.22.3
+#if EDDIE_DOTNET
+					foreach(string arg in arguments)
+					{
+						p.StartInfo.ArgumentList.Add(arg);
+					}
+#else
+                    p.StartInfo.Arguments = String.Join(" ", arguments);
+#endif
+                    p.StartInfo.WorkingDirectory = Path.GetDirectoryName(path); // 2.22.3
 					p.StartInfo.CreateNoWindow = true;
 					p.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
 					p.StartInfo.UseShellExecute = false;

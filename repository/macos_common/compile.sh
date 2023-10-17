@@ -50,11 +50,11 @@ if [ ${FRAMEWORK} = "net4" ]; then
     # Unlike other platform, the pre-build / post-build script are already in .vcproj, managed by msbuild correctly
 
     #if [ $PROJECT = "cli" ]; then
-    #    ${SCRIPTDIR}/../../src/eddie.macos.prebuild.sh ${SCRIPTDIR}/../../src/App.CLI.MacOS/bin/${ARCHCOMPILE}/${CONFIG}/ ${PROJECT} ${ARCH} ${CONFIG} 
+    #    ${SCRIPTDIR}/../../src/macos_prebuild.sh ${SCRIPTDIR}/../../src/App.CLI.MacOS/bin/${ARCHCOMPILE}/${CONFIG}/ ${PROJECT} ${ARCH} ${CONFIG} 
     #elif [ $PROJECT = "ui" ]; then
-    #	 ${SCRIPTDIR}/../../src/eddie.macos.prebuild.sh ${SCRIPTDIR}/../../src/App.Cocoa.MacOS/bin/${ARCHCOMPILE}/${CONFIG}/ ${PROJECT} ${ARCH} ${CONFIG}   
+    #	 ${SCRIPTDIR}/../../src/macos_prebuild.sh ${SCRIPTDIR}/../../src/App.Cocoa.MacOS/bin/${ARCHCOMPILE}/${CONFIG}/ ${PROJECT} ${ARCH} ${CONFIG}   
     #elif [ $PROJECT = "ui3" ]; then
-    #    ${SCRIPTDIR}/../../src/eddie.macos.prebuild.sh ${SCRIPTDIR}/../../src/UI.Cocoa.MacOS/bin/${ARCHCOMPILE}/${CONFIG}/ ${PROJECT} ${ARCH} ${CONFIG}  
+    #    ${SCRIPTDIR}/../../src/macos_prebuild.sh ${SCRIPTDIR}/../../src/UI.Cocoa.MacOS/bin/${ARCHCOMPILE}/${CONFIG}/ ${PROJECT} ${ARCH} ${CONFIG}  
     #fi
 
     /Library/Frameworks/Mono.framework/Versions/Current/Commands/msbuild /verbosity:minimal /property:CodeAnalysisRuleSet="${RULESETPATH}" /p:Configuration=${CONFIG} /p:Platform=${ARCHCOMPILE} /p:TargetFrameworkVersion=${TARGETFRAMEWORK} /t:Rebuild "${SOLUTIONPATH}" /p:DefineConstants="EDDIENET4"

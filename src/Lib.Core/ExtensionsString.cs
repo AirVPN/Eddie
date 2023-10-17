@@ -25,7 +25,6 @@ namespace Eddie.Core
 {
 	public static class ExtensionsString
 	{
-		// Avoid warning in Mono if use directly str.IndexOf(value)
 		public static int IndexOfInv(this string str, string value)
 		{
 			return str.IndexOf(value, StringComparison.InvariantCulture);

@@ -52,6 +52,10 @@ extern "C" {
 
 	EDDIE_MACOS_NATIVE_EXPORT void eddie_curl(const char* jRequest, unsigned int resultMaxLen, char* jResult);
 
+	EDDIE_MACOS_NATIVE_EXPORT void eddie_credential_system_read(const char* serviceName, const char* accountName, unsigned int outputMax, char* output);
+	EDDIE_MACOS_NATIVE_EXPORT bool eddie_credential_system_write(const char* serviceName, const char* accountName, const char* value);
+	EDDIE_MACOS_NATIVE_EXPORT bool eddie_credential_system_delete(const char* serviceName, const char* accountName);
+
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __cplusplus

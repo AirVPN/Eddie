@@ -166,7 +166,6 @@ namespace Eddie.Forms.Skin
 		{
 			using (var testFont = new Font(fontName, 8))
 			{
-				//return 0 == string.Compare(fontName, testFont.Name, StringComparison.InvariantCultureIgnoreCase); // TOCLEAN
 				return string.Equals(fontName, testFont.Name, StringComparison.InvariantCultureIgnoreCase);
 			}
 		}

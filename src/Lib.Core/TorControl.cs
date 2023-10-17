@@ -260,7 +260,7 @@ namespace Eddie.Core
 					Flush(s);
 					string bridges = Read(s);
 
-					if (bridges.IndexOf("meek") == -1) //Panic if we have meek enabled, don't yet know what to do :-(
+					if (bridges.Contains("mask") == false) // Panic if we have meek enabled, don't yet know what to do :-(
 					{
 						string[] bridgeLines = bridges.Split('\n');
 						foreach (string bridge in bridgeLines)

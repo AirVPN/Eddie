@@ -415,6 +415,9 @@ int IBase::Main()
 						}
 					}
 
+#if defined(Debug) || defined(_DEBUG)
+					// For example, launched with VSCode detect dotnet.exe as client
+#else
 					// In service mode, hash must match. See description of ComputeIntegrityHash.
 					if (GetLaunchMode() == "service")
 					{
@@ -425,7 +428,7 @@ int IBase::Main()
 						if (integrityHashExpected != "")
 						{
 							if (integrityHashComputed == "")
-								ThrowException("Client not allowed: Client unknown (service mode)");
+								ThrowException("Client not allowed: Client unknown " + clientProcessPath + " (service mode)");
 							else if (integrityHashComputed != integrityHashExpected)
 								ThrowException("Client not allowed: integrity mismatch (client " + integrityHashComputed + " != expected " + integrityHashExpected + ") (service mode)");
 						}
@@ -434,6 +437,7 @@ int IBase::Main()
 					std::string allowed = CheckIfClientPathIsAllowed(clientProcessPath);
 					if (allowed != "ok")
 						ThrowException("Client not allowed: " + allowed);
+#endif
 				}
 
 				ReplyPID(GetCurrentProcessId());
@@ -1441,6 +1445,8 @@ std::string IBase::ComputeIntegrityHash(const std::string& elevatedPath, const s
 			ext = file.substr(extPos + 1);
 
 		bool include = ((ext == "") || (ext == "exe") || (ext == "dll") || (ext == "so") || (ext == "dylib"));
+
+		if(StringStartsWith(file,"System.")) include = false; // Hack, dotnet7, avoid a lots of intermediary files
 
 		if (include)
 		{

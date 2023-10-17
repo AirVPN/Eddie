@@ -25,12 +25,14 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Xml;
 using System.Threading;
-#if NETSTANDARD
-#else
-#endif
 using Microsoft.Win32;
 
 using Eddie.Core;
+using System.Globalization;
+
+
+// Avoid useless warning "This call site is reachable on all platforms. 'x' is only supported on: 'windows'."
+#pragma warning disable CA1416
 
 namespace Eddie.Platform.Windows
 {
@@ -558,9 +560,9 @@ namespace Eddie.Platform.Windows
 		public override string FileGetPhysicalPath(string path)
 		{
 			string native = NativeMethods.GetFinalPathName(path);
-			if (native.StartsWith("\\\\?\\"))
+			if (native.StartsWithInv("\\\\?\\"))
 				native = native.Substring(4);
-			if (native.StartsWith("UNC\\"))
+			if (native.StartsWithInv("UNC\\"))
 				native = "\\" + native.Substring(3);
 			return native;
 		}
@@ -588,6 +590,7 @@ namespace Eddie.Platform.Windows
 			return "\"" + base.FileAdaptProcessExec(path) + "\"";
 		}
 
+#if !EDDIE_DOTNET
 		public override string GetExecutablePathEx()
 		{
 			// It return vshost.exe under VS, better
@@ -595,6 +598,7 @@ namespace Eddie.Platform.Windows
 			path = Path.GetFullPath(path); // 2.11.9
 			return path;
 		}
+#endif
 
 		protected override string GetUserPathEx()
 		{
@@ -725,7 +729,7 @@ namespace Eddie.Platform.Windows
 			c.Parameters["command"] = "route";
 			c.Parameters["action"] = action;
 			c.Parameters["destination"] = destination.ToCIDR(true);
-			c.Parameters["iface"] = interfaceIdx.ToString();
+			c.Parameters["iface"] = interfaceIdx.ToString(CultureInfo.InvariantCulture);
 			if (jRoute.HasKey("gateway"))
 			{
 				IpAddress gateway = jRoute["gateway"].ValueString;
@@ -967,7 +971,7 @@ namespace Eddie.Platform.Windows
 				throw new Exception("Unexpected connection type");
 		}
 
-		public override bool OnDnsSwitchDo(Core.ConnectionTypes.IConnectionType connectionActive, IpAddresses dns)
+		public override bool OnDnsSwitchDo(Core.ConnectionTypes.IConnectionType connection, IpAddresses dns)
 		{
 			if ((Engine.Instance.ProfileOptions.GetBool("windows.dns.lock")) && (IsVistaOrNewer()) && (Engine.Instance.ProfileOptions.GetBool("windows.wfp.enable")))
 			{
@@ -1012,13 +1016,13 @@ namespace Eddie.Platform.Windows
 				{
 					// Remember: This because may fail at WFP side with a "Unknown interface" because network interface with IPv4/IPv6 disabled have Ipv6IfIndex == 0 and don't match the requested interface.
 					string layer = "all-out";
-					if ((connectionActive.ConfigIPv6 == false) && (layer == "all-out"))
+					if ((connection.ConfigIPv6 == false) && (layer == "all-out"))
 						layer = "ipv4-out";
-					if ((connectionActive.BlockedIPv6) && (layer == "all-out"))
+					if ((connection.BlockedIPv6) && (layer == "all-out"))
 						layer = "ipv4-out";
-					if ((connectionActive.ConfigIPv4 == false) && (layer == "all-out"))
+					if ((connection.ConfigIPv4 == false) && (layer == "all-out"))
 						layer = "ipv6-out";
-					if ((connectionActive.BlockedIPv4) && (layer == "all-out"))
+					if ((connection.BlockedIPv4) && (layer == "all-out"))
 						layer = "ipv6-out";
 
 					if (layer != "")
@@ -1141,7 +1145,7 @@ namespace Eddie.Platform.Windows
 				Recovery.Save();
 			}
 
-			base.OnDnsSwitchDo(connectionActive, dns);
+			base.OnDnsSwitchDo(connection, dns);
 
 			return true;
 		}
@@ -1228,24 +1232,24 @@ namespace Eddie.Platform.Windows
 
 			if ((interfaceMetricIPv4Current != -1) && (interfaceMetricIPv4Current != interfaceMetricIPv4Value))
 			{
-				string fromStr = (interfaceMetricIPv4Current == 0) ? "Automatic" : interfaceMetricIPv4Current.ToString();
-				string toStr = (interfaceMetricIPv4Value == 0) ? "Automatic" : interfaceMetricIPv4Value.ToString();
+				string fromStr = (interfaceMetricIPv4Current == 0) ? "Automatic" : interfaceMetricIPv4Current.ToString(CultureInfo.InvariantCulture);
+				string toStr = (interfaceMetricIPv4Value == 0) ? "Automatic" : interfaceMetricIPv4Value.ToString(CultureInfo.InvariantCulture);
 				Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText(LanguageItems.NetworkAdapterMetricSwitch, interfaceMetricIPv4Name, fromStr, toStr, "IPv4"));
 				m_oldMetricInterface = id;
 				m_oldMetricIPv4 = interfaceMetricIPv4Current;
-				Engine.Instance.Elevated.DoCommandSync("set-interface-metric", "idx", interfaceMetricIPv4Idx.ToString(), "layer", "ipv4", "value", interfaceMetricIPv4Value.ToString());
+				Engine.Instance.Elevated.DoCommandSync("set-interface-metric", "idx", interfaceMetricIPv4Idx.ToString(CultureInfo.InvariantCulture), "layer", "ipv4", "value", interfaceMetricIPv4Value.ToString(CultureInfo.InvariantCulture));
 
 				Recovery.Save();
 			}
 
 			if ((interfaceMetricIPv6Current != -1) && (interfaceMetricIPv6Current != interfaceMetricIPv6Value))
 			{
-				string fromStr = (interfaceMetricIPv6Current == 0) ? "Automatic" : interfaceMetricIPv6Current.ToString();
-				string toStr = (interfaceMetricIPv6Value == 0) ? "Automatic" : interfaceMetricIPv6Value.ToString();
+				string fromStr = (interfaceMetricIPv6Current == 0) ? "Automatic" : interfaceMetricIPv6Current.ToString(CultureInfo.InvariantCulture);
+				string toStr = (interfaceMetricIPv6Value == 0) ? "Automatic" : interfaceMetricIPv6Value.ToString(CultureInfo.InvariantCulture);
 				Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText(LanguageItems.NetworkAdapterMetricSwitch, interfaceMetricIPv6Name, fromStr, toStr, "IPv6"));
 				m_oldMetricInterface = id;
 				m_oldMetricIPv6 = interfaceMetricIPv6Current;
-				Engine.Instance.Elevated.DoCommandSync("set-interface-metric", "idx", interfaceMetricIPv6Idx.ToString(), "layer", "ipv6", "value", interfaceMetricIPv6Value.ToString());
+				Engine.Instance.Elevated.DoCommandSync("set-interface-metric", "idx", interfaceMetricIPv6Idx.ToString(CultureInfo.InvariantCulture), "layer", "ipv6", "value", interfaceMetricIPv6Value.ToString(CultureInfo.InvariantCulture));
 
 				Recovery.Save();
 			}
@@ -1268,10 +1272,10 @@ namespace Eddie.Platform.Windows
 							int current = NativeMethods.GetInterfaceMetric(idx, "ipv4");
 							if (current != m_oldMetricIPv4)
 							{
-								string fromStr = (current == 0) ? "Automatic" : current.ToString();
-								string toStr = (m_oldMetricIPv4 == 0) ? "Automatic" : m_oldMetricIPv4.ToString();
+								string fromStr = (current == 0) ? "Automatic" : current.ToString(CultureInfo.InvariantCulture);
+								string toStr = (m_oldMetricIPv4 == 0) ? "Automatic" : m_oldMetricIPv4.ToString(CultureInfo.InvariantCulture);
 								Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText(LanguageItems.NetworkAdapterMetricRestore, adapter.Name, fromStr, toStr, "IPv4"));
-								Engine.Instance.Elevated.DoCommandSync("set-interface-metric", "idx", idx.ToString(), "layer", "ipv4", "value", m_oldMetricIPv4.ToString());
+								Engine.Instance.Elevated.DoCommandSync("set-interface-metric", "idx", idx.ToString(CultureInfo.InvariantCulture), "layer", "ipv4", "value", m_oldMetricIPv4.ToString(CultureInfo.InvariantCulture));
 							}
 							m_oldMetricIPv4 = -1;
 						}
@@ -1282,10 +1286,10 @@ namespace Eddie.Platform.Windows
 							int current = NativeMethods.GetInterfaceMetric(idx, "ipv6");
 							if (current != m_oldMetricIPv6)
 							{
-								string fromStr = (current == 0) ? "Automatic" : current.ToString();
-								string toStr = (m_oldMetricIPv6 == 0) ? "Automatic" : m_oldMetricIPv6.ToString();
+								string fromStr = (current == 0) ? "Automatic" : current.ToString(CultureInfo.InvariantCulture);
+								string toStr = (m_oldMetricIPv6 == 0) ? "Automatic" : m_oldMetricIPv6.ToString(CultureInfo.InvariantCulture);
 								Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText(LanguageItems.NetworkAdapterMetricRestore, adapter.Name, fromStr, toStr, "IPv6"));
-								Engine.Instance.Elevated.DoCommandSync("set-interface-metric", "idx", idx.ToString(), "layer", "ipv6", "value", m_oldMetricIPv6.ToString());
+								Engine.Instance.Elevated.DoCommandSync("set-interface-metric", "idx", idx.ToString(CultureInfo.InvariantCulture), "layer", "ipv6", "value", m_oldMetricIPv6.ToString(CultureInfo.InvariantCulture));
 							}
 							m_oldMetricIPv6 = -1;
 						}
@@ -1300,7 +1304,7 @@ namespace Eddie.Platform.Windows
 
 		public override void OnSessionLogEvent(string source, string message)
 		{
-			if (message.IndexOf("Waiting for TUN/TAP interface to come up") != -1)
+			if (message.IndexOfInv("Waiting for TUN/TAP interface to come up") != -1)
 			{
 				if (Engine.Instance.ProfileOptions.GetBool("windows.tap_up"))
 				{
@@ -1839,7 +1843,7 @@ namespace Eddie.Platform.Windows
 			NetworkInterface[] adapters = NetworkInterface.GetAllNetworkInterfaces();
 			foreach (NetworkInterface adapter in adapters)
 			{
-				if (adapter.Description.ToLowerInvariant().StartsWith("tap-win"))
+				if (adapter.Description.ToLowerInvariant().StartsWithInv("tap-win"))
 				{
 					ExecWithUAC(Software.FindResource("tapctl"), "delete \"" + adapter.Id + "\"");
 					nRemoved++;
@@ -1855,7 +1859,7 @@ namespace Eddie.Platform.Windows
 			NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
 			foreach (NetworkInterface adapter in interfaces)
 			{
-				if (adapter.Description.ToLowerInvariant().StartsWith("tap-win"))
+				if (adapter.Description.ToLowerInvariant().StartsWithInv("tap-win"))
 				{
 					Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText(LanguageItems.HackInterfaceUpDone, adapter.Name));
 
@@ -1934,7 +1938,7 @@ namespace Eddie.Platform.Windows
 		{
 			string sysPath = path;
 
-			if (sysPath.StartsWith("\\SystemRoot\\")) // Win 8 and above
+			if (sysPath.StartsWithInv("\\SystemRoot\\")) // Win 8 and above
 			{
 				sysPath = Platform.Instance.NormalizePath(sysPath.Replace("\\SystemRoot\\", Environment.GetEnvironmentVariable("windir") + Platform.Instance.DirSep));
 			}
@@ -2005,8 +2009,8 @@ namespace Eddie.Platform.Windows
 					string result = versionInfo.ProductVersion;
 					if (result != null)
 					{
-						if (result.IndexOf(" ") != -1)
-							result = result.Substring(0, result.IndexOf(" "));
+						if (result.IndexOfInv(" ") != -1)
+							result = result.Substring(0, result.IndexOfInv(" "));
 
 						return result;
 					}
@@ -2046,3 +2050,6 @@ namespace Eddie.Platform.Windows
 		}
 	}
 }
+
+#pragma warning restore CA1416
+

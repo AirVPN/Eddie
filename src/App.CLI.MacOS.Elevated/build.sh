@@ -17,7 +17,7 @@ mkdir -p "$BASEPATH/bin"
 VARARCH=$(uname -m)
 if sysctl -a | grep ARM64 >/dev/null; then
     # Temp: This IF exists because when invoked by VisualStudio-For-Mac (at 2021-06-04 still x86_64), 'uname -m' return 'x86_64' even on M1 arch.
-    # This exists in /src/App.CLI.MacOS.Elevated/build.sh and in /src/eddie.macos.prebuild.sh
+    # This exists in /src/App.CLI.MacOS.Elevated/build.sh and in /src/macos_prebuild.sh
     VARARCH=arm64
 fi
 

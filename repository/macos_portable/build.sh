@@ -170,6 +170,9 @@ if [ ${VAROS} = "macos-10.9" ]; then
     VARHARDENING="no"
 fi
 
+# 2023-09-21, Ventura Notarization fail without hardening
+VARHARDENING="yes"
+
 if [ ${STAFF} = "yes" ]; then
 
     echo "Signing"

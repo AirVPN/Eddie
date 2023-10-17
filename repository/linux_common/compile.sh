@@ -58,9 +58,9 @@ fi
 $COMPILERPATH /verbosity:minimal /property:CodeAnalysisRuleSet="${RULESETPATH}" /p:Configuration=${CONFIG} /p:Platform=${ARCHCOMPILE} /p:TargetFrameworkVersion=${TARGETFRAMEWORK} /t:Rebuild "${SOLUTIONPATH}" /p:DefineConstants="EDDIENET4"
 
 if [ $PROJECT = "cli" ]; then
-	"${SCRIPTDIR}/../../src/eddie.linux.postbuild.sh" "${SCRIPTDIR}/../../src/App.CLI.Linux/bin/${ARCHCOMPILE}/${CONFIG}/" ${PROJECT} ${ARCH} ${CONFIG}	
+	"${SCRIPTDIR}/../../src/linux_postbuild.sh" "${SCRIPTDIR}/../../src/App.CLI.Linux/bin/${ARCHCOMPILE}/${CONFIG}/" ${PROJECT} ${ARCH} ${CONFIG}	
 elif [ $PROJECT = "ui" ]; then
-	"${SCRIPTDIR}/../../src/eddie.linux.postbuild.sh" "${SCRIPTDIR}/../../src/App.Forms.Linux/bin/${ARCHCOMPILE}/${CONFIG}/" ${PROJECT} ${ARCH} ${CONFIG}	
+	"${SCRIPTDIR}/../../src/linux_postbuild.sh" "${SCRIPTDIR}/../../src/App.Forms.Linux/bin/${ARCHCOMPILE}/${CONFIG}/" ${PROJECT} ${ARCH} ${CONFIG}	
 elif [ $PROJECT = "ui3" ]; then
-	"${SCRIPTDIR}/../../src/eddie.linux.postbuild.sh" "${SCRIPTDIR}/../../src/UI.GTK.Linux/bin/${ARCHCOMPILE}/${CONFIG}/" ${PROJECT} ${ARCH} ${CONFIG}	
+	"${SCRIPTDIR}/../../src/linux_postbuild.sh" "${SCRIPTDIR}/../../src/UI.GTK.Linux/bin/${ARCHCOMPILE}/${CONFIG}/" ${PROJECT} ${ARCH} ${CONFIG}	
 fi

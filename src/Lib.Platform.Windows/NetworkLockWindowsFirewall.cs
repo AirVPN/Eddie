@@ -18,11 +18,12 @@
 
 using System;
 using System.Collections.Generic;
-#if NETSTANDARD
-#else
-#endif
+using System.Globalization;
 using System.Xml;
 using Eddie.Core;
+
+// Avoid useless warning "This call site is reachable on all platforms. 'x' is only supported on: 'windows'."
+#pragma warning disable CA1416
 
 using Microsoft.Win32;
 
@@ -65,11 +66,11 @@ namespace Eddie.Platform.Windows
             Notifications = (Registry.GetValue(regkey, "DisableNotifications", 0).ToString() == "0");
             */
 
-			int enableFirewall = Convert.ToInt32(Registry.GetValue(regkey, "EnableFirewall", 0));
-			int disableNotifications = Convert.ToInt32(Registry.GetValue(regkey, "DisableNotifications", 0));
-			int defaultInboundAction = Convert.ToInt32(Registry.GetValue(regkey, "DefaultInboundAction", 1));
-			int defaultOutboundAction = Convert.ToInt32(Registry.GetValue(regkey, "DefaultOutboundAction", 0));
-			int doNotAllowExceptions = Convert.ToInt32(Registry.GetValue(regkey, "DoNotAllowExceptions", 0));
+			int enableFirewall = Convert.ToInt32(Registry.GetValue(regkey, "EnableFirewall", 0), CultureInfo.InvariantCulture);
+			int disableNotifications = Convert.ToInt32(Registry.GetValue(regkey, "DisableNotifications", 0), CultureInfo.InvariantCulture);
+			int defaultInboundAction = Convert.ToInt32(Registry.GetValue(regkey, "DefaultInboundAction", 1), CultureInfo.InvariantCulture);
+			int defaultOutboundAction = Convert.ToInt32(Registry.GetValue(regkey, "DefaultOutboundAction", 0), CultureInfo.InvariantCulture);
+			int doNotAllowExceptions = Convert.ToInt32(Registry.GetValue(regkey, "DoNotAllowExceptions", 0), CultureInfo.InvariantCulture);
 
 			State = (enableFirewall == 1);
 			Notifications = (disableNotifications == 0);
@@ -512,3 +513,6 @@ namespace Eddie.Platform.Windows
 		}
 	}
 }
+
+#pragma warning restore CA1416
+

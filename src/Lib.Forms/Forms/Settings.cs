@@ -388,7 +388,7 @@ namespace Eddie.Forms.Forms
 			ProfileOptions o = Engine.Instance.ProfileOptions;
 
 			// General            
-			chkSystemStart.Checked = Platform.Instance.GetAutoStart();
+			chkSystemStart.Checked = o.GetBool("start_os");
 			chkSystemService.Checked = Platform.Instance.GetService();
 			chkConnect.Checked = o.GetBool("connect");
 			chkNetLock.Checked = o.GetBool("netlock");
@@ -817,8 +817,8 @@ namespace Eddie.Forms.Forms
 			Storage s = Engine.Instance.Storage;
 			ProfileOptions o = Engine.Instance.ProfileOptions;
 
-			// General            
-			Platform.Instance.SetAutoStart(chkSystemStart.Checked);
+			// General            			
+			o.SetBool("start_os", chkSystemStart.Checked);
 			Platform.Instance.SetService(chkSystemService.Checked, false);
 			o.SetBool("connect", chkConnect.Checked);
 			o.SetBool("netlock", chkNetLock.Checked);

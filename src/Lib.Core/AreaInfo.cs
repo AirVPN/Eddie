@@ -47,14 +47,14 @@ namespace Eddie.Core
 
 		public int CompareTo(AreaInfo other)
 		{
-			return Code.CompareTo(other.Code);
+			return string.Compare(Code, other.Code, StringComparison.InvariantCulture);
 		}
 
 		public int CompareToEx(AreaInfo other, string field, bool ascending)
 		{
 			int returnVal = 0;
 			if (field == "Name")
-				returnVal = Name.CompareTo(other.Name);
+				returnVal = string.Compare(Name, other.Name, StringComparison.InvariantCulture);
 			else if (field == "Servers")
 			{
 				returnVal = this.Servers.CompareTo(other.Servers);
@@ -77,7 +77,7 @@ namespace Eddie.Core
 			}
 
 			if (returnVal == 0) // Second order, Name
-				returnVal = this.Name.CompareTo(other.Name);
+				returnVal = string.Compare(Name, other.Name, StringComparison.InvariantCulture);
 
 			// Invert the value returned by String.Compare.
 			if (ascending == false)

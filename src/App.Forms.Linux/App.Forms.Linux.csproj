@@ -30,7 +30,7 @@
       <CustomCommands>
         <Command>
           <type>AfterBuild</type>
-          <command>"${SolutionDir}/eddie.linux.postbuild.sh" "${TargetDir}" ui ${ProjectConfigPlat} ${ProjectConfigName} shared</command>
+          <command>"${SolutionDir}/linux_postbuild.sh" "${TargetDir}" ui ${ProjectConfigPlat} ${ProjectConfigName} shared</command>
         </Command>
       </CustomCommands>
     </CustomCommands>
@@ -49,7 +49,7 @@
       <CustomCommands>
         <Command>
           <type>AfterBuild</type>
-          <command>"${SolutionDir}/eddie.linux.postbuild.sh" "${TargetDir}" ui ${ProjectConfigPlat} ${ProjectConfigName} shared</command>
+          <command>"${SolutionDir}/linux_postbuild.sh" "${TargetDir}" ui ${ProjectConfigPlat} ${ProjectConfigName} shared</command>
         </Command>
       </CustomCommands>
     </CustomCommands>
@@ -77,7 +77,7 @@
       <CustomCommands>
         <Command>
           <type>AfterBuild</type>
-          <command>"${SolutionDir}/eddie.linux.postbuild.sh" "${TargetDir}" ui ${ProjectConfigPlat} ${ProjectConfigName} shared</command>
+          <command>"${SolutionDir}/linux_postbuild.sh" "${TargetDir}" ui ${ProjectConfigPlat} ${ProjectConfigName} shared</command>
           <workingdir></workingdir>
         </Command>
       </CustomCommands>
@@ -104,7 +104,7 @@
       <CustomCommands>
         <Command>
           <type>AfterBuild</type>
-          <command>"${SolutionDir}/eddie.linux.postbuild.sh" "${TargetDir}" ui ${ProjectConfigPlat} ${ProjectConfigName} shared</command>
+          <command>"${SolutionDir}/linux_postbuild.sh" "${TargetDir}" ui ${ProjectConfigPlat} ${ProjectConfigName} shared</command>
         </Command>
       </CustomCommands>
     </CustomCommands>

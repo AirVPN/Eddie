@@ -33,6 +33,7 @@ namespace Eddie.Platform.MacOS
 			Mode0644 = 33188
 		}
 
+#if !EDDIE_DOTNET
 		public enum Signum
 		{
 			SIGHUP = 1,
@@ -72,6 +73,12 @@ namespace Eddie.Platform.MacOS
 			SIGUNUSED = 31
 		}
 
+		public delegate void eddie_sighandler(int signum);
+		[DllImport(NativeLibName)]
+		public static extern void eddie_signal(int signum, eddie_sighandler handler);
+
+#endif
+
 		/*
 		public static string dlerrorMessage()
 		{
@@ -101,8 +108,8 @@ namespace Eddie.Platform.MacOS
 		[DllImport(NativeLibName)]
 		public static extern int eddie_file_set_mode(string pathname, int mode);
 
-		[DllImport(NativeLibName)]
-		public static extern int eddie_file_set_mode_str(string pathname, string mode);
+		//[DllImport(NativeLibName)]
+		//public static extern int eddie_file_set_mode_str(string pathname, string mode);
 
 		[DllImport(NativeLibName)]
 		public static extern int eddie_file_get_immutable(string filename);
@@ -110,12 +117,8 @@ namespace Eddie.Platform.MacOS
 		[DllImport(NativeLibName)]
 		public static extern bool eddie_file_get_runasroot(string filename);
 
-		[DllImport(NativeLibName)]
-		public static extern int eddie_ip_ping(string address, int timeout);
-
-		public delegate void eddie_sighandler(int signum);
-		[DllImport(NativeLibName)]
-		public static extern void eddie_signal(int signum, eddie_sighandler handler);
+        //[DllImport(NativeLibName)]
+        //public static extern int eddie_ip_ping(string address, int timeout);
 
 		[DllImport(NativeLibName)]
 		public static extern int eddie_kill(int pid, int sig);
@@ -125,7 +128,7 @@ namespace Eddie.Platform.MacOS
 
 		[DllImport(NativeLibName)]
 		private static extern void eddie_curl(string jRequest, uint resultMaxLen, byte[] jResult);
-		public static Json CUrl(Json jRequest)
+		public static Json eddie_curl(Json jRequest)
 		{
 			uint resultMaxLen = 1000 * 1000 * 5;
 			byte[] resultBuf = new byte[resultMaxLen];
@@ -136,5 +139,21 @@ namespace Eddie.Platform.MacOS
 			else
 				throw new Exception("curl unexpected json error");
 		}
-	}
+
+        [DllImport(NativeLibName)]
+        private static extern void eddie_credential_system_read(string serviceName, string accountName, uint outputMax, byte[] output);
+        public static string eddie_credential_system_read(string serviceName, string accountName)
+        {
+            uint outputMax = 1000 * 1000 * 5;
+            byte[] output = new byte[outputMax];
+            eddie_credential_system_read(serviceName, accountName, outputMax, output);
+			return System.Text.Encoding.ASCII.GetString(output);
+        }
+
+		[DllImport(NativeLibName)]
+        public static extern bool eddie_credential_system_write(string serviceName, string accountName, string value);
+        
+		[DllImport(NativeLibName)]
+        public static extern bool eddie_credential_system_delete(string serviceName, string accountName);
+    }
 }

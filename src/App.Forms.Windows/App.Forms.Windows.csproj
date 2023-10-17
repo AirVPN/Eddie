@@ -128,7 +128,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>$(SolutionDir)\eddie.windows.postbuild.bat "$(TargetDir)" ui $(PlatformName) $(ConfigurationName)</PostBuildEvent>
+    <PostBuildEvent>$(SolutionDir)\win_postbuild.bat "$(TargetDir)" ui $(PlatformName) $(ConfigurationName)</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

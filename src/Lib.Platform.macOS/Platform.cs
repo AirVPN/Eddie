@@ -18,17 +18,24 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Net.NetworkInformation;
 using System.Text;
 using System.Xml;
+
 using Eddie.Core;
 
-// If errors occur here, probably Xamarin update cause trouble. Remove Xamarin.Mac reference and re-add by browsing to path
-// /Library/Frameworks/Xamarin.Mac.framework/Versions/Current/lib/mono/4.5/Xamarin.Mac.dll
-using AppKit;
-using Foundation;
-using System.Net;
+#if EDDIE_DOTNET
+	// We need to replace any NS*, Security.SecRecord etc
+	// To compile with dotnet7 and detach from deprecated Xamarin.Mac framework in CLI edition
+#else
+	// If errors occur here, probably Xamarin update cause trouble. Remove Xamarin.Mac reference and re-add by browsing to path
+	// /Library/Frameworks/Xamarin.Mac.framework/Versions/Current/lib/mono/4.5/Xamarin.Mac.dll
+	using AppKit;
+	using Foundation;
+	using System.Net;
+#endif
 
 namespace Eddie.Platform.MacOS
 {
@@ -81,25 +88,16 @@ namespace Eddie.Platform.MacOS
                 }
             }
 
+#if !EDDIE_DOTNET
 			if (Engine.Instance.ConsoleMode)
 			{
-				NSApplication.Init(); // Requested in CLI edition to call NSPipe, NSTask etc.
-
-				// NSProcessInfo throw "Value cannot be null. Parameter name: obj" in command-line edition, maybe a Xamarin issue
-				// Mono Environment.* don't provide OS version                
-				m_version = SystemExec.Exec1(LocateExecutable("sw_vers"), "-productVersion").Trim(); // Example output: '10.14.3'
-				m_name = "macOS " + m_version;
+				NSApplication.Init(); // Requested in CLI edition to call NSPipe, NSTask etc.			
 			}
-			else
-			{
-				m_name = NSProcessInfo.ProcessInfo.OperatingSystemVersionString.Trim(); // Example output: "Version 10.14.3 (Build 18D109)"
-				m_name = m_name.Replace("Version", "macOS").Trim();
-				if (m_name.IndexOf('(') != -1)
-					m_name = m_name.Substring(0, m_name.IndexOf('(')).Trim();
-				m_version = NSProcessInfo.ProcessInfo.OperatingSystemVersionString.Replace("Version ", "").Trim();
-			}
+#endif
 
-			m_architecture = base.GetArchitecture();
+            m_version = SystemExec.Exec1(LocateExecutable("sw_vers"), "-productVersion").Trim(); // Example output: '10.14.3'
+            m_name = "macOS " + m_version;
+            m_architecture = base.GetArchitecture();
 
 			try
 			{
@@ -107,11 +105,15 @@ namespace Eddie.Platform.MacOS
 				if (result == false)
 					throw new Exception("fail");
 
+#if !EDDIE_DOTNET
+				// For MONO, used to listen CTRL+C in CLI edition, and perform a clean exit. Still don't listen a "kill -INT pid".
+				// dotnet catch well signal, both CTRL+C in terminal or "kill -INT pid"
 				NativeMethods.eddie_signal((int)NativeMethods.Signum.SIGHUP, SignalCallback);
 				NativeMethods.eddie_signal((int)NativeMethods.Signum.SIGINT, SignalCallback);
 				NativeMethods.eddie_signal((int)NativeMethods.Signum.SIGTERM, SignalCallback);
 				NativeMethods.eddie_signal((int)NativeMethods.Signum.SIGUSR1, SignalCallback);
 				NativeMethods.eddie_signal((int)NativeMethods.Signum.SIGUSR2, SignalCallback);
+#endif
 			}
 			catch
 			{
@@ -122,6 +124,7 @@ namespace Eddie.Platform.MacOS
 			return true;
 		}
 
+#if !EDDIE_DOTNET
 		private static void SignalCallback(int signum)
 		{
 			NativeMethods.Signum sig = (NativeMethods.Signum)signum;
@@ -136,6 +139,7 @@ namespace Eddie.Platform.MacOS
 			else if (sig == NativeMethods.Signum.SIGUSR2)
 				Engine.Instance.OnSignal("SIGUSR2");
 		}
+#endif
 
 		public override string GetOsArchitecture()
 		{
@@ -173,7 +177,7 @@ namespace Eddie.Platform.MacOS
 			return FileGetPhysicalPath(GetApplicationPath() + "/eddie-cli-elevated");
 		}
 
-		public override bool CheckElevatedSocketAllowed(IPEndPoint localEndpoint, IPEndPoint remoteEndpoint)
+		public override bool CheckElevatedSocketAllowed(System.Net.IPEndPoint localEndpoint, System.Net.IPEndPoint remoteEndpoint)
 		{
 			return true;
 		}
@@ -370,6 +374,7 @@ namespace Eddie.Platform.MacOS
 				return "'otool' " + LanguageManager.GetText(LanguageItems.NotFound);
 		}
 
+#if !EDDIE_DOTNET
 		public override string GetExecutablePathEx()
 		{
 			string currentPath = System.Reflection.Assembly.GetEntryAssembly().Location;
@@ -388,6 +393,7 @@ namespace Eddie.Platform.MacOS
 			}
 			return currentPath;
 		}
+#endif
 
 		protected override string GetUserPathEx()
 		{
@@ -402,7 +408,7 @@ namespace Eddie.Platform.MacOS
 
 		public override bool ProcessKillSoft(Process process)
 		{
-			return (NativeMethods.eddie_kill(process.Id, (int)NativeMethods.Signum.SIGTERM) == 0);
+			return (NativeMethods.eddie_kill(process.Id, 15) == 0);
 		}
 
 		public override int GetOpenVpnRecommendedRcvBufDirective()
@@ -417,7 +423,7 @@ namespace Eddie.Platform.MacOS
 
 		public override Json FetchUrl(Json request)
 		{
-			return NativeMethods.CUrl(request);
+			return NativeMethods.eddie_curl(request);
 		}
 
 		public override void FlushDNS()
@@ -478,6 +484,7 @@ namespace Eddie.Platform.MacOS
 			}
 		}
 
+#if !EDDIE_DOTNET
 		public override void ExecSyncCore(string path, string[] arguments, string autoWriteStdin, out string stdout, out string stderr, out int exitCode)
 		{
 			if (autoWriteStdin != "")
@@ -517,6 +524,7 @@ namespace Eddie.Platform.MacOS
 				exitCode = -1;
 			}
 		}
+#endif
 
 		public override string LocateResource(string relativePath)
 		{
@@ -545,7 +553,7 @@ namespace Eddie.Platform.MacOS
 				string[] fields = line.CleanSpace().Split(' ');
 				if (fields.Length > 2)
 				{
-					if (fields[3] == "127.0.0.1." + port.ToString())
+					if (fields[3] == "127.0.0.1." + port.ToString(CultureInfo.InvariantCulture))
 					{
 						if (fields[5] == "LISTEN")
 						{
@@ -920,7 +928,7 @@ namespace Eddie.Platform.MacOS
 				string result = Engine.Instance.Elevated.DoCommandSync(c);
 
 				string msg = "Workaround to enable IPv6 DNS lookups";
-				if (result.StartsWith("err:"))
+				if (result.StartsWithInv("err:"))
 				{
 					// No exception, it's only a workaround.
 					Engine.Instance.Logs.LogVerbose(msg + " failed: " + result.Substring(4));
@@ -956,7 +964,7 @@ namespace Eddie.Platform.MacOS
                 string result = Engine.Instance.Elevated.DoCommandSync(c);
 
 				string msg = "Workaround for enabling IPv6 DNS lookups";
-				if (result.StartsWith("err:"))
+				if (result.StartsWithInv("err:"))
 				{
 					// No exception, it's only a workaround.
 					Engine.Instance.Logs.LogVerbose(msg + " failed: " + result.Substring(4));
@@ -1042,28 +1050,39 @@ namespace Eddie.Platform.MacOS
 
 		public override string OsCredentialSystemRead(string name)
 		{
+#if EDDIE_DOTNET
+			return NativeMethods.eddie_credential_system_read(Constants.Name + " - " + name, name);			
+#else
 			byte[] b = null;
 			var code = Security.SecKeyChain.FindGenericPassword(Constants.Name + " - " + name, name, out b);
 			if (code == Security.SecStatusCode.Success)
 				return Encoding.UTF8.GetString(b);
 			else
 				return "";
+#endif
 		}
 
 		public override bool OsCredentialSystemWrite(string name, string password)
 		{
-			var b = Encoding.UTF8.GetBytes(password);
-
 			if (OsCredentialSystemDelete(name) == false) // Otherwise is not overwritten
 				return false;
+
+#if EDDIE_DOTNET
+			return NativeMethods.eddie_credential_system_write(Constants.Name + " - " + name, name, password);
+#else
+			var b = Encoding.UTF8.GetBytes(password);
 
 			Security.SecStatusCode ssc;
 			ssc = Security.SecKeyChain.AddGenericPassword(Constants.Name + " - " + name, name, b);
 			return (ssc == Security.SecStatusCode.Success);
+#endif
 		}
 
 		public override bool OsCredentialSystemDelete(string name)
 		{
+#if EDDIE_DOTNET
+			return NativeMethods.eddie_credential_system_delete(Constants.Name + " - " + name, name);			
+#else
 			Security.SecRecord sr = new Security.SecRecord(Security.SecKind.GenericPassword);
 			sr.Service = Constants.Name + " - " + name;
 			sr.Account = name;
@@ -1082,6 +1101,7 @@ namespace Eddie.Platform.MacOS
 				return true;
 			else
 				return false;
+#endif
 		}
 
 		public override List<string> GetTrustedPaths()
@@ -1094,7 +1114,7 @@ namespace Eddie.Platform.MacOS
             list.Add("/usr/sbin");
             */
 			list.Add(LocateExecutable("codesign"));
-			list.Add(LocateExecutable("whoami")); // ClodoTemp, remove with elevation
+			list.Add(LocateExecutable("whoami"));
 
 			return list;
 		}

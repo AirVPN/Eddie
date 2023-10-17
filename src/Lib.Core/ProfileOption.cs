@@ -26,6 +26,7 @@ namespace Eddie.Core
 		public string Man = "";
 		public string Value = "";
 
+		public string Platforms = "*";
 		public bool Omissis = false; // Dump in support log with omissis
 		public bool InternalOnly = false; // Don't show in UI, don't dump in support log
 		public bool DontUserReset = false; // If true, the 'Reset All' launched by user don't clean this option.

@@ -196,7 +196,7 @@ namespace Eddie.Core
 						}
 						else if ((ignoreFirst == false) || (nParams > 0))
 						{
-							int posEq = current.IndexOf("=");
+							int posEq = current.IndexOfInv("=");
 							if (posEq != -1)
 							{
 								k = current.Substring(0, posEq);

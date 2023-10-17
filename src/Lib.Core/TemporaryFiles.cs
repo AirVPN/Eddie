@@ -81,7 +81,7 @@ namespace Eddie.Core
 					string[] files = Directory.GetFiles(Engine.Instance.GetDataPath());
 					foreach (string file in files)
 					{
-						if (file.IndexOf(".tmp.") != -1)
+						if (file.IndexOfInv(".tmp.") != -1)
 						{
 							Destroy(file);
 						}

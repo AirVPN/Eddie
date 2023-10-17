@@ -177,7 +177,6 @@ void eddie_curl(const char* jRequest, unsigned int resultMaxLen, char* jResult)
 			std::string bufferHeaders;
 			std::string bufferBody;
 
-			//curl_easy_setopt(hcurl, CURLOPT_URL, std::string(jsonRequest["url"]).c_str());
 			curl_easy_setopt(hcurl, CURLOPT_URL, jsonRequest["url"].get<std::string>().c_str());
 
 			std::string postfields = jsonRequest["postfields"];
@@ -192,6 +191,8 @@ void eddie_curl(const char* jRequest, unsigned int resultMaxLen, char* jResult)
 			curl_easy_setopt(hcurl, CURLOPT_WRITEFUNCTION, eddie_curl_writecallback);
 			curl_easy_setopt(hcurl, CURLOPT_WRITEDATA, &bufferBody);
 			curl_easy_setopt(hcurl, CURLOPT_NOPROGRESS, 1L);
+
+			curl_easy_setopt(hcurl, CURLOPT_TIMEOUT, jsonRequest["timeout"].get<int>());
 
 			curl_easy_setopt(hcurl, CURLOPT_USERAGENT, jsonRequest["useragent"].get<std::string>().c_str());
 
@@ -221,8 +222,6 @@ void eddie_curl(const char* jRequest, unsigned int resultMaxLen, char* jResult)
 					curl_easy_setopt(hcurl, CURLOPT_PROXYUSERPWD, jsonRequest["proxyuserpwd"].get<std::string>().c_str());
 			}
 
-			//curl_easy_setopt(hcurl, CURLOPT_HTTPHEADER, headersList);
-
 			res = curl_easy_perform(hcurl);
 			if (res != CURLE_OK)
 				throw std::runtime_error(std::string(curl_easy_strerror(res)));
@@ -232,6 +231,9 @@ void eddie_curl(const char* jRequest, unsigned int resultMaxLen, char* jResult)
 			jsonResponse["response_code"] = response_code;
 
 			jsonResponse["headers"] = bufferHeaders;
+
+			curl_version_info_data* version_info = curl_version_info(CURLVERSION_NOW);
+			jsonResponse["curl_version"] = std::string{version_info->version};
 
 			// Encode in hex string the binary body
 			const char digitshex[] = "0123456789ABCDEF";
@@ -256,8 +258,7 @@ void eddie_curl(const char* jRequest, unsigned int resultMaxLen, char* jResult)
 
 		if (hcurl)
 			curl_easy_cleanup(hcurl);
-		//if(headersList)
-		//    curl_slist_free_all(headersList);
+		
 		if (resolveList)
 			curl_slist_free_all(resolveList);
 	}

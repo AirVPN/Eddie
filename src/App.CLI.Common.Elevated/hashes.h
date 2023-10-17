@@ -16,7 +16,7 @@
 // along with Eddie. If not, see <http://www.gnu.org/licenses/>.
 // </eddie_source_header>
 
-const std::string expectedOpenVpnHash = "b8599e8a15be2085bda986e2b79d0b9509ed2c583d315d905a327ad4b5b8961b";
+const std::string expectedOpenVpnHash = "80142056ec556481188e2674ff585be106d778264d7b3ac1ac75983e3684bc8f";
 const std::string expectedHummingbirdHash = "256ee37c5fe4000d2bee9e765135cf761e82b70b864f820aaef4ad131fea5807"; // linux/macOS only
 const std::string expectedWireGuardGoHash = "451266fa0f93f52bd3cd4a8bcb09f9bce3b22335fda5ab9db2a089ac68a423ae"; // macOS only
 const std::string expectedWireGuardWgHash = "9bb35d468bb737a7383a8fbbf89636d6669b7404e3635b1eee204c035fd4e8a9"; // macOS only

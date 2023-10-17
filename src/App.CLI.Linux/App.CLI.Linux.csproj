@@ -29,7 +29,7 @@
       <CustomCommands>
         <Command>
           <type>AfterBuild</type>
-          <command>"${SolutionDir}/eddie.linux.postbuild.sh" "${TargetDir}" cli ${ProjectConfigPlat} ${ProjectConfigName}</command>
+          <command>"${SolutionDir}/linux_postbuild.sh" "${TargetDir}" cli ${ProjectConfigPlat} ${ProjectConfigName}</command>
         </Command>
       </CustomCommands>
     </CustomCommands>
@@ -48,7 +48,7 @@
       <CustomCommands>
         <Command>
           <type>AfterBuild</type>
-          <command>"${SolutionDir}/eddie.linux.postbuild.sh" "${TargetDir}" cli ${ProjectConfigPlat} ${ProjectConfigName}</command>
+          <command>"${SolutionDir}/linux_postbuild.sh" "${TargetDir}" cli ${ProjectConfigPlat} ${ProjectConfigName}</command>
         </Command>
       </CustomCommands>
     </CustomCommands>
@@ -71,7 +71,7 @@
       <CustomCommands>
         <Command>
           <type>AfterBuild</type>
-          <command>"${SolutionDir}/eddie.linux.postbuild.sh" "${TargetDir}" cli ${ProjectConfigPlat} ${ProjectConfigName}</command>
+          <command>"${SolutionDir}/linux_postbuild.sh" "${TargetDir}" cli ${ProjectConfigPlat} ${ProjectConfigName}</command>
         </Command>
       </CustomCommands>
     </CustomCommands>
@@ -89,7 +89,7 @@
       <CustomCommands>
         <Command>
           <type>AfterBuild</type>
-          <command>"${SolutionDir}/eddie.linux.postbuild.sh" "${TargetDir}" cli ${ProjectConfigPlat} ${ProjectConfigName}</command>
+          <command>"${SolutionDir}/linux_postbuild.sh" "${TargetDir}" cli ${ProjectConfigPlat} ${ProjectConfigName}</command>
         </Command>
       </CustomCommands>
     </CustomCommands>

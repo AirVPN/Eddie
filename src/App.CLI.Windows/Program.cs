@@ -22,9 +22,9 @@ using System.Text;
 using System.Threading;
 using Eddie.Core;
 
-namespace Eddie.CLI.Windows
+namespace Eddie.App.CLI.Windows
 {
-	class Program
+	internal sealed class Program
 	{
 		private static Core.ConsoleEdition.UiClient m_client;
 

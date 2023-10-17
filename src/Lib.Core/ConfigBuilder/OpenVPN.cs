@@ -295,7 +295,7 @@ namespace Eddie.Core.ConfigBuilder
 			List<Directive> directivesToCheck = new List<Directive>(Directives[name]);
 			foreach (Directive d in directivesToCheck)
 			{
-				if (d.Text.ToLowerInvariant().StartsWith(value.ToLowerInvariant()))
+				if (d.Text.ToLowerInvariant().StartsWithInv(value.ToLowerInvariant()))
 					Directives[name].Remove(d);
 			}
 		}
