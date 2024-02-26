@@ -31,8 +31,8 @@ namespace Eddie.Core
 		public static string WintunPool = "Eddie";
 		public static string Thanks = "Clodo, PJ, reiandrea, ProMIND, Berserker, OpenSourcerer, zhang888, LZ1, giganerd, Uncle Hunto, go558a83nk, sheivoko, NaDre, pfSense_fan, x0wllaar, cmaves";
 		public static int VersionInt = 289;
-		public static string VersionDesc = "2.23.2"; // Used by deploy system also to generate filenames
-		public static bool VersionBeta = false;
+		public static string VersionDesc = "2.24.0"; // Used by deploy system also to generate filenames
+		public static bool VersionBeta = true;
 		public static string Domain = "eddie.website";
 		public static string WebSite = "https://eddie.website";
 		public static string WebSiteIPv4 = "188.166.41.48"; // Used only in Test Report (Log>Lifebeft)

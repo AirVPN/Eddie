@@ -24,7 +24,7 @@ namespace Eddie.Core
 {
 	public class UiManager
 	{
-		List<UiClient> Clients = new List<UiClient>();
+		private List<UiClient> Clients = new List<UiClient>();
 
 		public class Command
 		{
@@ -41,6 +41,11 @@ namespace Eddie.Core
 
 		}
 
+		public UiClient GetContainerClient()
+		{
+			return Clients[0];
+		}
+
 		public void Add(UiClient client)
 		{
 			Clients.Add(client);
@@ -51,6 +56,14 @@ namespace Eddie.Core
 			foreach (UiClient client in Clients)
 			{
 				client.OnReceive(data);
+			}
+		}
+
+		public void OnWork()
+		{
+			foreach (UiClient client in Clients)
+			{
+				client.OnWork();
 			}
 		}
 
@@ -65,33 +78,26 @@ namespace Eddie.Core
 			return c.Response;
 		}
 
+		public void SendCommandDirect(Json request, UiClient sender)
+		{
+			Command c = new Command();
+			c.Request = request;
+			c.Sender = sender;
+			lock (m_commands)
+				m_commands.Add(c);
+		}
+
 		public Json ProcessCommand(Json data, UiClient sender)
 		{
 			string cmd = data["command"].Value as string;
 
 			if (cmd == "exit")
 			{
-				Engine.Instance.Exit();
+				Engine.Instance.ExitStart();
 			}
-			else if (cmd == "ui.start")
+			else if (cmd == "ui.boot.request")
 			{
-				Json result = new Json();
-				result["manifest"].Value = Engine.Instance.Manifest;
-				result["main_status"].Value = Engine.Instance.MainStatusBuild();
-				result["logs"].Value = Engine.Instance.Logs.GetJson();
-				result["options"].Value = Engine.Instance.ProfileOptions.GetJson();
-
-				Json jNetlockModes = new Json();
-				foreach (NetworkLockPlugin lockPlugin in Engine.Instance.NetworkLockManager.Modes)
-				{
-					Json jNetlockMode = new Json();
-					jNetlockMode["code"].Value = lockPlugin.GetCode();
-					jNetlockMode["title"].Value = lockPlugin.GetTitleForList();
-					jNetlockModes.Append(jNetlockMode);
-				}
-				result["netlock_modes"].Value = jNetlockModes;
-
-				return result;
+				Engine.Instance.UiBootRaise();
 			}
 			else if (cmd == "mainaction.connect")
 			{
@@ -154,28 +160,39 @@ namespace Eddie.Core
 				return result;
 			}
 			else if (cmd == "tor.guard")
+			{
 				Engine.Instance.Logs.LogVerbose("Tor Guard IPs:" + TorControl.GetGuardIps(true).ToString());
-			else if (cmd == "tor.NEWNYM")
-				TorControl.SendNEWNYM();
-			else if (cmd == "ip.exit")
-				Engine.Instance.Logs.LogVerbose(Engine.Instance.DiscoverExit().ToString());
-			else if (cmd == "test.query")
-			{
-				Json result = new Json();
-				result["result"].Value = cmd;
-				return result;
 			}
-			else if (cmd == "test.logs")
+			else if (cmd == "tor.NEWNYM")
 			{
-				Engine.Instance.Logs.Log(LogType.InfoImportant, "Test log\nInfo");
-				Engine.Instance.Logs.Log(LogType.InfoImportant, "Test log\nInfo Important");
-				Engine.Instance.Logs.Log(LogType.Warning, "Test log\nWarning\n" + DateTime.Now.ToString());
-				Engine.Instance.Logs.Log(LogType.Error, "Test log\nError");
-				//Engine.Instance.Logs.Log(LogType.Fatal, "Test log\nFatal");
+				TorControl.SendNEWNYM();
+			}
+			else if (cmd == "ip.exit")
+			{
+				Engine.Instance.Logs.LogVerbose(Engine.Instance.DiscoverExit().ToString());
+			}
+			else if (cmd == "directory.open")
+			{
+				Platform.Instance.OpenFolder(data["path"].ValueString);
 			}
 			else if (cmd == "url.open")
 			{
 				Platform.Instance.OpenUrl(data["uri"].ValueString);
+			}
+			else if (cmd == "test.query")
+			{
+				Json result = new Json();
+				result["result"].Value = cmd;
+				result["ts"].Value = DateTime.Now.ToString();
+				return result;
+			}
+			else if (cmd == "test.logs")
+			{
+				//Engine.Instance.Logs.Log(LogType.InfoImportant, "Test log\nInfo");
+				//Engine.Instance.Logs.Log(LogType.InfoImportant, "Test log\nInfo Important");
+				Engine.Instance.Logs.Log(LogType.Warning, "Test log\nWarning\n" + DateTime.Now.ToString());
+				//Engine.Instance.Logs.Log(LogType.Error, "Test log\nError");
+				//Engine.Instance.Logs.Log(LogType.Fatal, "Test log\nFatal");
 			}
 
 			return null;
@@ -193,8 +210,16 @@ namespace Eddie.Core
 
 					c.Response = ProcessCommand(c.Request, c.Sender);
 					c.Complete.Set();
-				}
 
+					if ((c.Sender != null) && (c.Request.HasKey("callback")))
+					{
+						Json jReply = new Json();
+						jReply["command"].Value = "reply";
+						jReply["id"].Value = c.Request["callback"].ValueString;
+						jReply["body"].Value = c.Response;
+						c.Sender.OnReceive(jReply);
+					}
+				}
 			}
 		}
 

@@ -32,21 +32,20 @@ namespace Eddie.UI.Cocoa.Osx
 		{
 			Core.Platform.Instance = new Eddie.Platform.MacOS.Platform();
 
-			if (new CommandLine(Environment.CommandLine, true, false).Exists("cli")) // TOFIX, not need anymore when every OS have a CLI executable.
-			{
-                Core.ConsoleEdition.UiClient client = new Core.ConsoleEdition.UiClient();
-                AppDomain.CurrentDomain.UnhandledException += (object sender, UnhandledExceptionEventArgs e) => {
-                    Exception ex = (Exception)e.ExceptionObject;
-                    client.OnUnhandledException("CurrentDomain", ex);
-                };
-                client.Init(Environment.CommandLine);
-			}
-			else
-			{
-                NSApplication.Init();
+			Eddie.Platform.MacOS.NativeMethods.Signal((int)Eddie.Platform.MacOS.NativeMethods.Signum.SIGHUP, SignalCallback);
+			Eddie.Platform.MacOS.NativeMethods.Signal((int)Eddie.Platform.MacOS.NativeMethods.Signum.SIGINT, SignalCallback);
+			Eddie.Platform.MacOS.NativeMethods.Signal((int)Eddie.Platform.MacOS.NativeMethods.Signum.SIGTERM, SignalCallback);
+			Eddie.Platform.MacOS.NativeMethods.Signal((int)Eddie.Platform.MacOS.NativeMethods.Signum.SIGUSR1, SignalCallback);
+			Eddie.Platform.MacOS.NativeMethods.Signal((int)Eddie.Platform.MacOS.NativeMethods.Signum.SIGUSR2, SignalCallback);
 
-                NSApplication.Main(args);
-			}
+			NSApplication.Init();
+
+            NSApplication.Main(args);
+		}
+
+		private static void SignalCallback(int signum)
+		{
+			Engine.Instance.ExitStart();
 		}
     }
 }

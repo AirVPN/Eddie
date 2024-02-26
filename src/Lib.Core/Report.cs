@@ -162,7 +162,7 @@ namespace Eddie.Core
 		{
 			Add("Eddie version", Engine.Instance.GetVersionShow());
 			Add("Eddie OS build", Platform.Instance.GetSystemCode());
-			Add("Eddie architecture", Platform.Instance.GetArchitecture());
+			Add("Eddie architecture", Platform.Instance.GetProcessArchitecture());
 			Add("OS type", Platform.Instance.GetCode());
 			Add("OS name", Platform.Instance.GetName());
 			Add("OS version", Platform.Instance.GetVersion());
@@ -205,7 +205,7 @@ namespace Eddie.Core
 
 		public void NetworkInfo()
 		{
-			Add("Network Info", Engine.Instance.NetworkInfoBuild().ToTextPretty());
+			Add("Network Info", Engine.Instance.NetworkInfoBuild().ToJsonPretty());
 		}
 	}
 }

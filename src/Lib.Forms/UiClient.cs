@@ -22,7 +22,7 @@ using System.Windows.Forms;
 
 namespace Eddie.Forms
 {
-	public class UiClient : Eddie.Core.UiClient
+	public class UiClient : Eddie.Core.UiClientLegacy
 	{
 		public static UiClient Instance;
 		public Forms.Main MainWindow;
@@ -81,13 +81,14 @@ namespace Eddie.Forms
 			if (AppContext != null)
 				AppContext.ExitThread();
 
-			if (Platform.Instance.IsUnixSystem())
+			if (GuiUtils.IsUnix())
 			{
 				System.Windows.Forms.Application.Exit();
 			}
 			//Application.Exit(); // Removed in 2.12, otherwise lock Core thread. Still required in Linux edition.
 		}
 
+		/* // TOCLEAN
 		public override Json Command(Json data)
 		{
 			string cmd = data["command"].Value as string;
@@ -99,6 +100,7 @@ namespace Eddie.Forms
 			else
 				return Engine.UiManager.SendCommand(data, this);
 		}
+		*/
 
 		public override void OnReceive(Json data)
 		{
@@ -162,8 +164,8 @@ namespace Eddie.Forms
 			}
 			else if (cmd == "ui.frontmessage")
 			{
-				if (UiClient.Instance.MainWindow != null)
-					UiClient.Instance.MainWindow.OnFrontMessage(data["message"].Value as Json);
+				if (MainWindow != null)
+					MainWindow.OnFrontMessage(data["message"].Value as Json);
 			}
 			else if (cmd == "system.report.progress")
 			{
@@ -173,6 +175,11 @@ namespace Eddie.Forms
 
 				if (MainWindow != null)
 					MainWindow.OnSystemReport(step, text, perc);
+			}
+			else if (cmd == "ui.show.manifest")
+			{
+				if (MainWindow != null)
+					MainWindow.OnShowText("Json Data", Data.ToJsonPretty());
 			}
 		}
 	}

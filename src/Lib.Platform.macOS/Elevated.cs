@@ -17,11 +17,7 @@
 // </eddie_source_header>
 
 using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
-using System.Text;
-using System.Xml;
 using Eddie.Core;
 
 namespace Eddie.Platform.MacOS
@@ -40,11 +36,9 @@ namespace Eddie.Platform.MacOS
 					Engine.Instance.UiManager.Broadcast("init.step", "message", LanguageManager.GetText(LanguageItems.InitStepRaiseSystemPrivileges));
 					Engine.Instance.Logs.LogVerbose(LanguageManager.GetText(LanguageItems.InitStepRaiseSystemPrivileges));
 
-					string helperPath = Platform.Instance.GetElevatedHelperPath();
-
 					int port = GetPortSpot();
 
-					int pid = Platform.Instance.StartProcessAsRoot(helperPath, new string[] { "mode=spot", "spot_port=" + port.ToString(CultureInfo.InvariantCulture), "service_port=" + Engine.Instance.GetElevatedServicePort().ToString(CultureInfo.InvariantCulture) }, Engine.Instance.ConsoleMode);
+					int pid = (Platform.Instance as Eddie.Platform.MacOS.Platform).RunElevated(new string[] { "mode=spot", "spot_port=" + port.ToString(CultureInfo.InvariantCulture), "service_port=" + Engine.Instance.GetElevatedServicePort().ToString(CultureInfo.InvariantCulture) }, false);					
 					System.Diagnostics.Process process = null;
 					if (pid > 0)
 						process = System.Diagnostics.Process.GetProcessById(pid);

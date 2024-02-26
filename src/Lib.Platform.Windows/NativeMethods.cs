@@ -88,6 +88,7 @@ namespace Eddie.Platform.Windows
 		[return: MarshalAs(UnmanagedType.Bool)]
 		static extern bool CloseHandle(IntPtr hObject);
 
+		/* TOCLEAN, removed in 2.24.0
 		[DllImport("Kernel32")]
 		public static extern bool SetConsoleCtrlHandler(ConsoleCtrlHandlerRoutine Handler, bool Add);
 		public delegate bool ConsoleCtrlHandlerRoutine(CtrlTypes CtrlType);
@@ -100,6 +101,7 @@ namespace Eddie.Platform.Windows
 			CTRL_LOGOFF_EVENT = 5,
 			CTRL_SHUTDOWN_EVENT
 		}
+		*/
 
 		[DllImport("kernel32.dll")]
 		internal static extern bool GenerateConsoleCtrlEvent(uint dwCtrlEvent, uint dwProcessGroupId);
@@ -238,7 +240,11 @@ namespace Eddie.Platform.Windows
 		public const int AF_INET = 2;
 
 		[DllImport("iphlpapi.dll", SetLastError = true)]
-		public static extern uint GetExtendedTcpTable(IntPtr pTcpTable, ref int dwOutBufLen, bool sort, int ipVersion, TCP_TABLE_CLASS tblClass, uint reserved = 0);
+		private static extern uint GetExtendedTcpTable(IntPtr pTcpTable, ref int dwOutBufLen, bool sort, int ipVersion, TCP_TABLE_CLASS tblClass, uint reserved = 0);
+		public static uint GetExTcpTable(IntPtr pTcpTable, ref int dwOutBufLen, bool sort, int ipVersion, TCP_TABLE_CLASS tblClass, uint reserved = 0)
+		{
+			return GetExtendedTcpTable(pTcpTable, ref dwOutBufLen, sort, ipVersion, tblClass, reserved);
+		}
 
 		#endregion
 	}

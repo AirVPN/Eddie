@@ -66,60 +66,50 @@ echo Step: Package dependencies - Build Portable
 "${SCRIPTDIR}/../macos_portable/build.sh" ${PROJECT} ${ARCH} ${VAROS} ${FRAMEWORK}
 mkdir -p ${TARGETDIR}
 DEPPACKAGEPATH=${SCRIPTDIR}/../files/eddie-${PROJECT}_${VERSION}_${VAROS}_${ARCH}_portable.zip
+
 # DMG
 
 # Extract base
-
 tar -jxvf "${SCRIPTDIR}/diskbase.dmg.tar.bz2" -C "${TARGETDIR}"
 
 # Resize
-
 hdiutil resize -size 200m "${TARGETDIR}/diskbase.dmg"
 
 # Attach
-
 hdiutil attach "${TARGETDIR}/diskbase.dmg" -mountpoint "${TARGETDIR}/DiskBuild"
 
 # Fill
-
 unzip "${DEPPACKAGEPATH}" -d "${TARGETDIR}/DiskBuild/"
 
 # Detach
-
 hdiutil detach "${TARGETDIR}/DiskBuild"
 
 # Compress
-
 hdiutil convert "${TARGETDIR}/diskbase.dmg" -format UDCO -imagekey zlib-level=9 -o "${FINALPATH}"
 
 # Hardening - See comment in macos_portable/build.sh
-
 VARHARDENING="yes"
 if [ ${VAROS} = "macos-10.9" ]; then
     VARHARDENING="no"
 fi
 
 # Sign package
-
 if [ ${STAFF} = "yes" ]; then
     "${SCRIPTDIR}/../macos_common/sign.sh" "${FINALPATH}" yes ${VARHARDENING}
 fi
 
-# Notarization - Not need
+# Notarization
 if [ ${STAFF} = "yes" ]; then
-    "${SCRIPTDIR}/../macos_common/notarize.sh" "${FINALPATH}" "org.airvpn.eddie.${PROJECT}"
+    "${SCRIPTDIR}/../macos_common/notarize.sh" "${FINALPATH}"
 fi
 
 # Deploy to eddie.website
-
 ${SCRIPTDIR}/../macos_common/deploy.sh ${FINALPATH} "internal"
 
 # End
-
 mv ${FINALPATH} ${DEPLOYPATH}
 
 # Cleanup
-
 echo Step: Final cleanup
 rm -rf $TARGETDIR
 

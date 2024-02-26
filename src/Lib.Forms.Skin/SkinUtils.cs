@@ -103,11 +103,15 @@ namespace Eddie.Forms.Skin
 					m_unixFontSystemName = "Cantarell";
 				if (m_unixFontSystemSize < 6)
 					m_unixFontSystemSize = 6;
+				if (m_unixFontSystemSize > 12)
+					m_unixFontSystemSize = 12;
 
 				if (m_unixFontMonoSpaceName == "")
 					m_unixFontMonoSpaceName = "Monospace";
 				if (m_unixFontMonoSpaceSize < 6)
 					m_unixFontMonoSpaceSize = 6;
+				if (m_unixFontMonoSpaceSize > 12)
+					m_unixFontMonoSpaceSize = 12;
 			}
 		}
 

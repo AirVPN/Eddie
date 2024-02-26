@@ -125,18 +125,18 @@ namespace Eddie.Forms.Forms
 
 			// General
 
-			chkSystemStart.Visible = Platform.Instance.IsWindowsSystem();
+			chkSystemStart.Visible = GuiUtils.IsWindows();
 			chkSystemService.Visible = Platform.Instance.AllowService();
 			lblSystemService.Text = Platform.Instance.AllowServiceUserDescription();
-			pnlAdvancedGeneralWindowsOnly.Visible = Platform.Instance.IsWindowsSystem();
-			pnlDnsWindowsOnly.Visible = Platform.Instance.IsWindowsSystem();
-			lblWindowsDriver.Visible = Platform.Instance.IsWindowsSystem();
-			cboWindowsDriver.Visible = Platform.Instance.IsWindowsSystem();
-			chkWindowsDebugWorkaround.Visible = Platform.Instance.IsWindowsSystem();
-			lblHummingbirdPrefer.Visible = (Platform.Instance.IsWindowsSystem() == false);
-			chkHummingbirdPrefer.Visible = (Platform.Instance.IsWindowsSystem() == false);
-			txtHummingbirdPath.Visible = (Platform.Instance.IsWindowsSystem() == false);
-			cmdHummingbirdPathBrowse.Visible = (Platform.Instance.IsWindowsSystem() == false);
+			pnlAdvancedGeneralWindowsOnly.Visible = GuiUtils.IsWindows();
+			pnlDnsWindowsOnly.Visible = GuiUtils.IsWindows();
+			lblWindowsDriver.Visible = GuiUtils.IsWindows();
+			cboWindowsDriver.Visible = GuiUtils.IsWindows();
+			chkWindowsDebugWorkaround.Visible = GuiUtils.IsWindows();
+			lblHummingbirdPrefer.Visible = (GuiUtils.IsWindows() == false);
+			chkHummingbirdPrefer.Visible = (GuiUtils.IsWindows() == false);
+			txtHummingbirdPath.Visible = (GuiUtils.IsWindows() == false);
+			cmdHummingbirdPathBrowse.Visible = (GuiUtils.IsWindows() == false);
 
 			// Disabled
 			lblOsSingleInstance.Visible = false;
@@ -219,10 +219,10 @@ namespace Eddie.Forms.Forms
 			lstRoutes.ResizeColumnMax(2);
 
 			// Networking
-			lblNetworkIfaceName.Visible = Platform.Instance.IsWindowsSystem();
-			txtNetworkIfaceName.Visible = Platform.Instance.IsWindowsSystem();
-			lblWindowsAdaptersCleanup.Visible = Platform.Instance.IsWindowsSystem();
-			chkWindowsAdaptersCleanup.Visible = Platform.Instance.IsWindowsSystem();
+			lblNetworkIfaceName.Visible = GuiUtils.IsWindows();
+			txtNetworkIfaceName.Visible = GuiUtils.IsWindows();
+			lblWindowsAdaptersCleanup.Visible = GuiUtils.IsWindows();
+			chkWindowsAdaptersCleanup.Visible = GuiUtils.IsWindows();
 
 			cboLockMode.Items.Clear();
 			cboLockMode.Items.Add("None");
@@ -312,7 +312,7 @@ namespace Eddie.Forms.Forms
 			cboAdvancedUpdaterChannel.Items.Add("Beta");
 			cboAdvancedUpdaterChannel.Items.Add("None");
 
-			if (Platform.IsWindows())
+			if (GuiUtils.IsWindows())
 			{
 				cmdAdvancedUninstallDriverTap.Visible = true;
 				cmdAdvancedUninstallDriverTap.Enabled = (Platform.Instance.OpenVpnCanUninstallDriver("0901"));
@@ -335,6 +335,7 @@ namespace Eddie.Forms.Forms
 			cboWireGuardMTU.Items.Add("Recommended (1320)");
 			cboWireGuardMTU.Items.Add("Omit (WG automatic)");
 			cboWireGuardMTU.Items.Add("1400");
+			cboWireGuardMTU.Items.Add("1392");
 			cboWireGuardMTU.Items.Add("1320");
 			cboWireGuardMTU.Items.Add("1280");
 
@@ -361,7 +362,7 @@ namespace Eddie.Forms.Forms
 
 			EnableIde();
 
-			if (Platform.IsUnix())
+			if (GuiUtils.IsUnix())
 				MinimumSize = new Size(1020, 530);
 
 			m_onLoadCompleted = true;
@@ -750,6 +751,8 @@ namespace Eddie.Forms.Forms
 				cboWireGuardMTU.Text = "Omit (WG automatic)";
 			else if (wireguardInterfaceMTU == "1400")
 				cboWireGuardMTU.Text = "1400";
+			else if (wireguardInterfaceMTU == "1392")
+				cboWireGuardMTU.Text = "1392";
 			else if (wireguardInterfaceMTU == "1320")
 				cboWireGuardMTU.Text = "1320";
 			else if (wireguardInterfaceMTU == "1280")
@@ -1158,6 +1161,8 @@ namespace Eddie.Forms.Forms
 				o.Set("wireguard.interface.mtu", "0");
 			else if (wireguardInterfaceMTU == "1400")
 				o.Set("wireguard.interface.mtu", "1400");
+			else if (wireguardInterfaceMTU == "1392")
+				o.Set("wireguard.interface.mtu", "1392");
 			else if (wireguardInterfaceMTU == "1320")
 				o.Set("wireguard.interface.mtu", "1320");
 			else if (wireguardInterfaceMTU == "1280")

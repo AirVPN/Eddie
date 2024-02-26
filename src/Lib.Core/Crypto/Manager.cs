@@ -36,12 +36,18 @@ namespace Eddie.Core.Crypto
 			return decrypted;
 		}
 
-		public static string HashSHA256(string password)
+		public static string HashSHA256(string data)
 		{
-			using (System.Security.Cryptography.SHA256Managed crypt = new System.Security.Cryptography.SHA256Managed())
+			using (SHA256 sha256 = SHA256.Create())
 			{
-				System.Text.StringBuilder hash = new System.Text.StringBuilder();
-				byte[] bytes = crypt.ComputeHash(Encoding.UTF8.GetBytes(password), 0, Encoding.UTF8.GetByteCount(password));
+#if EDDIE_DOTNET
+				byte[] bytes = System.Security.Cryptography.SHA256.HashData(Encoding.UTF8.GetBytes(data));
+#else
+				// ComputeHash in dotnet7 raise
+				// warning CA1850: Prefer static 'System.Security.Cryptography.SHA256.HashData' method over 'ComputeHash'
+				// but System.Security.Cryptography.SHA256.HashData exists only in dotnet 5 and above.
+				byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(data), 0, Encoding.UTF8.GetByteCount(data));
+#endif
 				return ExtensionsString.BytesToHex(bytes);
 			}
 		}

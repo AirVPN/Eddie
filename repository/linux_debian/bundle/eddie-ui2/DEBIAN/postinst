@@ -1,0 +1,5 @@
+#!/bin/sh
+
+set -e
+/usr/lib/eddie-ui/eddie-cli-elevated service=install
+exit 0

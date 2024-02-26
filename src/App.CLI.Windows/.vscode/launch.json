@@ -1,0 +1,25 @@
+{
+    "version": "0.2.0",
+    "configurations": [        
+        {
+            "name": ".NET Core Launch (console)",
+            "type": "coreclr",
+            "request": "launch",            
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/bin/Debug/net7.0/win-x64/Eddie-CLI.dll",
+            "args": [
+                "path.tools=${workspaceFolder}/../../deploy/windows_{@arch}",
+                "path.resources=${workspaceFolder}/../../resources",
+                "path=home"
+            ],
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "stopAtEntry": false
+        },
+        {
+            "name": ".NET Core Attach",
+            "type": "coreclr",
+            "request": "attach"
+        }
+    ]
+}

@@ -53,18 +53,10 @@ namespace Eddie.Core
 
 		public static void Clean()
 		{
-			Clean("");
-		}
-
-		private static void Clean(string group)
-		{
 			List<TemporaryFile> filesToRemove = new List<TemporaryFile>();
 			foreach (TemporaryFile file in m_files)
 			{
-				if (file.Group == group)
-					filesToRemove.Add(file);
-				else if (group == "")
-					filesToRemove.Add(file);
+				filesToRemove.Add(file);
 			}
 
 			foreach (TemporaryFile file in filesToRemove)
@@ -73,7 +65,7 @@ namespace Eddie.Core
 				Remove(file);
 			}
 
-			if ((group == "") && (Engine.Instance.GetDataPath() != ""))
+			if (Engine.Instance.GetDataPath() != "")
 			{
 				// Cleaning old zombie temporary files
 				try

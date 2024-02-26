@@ -16,8 +16,6 @@
 // along with Eddie. If not, see <http://www.gnu.org/licenses/>.
 // </eddie_source_header>
 
-using System.Collections.Generic;
-
 namespace Eddie.Core
 {
 	public class UiClient
@@ -29,16 +27,27 @@ namespace Eddie.Core
 			return false;
 		}
 
+		/* // TOCLEAN
 		public virtual Json Command(Json data)
 		{
 			return null;
 		}
+		*/
 
 		public virtual void OnReceive(Json data)
 		{
 			string cmd = data["command"].Value as string;
 			if (cmd == "ui.manifest")
 				Data = data;
+		}
+
+		public virtual void OnWork()
+		{
+		}
+
+		public Json Command(Json data)
+		{
+			return Engine.Instance.UiManager.SendCommand(data, this);
 		}
 
 		// Helpers
@@ -49,7 +58,7 @@ namespace Eddie.Core
 
 			CommandLine cmd = new CommandLine(command.Trim(), false, true);
 			j["command"].Value = cmd.Get("action", "");
-			foreach (KeyValuePair<string, string> kp in cmd.Params)
+			foreach (System.Collections.Generic.KeyValuePair<string, string> kp in cmd.Params)
 				if (kp.Key != "action")
 					j[kp.Key].Value = kp.Value;
 

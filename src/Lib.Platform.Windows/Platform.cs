@@ -30,7 +30,6 @@ using Microsoft.Win32;
 using Eddie.Core;
 using System.Globalization;
 
-
 // Avoid useless warning "This call site is reachable on all platforms. 'x' is only supported on: 'windows'."
 #pragma warning disable CA1416
 
@@ -47,7 +46,7 @@ namespace Eddie.Platform.Windows
 		private int m_oldMetricIPv4 = -1;
 		private int m_oldMetricIPv6 = -1;
 		private Mutex m_mutexSingleInstance = null;
-		private NativeMethods.ConsoleCtrlHandlerRoutine m_consoleCtrlHandlerRoutine;
+		//private NativeMethods.ConsoleCtrlHandlerRoutine m_consoleCtrlHandlerRoutine; // TOCLEAN
 
 		public bool IsXpOrNewer()
 		{
@@ -114,6 +113,25 @@ namespace Eddie.Platform.Windows
 			return name;
 		}
 
+		public override string GetVersion()
+		{
+			string v = base.GetVersion();
+			v = v.Replace("Microsoft Windows NT", "");
+			v = v.Replace("Microsoft Windows", "");
+			return v.Trim();
+		}
+
+#if !EDDIE_DOTNET
+		public override string GetOsArchitecture()
+		{
+			if (GetProcessArchitecture() == "x64")
+				return "x64";
+			if (NativeMethods.InternalCheckIsWow64())
+				return "x64";
+			return "x86";
+		}
+#endif
+
 		public override bool OnInit()
 		{
 			base.OnInit();
@@ -130,9 +148,9 @@ namespace Eddie.Platform.Windows
 					vcRuntimeAvailable = true;
 				*/
 
-				if (GetArchitecture() == "x86")
+				if (GetProcessArchitecture() == "x86")
 				{
-					int currentVersion = Conversions.ToInt32(Registry.GetValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\VisualStudio\\14.0\\VC\\Runtimes\\" + GetArchitecture().ToUpperInvariant(), "Major", "0"), 0);
+					int currentVersion = Conversions.ToInt32(Registry.GetValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\VisualStudio\\14.0\\VC\\Runtimes\\" + GetProcessArchitecture().ToUpperInvariant(), "Major", "0"), 0);
 					if (currentVersion >= 14)
 						vcRuntimeAvailable = true;
 					if (File.Exists(Path.Combine(Environment.SystemDirectory, "vcruntime140.dll")) == false)
@@ -140,7 +158,7 @@ namespace Eddie.Platform.Windows
 				}
 				else
 				{
-					int currentVersion = Conversions.ToInt32(Registry.GetValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\Microsoft\\VisualStudio\\14.0\\VC\\Runtimes\\" + GetArchitecture(), "Major", "0"), 0);
+					int currentVersion = Conversions.ToInt32(Registry.GetValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\Microsoft\\VisualStudio\\14.0\\VC\\Runtimes\\" + GetProcessArchitecture(), "Major", "0"), 0);
 					if (currentVersion >= 14)
 						vcRuntimeAvailable = true;
 
@@ -159,8 +177,10 @@ namespace Eddie.Platform.Windows
 				if (result == false)
 					throw new Exception("fail");
 
+				/* TOCLEAN, removed in 2.24.0
 				m_consoleCtrlHandlerRoutine = new NativeMethods.ConsoleCtrlHandlerRoutine(ConsoleCtrlCheck); // Avoid Garbage Collector
 				NativeMethods.SetConsoleCtrlHandler(m_consoleCtrlHandlerRoutine, true);
+				*/
 			}
 			catch
 			{
@@ -187,15 +207,6 @@ namespace Eddie.Platform.Windows
 				Wfp.Start();
 		}
 
-		public override string GetOsArchitecture()
-		{
-			if (GetArchitecture() == "x64")
-				return "x64";
-			if (NativeMethods.InternalCheckIsWow64())
-				return "x64";
-			return "x86";
-		}
-
 		public override Eddie.Core.Elevated.IElevated StartElevated()
 		{
 			ElevatedImpl e = new ElevatedImpl();
@@ -208,7 +219,7 @@ namespace Eddie.Platform.Windows
 		{
 			return NativeMethods.IsProcessElevated();
 
-			/* Old C# code			
+			/* Old C# edition
 			bool isElevated;
 			WindowsIdentity identity = WindowsIdentity.GetCurrent();
 			WindowsPrincipal principal = new WindowsPrincipal(identity);
@@ -229,7 +240,7 @@ namespace Eddie.Platform.Windows
 			int bufferSize = 0;
 
 			// Getting the size of TCP table, that is returned in 'bufferSize' variable. 
-			uint result = NativeMethods.GetExtendedTcpTable(IntPtr.Zero, ref bufferSize, true, NativeMethods.AF_INET, NativeMethods.TCP_TABLE_CLASS.TCP_TABLE_OWNER_PID_ALL);
+			uint result = NativeMethods.GetExTcpTable(IntPtr.Zero, ref bufferSize, true, NativeMethods.AF_INET, NativeMethods.TCP_TABLE_CLASS.TCP_TABLE_OWNER_PID_ALL);
 
 			// Allocating memory from the unmanaged memory of the process by using the 
 			// specified number of bytes in 'bufferSize' variable. 
@@ -240,7 +251,7 @@ namespace Eddie.Platform.Windows
 				// The size of the table returned in 'bufferSize' variable in previous 
 				// call must be used in this subsequent call to 'GetExtendedTcpTable' 
 				// function in order to successfully retrieve the table. 
-				result = NativeMethods.GetExtendedTcpTable(tcpTableRecordsPtr, ref bufferSize, true, NativeMethods.AF_INET, NativeMethods.TCP_TABLE_CLASS.TCP_TABLE_OWNER_PID_ALL);
+				result = NativeMethods.GetExTcpTable(tcpTableRecordsPtr, ref bufferSize, true, NativeMethods.AF_INET, NativeMethods.TCP_TABLE_CLASS.TCP_TABLE_OWNER_PID_ALL);
 
 				// Non-zero value represent the function 'GetExtendedTcpTable' failed, 
 				// hence empty list is returned to the caller function. 
@@ -614,6 +625,7 @@ namespace Eddie.Platform.Windows
 				return Conversions.ToString(v);
 		}
 
+		/* TOCLEAN
 		private bool ConsoleCtrlCheck(NativeMethods.CtrlTypes ctrlType)
 		{
 			switch (ctrlType)
@@ -639,6 +651,7 @@ namespace Eddie.Platform.Windows
 
 			return true;
 		}
+		*/
 
 		public override bool ProcessKillSoft(Core.Process process)
 		{
@@ -824,7 +837,10 @@ namespace Eddie.Platform.Windows
 			if (IsVistaOrNewer()) // 2.10.1
 			{
 				Engine.Instance.NetworkLockManager.AddPlugin(new NetworkLockWfp());
-				Engine.Instance.NetworkLockManager.AddPlugin(new NetworkLockWindowsFirewall());
+
+				// Removed in 2.24.0
+				// TOCLEAN, Old NetLock Windows Firewall method
+				//Engine.Instance.NetworkLockManager.AddPlugin(new NetworkLockWindowsFirewall());
 			}
 		}
 
@@ -1439,32 +1455,6 @@ namespace Eddie.Platform.Windows
 			string dns6 = Registry.GetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip6\\Parameters\\Interfaces\\" + id.ToLowerInvariant(), "NameServer", "") as string;
 			jNetworkInterface["dns4"].Value = dns4;
 			jNetworkInterface["dns6"].Value = dns6;
-
-			// Replaced with OnNetworkInfoBuild above, to avoid usage of ManagementObject (that cause issue with trimming in net6 probably due to some kind of reflection			
-			/* // TOCLEAN
-			try
-			{
-				System.Management.ManagementObjectCollection mbsList = null;
-				System.Management.ManagementObjectSearcher mbs = new System.Management.ManagementObjectSearcher("Select * From Win32_NetworkAdapter where GUID=\"" + id + "\"");
-				mbsList = mbs.Get();
-				foreach (System.Management.ManagementObject mo in mbsList)
-				{
-					try
-					{
-						string v = mo["ServiceName"].ToString();
-						if(v != null)
-							jNetworkInterface["device_id"].Value = v;
-					}
-					catch
-					{
-					}					
-				}
-			}
-			catch (Exception ex)
-			{
-				Engine.Instance.Logs.Log(ex);
-			}
-			*/
 		}
 
 		public override void OnNetworkRouteListBuild(Json jRoutesList)
@@ -1554,8 +1544,8 @@ namespace Eddie.Platform.Windows
 			// sigcheck pass x509 signature verification, so we don't need GetTrustedPaths().
 
 
-			// openvpn.exe:         x509.Verify() true, AuthenticodeTools.IsTrusted() true, sigcheck true.
-			// tap-windows.exe:     
+			// openvpn.exe: x509.Verify() true, AuthenticodeTools.IsTrusted() true, sigcheck true.
+			// tap-windows.exe: 
 			// %system32/route.exe:  
 
 			try
@@ -1947,7 +1937,7 @@ namespace Eddie.Platform.Windows
 				sysPath = Platform.Instance.NormalizePath(Environment.GetEnvironmentVariable("windir") + Platform.Instance.DirSep + sysPath);
 			}
 
-			if ((GetArchitecture() == "x86") && (GetOsArchitecture() == "x64") && (IsVistaOrNewer()))
+			if ((GetProcessArchitecture() == "x86") && (GetOsArchitecture() == "x64") && (IsVistaOrNewer()))
 			{
 				// If Eddie is compiled for 32 bit, and architecture is 64 bit, 
 				// tunnel driver path above is real, but Redirector cause issue.

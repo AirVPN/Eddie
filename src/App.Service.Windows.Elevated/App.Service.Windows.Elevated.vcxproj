@@ -156,20 +156,25 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\App.CLI.Common.Elevated\ibase.cpp" />
-    <ClCompile Include="..\App.CLI.Common.Elevated\ping.cpp" />
-    <ClCompile Include="..\App.CLI.Common.Elevated\sha256.cpp" />
+    <ClCompile Include="..\..\dependencies\sha256\sha256.cpp" />
+    <ClCompile Include="..\..\dependencies\yxml\yxml.cpp" />
     <ClCompile Include="..\App.CLI.Windows.Elevated\src\impl.cpp" />
     <ClCompile Include="..\App.CLI.Windows.Elevated\src\iwindows.cpp" />
-    <ClCompile Include="..\App.CLI.Windows.Elevated\src\yxml.cpp" />
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="..\Lib.CLI.Elevated\src\ibase.cpp" />
+    <ClCompile Include="..\Lib.CLI.Elevated\src\ping.cpp" />
+    <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\App.CLI.Common.Elevated\ibase.h" />
-    <ClInclude Include="..\App.CLI.Common.Elevated\sha256.h" />
     <ClInclude Include="..\App.CLI.Windows.Elevated\src\impl.h" />
     <ClInclude Include="..\App.CLI.Windows.Elevated\src\iwindows.h" />
-    <ClInclude Include="..\App.CLI.Windows.Elevated\src\yxml.h" />
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="App.Service.Windows.Elevated.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="App.Service.Windows.Elevated.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

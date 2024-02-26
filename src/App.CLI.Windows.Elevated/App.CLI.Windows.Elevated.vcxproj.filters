@@ -21,22 +21,16 @@
     <ClInclude Include="Resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\impl.h">
+    <ClInclude Include="include\impl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\iwindows.h">
+    <ClInclude Include="include\iwindows.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\yxml.h">
+    <ClInclude Include="include\main.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="main.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\App.CLI.Common.Elevated\ibase.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\App.CLI.Common.Elevated\sha256.h">
+    <ClInclude Include="..\Lib.CLI.Elevated\include\ibase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -47,19 +41,19 @@
     <ClCompile Include="src\iwindows.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="..\..\dependencies\sha256\sha256.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\App.CLI.Common.Elevated\ibase.cpp">
+    <ClCompile Include="..\..\dependencies\yxml\yxml.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\App.CLI.Common.Elevated\sha256.cpp">
+    <ClCompile Include="..\Lib.CLI.Elevated\src\ibase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\App.CLI.Common.Elevated\ping.cpp">
+    <ClCompile Include="..\Lib.CLI.Elevated\src\ping.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\yxml.cpp">
+    <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -314,12 +314,6 @@ namespace Eddie.Core
 			return sb.ToString();
 		}
 
-		public string ToTextPretty()
-		{
-			// Pretty print to simple text, for reporting
-			return ToJsonPretty();
-		}
-
 		public string ToJson()
 		{
 			StringBuilder sb = new StringBuilder();

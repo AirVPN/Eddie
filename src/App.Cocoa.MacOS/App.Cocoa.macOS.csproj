@@ -6,9 +6,9 @@
     <ProjectTypeGuids>{A3F8F2AB-B479-4A4A-A458-A89E7DC349F1};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Exe</OutputType>
     <RootNamespace>App.Cocoa.MacOS</RootNamespace>
-    <AssemblyName>Eddie</AssemblyName>
+    <AssemblyName>Eddie-UI</AssemblyName>
     <MonoMacResourcePrefix>Resources</MonoMacResourcePrefix>
-    <ApplicationIcon>..\icon.ico</ApplicationIcon>
+    <ApplicationIcon>icon.ico</ApplicationIcon>
     <ReleaseVersion>2.19</ReleaseVersion>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
@@ -23,7 +23,7 @@
     <DefineConstants>DEBUG;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <EnableCodeSigning>false</EnableCodeSigning>
+    <EnableCodeSigning>False</EnableCodeSigning>
     <CodeSigningKey>Developer ID Application: Paolo Brini (A7P5AKGWFC)</CodeSigningKey>
     <CreatePackage>false</CreatePackage>
     <EnablePackageSigning>false</EnablePackageSigning>
@@ -44,7 +44,7 @@
     <OutputPath>bin\x64\Release</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <EnableCodeSigning>false</EnableCodeSigning>
+    <EnableCodeSigning>False</EnableCodeSigning>
     <CreatePackage>false</CreatePackage>
     <EnablePackageSigning>false</EnablePackageSigning>
     <IncludeMonoRuntime>true</IncludeMonoRuntime>
@@ -60,7 +60,7 @@
     <CodeSignEntitlements>Entitlements.plist</CodeSignEntitlements>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(RunConfiguration)' == 'Default' ">
-    <StartArguments>path.tools="../../../../../../../../deploy/macos_arm64" path.resources="../../../../../../../../common" nosplash</StartArguments>
+    <StartArguments>path.tools="../../../../../../../../deploy/macos_arm64" path.resources="../../../../../../../../resources"</StartArguments>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -642,6 +642,7 @@
       <DependentUpon>WindowProviderEditWireGuard.cs</DependentUpon>
     </Compile>
     <Compile Include="WindowProviderEditWireGuardController.cs" />
+    <Compile Include="ProcessRootLauncher.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainWindow.xib" />
@@ -690,7 +691,7 @@
     </NativeReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets" />
-	<Target Name="BeforeBuild">
-		<Exec Command="&quot;$(SolutionDir)/macos_prebuild.sh&quot; &quot;$(TargetDir)&quot; ui $(Platform) $(Configuration)" />
+	<Target Name="AfterBuild">
+		<Exec Command="&quot;./postbuild.sh&quot; &quot;$(TargetDir)&quot; $(Platform) $(Configuration) net4" />
 	</Target>
 </Project>

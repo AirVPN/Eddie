@@ -5,7 +5,7 @@ Maintainer: Eddie <maintainer@eddie.website>
 Priority: optional
 Architecture: {@architecture}
 Installed-Size: 8192
-Depends: libc6 (>= 2.3.2), sudo, mono-runtime, mono-utils, libmono-system-core4.0-cil, openvpn, stunnel4, libcurl4, libsecret-tools
+Depends: libc6 (>= 2.3.2), openvpn, stunnel4, libcurl4, libsecret-tools
 Homepage: https://eddie.website/
 Description: Eddie - VPN Tunnel
  OpenVPN/WireGuard CLI with additional user-friendly features

@@ -12,13 +12,13 @@ if test -f "${SCRIPTDIR}/signing/eddie.website_deploy.key"; then # Staff AirVPN
 
     EXE="${SCRIPTDIR}/../src/App.CLI.Linux/bin/x64/Release/App.CLI.Linux.exe"
 
-    mono ${EXE} -cli -help -help.format=html -path.resources='../../../../../common/' >/tmp/manual.html
+    mono ${EXE} -cli -help -help.format=html -path.resources='../../../../../resources/' >/tmp/manual.html
     scp -P 46333 -i "${SCRIPTDIR}/signing/eddie.website_deploy.key" "/tmp/manual.html"  deploy@eddie.website:/home/www/repository/eddie/manuals
     
-    mono ${EXE} -cli -help -help.format=text -path.resources='../../../../../common/' >/tmp/manual.txt
+    mono ${EXE} -cli -help -help.format=text -path.resources='../../../../../resources/' >/tmp/manual.txt
     scp -P 46333 -i "${SCRIPTDIR}/signing/eddie.website_deploy.key" "/tmp/manual.txt"  deploy@eddie.website:/home/www/repository/eddie/manuals
     
-    mono ${EXE} -cli -help -help.format=man -path.resources='../../../../../common/' >/tmp/manual.man
+    mono ${EXE} -cli -help -help.format=man -path.resources='../../../../../resources/' >/tmp/manual.man
     scp -P 46333 -i "${SCRIPTDIR}/signing/eddie.website_deploy.key" "/tmp/manual.man"  deploy@eddie.website:/home/www/repository/eddie/manuals
     
 else

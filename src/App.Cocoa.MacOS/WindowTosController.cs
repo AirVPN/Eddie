@@ -74,7 +74,6 @@ namespace Eddie.UI.Cocoa.Osx
 			GuiUtils.SetButtonCancel(Window, CmdCancel);
             GuiUtils.SetButtonDefault(Window, CmdAccept);
 
-            // TOCLEAN
             /*
             TxtTos.Value = Core.UI.App.GetTos();
             */

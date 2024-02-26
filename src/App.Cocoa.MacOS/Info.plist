@@ -17,7 +17,7 @@
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.utilities</string>
 	<key>CFBundleShortVersionString</key>
-	<string>2.23.2</string>
+	<string>2.24.0</string>
 	<key>CFBundleIdentifier</key>
 	<string>org.airvpn.eddie.ui</string>
 	<key>CFBundleDisplayName</key>
@@ -29,9 +29,9 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>MonoBundleExecutable</key>
-	<string>Eddie.exe</string>
+	<string>Eddie-UI.exe</string>
 	<key>CFBundleExecutable</key>
-	<string>Eddie</string>
+	<string>Eddie-UI</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundlePackageType</key>

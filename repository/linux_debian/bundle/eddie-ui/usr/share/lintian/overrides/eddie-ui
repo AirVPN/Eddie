@@ -1,33 +1,13 @@
 # -------------------
-# Use statically linked libc, to avoid issue with oldest distro
-# (at 2019-09, for example we compile from Debian8 and otherwise libc mismatch with CentOS7.6)
-# 2022-05-05: removed
-# eddie-ui binary: statically-linked-binary
-
-# -------------------
-# Lintian 2.15.0 (Debian 10) throw
-# E: eddie-ui: misplaced-extra-member-in-deb _gpgbuilder (unexpected _member at position 3)
-# because it's signed with dpkg-sig.
-# https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=758054
-# 2022-05-05: removed
-# eddie-ui binary: misplaced-extra-member-in-deb
-
-# -------------------
-# libcurl static, see readme.txt in Lib.Platform.Linux.Native
-# eddie-cli binary: embedded-library usr/lib/eddie-cli/libLib.Platform.Linux.Native.so: curl
-
-# -------------------
-# Warning
-# 2022-05-05: removed
-# eddie-ui binary: hardening-no-relro usr/lib/eddie-ui/libLib.Platform.Linux.Native.so
-# eddie-ui binary: hardening-no-relro usr/lib/eddie-ui/eddie-tray
-
-# -------------------
-# 2022-05-05: added
-eddie-ui binary: hardening-no-pie usr/lib/eddie-ui/eddie-cli-elevated
-eddie-ui binary: hardening-no-pie usr/lib/eddie-ui/eddie-tray
-
 # 2023-08-03: added
 # Debian12 consider "policykit-1" deprecated, but "pkexec" exists only on Debian12, not Debian11
 # Need a better solution
 eddie-ui binary: depends-on-obsolete-package
+
+# -------------------
+# 2023-11-30: related to eddie-cli, unstrippable because corrupt, need investigation
+eddie-ui: unstripped-binary-or-object
+
+# 2023-11-30: related to webui
+eddie-ui: embedded-javascript-library
+eddie-ui: truetype-font-prohibits-installable-embedding

@@ -46,16 +46,8 @@ namespace Eddie.Forms.Windows
 
 				Core.Platform.Instance = new Platform.Windows.Platform();
 
-				if (new CommandLine(Environment.CommandLine, true, false).Exists("cli")) // TOFIX, not need anymore when every OS have a CLI executable.
-				{
-					Core.ConsoleEdition.UiClient client = new Core.ConsoleEdition.UiClient();
-					client.Init(Environment.CommandLine);
-				}
-				else
-				{
-					m_client = new UiClient();
-					m_client.Init(Environment.CommandLine);
-				}
+				m_client = new UiClient();
+				m_client.Init(Environment.CommandLine);
 			}
 			catch (Exception ex)
 			{

@@ -31,6 +31,16 @@ namespace Eddie.Forms
 	{
 		private static Dictionary<String, Bitmap> ImageResourceCache = new Dictionary<String, Bitmap>();
 
+		public static bool IsUnix()
+		{
+			return (Environment.OSVersion.Platform.ToString() == "Unix");
+		}
+
+		public static bool IsWindows()
+		{
+			return (Environment.OSVersion.VersionString.IndexOf("Windows", StringComparison.InvariantCulture) != -1);
+		}
+
 		public static Image GetResourceImage(string name)
 		{
 			// Accessing Properties.Resources.xxx is a lot cpu extensive, probably conversions every time. We cache image resources.

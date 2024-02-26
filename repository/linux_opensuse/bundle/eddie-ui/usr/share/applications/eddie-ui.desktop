@@ -1,9 +1,0 @@
-[Desktop Entry]
-Name=Eddie - VPN Tunnel
-Comment=OpenVPN/WireGuard UI with additional user-friendly features
-Exec=/usr/bin/eddie-ui
-Icon=/usr/share/pixmaps/eddie-ui.png
-Terminal=false
-Type=Application
-Categories=GNOME;Network
-

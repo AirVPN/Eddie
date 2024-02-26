@@ -18,7 +18,8 @@
 
 #include <fcntl.h>
 
-#include "impl.h"
+#include "../include/impl.h"
+
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <regex>
@@ -72,7 +73,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 					args.push_back(dataPath);
 					std::string stdout;
 					std::string stderr;
-					Exec(FsLocateExecutable("chown"), args, false, "", stdout, stderr);
+					ExecEx(FsLocateExecutable("chown"), args);
 				}
 			}
 		}
@@ -85,7 +86,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 		if (action == "set")
 		{
 			FsDirectoryCreate("/usr/local/bin");
-			FsFileWriteText(pathShortcut, "#! /bin/bash\n\"" + pathExecutable + "\" -cli $@");
+			FsFileWriteText(pathShortcut, "#! /bin/bash\n\"" + pathExecutable + "\" $@");
 			chmod(pathShortcut.c_str(), S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
 		}
 		else if (action == "del")
@@ -286,8 +287,8 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 			args.push_back("-si");
 			ExecResult pfctlStatusResult = ExecEx(pfPath, args);
 			if (pfctlStatusResult.exit != 0)
-				ThrowException("Unexpected status: " + GetExecResultDump(pfctlStatusResult));
-			status = StringToLower(GetExecResultDump(pfctlStatusResult));
+				ThrowException("Unexpected status: " + GetExecResultReport(pfctlStatusResult));
+			status = StringToLower(GetExecResultReport(pfctlStatusResult));
 		}
 
 		std::string result = "";
@@ -307,9 +308,9 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 			args.push_back("-e");
 			ExecResult pfctlActivationResult = ExecEx(pfPath, args);
 			if (pfctlActivationResult.exit != 0)
-				ThrowException("Activation failure: " + GetExecResultDump(pfctlActivationResult));
-			if (StringContain(StringToLower(GetExecResultDump(pfctlActivationResult)), "pf enabled") == false)
-				ThrowException("Activation failure: " + GetExecResultDump(pfctlActivationResult));
+				ThrowException("Activation failure: " + GetExecResultReport(pfctlActivationResult));
+			if (StringContain(StringToLower(GetExecResultReport(pfctlActivationResult)), "pf enabled") == false)
+				ThrowException("Activation failure: " + GetExecResultReport(pfctlActivationResult));
 		}
 
 		if (prevActive == false)
@@ -333,7 +334,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 			args.push_back("/etc/pf.conf"); // Maybe better
 			ExecResult pfctlRestoreResult = ExecEx(pfPath, args);
 			if (pfctlRestoreResult.exit != 0)
-				ThrowException("Restore failure: " + GetExecResultDump(pfctlRestoreResult));
+				ThrowException("Restore failure: " + GetExecResultReport(pfctlRestoreResult));
 		}
 
 		if (params["prev"] == "disabled")
@@ -342,7 +343,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 			args.push_back("-d");
 			ExecResult pfctlDeactivationResult = ExecEx(pfPath, args);
 			if (pfctlDeactivationResult.exit != 0)
-				ThrowException("Deactivation failure: " + GetExecResultDump(pfctlDeactivationResult));
+				ThrowException("Deactivation failure: " + GetExecResultReport(pfctlDeactivationResult));
 		}
 	}
 	else if (command == "netlock-pf-update")
@@ -360,7 +361,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 
 		if (pfctlApplyResult.exit != 0)
 		{
-			LogRemote("Dump pfctl output: " + GetExecResultDump(pfctlApplyResult));
+			LogRemote("Dump pfctl output: " + GetExecResultReport(pfctlApplyResult));
 			LogRemote("Dump pfctl conf: " + params["config"]);
 			ThrowException("Rules not loaded");
 		}
@@ -410,7 +411,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 
 		ExecResult execResult = ExecEx(FsLocateExecutable("route"), args);
 		if (execResult.exit != 0)
-			ThrowException(GetExecResultDump(execResult));
+			ThrowException(GetExecResultReport(execResult));
 	}
 	else if (command == "workaround-ipv6-dns-lookup-enable")
 	{
@@ -677,7 +678,7 @@ bool Impl::ServiceInstall()
 	FsFileWriteText(launchdPath, launchd);
 
 	ExecResult launchctlResult = ExecEx2(FsLocateExecutable("launchctl"), "load", launchdPath);
-	return launchctlResult.exit;
+	return (launchctlResult.exit == 0);
 }
 
 bool Impl::ServiceUninstall()
@@ -688,10 +689,10 @@ bool Impl::ServiceUninstall()
 
 		FsFileDelete(launchdPath);
 
-		return launchctlResult.exit;
+		return (launchctlResult.exit == 0);
 	}
 	else
-		return 0;
+		return true;
 }
 
 std::vector<std::string> Impl::GetNetworkInterfacesNames()
@@ -1060,22 +1061,19 @@ std::string Impl::GetNetworkInterfaceInfoAsJson(const std::string& id)
 unsigned long Impl::WireGuardLastHandshake(const std::string& wgPath, const std::string& interfaceId)
 {
 	std::vector<std::string> dataArgs;
-	std::string dataStdin = "";
-	std::string dataStdout = "";
-	std::string dataStderr = "";
 	dataArgs.push_back("show");
 	dataArgs.push_back(interfaceId);
 	dataArgs.push_back("dump");
-	int dataExit = Exec(wgPath, dataArgs, false, dataStdin, dataStdout, dataStderr, false);
+	ExecResult result = ExecEx(wgPath, dataArgs, false);
 
-	if (dataExit != 0)
-		ThrowException("Unable to fetch status");
-	std::vector<std::string> lines = StringToVector(dataStdout, '\n');
+	if (result.exit != 0)
+		ThrowException("Unable to fetch status (1), dump: " + GetExecResultReport(result));
+	std::vector<std::string> lines = StringToVector(result.out, '\n');
 	if (lines.size() < 2)
-		ThrowException("Unable to fetch status");
+		ThrowException("Unable to fetch status (2), dump:" + GetExecResultReport(result));
 	std::vector<std::string> peerStats = StringToVector(lines[1], '\t');
 	if (peerStats.size() < 4)
-		ThrowException("Unable to fetch status");
+		ThrowException("Unable to fetch status (3), dump:" + GetExecResultReport(result));
 
 	return StringToULong(peerStats[4]);
 }
@@ -1095,7 +1093,7 @@ std::string Impl::WorkaroundDnsLookupIPv6Enable(const std::string& iface)
 		// Need? 
 		ExecResult execCheck = ExecEx1(scUtilPath, "--dns");
 		if (execCheck.exit != 0)
-			ThrowException("Unexpected scutil --dns output: " + GetExecResultDump(execCheck));
+			ThrowException("Unexpected scutil --dns output: " + GetExecResultReport(execCheck));
 		if (StringContain(execCheck.out, "Request AAAA records"))
 			return "not_need_already";
 				
@@ -1103,7 +1101,7 @@ std::string Impl::WorkaroundDnsLookupIPv6Enable(const std::string& iface)
 		ExecResult ifconfigResult;
 		ifconfigResult = ExecEx1(ifconfigPath, iface);
 		if(ifconfigResult.exit != 0)
-			ThrowException("Unexpected ifconfig output: " + GetExecResultDump(ifconfigResult));
+			ThrowException("Unexpected ifconfig output: " + GetExecResultReport(ifconfigResult));
 
 		std::vector<std::string> scAddressesIPv4;
 		std::vector<std::string> scDescAddressesIPv4;
@@ -1165,10 +1163,9 @@ std::string Impl::WorkaroundDnsLookupIPv6Enable(const std::string& iface)
 		}
 
 		std::vector<std::string> args;
-		ExecResult resultScutil;
-		resultScutil.exit = Exec(scUtilPath, args, true, sc, resultScutil.out, resultScutil.err, true);
+		ExecResult resultScutil = ExecEx(scUtilPath, args, sc);
 		if(resultScutil.exit != 0)
-			ThrowException("Unexpected scutil output: " + GetExecResultDump(resultScutil));
+			ThrowException("Unexpected scutil output: " + GetExecResultReport(resultScutil));
 
 		return "ok";
 	}
@@ -1193,10 +1190,9 @@ std::string Impl::WorkaroundDnsLookupIPv6Disable(const std::string& iface)
 		sc += "remove Setup:/Network/Service/" + serviceName + "/IPv6\n";
 
 		std::vector<std::string> args;
-		ExecResult resultScutil;
-		resultScutil.exit = Exec(scUtilPath, args, true, sc, resultScutil.out, resultScutil.err, true);
+		ExecResult resultScutil = ExecEx(scUtilPath, args, sc);
 		if(resultScutil.exit != 0)
-			ThrowException("Unexpected scutil output: " + GetExecResultDump(resultScutil));
+			ThrowException("Unexpected scutil output: " + GetExecResultReport(resultScutil));
 		
 		return "ok";
 	}

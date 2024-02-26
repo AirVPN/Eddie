@@ -3,7 +3,7 @@
 set -euo pipefail
 
 # Check args
-if [ "$1" == "" ]; then
+if [ "${1-}" == "" ]; then
 	echo First arg must be Project: cli,ui
 	exit 1
 fi
@@ -47,10 +47,13 @@ function arch_env() {
 		sed -i "s|{@pkgdesc}|Eddie - VPN tunnel|g" PKGBUILD    
 		if [ "${PROJECT}" = "cli" ]; then
 			sed -i "s|{@pkgdesc}|Eddie - VPN tunnel - CLI - prebuilt|g" PKGBUILD    
-			sed -i "s|{@pkgdepends}|(mono curl openvpn sudo)|g" PKGBUILD
-		else
+			#sed -i "s|{@pkgdepends}|(mono curl openvpn sudo)|g" PKGBUILD # TOCLEAN, pre 2.24.0
+			sed -i "s|{@pkgdepends}|(curl openvpn sudo)|g" PKGBUILD
+			sed -i "s|{@pkgmakedepends}|(cmake dotnet-sdk)|g" PKGBUILD
+		elif [ "${PROJECT}" = "ui" ]; then
 			sed -i "s|{@pkgdesc}|Eddie - VPN tunnel - UI - prebuilt|g" PKGBUILD    
-			sed -i "s|{@pkgdepends}|(mono curl openvpn sudo polkit desktop-file-utils libnotify libayatana-appindicator patchelf)|g" PKGBUILD
+			sed -i "s|{@pkgdepends}|(curl openvpn sudo polkit desktop-file-utils libnotify libayatana-appindicator patchelf)|g" PKGBUILD
+			sed -i "s|{@pkgmakedepends}|(cmake dotnet-sdk mono-msbuild mono)|g" PKGBUILD
 		fi
 		sed -i "s|{@source}|git+file:///$2/|g" PKGBUILD    
 		sed -i "s|cd \"Eddie-\$pkgver\"|cd \"eddie-air\"|g" PKGBUILD
@@ -69,10 +72,11 @@ function arch_env() {
 			sed -i "s|{@version}|${VERSION}|g" PKGBUILD    
 			sed -i "s|{@pkgname}|eddie-${PROJECT}-git|g" PKGBUILD    
 			if [ "${PROJECT}" = "cli" ]; then
-				sed -i "s|{@pkgdesc}|Eddie - VPN tunnel - CLI - beta|g" PKGBUILD    
-				sed -i "s|{@pkgdepends}|(mono curl openvpn sudo)|g" PKGBUILD
+				sed -i "s|{@pkgdesc}|Eddie - VPN tunnel - CLI|g" PKGBUILD    
+				#sed -i "s|{@pkgdepends}|(mono curl openvpn sudo)|g" PKGBUILD # TOCLEAN, pre 2.24.0
+				sed -i "s|{@pkgdepends}|(curl openvpn sudo)|g" PKGBUILD
 			else
-				sed -i "s|{@pkgdesc}|Eddie - VPN tunnel - UI - beta|g" PKGBUILD    
+				sed -i "s|{@pkgdesc}|Eddie - VPN tunnel - UI|g" PKGBUILD    
 				sed -i "s|{@pkgdepends}|(mono curl openvpn sudo polkit desktop-file-utils libnotify libayatana-appindicator patchelf)|g" PKGBUILD
 			fi
 			sed -i "s|{@source}|git+https://github.com/AirVPN/Eddie.git|g" PKGBUILD    
@@ -93,7 +97,8 @@ function arch_env() {
 			sed -i "s|{@pkgname}|eddie-${PROJECT}|g" PKGBUILD    
 			if [ "${PROJECT}" = "cli" ]; then
 				sed -i "s|{@pkgdesc}|Eddie - VPN tunnel - CLI|g" PKGBUILD    
-				sed -i "s|{@pkgdepends}|(mono curl openvpn sudo)|g" PKGBUILD
+				#sed -i "s|{@pkgdepends}|(mono curl openvpn sudo)|g" PKGBUILD # TOCLEAN, pre 2.24.0
+				sed -i "s|{@pkgdepends}|(curl openvpn sudo)|g" PKGBUILD
 			else
 				sed -i "s|{@pkgdesc}|Eddie - VPN tunnel - UI|g" PKGBUILD
 				sed -i "s|{@pkgdepends}|(mono curl openvpn sudo polkit desktop-file-utils libnotify libayatana-appindicator patchelf)|g" PKGBUILD

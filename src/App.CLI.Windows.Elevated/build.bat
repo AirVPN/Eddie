@@ -22,6 +22,8 @@ set VARARCHCOMPILE=%VARARCH%
 
 set VARSOLUTIONPATH="%VARSCRIPTDIR%\App.CLI.Windows.Elevated.sln"
 
+echo "Build eddie-cli-elevated - Config: %VARCONFIG%, Arch: %VARARCH%"
+
 %VARMSBUILD% /verbosity:minimal /property:CodeAnalysisRuleSet=%VARRULESETPATH% /p:Configuration=%VARCONFIG% /p:Platform=%VARARCHCOMPILE% /t:Rebuild %VARSOLUTIONPATH% || GOTO error
 
 GOTO done
@@ -31,4 +33,7 @@ echo Something wrong
 EXIT /B 1
 
 :done
+
+echo "Build eddie-cli-elevated - Done"
+
 EXIT /B 0

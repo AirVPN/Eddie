@@ -16,9 +16,6 @@
 // along with Eddie. If not, see <http://www.gnu.org/licenses/>.
 // </eddie_source_header>
 
-using System.Net;
-using System;
-
 namespace Eddie.Core
 {
 	public class IpAddress

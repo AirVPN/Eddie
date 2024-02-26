@@ -150,8 +150,8 @@ namespace Eddie.UI.Cocoa.Osx
 				new NSObject().InvokeOnMainThread(() => // BeginInvokeOnMainThread
 				{
 					WindowCredentialsController dlg = new WindowCredentialsController();
-					//dlg.Window.ReleasedWhenClosed = true;
-					dlg.Window.ReleaseWhenClosed(true);
+					dlg.Window.ReleasedWhenClosed = true;
+					//dlg.Window.ReleaseWhenClosed(true); // Throw TrackReleasedWhenClosed exception. Xamarin issue, anyway deprecated.
 					NSApplication.SharedApplication.RunModalForWindow(dlg.Window);
 					dlg.Window.Close();
 

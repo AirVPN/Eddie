@@ -41,13 +41,6 @@ namespace Eddie.Forms.Linux
 				{
 					Tray.CancelRequested = true;
 					Tray.SendCommand("action.exit");
-
-					/* Removed in 2.23.2, Thread.Abort deprecated // TOCLEAN
-					// Tray.Join(); // sometime don't exit...
-					if (Tray.Join(2000) == false)
-						Tray.Abort();
-					*/
-
 					Tray = null;
 				}
 			}

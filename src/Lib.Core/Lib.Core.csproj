@@ -13,6 +13,7 @@
     <TargetFrameworkProfile />
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
+    <ReleaseVersion>2.19</ReleaseVersion>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>Resources\icon.ico</ApplicationIcon>
@@ -24,7 +25,7 @@
     <DebugType>full</DebugType>
     <PlatformTarget>x64</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>$(SolutionDir)\ruleset\eddie.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>..\ruleset\eddie.ruleset</CodeAnalysisRuleSet>
     <WarningLevel>4</WarningLevel>
     <Optimize>false</Optimize>
     <Prefer32Bit>false</Prefer32Bit>
@@ -36,7 +37,7 @@
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>x64</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>$(SolutionDir)\ruleset\eddie.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>..\ruleset\eddie.ruleset</CodeAnalysisRuleSet>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
@@ -47,7 +48,7 @@
     <DebugType>full</DebugType>
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>$(SolutionDir)\ruleset\eddie.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>..\ruleset\eddie.ruleset</CodeAnalysisRuleSet>
     <WarningLevel>4</WarningLevel>
     <Optimize>false</Optimize>
     <Prefer32Bit>false</Prefer32Bit>
@@ -59,7 +60,7 @@
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>$(SolutionDir)\ruleset\eddie.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>..\ruleset\eddie.ruleset</CodeAnalysisRuleSet>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
@@ -87,8 +88,11 @@
     <Compile Include="ConnectionMode.cs" />
     <Compile Include="ConnectionRoute.cs" />
     <Compile Include="ConnectionTypes\IConnectionType.cs" />
-    <Compile Include="ConsoleEdition\Engine.cs" />
-    <Compile Include="ConsoleEdition\UiClient.cs" />
+    <Compile Include="ConsoleEdition\EngineApp.cs" />
+    <Compile Include="ConsoleEdition\EngineConsole.cs" />
+    <Compile Include="ConsoleEdition\Program.cs" />
+    <Compile Include="ConsoleEdition\UiApp.cs" />
+    <Compile Include="ConsoleEdition\UiConsole.cs" />
     <Compile Include="CountriesManager.cs" />
     <Compile Include="DnsManagerEntry.cs" />
     <Compile Include="Elevated\Command.cs" />
@@ -126,11 +130,11 @@
     <Compile Include="SystemExec.cs" />
     <Compile Include="Report.cs" />
     <Compile Include="Tools\Curl.cs" />
+    <Compile Include="Tools\FileDirect.cs" />
     <Compile Include="Tools\Hummingbird.cs" />
     <Compile Include="Tools\SSL.cs" />
     <Compile Include="Tools\SSH.cs" />
     <Compile Include="Tools\OpenVPN.cs" />
-    <Compile Include="Tools\File.cs" />
     <Compile Include="CompatibilityManager.cs" />
     <Compile Include="LogsManager.cs" />
     <Compile Include="LogType.cs" />
@@ -152,6 +156,7 @@
     <Compile Include="ConnectionTypes\Hummingbird.cs" />
     <Compile Include="ConnectionTypes\WireGuard.cs" />
     <Compile Include="ConnectionTypes\OpenVPN.cs" />
+    <Compile Include="UiClientLegacy.cs" />
     <Compile Include="UiManager.cs" />
     <Compile Include="UI\App.cs" />
     <Compile Include="UI\Chart.cs" />
@@ -193,9 +198,6 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\icon.icns" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\icon.ico" />

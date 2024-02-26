@@ -18,52 +18,63 @@
 
 # Eddie Rules
 
-# There are '#pragma warning' in files directly:
+# Keep CRLF even in linux/macos files, otherwise raise IDE0055 warning
+
+# There are '#pragma warning' specific for CA5379 in code, TOFIX
+
+# There are '#pragma warning' in files directly also in legacy code that need deprecation. Currently:
 # - When related to specific scope, generally linux/Mono.
-# - CA1416 for Windows-only code (net7 dev)
+# - CA1416 for Windows-only code (net7 dev), that need deprecation
+# - CA1816 UnmanagedPointer.Dispose(bool) calls GC.SuppressFinalize(object) in AuthenticodeTools.cs
+
+# Lib.Forms, Lib.Forms.Skin, App.Forms.Linux, App.Cocoa.MacOS are ignored, because need deprecation
+
+# Otherwise, we consider ALL as warning and manage exceptions here (with reasons as comment)
 
 # Code files
 [*.{cs,vb}]
 
 # Default severity for analyzer diagnostics - Requires **VS2019 16.5** or later
 dotnet_analyzer_diagnostic.severity = warning
-
 dotnet_analyzer_diagnostic.category-Style.severity = warning
 dotnet_analyzer_diagnostic.category-CodeQuality.severity = warning
+
+# Use VS Analyze > Run Code Analysis on a .sln (or App.Checking/All.CS.net7.sln) to evaluate IDE*.
 
 # Eddie - Right, TODO, WIP
 
 dotnet_diagnostic.CA2020.severity = none # Starting with .NET 7 the explicit conversion '(IntPtr)Int64' will not throw when overflowing in an unchecked context.
 dotnet_diagnostic.CA1838.severity = none # Avoid 'StringBuilder' parameters for P/Invokes. Consider using a character buffer instead.
 dotnet_diagnostic.CA2101.severity = none # Specify marshaling for P/Invoke string arguments
-dotnet_diagnostic.CA1401.severity = none # P/Invoke method 'SetConsoleCtrlHandler' should not be visible 
-dotnet_diagnostic.CA1816.severity = none # UnmanagedPointer.Dispose(bool) calls GC.SuppressFinalize(object), a method that is typically only called within an implementation of 'IDisposable.Dispose'. Refer to the IDisposable pattern for more information.
-dotnet_diagnostic.CA1001.severity = none # Type 'Platform' owns disposable field(s) 'm_mutexSingleInstance' but is not disposable 
-
-# Eddie - Right, TODO, WIP, Crypto-related
-
-dotnet_diagnostic.SYSLIB0021.severity = none # 'SHA256Managed' is obsolete: 'Derived cryptographic types are obsolete. Use the Create method on the base type instead.'
-dotnet_diagnostic.SYSLIB0022.severity = none # 'RijndaelManaged' is obsolete: 'The Rijndael and RijndaelManaged types are obsolete.
-#dotnet_diagnostic.SYSLIB0023.severity = none # 'RNGCryptoServiceProvider' is obsolete: 'RNGCryptoServiceProvider is obsolete.
-dotnet_diagnostic.SYSLIB0041.severity = none # 'Rfc2898DeriveBytes.Rfc2898DeriveBytes(string, int, int)' is obsolete
-dotnet_diagnostic.CA5379.severity = none # Rfc2898DeriveBytes might be using a weak hash algorithm.
-dotnet_diagnostic.CA1850.severity = none # Prefer static 'System.Security.Cryptography.SHA256.HashData' method over 'ComputeHash'
+#dotnet_diagnostic.CA1401.severity = none # P/Invoke method 'x' should not be visible 
+#dotnet_diagnostic.CA1001.severity = none # Type 'Platform' owns disposable field(s) 'm_mutexSingleInstance' but is not disposable 
 
 # Eddie - Right, TODO, WIP, Style
 
-#dotnet_diagnostic.IDE0001.severity = none # Simplify name
-#dotnet_diagnostic.IDE0002.severity = none # Simplify member access
-#dotnet_diagnostic.IDE0003.severity = none # Name can be simplified.
-#dotnet_diagnostic.IDE0004.severity = none # Cast is redundant
+dotnet_diagnostic.IDE0001.severity = none # Simplify name
+dotnet_diagnostic.IDE0002.severity = none # Name can be simplified
+dotnet_diagnostic.IDE0003.severity = none # Name can be simplified.
+dotnet_diagnostic.IDE0004.severity = none # Cast is redundant
+dotnet_diagnostic.IDE0008.severity = none # Use explicit type instead of 'var'
 dotnet_diagnostic.IDE0011.severity = none # Add braces # More than 1500 point, style only
+dotnet_diagnostic.IDE0034.severity = none # 'default' expression can be simplified
 dotnet_diagnostic.IDE0040.severity = none # Accessibility modifiers required
-#dotnet_diagnostic.IDE0044.severity = none # Add readonly modifier
-#dotnet_diagnostic.IDE0045.severity = none # 'if' statement can be simplified
-dotnet_diagnostic.IDE0055.severity = none # Fix formatting
-#dotnet_diagnostic.IDE0059.severity = none # Unnecessary assignment of a value to 'x' # Generally, unnecessary var initialization
+dotnet_diagnostic.IDE0044.severity = none # Add readonly modifier
+dotnet_diagnostic.IDE0045.severity = none # 'if' statement can be simplified
+dotnet_diagnostic.IDE0054.severity = none # Use compound assignment
+#dotnet_diagnostic.IDE0055.severity = none # Fix formatting
+dotnet_diagnostic.IDE0057.severity = none # Substring can be simplified
+dotnet_diagnostic.IDE0059.severity = none # Unnecessary assignment of a value to 'x' # Generally, unnecessary var initialization
 dotnet_diagnostic.IDE0060.severity = none # Remove unused parameter 'x' if it is not part of a shipped public API
-#dotnet_diagnostic.IDE0100.severity = none # Remove redundant equality
-#dotnet_diagnostic.IDE0220.severity = none # 'x' statement implicitly converts 'x' to 'x'. Add an explicit cast to make intent clearer, as it may fail at runtime
+dotnet_diagnostic.IDE0066.severity = none # Use 'switch' expression
+dotnet_diagnostic.IDE0074.severity = none # Use compound assignment
+dotnet_diagnostic.IDE0078.severity = none # Use pattern matching
+dotnet_diagnostic.IDE0090.severity = none # 'new' expression can be simplified
+dotnet_diagnostic.IDE0100.severity = none # Remove redundant equality
+dotnet_diagnostic.IDE0220.severity = none # 'x' statement implicitly converts 'x' to 'x'. Add an explicit cast to make intent clearer, as it may fail at runtime
+dotnet_diagnostic.IDE0251.severity = none # ? no description
+dotnet_diagnostic.IDE0270.severity = none # Null check can be simplified
+
 dotnet_diagnostic.CA1853.severity = none # Do not guard 'Dictionary.Remove(key)' with 'Dictionary.ContainsKey(key)'
 dotnet_diagnostic.CA1854.severity = none  # Prefer a 'TryGetValue' call over a Dictionary indexer access guarded by a 'ContainsKey' check to avoid double lookup
 dotnet_diagnostic.CA1822.severity = none # Member 'x' does not access instance data and can be marked as static
@@ -79,11 +90,20 @@ dotnet_diagnostic.CA1845.severity = none # CA1845: Use span-based 'string.Concat
 dotnet_diagnostic.SYSLIB1054.severity = none # NativeMethods.cs(105,31): warning SYSLIB1054: Mark the method 'x' with 'LibraryImportAttribute' instead of 'DllImportAttribute' to generate P/Invoke marshalling code at compile time
 dotnet_diagnostic.SYSLIB1045.severity = none # Use 'GeneratedRegexAttribute' to generate the regular expression implementation at compile-time.
 
+# Eddie - WinForms (planned deprecation)
+dotnet_diagnostic.CA1304.severity = none # The behavior of 'ResourceManager.GetObject(string)' could vary based on the current user's locale settings
+dotnet_diagnostic.CA1305.severity = none # The behavior of 'int.ToString()' could vary based on the current user's locale settings.
+dotnet_diagnostic.CA1309.severity = none # Use ordinal string comparison
+dotnet_diagnostic.CA1806.severity = none # SetWmClass calls XSetClassHint but does not use the HRESULT or error code that the method returns
+dotnet_diagnostic.CA2208.severity = none # Method SetNotifyIconText passes 'Text limited to 127 characters' as the paramName argument to a ArgumentOutOfRangeException constructor. Replace this argument with one of the method's parameter names. Note that the provided parameter name should have the exact casing as declared on the method.
+dotnet_diagnostic.CA2211.severity = none # Non-constant fields should not be visible
+dotnet_diagnostic.IDE1006.severity = none # Naming rule violation # WinForms code, will be deprecated
+dotnet_diagnostic.IDE0130.severity = none # Namespace "Eddie.Forms.Windows" does not match folder structure, expected "Eddie.App.UI.Windows"
+
 # Eddie - Right, but ignored
 
-dotnet_diagnostic.IDE1006.severity = none # Naming rule violation # WinForms code, will be deprecated
-dotnet_diagnostic.CA1825.severity = none # CA1825: Avoid unnecessary zero-length array allocations.
-dotnet_diagnostic.CA1805.severity = none # CA1805: Member 'x' is explicitly initialized to its default value
+dotnet_diagnostic.CA1825.severity = none # Avoid unnecessary zero-length array allocations.
+dotnet_diagnostic.CA1805.severity = none # Member 'x' is explicitly initialized to its default value
 
 # Eddie - Not accepted: We prefer to avoid complex syntax, or we need to check if cause issues under Mono or Xamarin compiler or delay until net4 support is dropped
 
@@ -108,16 +128,14 @@ dotnet_diagnostic.IDE0032.severity = none # Use auto property
 dotnet_diagnostic.IDE0047.severity = none # Parentheses can be removed
 dotnet_diagnostic.IDE0048.severity = none # Parentheses should be added for clarity
 dotnet_diagnostic.IDE0049.severity = none # Name can be simplified # Suggest for example to adapt 'Int64' to 'long', still think 'Int64' is more clear.
+dotnet_diagnostic.IDE0063.severity = none # 'using' statement can be simplified
 dotnet_diagnostic.IDE0210.severity = none # Convert to top-level statements
+dotnet_diagnostic.IDE0230.severity = none # Use UTF-8 string literal
 
 # Eddie - False positive
 
 dotnet_diagnostic.JSON002.severity = none # Probable JSON string detected
 dotnet_diagnostic.IDE0079.severity = none # Remove unnecessary suppression # Detect CA1416 as unnecessary, but if compiled on net7 are necessary
-
-
-
-
 
 [*.{cs,vb}]
 #### Naming styles ####
@@ -179,6 +197,7 @@ dotnet_style_explicit_tuple_names = true:suggestion
 dotnet_style_prefer_inferred_tuple_names = true:suggestion
 dotnet_style_prefer_inferred_anonymous_type_member_names = true:suggestion
 dotnet_style_operator_placement_when_wrapping = beginning_of_line
+indent_style = tab
 tab_width = 4
 indent_size = 4
 end_of_line = crlf

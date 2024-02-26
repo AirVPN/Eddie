@@ -414,6 +414,7 @@ namespace Eddie.UI.Cocoa.Osx
             CboWireGuardMTU.AddItem("Recommended (1320)");
             CboWireGuardMTU.AddItem("Omit (WG automatic)");
             CboWireGuardMTU.AddItem("1400");
+			CboWireGuardMTU.AddItem("1392");
             CboWireGuardMTU.AddItem("1320");
             CboWireGuardMTU.AddItem("1280");
 
@@ -498,9 +499,9 @@ namespace Eddie.UI.Cocoa.Osx
 
 			WindowPreferencesRouteController.Item = item;
 			WindowPreferencesRouteController dlg = new WindowPreferencesRouteController();
-			//dlg.Window.ReleasedWhenClosed = true;
-			dlg.Window.ReleaseWhenClosed(true);
-            NSApplication.SharedApplication.RunModalForWindow(dlg.Window);
+			dlg.Window.ReleasedWhenClosed = true;
+			//dlg.Window.ReleaseWhenClosed(true); // Throw TrackReleasedWhenClosed exception. Xamarin issue, anyway deprecated.
+			NSApplication.SharedApplication.RunModalForWindow(dlg.Window);
 			dlg.Window.Close();
 
 			if (dlg.Accepted)
@@ -521,9 +522,9 @@ namespace Eddie.UI.Cocoa.Osx
 
 				WindowPreferencesRouteController.Item = item;
 				WindowPreferencesRouteController dlg = new WindowPreferencesRouteController();
-                //dlg.Window.ReleasedWhenClosed = true;
-                dlg.Window.ReleaseWhenClosed(true);
-                NSApplication.SharedApplication.RunModalForWindow(dlg.Window);
+                dlg.Window.ReleasedWhenClosed = true;
+                //dlg.Window.ReleaseWhenClosed(true); // Throw TrackReleasedWhenClosed exception. Xamarin issue, anyway deprecated.
+				NSApplication.SharedApplication.RunModalForWindow(dlg.Window);
 				dlg.Window.Close();
 
 				TableRoutingController.RefreshUI();
@@ -546,9 +547,9 @@ namespace Eddie.UI.Cocoa.Osx
 		{
 			WindowPreferencesIpController.Ip = "";
 			WindowPreferencesIpController dlg = new WindowPreferencesIpController();
-            //dlg.Window.ReleasedWhenClosed = true;
-            dlg.Window.ReleaseWhenClosed(true);
-            NSApplication.SharedApplication.RunModalForWindow(dlg.Window);
+            dlg.Window.ReleasedWhenClosed = true;
+            //dlg.Window.ReleaseWhenClosed(true); // Throw TrackReleasedWhenClosed exception. Xamarin issue, anyway deprecated.
+			NSApplication.SharedApplication.RunModalForWindow(dlg.Window);
 			dlg.Window.Close();
 
 			if (dlg.Accepted)
@@ -580,9 +581,9 @@ namespace Eddie.UI.Cocoa.Osx
 
 				WindowPreferencesIpController.Ip = dns;
 				WindowPreferencesIpController dlg = new WindowPreferencesIpController();
-                //dlg.Window.ReleasedWhenClosed = true;
-                dlg.Window.ReleaseWhenClosed(true);
-                NSApplication.SharedApplication.RunModalForWindow(dlg.Window);
+                dlg.Window.ReleasedWhenClosed = true;
+                //dlg.Window.ReleaseWhenClosed(true); // Throw TrackReleasedWhenClosed exception. Xamarin issue, anyway deprecated.
+				NSApplication.SharedApplication.RunModalForWindow(dlg.Window);
 				dlg.Window.Close();
 
 				if (dlg.Accepted)
@@ -601,10 +602,10 @@ namespace Eddie.UI.Cocoa.Osx
 
 			WindowPreferencesEventController.Item = TableAdvancedEventsController.Items[(int)index];
 			WindowPreferencesEventController dlg = new WindowPreferencesEventController();
-            //dlg.Window.ReleasedWhenClosed = true;
-            dlg.Window.ReleaseWhenClosed(true);
+            dlg.Window.ReleasedWhenClosed = true;
+            //dlg.Window.ReleaseWhenClosed(true); // Throw TrackReleasedWhenClosed exception. Xamarin issue, anyway deprecated.
 
-            NSApplication.SharedApplication.RunModalForWindow(dlg.Window);
+			NSApplication.SharedApplication.RunModalForWindow(dlg.Window);
 			dlg.Window.Close();
 
 			TableAdvancedEventsController.RefreshUI();
@@ -1008,6 +1009,8 @@ namespace Eddie.UI.Cocoa.Osx
 				GuiUtils.SetSelected(CboWireGuardMTU, "Omit (WG automatic)");
 			else if (wireguardInterfaceMTU == "1400")
 				GuiUtils.SetSelected(CboWireGuardMTU, "1400");
+			else if (wireguardInterfaceMTU == "1392")
+				GuiUtils.SetSelected(CboWireGuardMTU, "1392");
 			else if (wireguardInterfaceMTU == "1320")
 				GuiUtils.SetSelected(CboWireGuardMTU, "1320");
 			else if (wireguardInterfaceMTU == "1280")
@@ -1075,8 +1078,10 @@ namespace Eddie.UI.Cocoa.Osx
 			o.SetBool("gui.osx.visible", GuiUtils.GetCheck(ChkGeneralOsxVisible));
 			// o.SetBool ("gui.osx.dock", GuiUtils.GetCheck (ChkGeneralOsxDock)); // See this FAQ: https://airvpn.org/topic/13331-its-possible-to-hide-the-icon-in-dock-bar-under-os-x/
 
-			Engine.Instance.Elevated.DoCommandSync("shortcut-cli", "action", (GuiUtils.GetCheck(ChkCliShortcut) ? "set" : "del"), "path", Core.Platform.Instance.GetExecutablePath());
-			
+			string pathCLI = Core.Platform.Instance.GetExecutablePath();
+			pathCLI = pathCLI.Substring(0, pathCLI.Length - 2) + "CLI";
+			Engine.Instance.Elevated.DoCommandSync("shortcut-cli", "action", (GuiUtils.GetCheck(ChkCliShortcut) ? "set" : "del"), "path", pathCLI);
+
 			o.SetBool("gui.osx.sysbar.show_info", GuiUtils.GetCheck(ChkUiSystemBarShowInfo));
 			o.SetBool("gui.osx.sysbar.show_speed", GuiUtils.GetCheck(ChkUiSystemBarShowSpeed));
 			o.SetBool("gui.osx.sysbar.show_server", GuiUtils.GetCheck(ChkUiSystemBarShowServer));
@@ -1377,6 +1382,8 @@ namespace Eddie.UI.Cocoa.Osx
                 o.Set("wireguard.interface.mtu", "0");
             else if (wireguardInterfaceMTU == "1400")
                 o.Set("wireguard.interface.mtu", "1400");
+			else if (wireguardInterfaceMTU == "1392")
+                o.Set("wireguard.interface.mtu", "1392");
             else if (wireguardInterfaceMTU == "1320")
                 o.Set("wireguard.interface.mtu", "1320");
             else if (wireguardInterfaceMTU == "1280")

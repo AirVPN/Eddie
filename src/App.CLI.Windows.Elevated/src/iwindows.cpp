@@ -24,7 +24,7 @@
 
 #include "Windows.h"
 
-#include "iwindows.h"
+#include "..\include\iwindows.h"
 
 #include <fstream>
 #include <sstream>
@@ -246,7 +246,7 @@ void IWindows::Do(const std::string& commandId, const std::string& command, std:
 
 		ExecResult shellResult = ExecEx1(FsLocateExecutable("netsh.exe"), args);
 		if (shellResult.exit != 0)
-			ThrowException(GetExecResultDump(shellResult));
+			ThrowException(GetExecResultReport(shellResult));
 	}
 	else if (command == "openvpn")
 	{
@@ -988,7 +988,7 @@ pid_t IWindows::GetParentProcessId(pid_t pid)
 std::string IWindows::GetProcessPathOfId(pid_t pid)
 {
 	HANDLE processHandle = NULL;
-	WCHAR filename[MAX_PATH];
+	WCHAR filename[MAX_PATH+1];
 
 	processHandle = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pid);
 	if (processHandle != NULL) {
@@ -1076,7 +1076,7 @@ void IWindows::SetEnv(const std::string& name, const std::string& value)
 	// Never used in Windows
 }
 
-int IWindows::Exec(const std::string& path, const std::vector<std::string>& args, const bool stdinWrite, const std::string& stdinBody, std::string& stdOut, std::string& stdErr, const bool log)
+int IWindows::ExecRaw(const std::string& path, const std::vector<std::string>& args, const bool stdinWrite, const std::string& stdinBody, std::string& stdOut, std::string& stdErr, const bool log)
 {
 	// stdinWrite, stdinBody not yet supported, not need right now
 

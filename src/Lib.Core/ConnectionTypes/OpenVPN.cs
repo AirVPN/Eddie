@@ -53,11 +53,12 @@ namespace Eddie.Core.ConnectionTypes
 		public int TransportSshPortDestination = 0;
 		public int TransportSslLocalPort = 0;
 
-		private bool m_deleteAfterStart = false;
 		private string m_initSteps = ""; // We need at least init and data-cipher to proceed
 
 		private StringWriterLine m_stdout = new StringWriterLine();
 		private StringWriterLine m_stderr = new StringWriterLine();
+
+		private string m_openvpnBinary;
 
 		public override string GetTypeName()
 		{
@@ -523,7 +524,7 @@ namespace Eddie.Core.ConnectionTypes
 			{
 				bool log = true;
 				LogType logType = LogType.Verbose;
-								
+
 				// Ignore
 				if (message.IndexOfInv("MANAGEMENT: CMD 'status'") != -1)
 					return;
@@ -1126,31 +1127,20 @@ namespace Eddie.Core.ConnectionTypes
 			m_fileConfig = new TemporaryFile("ovpn");
 			Platform.Instance.FileContentsWriteText(m_fileConfig.Path, m_configStartup.Build(), Encoding.UTF8);
 
-			string path = Engine.Instance.GetOpenVpnTool().Path;
+			m_openvpnBinary = Engine.Instance.GetOpenVpnTool().Path;
+			m_openvpnBinary = Platform.Instance.FileGetPhysicalPath(m_openvpnBinary);
+			m_openvpnBinary = Platform.Instance.RootExecutionOutsideBundleAdapt(m_openvpnBinary);
 
 			if (m_processTransport == null)
-				SetNetworkLockSoftwareExceptionPath(path);
+				SetNetworkLockSoftwareExceptionPath(m_openvpnBinary);
 
 			m_elevatedCommand = new Elevated.Command();
 			m_elevatedCommand.Parameters["command"] = "openvpn";
 			m_elevatedCommand.Parameters["action"] = "start";
 			m_elevatedCommand.Parameters["id"] = Id;
-			m_elevatedCommand.Parameters["path"] = Platform.Instance.FileGetPhysicalPath(path);
+			m_elevatedCommand.Parameters["path"] = m_openvpnBinary;
 			m_elevatedCommand.Parameters["config"] = Platform.Instance.FileGetPhysicalPath(m_fileConfig.Path);
 			OverrideElevatedCommandParameters();
-
-			if (Platform.Instance.NeedExecuteOutsideAppPath(m_elevatedCommand.Parameters["path"]))
-			{
-				string tempPathToDelete = Platform.Instance.FileTempName(Platform.Instance.FileGetNameFromPath(m_elevatedCommand.Parameters["path"]));
-
-				if (Platform.Instance.FileExists(tempPathToDelete))
-					Platform.Instance.FileDelete(tempPathToDelete);
-				System.IO.File.Copy(m_elevatedCommand.Parameters["path"], tempPathToDelete);
-
-				m_elevatedCommand.Parameters["path"] = tempPathToDelete;
-
-				m_deleteAfterStart = true;
-			}
 
 			m_elevatedCommand.ExceptionEvent += delegate (Elevated.Command cmd, string message)
 			{
@@ -1169,11 +1159,8 @@ namespace Eddie.Core.ConnectionTypes
 				}
 				else if (data.StartsWithInv("procid:"))
 				{
-					//m_pid = Conversions.ToInt32(data.Substring(7));
-					if (m_deleteAfterStart)
-					{
-						Platform.Instance.FileDelete(m_elevatedCommand.Parameters["path"]);
-					}
+					//m_pid = Conversions.ToInt32(data.Substring(7));					
+					Platform.Instance.RootExecutionOutsideBundleDelete(m_openvpnBinary);
 				}
 				else if (data.StartsWithInv("return:"))
 				{

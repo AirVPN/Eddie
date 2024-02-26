@@ -230,7 +230,7 @@ namespace Eddie.Forms.Controls
 
 			if (itemsToRemove.Count > 0)
 			{
-				if (Platform.IsWindows())
+				if (GuiUtils.IsWindows())
 				{
 					foreach (ListViewItemArea viewItem in itemsToRemove)
 					{

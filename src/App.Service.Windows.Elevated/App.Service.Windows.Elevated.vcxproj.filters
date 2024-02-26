@@ -15,33 +15,30 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\App.CLI.Common.Elevated\ibase.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\App.CLI.Common.Elevated\sha256.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\App.CLI.Windows.Elevated\src\impl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\App.CLI.Windows.Elevated\src\iwindows.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\App.CLI.Common.Elevated\ping.cpp">
+    <ClCompile Include="..\..\dependencies\yxml\yxml.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\App.CLI.Windows.Elevated\src\yxml.cpp">
+    <ClCompile Include="..\..\dependencies\sha256\sha256.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Lib.CLI.Elevated\src\ibase.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Lib.CLI.Elevated\src\ping.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\App.CLI.Common.Elevated\ibase.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\App.CLI.Common.Elevated\sha256.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\App.CLI.Windows.Elevated\src\impl.h">
@@ -50,8 +47,18 @@
     <ClInclude Include="..\App.CLI.Windows.Elevated\src\iwindows.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\App.CLI.Windows.Elevated\src\yxml.h">
+    <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="App.Service.Windows.Elevated.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="App.Service.Windows.Elevated.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

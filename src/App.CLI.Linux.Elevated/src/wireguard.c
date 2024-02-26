@@ -22,7 +22,7 @@
 #include <fcntl.h>
 #include <assert.h>
 
-#include "wireguard.h"
+#include "../include/wireguard.h"
 
 /* wireguard.h netlink uapi: */
 

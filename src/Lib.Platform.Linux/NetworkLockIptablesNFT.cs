@@ -16,10 +16,6 @@
 // along with Eddie. If not, see <http://www.gnu.org/licenses/>.
 // </eddie_source_header>
 
-using System;
-using System.Net.NetworkInformation;
-using Eddie.Core;
-
 namespace Eddie.Platform.Linux
 {
 	public class NetworkLockIptablesNFT : NetworkLockIptables

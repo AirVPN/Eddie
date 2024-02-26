@@ -30,7 +30,6 @@ namespace Eddie.Core
 
 		public void Init()
 		{
-			KnownCommands["cli"] = "";
 			KnownCommands["version"] = LanguageManager.GetText(LanguageItems.ManCommandLineVersion);
 			KnownCommands["version.short"] = LanguageManager.GetText(LanguageItems.ManCommandLineVersionShort);
 			KnownCommands["help"] = LanguageManager.GetText(LanguageItems.ManCommandLineHelp);
@@ -40,21 +39,14 @@ namespace Eddie.Core
 			KnownCommands["path"] = LanguageManager.GetText(LanguageItems.ManCommandLinePath);
 
 			KnownCommands["batch"] = "";
-			KnownCommands["stdinoutcontrol"] = ""; // WIP
+			KnownCommands["jsoninout"] = "";
 
 			// Internal:
 
 			KnownCommands["path.resources"] = "";
 			KnownCommands["path.tools"] = "";
-
-			KnownCommands["linux.xhost"] = "";
-			KnownCommands["linux.dbus"] = "";
-			KnownCommands["path.exec"] = "";
-			KnownCommands["advanced.skip_privileges"] = "";
-
+			KnownCommands["elevation"] = ""; // Windows: not used; Linux: auto,none,sudo,su,pkexec; macOS: auto,none,sudo,ui
 			KnownCommands["elevated.service.port"] = "";
-
-			KnownCommands["sudo"] = "";
 		}
 
 		public bool Check()

@@ -21,15 +21,11 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Net.NetworkInformation;
-using System.Text;
 using System.Xml;
 
 using Eddie.Core;
 
-#if EDDIE_DOTNET
-	// We need to replace any NS*, Security.SecRecord etc
-	// To compile with dotnet7 and detach from deprecated Xamarin.Mac framework in CLI edition
-#else
+#if !EDDIE_DOTNET
 	// If errors occur here, probably Xamarin update cause trouble. Remove Xamarin.Mac reference and re-add by browsing to path
 	// /Library/Frameworks/Xamarin.Mac.framework/Versions/Current/lib/mono/4.5/Xamarin.Mac.dll
 	using AppKit;
@@ -41,10 +37,7 @@ namespace Eddie.Platform.MacOS
 {
 	public class Platform : Core.Platform
 	{
-		private string m_name = "";
 		private string m_version = "";
-		private string m_architecture = "";
-
 		private string m_launchdPath = "/Library/LaunchDaemons/org.airvpn.eddie.ui.elevated.plist";
 
 		private List<DnsSwitchEntry> m_listDnsSwitch = new List<DnsSwitchEntry>();
@@ -52,8 +45,12 @@ namespace Eddie.Platform.MacOS
 
 		private string m_workaroundIpv6DnsLookupEnableInterface = "";
 
-        // Override
-        public Platform()
+#if !EDDIE_DOTNET
+		private string m_osArchitecture = "";
+#endif
+
+		// Override
+		public Platform()
 		{
 		}
 
@@ -64,93 +61,86 @@ namespace Eddie.Platform.MacOS
 
 		public override string GetName()
 		{
-			return m_name;
+			return "macOS " + GetVersion();
 		}
 
 		public override string GetVersion()
 		{
+			if (m_version == "")
+				m_version = SystemExec.Exec1(LocateExecutable("sw_vers"), "-productVersion").Trim(); // Example output: '10.14.3'
 			return m_version;
 		}
+
+#if !EDDIE_DOTNET
+		public override string GetOsArchitecture()
+		{
+			if(m_osArchitecture == "")
+			{
+				// Note: uname -m still return "x64" also in arm64,
+				// because net4 still run with Rosetta
+				string cpuBrand = SystemExec.Exec2(LocateExecutable("sysctl"), "-n", "machdep.cpu.brand_string").Trim();
+				if (cpuBrand.Contains("Apple"))
+					m_osArchitecture = "arm64";
+				else
+					m_osArchitecture = "x64";
+			}
+			return m_osArchitecture;
+		}
+#endif
 
 		public override bool OnInit()
 		{
 			base.OnInit();
 
+#if !EDDIE_DOTNET
 			// Clean mono_crash files, otherwise Elevated can't run (fail codesign bundle verification)
-            {
+			if(true)
+			{
 				string resPath = "../Resources";
 				resPath = FileGetAbsolutePath(resPath, GetApplicationPath());
 				resPath = FileGetPhysicalPath(resPath);
 				if (DirectoryExists(resPath))
-                {
+				{
 					foreach (string file in Directory.GetFiles(resPath, "mono_crash*"))
 						FileDelete(file);
-                }
-            }
-
-#if !EDDIE_DOTNET
-			if (Engine.Instance.ConsoleMode)
-			{
-				NSApplication.Init(); // Requested in CLI edition to call NSPipe, NSTask etc.			
+				}
 			}
 #endif
 
-            m_version = SystemExec.Exec1(LocateExecutable("sw_vers"), "-productVersion").Trim(); // Example output: '10.14.3'
-            m_name = "macOS " + m_version;
-            m_architecture = base.GetArchitecture();
+			/*
+#if !EDDIE_DOTNET
+			
+			// TOCLEAN, Removed in 2.24.0, read NSPipe code comment
+			// Need remove because otherwise not compilable with .Net7
+			if (Engine.Instance.IsConsole())
+			{
+				NSApplication.Init(); // Requested in CLI edition to call NSPipe, NSTask etc.			
+			}			
+#endif
+			*/
 
 			try
 			{
-				bool result = (NativeMethods.eddie_init() == 0);
+				bool result = (NativeMethods.Init() == 0);
 				if (result == false)
 					throw new Exception("fail");
-
-#if !EDDIE_DOTNET
-				// For MONO, used to listen CTRL+C in CLI edition, and perform a clean exit. Still don't listen a "kill -INT pid".
-				// dotnet catch well signal, both CTRL+C in terminal or "kill -INT pid"
-				NativeMethods.eddie_signal((int)NativeMethods.Signum.SIGHUP, SignalCallback);
-				NativeMethods.eddie_signal((int)NativeMethods.Signum.SIGINT, SignalCallback);
-				NativeMethods.eddie_signal((int)NativeMethods.Signum.SIGTERM, SignalCallback);
-				NativeMethods.eddie_signal((int)NativeMethods.Signum.SIGUSR1, SignalCallback);
-				NativeMethods.eddie_signal((int)NativeMethods.Signum.SIGUSR2, SignalCallback);
-#endif
 			}
 			catch
 			{
-				Console.WriteLine("Unable to initialize native library. Maybe a CPU architecture issue.");
+				Engine.Instance.Logs.LogFatal("Unable to initialize native library. Maybe a CPU architecture issue.");
 				return false;
 			}
 
 			return true;
 		}
 
-#if !EDDIE_DOTNET
-		private static void SignalCallback(int signum)
-		{
-			NativeMethods.Signum sig = (NativeMethods.Signum)signum;
-			if (sig == NativeMethods.Signum.SIGHUP)
-				Engine.Instance.OnSignal("SIGHUP");
-			else if (sig == NativeMethods.Signum.SIGINT)
-				Engine.Instance.OnSignal("SIGINT");
-			else if (sig == NativeMethods.Signum.SIGTERM)
-				Engine.Instance.OnSignal("SIGTERM");
-			else if (sig == NativeMethods.Signum.SIGUSR1)
-				Engine.Instance.OnSignal("SIGUSR1");
-			else if (sig == NativeMethods.Signum.SIGUSR2)
-				Engine.Instance.OnSignal("SIGUSR2");
-		}
-#endif
-
-		public override string GetOsArchitecture()
-		{
-			return m_architecture;
-		}
-
+		/* // TOCLEAN
 		public override string GetDefaultDataPath()
 		{
 			// Only in OSX, always save in 'home' path also with portable edition.
 			return "home";
 		}
+		*/
 
 		public override Eddie.Core.Elevated.IElevated StartElevated()
 		{
@@ -161,9 +151,8 @@ namespace Eddie.Platform.MacOS
 
 		public override bool IsElevatedPrivileges()
 		{
-			// With root privileges by RootLauncher.cs, Environment.UserName still return the normal username, 'whoami' return 'root'.
+			// With root privileges with AuthorizationExecuteWithPrivileges, Environment.UserName still return the normal username, 'whoami' return 'root'.
 			string u = SystemExec.Exec(LocateExecutable("whoami"), new string[] { }).ToLowerInvariant().Trim();
-			// return true; // Uncomment for debugging
 			return (u == "root");
 		}
 
@@ -185,14 +174,6 @@ namespace Eddie.Platform.MacOS
 		public override bool CheckElevatedProcessAllowed(string remotePath)
 		{
 			// TOFIX
-			/*
-            string localPath = System.Reflection.Assembly.GetEntryAssembly().Location;
-            Engine.Instance.Logs.LogVerbose(localPath);
-            Engine.Instance.Logs.LogVerbose(remotePath);
-
-            string codesignPath = "/usr/bin/codesign"; // Note: absolute path to avoid ENV
-            */
-
 			return true;
 		}
 
@@ -228,37 +209,14 @@ namespace Eddie.Platform.MacOS
 
 			if (value)
 			{
-				RunProcessAsRoot(GetElevatedHelperPath(), new string[] { "service=install", "service_port=" + Engine.Instance.GetElevatedServicePort() }, Engine.Instance.ConsoleMode);
+				RunElevated(new string[] { "service=install", "service_port=" + Engine.Instance.GetElevatedServicePort() }, true);
 				return (GetService() == true);
 			}
 			else
 			{
-				RunProcessAsRoot(GetElevatedHelperPath(), new string[] { "service=uninstall" }, Engine.Instance.ConsoleMode);
+				RunElevated(new string[] { "service=uninstall" }, true);
 				return (GetService() == false);
 			}
-			/*
-			System.Diagnostics.ProcessStartInfo processStart = new System.Diagnostics.ProcessStartInfo();
-			processStart.Verb = "runas";
-			processStart.CreateNoWindow = true;
-			processStart.UseShellExecute = true;
-
-            if (value)
-			{
-                processStart.FileName = "osascript";
-                processStart.Arguments = " -e 'do shell script \"" + GetElevatedHelperPath() + " service-install" + "\" with prompt \"" + UtilsString.StringSafe(LanguageManager.GetText(LanguageItems.HelperPrivilegesPromptInstall)) + "\" with administrator privileges'";
-                System.Diagnostics.Process.Start(processStart);
-                //RunProcessAsRoot(GetElevatedHelperPath(), new string[] { "service-install" }, Engine.Instance.ConsoleMode);
-				return (GetService() == true);
-			}
-			else
-			{
-                processStart.FileName = "osascript";
-                processStart.Arguments = " -e 'do shell script \"" + GetElevatedHelperPath() + " service-uninstall" + "\" with prompt \"" + UtilsString.StringSafe(LanguageManager.GetText(LanguageItems.HelperPrivilegesPromptUninstall")) + "\" with administrator privileges'";
-                System.Diagnostics.Process.Start(processStart);
-                //RunProcessAsRoot(GetElevatedHelperPath(), new string[] { "service-uninstall" }, Engine.Instance.ConsoleMode);
-                return (GetService() == false);
-			}
-            */
 		}
 
 		public override string DirSep
@@ -282,7 +240,7 @@ namespace Eddie.Platform.MacOS
 			if ((path == "") || (FileExists(path) == false))
 				return false;
 
-			int result = NativeMethods.eddie_file_get_immutable(path);
+			int result = NativeMethods.FileGetImmutable(path);
 			return (result == 1);
 		}
 
@@ -302,7 +260,7 @@ namespace Eddie.Platform.MacOS
 			if ((path == "") || (Platform.Instance.FileExists(path) == false))
 				return false;
 
-			int result = NativeMethods.eddie_file_get_mode(path);
+			int result = NativeMethods.FileGetMode(path);
 			if (result == -1)
 			{
 				Engine.Instance.Logs.Log(LogType.Warning, "Failed to detect permissions on '" + path + "'.");
@@ -322,7 +280,7 @@ namespace Eddie.Platform.MacOS
 
 			if (newResult != result)
 			{
-				result = NativeMethods.eddie_file_set_mode(path, newResult);
+				result = NativeMethods.FileSetMode(path, newResult);
 				if (result == -1)
 				{
 					Engine.Instance.Logs.Log(LogType.Warning, "Failed to set permissions on '" + path + "'.");
@@ -338,7 +296,7 @@ namespace Eddie.Platform.MacOS
 			if ((path == "") || (FileExists(path) == false))
 				return false;
 
-			int result = NativeMethods.eddie_file_get_mode(path);
+			int result = NativeMethods.FileGetMode(path);
 			if (result == -1)
 			{
 				Engine.Instance.Logs.Log(LogType.Warning, "Failed to detect if '" + path + "' is executable");
@@ -349,7 +307,7 @@ namespace Eddie.Platform.MacOS
 
 			if (newResult != result)
 			{
-				result = NativeMethods.eddie_file_set_mode(path, newResult);
+				result = NativeMethods.FileSetMode(path, newResult);
 				if (result == -1)
 				{
 					Engine.Instance.Logs.Log(LogType.Warning, "Failed to mark '" + path + "' as executable");
@@ -362,7 +320,7 @@ namespace Eddie.Platform.MacOS
 
 		public override bool FileRunAsRoot(string path)
 		{
-			return NativeMethods.eddie_file_get_runasroot(path);
+			return NativeMethods.FileGetRunAsRoot(path);
 		}
 
 		public override string GetExecutableReport(string path)
@@ -408,7 +366,7 @@ namespace Eddie.Platform.MacOS
 
 		public override bool ProcessKillSoft(Process process)
 		{
-			return (NativeMethods.eddie_kill(process.Id, 15) == 0);
+			return (NativeMethods.Kill(process.Id, 15) == 0);
 		}
 
 		public override int GetOpenVpnRecommendedRcvBufDirective()
@@ -433,58 +391,10 @@ namespace Eddie.Platform.MacOS
 			Engine.Instance.Elevated.DoCommandSync("dns-flush", "services", Engine.Instance.ProfileOptions.Get("linux.dns.services"));
 		}
 
-		public override int StartProcessAsRoot(string path, string[] arguments, bool consoleMode)
-		{
-			bool canRunAsRoot = Platform.Instance.FileRunAsRoot(path);
-
-			System.Diagnostics.Process process = null;
-			bool processDirectResult = false;
-
-			if (canRunAsRoot)
-			{
-				process = new System.Diagnostics.Process();
-				process.StartInfo.FileName = path;
-				process.StartInfo.Arguments = string.Join(" ", arguments);
-			}
-			else
-			{
-				if (Engine.Instance.ConsoleMode)
-				{
-					process = new System.Diagnostics.Process();
-					process.StartInfo.FileName = "sudo";
-					process.StartInfo.Arguments = "\"" + path + "\" " + string.Join(" ", arguments);
-				}
-				else
-				{
-					// Alternate version via osascript
-					//process = new System.Diagnostics.Process();
-					//process.StartInfo.FileName = "osascript";
-					//process.StartInfo.Arguments = " -e 'do shell script \"" + path + " " + string.Join(" ", arguments) + "\" with prompt \"" + LanguageManager.GetText(LanguageItems.HelperPrivilegesPrompt).Safe() + "\" with administrator privileges'";
-
-					// Alternate version with RootLauncher
-					// TOFIX: pending pid, create launchd don't start it (no root?)
-					// Required for elevated-spot-check-parent-pid
-					processDirectResult = RootLauncher.LaunchExternalTool(path, arguments);
-				}
-			}
-
-			if (process != null)
-			{
-				process.StartInfo.WorkingDirectory = "";
-				process.StartInfo.Verb = "run";
-				process.StartInfo.CreateNoWindow = true;
-				process.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
-				process.StartInfo.UseShellExecute = false;
-				process.Start();
-				return process.Id;
-			}
-			else
-			{
-				return processDirectResult ? -1 : 0;
-			}
-		}
-
-#if !EDDIE_DOTNET
+		// TOCLEAN, NSPipe edition.
+		// We don't honestly know why exists this NSPipe edition, .Net base works.
+		// Disabled in 2.24.0 (2023-11-23), keep here for comparison
+		/*
 		public override void ExecSyncCore(string path, string[] arguments, string autoWriteStdin, out string stdout, out string stderr, out int exitCode)
 		{
 			if (autoWriteStdin != "")
@@ -508,14 +418,14 @@ namespace Eddie.Platform.MacOS
 				t.Dispose();
 
 				NSFileHandle fileOut = pipeOut.ReadHandle;
-				stdout = fileOut.ReadDataToEndOfFile().ToString();
+				stdout = fileOut.ReadDataToEndOfFile().ToString().Trim();
 				fileOut.CloseFile();
 
 				NSFileHandle fileErr = pipeErr.ReadHandle;
-				stderr = fileErr.ReadDataToEndOfFile().ToString();
+				stderr = fileErr.ReadDataToEndOfFile().ToString().Trim();
 				fileErr.CloseFile();
 
-				exitCode = t.TerminationStatus;
+				exitCode = t.TerminationStatus; // Note 2023-11-23: wrong, it's not exitCode
 			}
 			catch (Exception ex)
 			{
@@ -523,8 +433,32 @@ namespace Eddie.Platform.MacOS
 				stderr = "Error: " + ex.Message;
 				exitCode = -1;
 			}
+					
+			if(false)
+			{
+				// Used to compare output between base edition and NSPipe edition
+				string stdout2;
+				string stderr2;
+				int exitcode2;
+
+				base.ExecSyncCore(path, arguments, autoWriteStdin, out stdout2, out stderr2, out exitcode2);
+
+				if(stdout != stdout2)
+				{
+					Console.WriteLine("stdout diff");
+				}
+				if (stderr != stderr2)
+				{
+					Console.WriteLine("stderr diff");
+				}
+				if (exitCode != exitcode2)
+				{
+					// Occur, but because NSPipe edition is wrong.
+					Console.WriteLine("exitcode diff");
+				}
+			}
 		}
-#endif
+		*/
 
 		public override string LocateResource(string relativePath)
 		{
@@ -721,7 +655,7 @@ namespace Eddie.Platform.MacOS
 			string networksetupPath = LocateExecutable("networksetup");
 			if (networksetupPath == "")
 				throw new Exception("'networksetup' " + LanguageManager.GetText(LanguageItems.NotFound));
-			
+
 			string pfctlPath = LocateExecutable("pfctl");
 			if (pfctlPath == "")
 				Engine.Instance.Logs.Log(LogType.Warning, "'pfctl' " + LanguageManager.GetText(LanguageItems.NotFound));
@@ -933,7 +867,7 @@ namespace Eddie.Platform.MacOS
 					// No exception, it's only a workaround.
 					Engine.Instance.Logs.LogVerbose(msg + " failed: " + result.Substring(4));
 				}
-				else if(result == "not_need_already")
+				else if (result == "not_need_already")
 				{
 					Engine.Instance.Logs.LogVerbose(msg + " not needed, already looked AAAA records up");
 				}
@@ -945,7 +879,7 @@ namespace Eddie.Platform.MacOS
 				{
 					Engine.Instance.Logs.LogVerbose(msg + " activated");
 					m_workaroundIpv6DnsLookupEnableInterface = connection.Interface.Name;
-                }
+				}
 				else
 				{
 					Engine.Instance.Logs.LogVerbose(msg + " unexpected result");
@@ -961,7 +895,7 @@ namespace Eddie.Platform.MacOS
 				Core.Elevated.Command c = new Core.Elevated.Command();
 				c.Parameters["command"] = "workaround-ipv6-dns-lookup-disable";
 				c.Parameters["iface"] = m_workaroundIpv6DnsLookupEnableInterface;
-                string result = Engine.Instance.Elevated.DoCommandSync(c);
+				string result = Engine.Instance.Elevated.DoCommandSync(c);
 
 				string msg = "Workaround for enabling IPv6 DNS lookups";
 				if (result.StartsWithInv("err:"))
@@ -990,7 +924,7 @@ namespace Eddie.Platform.MacOS
 
 			int maxLen = 1024;
 			byte[] buf = new byte[maxLen];
-			NativeMethods.eddie_get_realtime_network_stats(buf, maxLen);
+			NativeMethods.GetRealtimeNetworkStats(buf, maxLen);
 			string jNativeStr = System.Text.Encoding.ASCII.GetString(buf);
 
 			Json jNative = Json.Parse(jNativeStr);
@@ -1050,16 +984,16 @@ namespace Eddie.Platform.MacOS
 
 		public override string OsCredentialSystemRead(string name)
 		{
-#if EDDIE_DOTNET
-			return NativeMethods.eddie_credential_system_read(Constants.Name + " - " + name, name);			
-#else
+			return NativeMethods.CredentialSystemRead(Constants.Name + " - " + name, name);
+			/*
+			// Xamarin edition
 			byte[] b = null;
 			var code = Security.SecKeyChain.FindGenericPassword(Constants.Name + " - " + name, name, out b);
 			if (code == Security.SecStatusCode.Success)
-				return Encoding.UTF8.GetString(b);
+			return Encoding.UTF8.GetString(b);
 			else
-				return "";
-#endif
+			return "";
+			*/
 		}
 
 		public override bool OsCredentialSystemWrite(string name, string password)
@@ -1067,22 +1001,22 @@ namespace Eddie.Platform.MacOS
 			if (OsCredentialSystemDelete(name) == false) // Otherwise is not overwritten
 				return false;
 
-#if EDDIE_DOTNET
-			return NativeMethods.eddie_credential_system_write(Constants.Name + " - " + name, name, password);
-#else
+			return NativeMethods.CredentialSystemWrite(Constants.Name + " - " + name, name, password);
+			/*
+			// Xamarin edition
 			var b = Encoding.UTF8.GetBytes(password);
 
 			Security.SecStatusCode ssc;
 			ssc = Security.SecKeyChain.AddGenericPassword(Constants.Name + " - " + name, name, b);
 			return (ssc == Security.SecStatusCode.Success);
-#endif
+			*/
 		}
 
 		public override bool OsCredentialSystemDelete(string name)
 		{
-#if EDDIE_DOTNET
-			return NativeMethods.eddie_credential_system_delete(Constants.Name + " - " + name, name);			
-#else
+			return NativeMethods.CredentialSystemDelete(Constants.Name + " - " + name, name);
+			/*
+			// Xamarin edition
 			Security.SecRecord sr = new Security.SecRecord(Security.SecKind.GenericPassword);
 			sr.Service = Constants.Name + " - " + name;
 			sr.Account = name;
@@ -1101,18 +1035,12 @@ namespace Eddie.Platform.MacOS
 				return true;
 			else
 				return false;
-#endif
+			*/
 		}
 
 		public override List<string> GetTrustedPaths()
 		{
 			List<string> list = base.GetTrustedPaths();
-			/*
-            list.Add("/bin");
-            list.Add("/usr/bin");
-            list.Add("/sbin");
-            list.Add("/usr/sbin");
-            */
 			list.Add(LocateExecutable("codesign"));
 			list.Add(LocateExecutable("whoami"));
 
@@ -1166,17 +1094,118 @@ namespace Eddie.Platform.MacOS
 			return "Expected";
 		}
 
-        public override bool PreferHummingbirdIfAvailable()
-        {
+		public override bool PreferHummingbirdIfAvailable()
+		{
 			return false;
-			/* // for 2.23.0
-			if (Core.Platform.Instance.GetVersion().VersionUnder("10.14")) // Hummingbird require Mojave
-				return false;
+		}
 
-			return true;
+		public int RunElevated(string[] arguments, bool waitEnd)
+		{
+			string path = GetElevatedHelperPath();
+
+			string elevationMethod = Engine.Instance.StartCommandLine.Get("elevation", "auto");
+			if (elevationMethod == "auto")
+			{
+				if (FileRunAsRoot(path))
+					elevationMethod = "none";
+				else if (IsElevatedPrivileges())
+					elevationMethod = "none";
+				else if (Engine.Instance.IsUiApp())
+					elevationMethod = "ui";
+				else if (Engine.Instance.IsConsole())
+					elevationMethod = "sudo";
+				else
+					elevationMethod = "none";
+			}
+			if ((elevationMethod == "sudo") && (LocateExecutable("sudo") == ""))
+				elevationMethod = "none";
+
+			System.Diagnostics.Process process = null;
+			bool processDirectResult = false;
+
+			if (elevationMethod == "none")
+			{
+				process = new System.Diagnostics.Process();
+				process.StartInfo.FileName = path;
+				process.StartInfo.Arguments = string.Join(" ", arguments);
+			}
+			else if (elevationMethod == "sudo")
+			{
+				process = new System.Diagnostics.Process();
+				process.StartInfo.FileName = "sudo";
+				process.StartInfo.Arguments = "\"" + path + "\" " + string.Join(" ", arguments);
+			}
+			/*
+			else if (elevationMethod == "osascript")
+			{
+				// Method not really working,
+				// elevated throw "Client not allowed: Connection not from parent process (spot mode)"
+				// because is launched under a top-level process called "/System/Library/Frameworks/Security.framework/authtrampoline"
+				process = new System.Diagnostics.Process();
+				process.StartInfo.FileName = "osascript";
+#if EDDIE_DOTNET
+				process.StartInfo.ArgumentList.Add("-e");
+				process.StartInfo.ArgumentList.Add("do shell script \"" + path + " " + string.Join(" ", arguments) + "\" with prompt \"" + LanguageManager.GetText(LanguageItems.HelperPrivilegesPrompt).Safe() + "\" with administrator privileges");
+#else
+				process.StartInfo.Arguments = " -e 'do shell script \"" + path + " " + string.Join(" ", arguments) + "\" with prompt \"" + LanguageManager.GetText(LanguageItems.HelperPrivilegesPrompt).Safe() + "\" with administrator privileges'";
+#endif
+			}
 			*/
-        }
-    }
+			else if (elevationMethod == "ui")
+			{
+				Json jArgs = new Json();
+				jArgs.EnsureArray();
+				foreach (string arg in arguments)
+					jArgs.Append(arg);
+
+				Json j = new Json();
+				j["command"].Value = "elevated.start";
+				j["args"].Value = jArgs;
+				Engine.Instance.UiManager.Broadcast(j);
+
+				// TOFIX: this work because Broadcast above is sync.
+				// can be removed when return value.
+				System.Threading.Thread.Sleep(500);
+				int pid2 = Conversions.ToInt32(SystemExec.Exec2(LocateExecutable("pgrep"), "-f", path));				
+				if (pid2 > 0)
+					processDirectResult = true;
+			}
+
+			if (process != null)
+			{
+				process.StartInfo.WorkingDirectory = "";
+				process.StartInfo.Verb = "run";
+				process.StartInfo.CreateNoWindow = true;
+				process.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+				process.StartInfo.UseShellExecute = false;
+				process.Start();
+
+				if (waitEnd)
+				{
+					process.WaitForExit();
+					return process.ExitCode;
+				}
+				else
+					return process.Id;
+			}
+			else
+			{
+				// Note: waitEnd ignored:
+				// we can't access here in macOS to elevated process with clean C#,
+				// we need some kind of loop and pgrep exec,
+				// but don't really need to wait, we don't need the exitcode, and maybe deprecated in future
+				if (waitEnd)
+				{
+					System.Threading.Thread.Sleep(1000);
+					return 0;
+				}
+				else
+				{
+					return processDirectResult ? -1 : 0;
+				}
+			}
+		}
+	}
 
 	public class DnsSwitchEntry
 	{

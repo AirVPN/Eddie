@@ -40,9 +40,8 @@ namespace Eddie.Forms.Linux
 			{
 				for (; ; )
 				{
-
-					string controlReadPath = Core.Platform.Instance.FileTempName("eddie_tray_r.tmp");
-					string controlWritePath = Core.Platform.Instance.FileTempName("eddie_tray_w.tmp");
+					TemporaryFile controlReadFile = new TemporaryFile("traypipe");
+					TemporaryFile controlWriteFile = new TemporaryFile("traypipe");
 
 					string pathRes = Core.Engine.Instance.GetPathResources();
 					string pathExe = Core.Platform.Instance.FileGetPhysicalPath(Core.Platform.Instance.GetApplicationPath() + "/eddie-tray");
@@ -51,8 +50,8 @@ namespace Eddie.Forms.Linux
 						return;
 
 					List<string> arguments = new List<string>();
-					arguments.Add("-r " + controlReadPath);
-					arguments.Add("-w " + controlWritePath);
+					arguments.Add("-r " + controlReadFile.Path);
+					arguments.Add("-w " + controlWriteFile.Path);
 					arguments.Add("-p " + pathRes);
 
 					string[] arguments2 = arguments.ToArray();
@@ -79,19 +78,19 @@ namespace Eddie.Forms.Linux
 						if (CancelRequested)
 							break;
 
-						if (Core.Platform.Instance.FileExists(controlWritePath))
+						if (Core.Platform.Instance.FileExists(controlWriteFile.Path))
 							break;
 
 						Sleep(100);
 					}
 
-					m_pathWrite = controlReadPath;
+					m_pathWrite = controlReadFile.Path;
 
 					try
 					{
 						for (; ; )
 						{
-							using (StreamReader streamRead = new StreamReader(controlWritePath))
+							using (StreamReader streamRead = new StreamReader(controlWriteFile.Path))
 							{
 								string cmd = streamRead.ReadLine();
 

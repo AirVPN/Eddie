@@ -24,6 +24,11 @@ namespace Eddie.Core
 {
 	public static class Utils
 	{
+		public static void NotImplemented()
+		{
+			throw new Exception("Not Implemented.");
+		}
+
 		public static Int64 UnixTimeStamp()
 		{
 			return Conversions.ToUnixTime(DateTime.UtcNow);
@@ -44,6 +49,14 @@ namespace Eddie.Core
 			DateTime now = DateTime.UtcNow;
 
 			return LanguageManager.GetText(LanguageItems.GeneratedFileHeader, Engine.Instance.GetVersionShow()) + " - " + now.ToLongDateString() + " " + now.ToLongTimeString() + " UTC";
+		}
+
+		public static string NormalizeArchitecture(string a)
+		{
+			if (a == "i686") return "x86";
+			if (a == "AMD64") return "x64";
+			if (a == "x86_64") return "x64";
+			return a;
 		}
 
 		public static string[] GetAssemblyResources(Assembly assembly = null)

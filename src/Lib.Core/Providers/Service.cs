@@ -904,25 +904,16 @@ namespace Eddie.Core.Providers
 		// 'S' is the AES 256 bit one-time session key, crypted with a RSA 4096 public-key.
 		// 'D' is the data from the client to our server, crypted with the AES.
 		// The server answer is XML decrypted with the same AES session.
+
 		public XmlDocument FetchUrl(string url, Dictionary<string, string> parameters)
 		{
-			// AES				
-			using (RijndaelManaged rijAlg = new RijndaelManaged())
+			using (Aes aes = Aes.Create())
 			{
-				rijAlg.KeySize = 256;
-				rijAlg.GenerateKey();
-				rijAlg.GenerateIV();
+				aes.KeySize = 256;
+				aes.GenerateKey();
+				aes.GenerateIV();
 
-				// Generate S
-
-				// Bug workaround: Xamarin 6.1.2 macOS throw an 'Default constructor not found for type System.Diagnostics.FilterElement' error.
-				// in 'new System.Xml.Serialization.XmlSerializer', so i avoid that.
-				/*
-				StringReader sr = new System.IO.StringReader(authPublicKey);
-				System.Xml.Serialization.XmlSerializer xs = new System.Xml.Serialization.XmlSerializer(typeof(RSAParameters));
-				RSAParameters publicKey = (RSAParameters)xs.Deserialize(sr);
-				*/
-
+				// Generate S					
 				string rsaModulus = "";
 				string rsaExponent = "";
 
@@ -943,8 +934,8 @@ namespace Eddie.Core.Providers
 				publicKey.Exponent = Convert.FromBase64String(rsaExponent);
 
 				Dictionary<string, byte[]> assocParamS = new Dictionary<string, byte[]>();
-				assocParamS["key"] = rijAlg.Key;
-				assocParamS["iv"] = rijAlg.IV;
+				assocParamS["key"] = aes.Key;
+				assocParamS["iv"] = aes.IV;
 
 				byte[] bytesParamS = null;
 				using (RSACryptoServiceProvider csp = new RSACryptoServiceProvider())
@@ -965,7 +956,7 @@ namespace Eddie.Core.Providers
 					try
 					{
 						aesCryptStream = new MemoryStream();
-						using (ICryptoTransform aesEncryptor = rijAlg.CreateEncryptor())
+						using (ICryptoTransform aesEncryptor = aes.CreateEncryptor())
 						{
 							aesCryptStream2 = new CryptoStream(aesCryptStream, aesEncryptor, CryptoStreamMode.Write);
 							aesCryptStream2.Write(aesDataIn, 0, aesDataIn.Length);
@@ -1007,7 +998,7 @@ namespace Eddie.Core.Providers
 					try
 					{
 						aesDecryptStream = new MemoryStream();
-						using (ICryptoTransform aesDecryptor = rijAlg.CreateDecryptor())
+						using (ICryptoTransform aesDecryptor = aes.CreateDecryptor())
 						{
 							aesDecryptStream2 = new CryptoStream(aesDecryptStream, aesDecryptor, CryptoStreamMode.Write);
 							aesDecryptStream2.Write(fetchResponse, 0, fetchResponse.Length);

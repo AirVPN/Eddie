@@ -36,7 +36,7 @@ echo "Building libLib.Platform.Linux.Native.so - Config: $CONFIG"
 # Linking libcurl statically maybe a solution, but complex (a lots of .a dependencies) and require lintian override (and generally not recommended).
 # Until solution, Eddie Linux still use curl binary with shell.
 # Version 2.22.x - TOTEST
-g++ -shared -fPIC -o "$BASEPATH/bin/libLib.Platform.Linux.Native.so" "$BASEPATH/lib.cpp" -Wall -std=c++11 -O3 -lcurl -DEDDIE_LIBCURL -D$CONFIG
+g++ -shared -fPIC -o "$BASEPATH/bin/libLib.Platform.Linux.Native.so" "$BASEPATH/src/lib.cpp" -Wall -std=c++11 -O3 -lcurl -DEDDIE_LIBCURL -D$CONFIG
 
 strip -S --strip-unneeded "$BASEPATH/bin/libLib.Platform.Linux.Native.so"
 chmod a-x "$BASEPATH/bin/libLib.Platform.Linux.Native.so"

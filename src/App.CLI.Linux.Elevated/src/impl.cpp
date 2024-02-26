@@ -41,7 +41,7 @@
 #endif 
 */
 
-#include "impl.h"
+#include "../include/impl.h"
 
 // --------------------------
 // Virtual
@@ -89,7 +89,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 					args.push_back(dataPath);
 					std::string stdout;
 					std::string stderr;
-					Exec("chown", args, false, "", stdout, stderr);
+					ExecEx(FsLocateExecutable("chown"), args);
 				}
 			}
 		}
@@ -278,7 +278,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 							}
 							ExecResult execResultDns = ExecEx(resolvectlPath, args);
 							if (execResultDns.exit != 0)
-								ThrowException("resolvectl issue: " + GetExecResultDump(execResultDns));
+								ThrowException("resolvectl issue: " + GetExecResultReport(execResultDns));
 
 							actionPerformed = true;
 						}
@@ -291,7 +291,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 							args.push_back(StringStartsWith(interface, "tun") ? "true":"false");
 							ExecResult execResultDefaultRoute = ExecEx(resolvectlPath, args);
 							if (execResultDefaultRoute.exit != 0)
-								ThrowException("resolvectl issue: " + GetExecResultDump(execResultDefaultRoute));
+								ThrowException("resolvectl issue: " + GetExecResultReport(execResultDefaultRoute));
 
 							actionPerformed = true;
 						}
@@ -421,7 +421,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 							ExecResult execResultDns = ExecEx(resolvectlPath, args);
 							// No exception if fail
 							//if (execResultDns.exit != 0)
-							//	ThrowException("resolvectl issue: " + GetExecResultDump(execResultDns));
+							//	ThrowException("resolvectl issue: " + GetExecResultReport(execResultDns));
 						}
 
 						if (resolveNetIfMap.find("default_route") != resolveNetIfMap.end())
@@ -433,7 +433,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 							ExecResult execResultDefaultRoute = ExecEx(resolvectlPath, args);
 							// No exception if fail
 							//if (execResultDefaultRoute.exit != 0)
-							//	ThrowException("resolvectl issue: " + GetExecResultDump(execResultDefaultRoute));
+							//	ThrowException("resolvectl issue: " + GetExecResultReport(execResultDefaultRoute));
 						}
 
 						FsFileDelete(resolveNetifAdapterBackupPath);
@@ -449,7 +449,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 						ExecResult execResultRevert = ExecEx(resolvectlPath, args);
 						// No exception if fail
 						//if (execResultRevert.exit != 0)
-						//	ThrowException("resolvectl issue: " + GetExecResultDump(execResultRevert));						
+						//	ThrowException("resolvectl issue: " + GetExecResultReport(execResultRevert));						
 
 						LogRemote("DNS of the interface '" + interface + "' restored - via systemd-resolved, revert");
 					}
@@ -585,7 +585,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 
 			ExecResult execResultBackup = ExecEx2(nft, "list", "ruleset");
 			if (execResultBackup.exit != 0)
-				ThrowException("nft issue: " + GetExecResultDump(execResultBackup));
+				ThrowException("nft issue: " + GetExecResultReport(execResultBackup));
 
 			FsFileWriteText(pathBackup, execResultBackup.out);
 
@@ -595,7 +595,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 			ExecResult execResultApply = ExecEx2(nft, "-f", path);
 			FsFileDelete(path);
 			if (execResultApply.exit != 0)
-				ThrowException("nft issue: " + GetExecResultDump(execResultApply));
+				ThrowException("nft issue: " + GetExecResultReport(execResultApply));
 		}
 
 		ReplyCommand(commandId, StringTrim(result));
@@ -609,7 +609,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 		{
 			ExecResult execResultFlush = ExecEx2(nft, "flush", "ruleset");
 			if (execResultFlush.exit != 0)
-				ThrowException("nft issue: " + GetExecResultDump(execResultFlush));
+				ThrowException("nft issue: " + GetExecResultReport(execResultFlush));
 
 			if (true)
 			{
@@ -629,7 +629,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 			FsFileDelete(path);
 
 			if (execResultRestore.exit != 0)
-				ThrowException("nft issue: " + GetExecResultDump(execResultRestore));
+				ThrowException("nft issue: " + GetExecResultReport(execResultRestore));
 		}
 	}	
 	else if (command == "netlock-nftables-accept-ip")
@@ -654,7 +654,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 
 		ExecResult execRulesList = ExecEx4(nft, "-n", "-a", "list", "ruleset"); // To obtain handles for insert/delete
 		if (execRulesList.exit != 0)
-			ThrowException("nft issue: " + GetExecResultDump(execRulesList));
+			ThrowException("nft issue: " + GetExecResultReport(execRulesList));
 
 		std::string output = "";
 
@@ -695,9 +695,8 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 
 				ExecResult execResultRule = ExecEx(nft, args);
 				if (execResultRule.exit != 0)
-					ThrowException("nft issue: " + GetExecResultDump(execResultRule));
-
-				output += GetExecResultDump(execResultRule) + "\n";
+					ThrowException("nft issue: " + GetExecResultReport(execResultRule));
+				//output += GetExecResultReport(execResultRule) + "\n"; // TOCLEAN, removed in 2.24.0
 			}			
 
 			// Additional rule for incoming
@@ -739,9 +738,8 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 
 				ExecResult execResultRule = ExecEx(nft, args);
 				if (execResultRule.exit != 0)
-					ThrowException("nft issue: " + GetExecResultDump(execResultRule));
-
-				output += GetExecResultDump(execResultRule) + "\n";			
+					ThrowException("nft issue: " + GetExecResultReport(execResultRule));
+				// output += GetExecResultReport(execResultRule) + "\n"; // TOCLEAN, removed in 2.24.0
 			}
 		}
 		else if (params["action"] == "del")
@@ -761,7 +759,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 					args.push_back("handle");
 					args.push_back(handle);	
 					ExecResult execResultRule = ExecEx(nft, args); // Ignore if fail								
-					output += GetExecResultDump(execResultRule) + "\n";
+					//output += GetExecResultReport(execResultRule) + "\n"; // TOCLEAN, removed in 2.24.0
 				}				
 			}
 						
@@ -781,7 +779,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 					args.push_back("handle");
 					args.push_back(handle);									
 					ExecResult execResultRule = ExecEx(nft, args); // Ignore if fail								
-					output += GetExecResultDump(execResultRule) + "\n";
+					//output += GetExecResultReport(execResultRule) + "\n"; // TOCLEAN, removed in 2.24.0
 				}				
 			}
 		}
@@ -796,7 +794,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 
 		ExecResult execRulesList = ExecEx4(nft, "-n", "-a", "list", "ruleset"); // To obtain handles for insert/delete
 		if (execRulesList.exit != 0)
-			ThrowException("nft issue: " + GetExecResultDump(execRulesList));
+			ThrowException("nft issue: " + GetExecResultReport(execRulesList));
 		
 		std::string id = StringEnsureInterfaceName(params["id"]);
 		std::string action = params["action"];
@@ -849,7 +847,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 
 					ExecResult execRule = ExecEx(nft, args);					
 					if (execRule.exit != 0)
-						ThrowException("nft issue: " + GetExecResultDump(execRule));
+						ThrowException("nft issue: " + GetExecResultReport(execRule));
 				}
 				else if (action == "del")
 				{
@@ -1273,7 +1271,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 
 		ExecResult execResult = ExecEx(FsLocateExecutable("ip"), args);
 		if (execResult.exit != 0)
-			ThrowException(GetExecResultDump(execResult));
+			ThrowException(GetExecResultReport(execResult));
 	}
 	else if (command == "wireguard-version")
 	{
@@ -1598,24 +1596,24 @@ bool Impl::ServiceInstall()
 		if (enableResult.exit != 0)
 		{
 			LogLocal("Enable " + systemdUnitName + " failed");
-			return 1;
+			return false;
 		}
 
 		ExecResult startResult = ExecEx2(FsLocateExecutable("systemctl"), "start", systemdUnitName);
 		if (startResult.exit != 0)
 		{
 			LogLocal("Start " + systemdUnitName + " failed");
-			return 1;
+			return false;
 		}
 
-		return 0;
+		return true;
 	}
 	else
 	{
 		LogLocal("Can't create service in this OS");
 	}
 
-	return 1;
+	return true; // Unable to find a method, but return false will break for example deb postinst
 }
 
 bool Impl::ServiceUninstall()
@@ -1627,7 +1625,7 @@ bool Impl::ServiceUninstall()
 		FsFileDelete(systemdUnitPath);
 	}
 
-	return 0;
+	return true;
 }
 
 std::vector<std::string> Impl::GetNetworkInterfacesNames()
@@ -1789,7 +1787,7 @@ std::string Impl::IptablesExec(const std::string& path, const std::vector<std::s
 
 	for (int t = 0; t < 10; t++)
 	{
-		int exitCode = Exec(path, args, stdinWrite, stdinBody, stdout, stderr);
+		int exitCode = ExecRaw(path, args, stdinWrite, stdinBody, stdout, stderr);
 
 		if (StringContain(StringToLower(stderr), "temporarily unavailable")) // Older Debian (iptables without --wait)
 		{

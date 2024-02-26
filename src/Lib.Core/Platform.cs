@@ -40,30 +40,12 @@ namespace Eddie.Core
 
 		protected List<Json> m_routes = new List<Json>();
 
-		public static bool IsUnix()
-		{
-			return (Environment.OSVersion.Platform.ToString() == "Unix");
-		}
-
-		public static bool IsWindows()
-		{
-			return (Environment.OSVersion.VersionString.IndexOf("Windows", StringComparison.InvariantCulture) != -1);
-		}
-
 		public string GetSystemCode()
 		{
 			string t = GetCode() + "_" + GetOsArchitecture();
 			t = t.Replace(" ", "_");
 			t = t.ToLowerInvariant();
 			return t;
-		}
-
-		public static string NormalizeArchitecture(string a)
-		{
-			if (a == "i686") return "x86";
-			if (a == "AMD64") return "x64";
-			if (a == "x86_64") return "x64";
-			return a;
 		}
 
 		// ----------------------------------------
@@ -121,11 +103,18 @@ namespace Eddie.Core
 
 		public virtual string GetVersion()
 		{
+#if EDDIE_DOTNET
+			return System.Runtime.InteropServices.RuntimeInformation.OSDescription;
+#else
 			return Environment.OSVersion.VersionString;
+#endif
 		}
 
-		public virtual string GetArchitecture()
+		public virtual string GetProcessArchitecture()
 		{
+#if EDDIE_DOTNET
+			return System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture.ToString().ToLowerInv();
+#else
 			if (IntPtr.Size == 8)
 			{
 				return "x64";
@@ -135,7 +124,17 @@ namespace Eddie.Core
 				return "x86";
 			}
 			else
-				return "?";
+				return "Unknown";
+#endif
+		}
+
+		public virtual string GetOsArchitecture()
+		{
+#if EDDIE_DOTNET
+			return System.Runtime.InteropServices.RuntimeInformation.OSArchitecture.ToString().ToLowerInv();
+#else
+			return "Unknown";
+#endif
 		}
 
 		public virtual string GetNetFrameworkVersion()
@@ -177,19 +176,16 @@ namespace Eddie.Core
 
 		}
 
-		public virtual string GetOsArchitecture()
-		{
-			return "Unknown";
-		}
-
-		public virtual void NotImplemented()
-		{
-			throw new Exception("Not Implemented.");
-		}
-
+		/* // TOCLEAN
 		public virtual string GetDefaultDataPath()
 		{
 			return "";
+		}
+		*/
+
+		public virtual string GetDefaultResourcesDirName()
+		{
+			return "Resources";
 		}
 
 		public virtual bool IsElevatedPrivileges()
@@ -200,11 +196,6 @@ namespace Eddie.Core
 		public virtual bool IsUnixSystem()
 		{
 			return false;
-		}
-
-		public virtual bool IsLinuxSystem()
-		{
-			return IsUnixSystem();
 		}
 
 		public virtual bool IsWindowsSystem()
@@ -388,23 +379,6 @@ namespace Eddie.Core
 			return NormalizePath(Path.GetTempPath());
 		}
 
-		public virtual string FileTempName(string partialName)
-		{
-			for (int l = 0; ; l++)
-			{
-				string path = DirectoryTemp() + DirSep + partialName;
-				if (l > 0)
-					path += "-" + RandomGenerator.GetHash().Substring(0, 6);
-				if (FileExists(path) == false)
-					return path;
-			}
-		}
-
-		public virtual string FileGetNameFromPath(string path)
-		{
-			return new FileInfo(path).Name;
-		}
-
 		public virtual void FileDelete(string path)
 		{
 			FileDelete(path, false);
@@ -550,7 +524,7 @@ namespace Eddie.Core
 			return false;
 		}
 
-		public virtual bool HasAccessToWrite(string path)
+		public virtual bool DirectoryHasAccessToWrite(string path)
 		{
 			try
 			{
@@ -596,8 +570,8 @@ namespace Eddie.Core
 			// See https://learn.microsoft.com/en-us/dotnet/core/deploying/single-file/overview?tabs=cli#api-incompatibility
 
 			// When run with VSCode, System.Environment.ProcessPath return dotnet executable
-			if(System.Diagnostics.Process.GetCurrentProcess().MainModule.ModuleName.ToLowerInvariant() == "dotnet")
-			{				
+			if (System.Diagnostics.Process.GetCurrentProcess().MainModule.ModuleName.ToLowerInvariant() == "dotnet")
+			{
 				return System.Reflection.Assembly.GetEntryAssembly().Location;
 			}
 			else
@@ -607,25 +581,11 @@ namespace Eddie.Core
 #else
 			return System.Reflection.Assembly.GetEntryAssembly().Location;
 #endif
-			/* // TOCLEAN			
-			if(System.Diagnostics.Process.GetCurrentProcess().MainModule.ModuleName.ToLowerInvariant().StartsWith("dotnet"))
-			{
-				return Path.GetFullPath(System.Reflection.Assembly.GetEntryAssembly().Location);
-			}
-			else if(System.Diagnostics.Process.GetCurrentProcess().MainModule.ModuleName.ToLowerInvariant().StartsWith("mono"))
-			{
-				return Path.GetFullPath(System.Reflection.Assembly.GetEntryAssembly().Location);
-			}
-			else
-			{
-				return Path.GetFullPath(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName);
-			}
-			*/
 		}
 
 		protected virtual string GetUserPathEx()
 		{
-			NotImplemented();
+			Utils.NotImplemented();
 			return "";
 		}
 
@@ -668,27 +628,6 @@ namespace Eddie.Core
 			return "";
 		}
 
-		public virtual int StartProcessAsRoot(string path, string[] arguments, bool consoleMode)
-		{
-			return 0;
-		}
-
-		public virtual bool RunProcessAsRoot(string path, string[] arguments, bool consoleMode)
-		{
-			int pid = StartProcessAsRoot(path, arguments, consoleMode);
-			if (pid == -1) // Special case, macOS for example
-			{
-				System.Threading.Thread.Sleep(1000);
-				return true;
-			}
-			else
-			{
-				System.Diagnostics.Process process = System.Diagnostics.Process.GetProcessById(pid);
-				process.WaitForExit();
-				return (process.ExitCode == 0);
-			}
-		}
-
 		// Must be called only by SystemExec
 		public virtual void ExecSyncCore(string path, string[] arguments, string autoWriteStdin, out string stdout, out string stderr, out int exitCode)
 		{
@@ -698,14 +637,14 @@ namespace Eddie.Core
 				{
 					p.StartInfo.FileName = FileAdaptProcessExec(path);
 #if EDDIE_DOTNET
-					foreach(string arg in arguments)
+					foreach (string arg in arguments)
 					{
 						p.StartInfo.ArgumentList.Add(arg);
 					}
 #else
-                    p.StartInfo.Arguments = String.Join(" ", arguments);
+					p.StartInfo.Arguments = String.Join(" ", arguments);
 #endif
-                    p.StartInfo.WorkingDirectory = Path.GetDirectoryName(path); // 2.22.3
+					p.StartInfo.WorkingDirectory = Path.GetDirectoryName(path); // 2.22.3
 					p.StartInfo.CreateNoWindow = true;
 					p.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
 					p.StartInfo.UseShellExecute = false;
@@ -778,12 +717,22 @@ namespace Eddie.Core
 
 		public virtual void OpenUrl(string url)
 		{
-			System.Diagnostics.Process.Start(url);
+			ProcessStartInfo psi = new ProcessStartInfo
+			{
+				FileName = url,
+				UseShellExecute = true
+			};
+			System.Diagnostics.Process.Start(psi);
 		}
 
 		public virtual void OpenFolder(string path)
 		{
-			System.Diagnostics.Process.Start(path);
+			ProcessStartInfo psi = new ProcessStartInfo
+			{
+				FileName = path,
+				UseShellExecute = true
+			};
+			System.Diagnostics.Process.Start(psi);
 		}
 
 		public virtual bool OpenDirectoryInFileManager(string path)
@@ -1061,9 +1010,15 @@ namespace Eddie.Core
 		{
 		}
 
-		public virtual bool NeedExecuteOutsideAppPath(string exePath)
+		public virtual string RootExecutionOutsideBundleAdapt(string exePath)
 		{
-			return false;
+			// This is used for example when elevated run openvpn exe in a linux AppImage bundle: a root process (elevated) can't read an user volume (AppImage/fuse)
+			// Currently derived only on Linux
+			return exePath; // Do nothing
+		}
+
+		public virtual void RootExecutionOutsideBundleDelete(string exePath)
+		{
 		}
 
 		public virtual void OnNetworkLockManagerInit()

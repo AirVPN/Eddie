@@ -1,0 +1,3 @@
+Portable Mode Configuration
+If this file (portable.txt) is present in the application directory, the application will switch to portable mode.
+In portable mode, all data will be saved in the application directory instead of the system's default data directories.

@@ -341,7 +341,8 @@ namespace Eddie.Core
 					items.Add(ip.ToCIDR());
 			}
 			// items.Sort(); // Removed in 2.19.5, otherwise restore DNS in wrong order
-			return string.Join(", ", items.ToArray());
+			//return string.Join(", ", items.ToArray()); // Removed in 2.24.0
+			return string.Join(",", items.ToArray());
 		}
 	}
 }

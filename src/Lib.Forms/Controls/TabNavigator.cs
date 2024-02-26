@@ -335,7 +335,7 @@ namespace Eddie.Forms.Controls
 
 			Invalidate(GetTabsRect());
 
-			if (Platform.IsUnix())
+			if (GuiUtils.IsUnix())
 			{
 				Skin.ListView.WorkaroundMonoListViewHeadersBug(tabPageControl);
 			}

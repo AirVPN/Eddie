@@ -48,28 +48,30 @@ namespace Eddie.Forms.Linux
 
 				Core.Platform.Instance = new Eddie.Platform.Linux.Platform();
 
-				if (new CommandLine(Environment.CommandLine, true, false).Exists("cli")) // TOFIX, not need anymore when every OS have a CLI executable.
-				{
-					Core.ConsoleEdition.UiClient client = new Core.ConsoleEdition.UiClient();
-					client.Init(Environment.CommandLine);
-				}
-				else
-				{
-					m_client = new UiClient();
-					m_client.Engine = new Engine(Environment.CommandLine);
-					if (m_client.Init(Environment.CommandLine) == false)
-						return;
-				}
+				Eddie.Platform.Linux.NativeMethods.Signal((int)Eddie.Platform.Linux.NativeMethods.Signum.SIGHUP, SignalCallback);
+				Eddie.Platform.Linux.NativeMethods.Signal((int)Eddie.Platform.Linux.NativeMethods.Signum.SIGINT, SignalCallback);
+				Eddie.Platform.Linux.NativeMethods.Signal((int)Eddie.Platform.Linux.NativeMethods.Signum.SIGTERM, SignalCallback);
+				Eddie.Platform.Linux.NativeMethods.Signal((int)Eddie.Platform.Linux.NativeMethods.Signum.SIGUSR1, SignalCallback);
+				Eddie.Platform.Linux.NativeMethods.Signal((int)Eddie.Platform.Linux.NativeMethods.Signum.SIGUSR2, SignalCallback);
+
+				m_client = new UiClient();
+				m_client.Engine = new Engine(Environment.CommandLine);
+				if (m_client.Init(Environment.CommandLine) == false)
+					return;
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine(ex.StackTrace);
 				MessageBox.Show(ex.Message, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
 
 			// Application.Run must be outside the catch above, otherwise it's not unhandled
 			if ((m_client != null) && (m_client.AppContext != null))
 				System.Windows.Forms.Application.Run(m_client.AppContext);
+		}
+
+		private static void SignalCallback(int signum)
+		{
+			Engine.Instance.ExitStart();
 		}
 
 		public static void ApplicationThreadException(object sender, ThreadExceptionEventArgs e)

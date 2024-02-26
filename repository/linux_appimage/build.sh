@@ -2,12 +2,18 @@
 
 set -euo pipefail
 
-if [ "$1" == "" ]; then
+if [ "${1-}" == "" ]; then
     echo First arg must be Project: cli,ui
     exit 1
 fi
 
+if [ "${2-}" == "" ]; then
+    echo Second arg must be framework: net4, net7
+    exit 1
+fi
+
 PROJECT=$1
+FRAMEWORK=$2
 CONFIG=Release
 
 SCRIPTDIR=$(dirname $(realpath -s $0))
@@ -40,30 +46,43 @@ rm -rf $TARGETDIR
 
 # Package dependencies
 echo Step: Package dependencies - Build Portable
-"${SCRIPTDIR}/../linux_portable/build.sh" ${PROJECT}
+"${SCRIPTDIR}/../linux_portable/build.sh" ${PROJECT} ${FRAMEWORK}
 mkdir -p ${TARGETDIR}
 DEPPACKAGEPATH=${SCRIPTDIR}/../files/eddie-${PROJECT}_${VERSION}_linux_${ARCH}_portable.tar.gz  
 tar xvfp "${DEPPACKAGEPATH}" -C "${TARGETDIR}"
+rm -rf ${TARGETDIR}/eddie-${PROJECT}/portable.txt
 
 # Adapt
 echo Step: Adapt
 
 cd $TARGETDIR
 mkdir -p AppDir/opt
-mv eddie-${PROJECT}/bundle AppDir/opt/eddie-${PROJECT}
-mv eddie-${PROJECT}/eddie-${PROJECT} AppDir/AppRun
-rm -r eddie-${PROJECT}
+mkdir -p AppDir/opt/eddie-${PROJECT}
+#mv eddie-${PROJECT}/bundle AppDir/opt/eddie-${PROJECT}
+#mv eddie-${PROJECT}/eddie-${PROJECT} AppDir/AppRun
+mv "eddie-${PROJECT}"/* AppDir/opt/eddie-${PROJECT}
+rm -rf "eddie-${PROJECT}"
 
-# Adapt Launcher
-echo Step: AdaptLauncher
+echo Step: Launcher
+cp ${SCRIPTDIR}/apprun.${PROJECT}.sh AppDir/AppRun
+chmod +x AppDir/AppRun
+#if [ $PROJECT = "cli" ]; then # if exists because issue using ${PROJECT} in sed expression
+    #sed -i 's/\/bundle/\/opt\/eddie-cli/g' AppDir/AppRun
+    #sed -i 's/ --path=\"\$MAINDIR\"/ --path=home/g' AppDir/AppRun
+#elif [ $PROJECT = "ui" ]; then
+    #sed -i 's/\/bundle/\/opt\/eddie-ui/g' AppDir/AppRun
+    #sed -i 's/ --path=\"\$MAINDIR\"/ --path=home/g' AppDir/AppRun    
+#fi
 
-if [ $PROJECT = "cli" ]; then # if exists because issue using ${PROJECT} in sed expression
-    sed -i 's/\/bundle/\/opt\/eddie-cli/g' AppDir/AppRun
-    sed -i 's/ --path=\"\$MAINDIR\"/ --path=home/g' AppDir/AppRun
-elif [ $PROJECT = "ui" ]; then
-    sed -i 's/\/bundle/\/opt\/eddie-ui/g' AppDir/AppRun
-    sed -i 's/ --path=\"\$MAINDIR\"/ --path=home/g' AppDir/AppRun
-fi
+# old
+#!/bin/sh
+#MAINDIR="$(dirname "$(readlink -f "$0")")/"
+#cd $MAINDIR/opt/eddie-ui/
+#MONO_PATH="$MAINDIR/opt/eddie-ui/" ./eddie-ui --path=home "$@"
+
+# new
+#SELF=$(readlink -f "$0")
+#HERE=${SELF%/*}
 
 # AppImage
 echo Step: AppImage
@@ -83,23 +102,28 @@ wget https://github.com/AppImage/AppImageKit/releases/download/continuous/appima
 mv appimagetool*.AppImage appimagetool.AppImage
 chmod +x appimagetool.AppImage
 
-
-cp AppDir/opt/eddie-${PROJECT}/res/icon.png AppDir/eddie-${PROJECT}.png
+cp ${SCRIPTDIR}/icon.png AppDir/eddie-${PROJECT}.png
 
 if [ $PROJECT = "cli" ]; then
-	printf "[Desktop Entry]\nName=Eddie - VPN UI\nExec=eddie-cli\nIcon=eddie-cli\nType=Application\nTerminal=true\nCategories=Network;\n" >AppDir/eddie-cli.desktop 
-elif [ $PROJECT = "ui" ]; then
+	printf "[Desktop Entry]\nName=Eddie - VPN CLI\nExec=eddie-cli\nIcon=eddie-cli\nType=Application\nTerminal=true\nCategories=Network;\n" >AppDir/eddie-cli.desktop 
+fi
+
+if [ $PROJECT = "ui" ]; then
 	printf "[Desktop Entry]\nName=Eddie - VPN UI\nExec=eddie-ui\nIcon=eddie-ui\nType=Application\nTerminal=false\nCategories=GNOME;Network;\n" >AppDir/eddie-ui.desktop 
-elif [ $PROJECT = "ui3" ]; then
-    printf "[Desktop Entry]\nName=Eddie - VPN UI\nExec=eddie-ui\nIcon=eddie-ui\nType=Application\nTerminal=false\nCategories=GNOME;Network;\n" >AppDir/eddie-ui.desktop 
 fi
 
 sudo ./appimagetool.AppImage AppDir
 
 #mv Eddie*.AppImage ${DEPLOYPATH}
-rm -rf Eddie
-mv Eddie*.AppImage Eddie
-tar cvfz "$DEPLOYPATH" "Eddie"
+#echo $TARGETDIR
+
+FINALNAME="eddie-cli"
+if [ $PROJECT = "ui" ]; then
+    FINALNAME="Eddie"
+fi
+rm -rf ${FINALNAME}
+mv Eddie*.AppImage ${FINALNAME}
+tar cvfz "$DEPLOYPATH" ${FINALNAME}
 
 sudo chown $USER ${DEPLOYPATH}
 
@@ -108,4 +132,5 @@ ${SCRIPTDIR}/../linux_common/deploy.sh ${DEPLOYPATH}
 
 # Cleanup - with sudo because AppImage create files as root
 sudo rm -rf $TARGETDIR
+echo $TARGETDIR;
 

@@ -1,35 +1,44 @@
 @echo off
+SETLOCAL ENABLEDELAYEDEXPANSION
 
-echo This exists because mixing already-builded net4.8 and net7 cause issues, so we launch this between switch.
+set VARSCRIPTDIR=%~dp0
 
-RMDIR App.CLI.Windows\bin /S /Q 2>nul
-RMDIR App.CLI.Windows\obj /S /Q 2>nul
+rem This exists because mixing already-builded net4.8 and net7 cause issues, so we launch this between switch.
 
-RMDIR App.Forms.Windows\bin /S /Q 2>nul
-RMDIR App.Forms.Windows\obj /S /Q 2>nul
+echo Clean - Start
 
-RMDIR Lib.Core\bin /S /Q 2>nul
-RMDIR Lib.Core\obj /S /Q 2>nul
+rem -----------------
 
-RMDIR Lib.Forms\bin /S /Q 2>nul
-RMDIR Lib.Forms\obj /S /Q 2>nul
+RMDIR "!VARSCRIPTDIR!\Lib.Core\bin" /S /Q 2>nul
+RMDIR "!VARSCRIPTDIR!\Lib.Core\obj" /S /Q 2>nul
 
-RMDIR Lib.Forms.Skin\bin /S /Q 2>nul
-RMDIR Lib.Forms.Skin\obj /S /Q 2>nul
+RMDIR "!VARSCRIPTDIR!\Lib.Platform.Windows\bin" /S /Q 2>nul
+RMDIR "!VARSCRIPTDIR!\Lib.Platform.Windows\obj" /S /Q 2>nul
 
-RMDIR Lib.Platform.Windows\bin /S /Q 2>nul
-RMDIR Lib.Platform.Windows\obj /S /Q 2>nul
+RMDIR "!VARSCRIPTDIR!\App.CLI.Windows\bin" /S /Q 2>nul
+RMDIR "!VARSCRIPTDIR!\App.CLI.Windows\obj" /S /Q 2>nul
 
-RMDIR Checking\bin /S /Q 2>nul
-RMDIR Checking\obj /S /Q 2>nul
+rem -----------------
+
+RMDIR "!VARSCRIPTDIR!\Lib.Forms\bin" /S /Q 2>nul
+RMDIR "!VARSCRIPTDIR!\Lib.Forms\obj" /S /Q 2>nul
+
+RMDIR "!VARSCRIPTDIR!\Lib.Forms.Skin\bin" /S /Q 2>nul
+RMDIR "!VARSCRIPTDIR!\Lib.Forms.Skin\obj" /S /Q 2>nul
+
+RMDIR "!VARSCRIPTDIR!\App.Forms.Windows\bin" /S /Q 2>nul
+RMDIR "!VARSCRIPTDIR!\App.Forms.Windows\obj" /S /Q 2>nul
+
+rem -----------------
 
 GOTO done
 
 :error
-echo Something wrong
+echo Clean - Something wrong
 EXIT /B 1
 
 :done
+echo Clean - Done
 EXIT /B 0
 
 

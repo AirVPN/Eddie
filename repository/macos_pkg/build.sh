@@ -96,7 +96,7 @@ fi
 
 if [ ${STAFF} = "yes" ]; then
     if [ ${VARHARDENING} = "yes" ]; then    
-        "${SCRIPTDIR}/../macos_common/notarize.sh" "${FINALPATH}" "org.airvpn.eddie.${PROJECT}"
+        "${SCRIPTDIR}/../macos_common/notarize.sh" "${FINALPATH}"
     fi
 fi
 

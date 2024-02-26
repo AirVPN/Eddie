@@ -32,11 +32,11 @@ namespace Eddie.Core
 		public Json Manifest;
 
 		public EngineCommandLine StartCommandLine;
-		public bool ConsoleMode = false;
 
 		public bool Terminated = false;
 		public delegate void TerminateHandler();
 		public event TerminateHandler TerminateEvent;
+		public System.Threading.ManualResetEventSlim TerminateExit = new System.Threading.ManualResetEventSlim();
 
 		private string m_pathProfile = "";
 		private string m_pathData = "";
@@ -58,7 +58,6 @@ namespace Eddie.Core
 		private Dictionary<string, AreaInfo> m_areas = new Dictionary<string, AreaInfo>();
 		private bool m_serversInfoUpdated = false;
 		private bool m_areasInfoUpdated = false;
-		protected int m_breakRequests = 0;
 		private TimeDelta m_tickDeltaUiRefreshFull = new TimeDelta();
 		private Json m_networkInfo;
 
@@ -239,9 +238,11 @@ namespace Eddie.Core
 		{
 			try
 			{
+				AppDomain.CurrentDomain.ProcessExit += OnAppExit; // Wait when SIGTERM
+
 				if (LanguageManager.Init() == false)
 				{
-					Logs.Log(LogType.Fatal, "Fatal: Unable to locate resources files in " + GetPathResources());
+					Logs.Log(LogType.Fatal, "Fatal: Unable to locate resources files");
 					return false;
 				}
 
@@ -260,20 +261,6 @@ namespace Eddie.Core
 				}
 
 				ManifestBuild();
-
-				// Init WebServer
-				if (Webserver.GetPath() != "")
-				{
-					//if (Options.GetBool("webui.enabled") == true)
-					{
-						m_webserver = new Webserver();
-						m_webserver.Start();
-
-						UiManager.Broadcast("webui.init", "url", m_webserver.ListenUrl + "/?app=" + Platform.Instance.GetCode());
-
-						UiManager.Broadcast("init.step", "message", LanguageManager.GetText(LanguageItems.InitStepStartingWebserver));
-					}
-				}
 
 				Logs.Log(LogType.Verbose, "Eddie version: " + GetVersionShow() + " / " + Platform.Instance.GetSystemCode() + ", System: " + Platform.Instance.GetCode() + ", Name: " + Platform.Instance.GetName() + ", Version: " + Platform.Instance.GetVersion() + ", Framework: " + Platform.Instance.GetNetFrameworkVersion());
 				if (StartCommandLine.Params.Count != 0)
@@ -309,6 +296,8 @@ namespace Eddie.Core
 
 					// Compute data path
 					m_pathData = StartCommandLine.Get("path", "");
+
+					/* // TOCLEAN, <2.24.0
 					if (m_pathData == "")
 						m_pathData = Platform.Instance.GetDefaultDataPath();
 
@@ -318,7 +307,7 @@ namespace Eddie.Core
 						m_pathData = pathApp;
 					else if (m_pathData == "") // Detect
 					{
-						if (Platform.Instance.HasAccessToWrite(pathApp)) // Windows portable edition, for example
+						if (Platform.Instance.DirectoryHasAccessToWrite(pathApp)) // Windows portable edition, for example
 						{
 							m_pathData = pathApp;
 						}
@@ -327,6 +316,20 @@ namespace Eddie.Core
 							m_pathData = Platform.Instance.GetUserPath();
 						}
 					}
+					*/
+
+					if (m_pathData == "")
+					{
+						if (Platform.Instance.FileExists(pathApp + Platform.Instance.DirSep + "portable.txt"))
+							m_pathData = "program";
+						else
+							m_pathData = "home";
+					}
+
+					if (m_pathData == "home")
+						m_pathData = Platform.Instance.GetUserPath();
+					else if (m_pathData == "program")
+						m_pathData = pathApp;
 
 					CompatibilityManager.Profiles(pathApp, m_pathData);
 
@@ -479,12 +482,22 @@ namespace Eddie.Core
 				Logs.Log(LogType.Info, LanguageManager.GetText(LanguageItems.Ready));
 				UiManager.Broadcast("engine.ready");
 
+				// Init WebServer
+				if ((Webserver.GetPath() != "") && (ProfileOptions.GetBool("webui.enabled") == true))
+				{
+					m_webserver = new Webserver();
+					m_webserver.Start();
+
+					UiManager.Broadcast("webui.init", "url", m_webserver.ListenUrl + "/?app=" + Platform.Instance.GetCode());
+
+					UiManager.Broadcast("init.step", "message", LanguageManager.GetText(LanguageItems.InitStepStartingWebserver));
+				}
+
 				UiManager.Broadcast("webui.ready");
 
 				MainStatusRaise();
 
-				if (ConsoleMode)
-					Auth();
+				OnReady();
 
 				if ((StartCommandLine.Exists("batch")) || (ProfileOptions.GetBool("connect")))
 					Connect();
@@ -506,6 +519,8 @@ namespace Eddie.Core
 					break;
 
 				OnWork();
+
+				m_uiManager.OnWork();
 
 				m_uiManager.ProcessOnMainThread();
 
@@ -578,7 +593,7 @@ namespace Eddie.Core
 				if (StartCommandLine.Exists("batch"))
 				{
 					if (m_threadSession == null)
-					{						
+					{
 						RequestStop();
 					}
 				}
@@ -598,6 +613,16 @@ namespace Eddie.Core
 			Logs.Log(LogType.Verbose, LanguageManager.GetText(LanguageItems.AppShutdownComplete));
 		}
 
+		public virtual bool IsConsole()
+		{
+			return false;
+		}
+
+		public virtual bool IsUiApp()
+		{
+			return true;
+		}
+
 		public override void OnRun()
 		{
 			if (MainStepInit())
@@ -612,6 +637,7 @@ namespace Eddie.Core
 			Terminated = true;
 			if (TerminateEvent != null)
 				TerminateEvent();
+			TerminateExit.Set();
 		}
 
 		public virtual bool OnInit()
@@ -622,6 +648,11 @@ namespace Eddie.Core
 		public virtual bool OnInitUi()
 		{
 			return true;
+		}
+
+		public virtual void OnReady()
+		{
+
 		}
 
 		public virtual void OnWork()
@@ -710,21 +741,17 @@ namespace Eddie.Core
 			RunEventCommand("session.stop");
 		}
 
-		public virtual void Exit()
+		public virtual void ExitStart()
 		{
 			RequestStop();
 		}
 
-		public virtual void OnSignal(string signal)
+		public void OnAppExit(object sender, EventArgs e)
 		{
-			Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText(LanguageItems.ReceivedOsSignal, signal));
-			m_breakRequests++;
-			Exit();
-		}
+			// Called with SIGTERM. Note: don't work <=net4
+			ExitStart();
 
-		public virtual void OnExitRejected()
-		{
-			m_breakRequests = 0;
+			TerminateExit.Wait();
 		}
 
 		public string GetVersionShow()
@@ -752,7 +779,7 @@ namespace Eddie.Core
 
 		public string GetPathResources()
 		{
-			string pathResources = StartCommandLine.Get("path.resources", "res/");
+			string pathResources = StartCommandLine.Get("path.resources", Platform.Instance.GetDefaultResourcesDirName());
 			pathResources = Platform.Instance.FileGetAbsolutePath(pathResources, Platform.Instance.GetApplicationPath());
 			pathResources = Platform.Instance.FileGetPhysicalPath(pathResources);
 			return pathResources;
@@ -784,11 +811,8 @@ namespace Eddie.Core
 			}
 		}
 
-		public bool AskExitConfirm()
+		public bool NeedAskExitConfirm()
 		{
-			if (m_breakRequests > 0)
-				return false;
-
 			if (ProfileOptions.GetBool("gui.exit_confirm"))
 				return true;
 
@@ -976,7 +1000,7 @@ namespace Eddie.Core
 			{
 				string lines = l.GetStringLines().Trim();
 
-				if (StartCommandLine.Get("stdinoutcontrol", "") == "")
+				if (StartCommandLine.Exists("jsoninout") == false)
 					Console.WriteLine(lines);
 
 				if (ProfileOptions != null)
@@ -1312,36 +1336,6 @@ namespace Eddie.Core
 
 		}
 
-		public virtual void OnUnhandledException(string source, Exception ex)
-		{
-			bool ignore = false;
-			string stackTrace = ex.StackTrace.ToString();
-
-			if (stackTrace.Contains("System.Windows.Forms.XplatUIX11"))
-			{
-				// Mono bug https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=742774
-				// Mono bug https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=727651
-				ignore = true;
-			}
-
-			if (stackTrace.Contains("System.Windows.Forms.ToolStripItem.OnParentChanged"))
-			{
-				// Mono bug https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=742774
-				// Mono bug https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=727651
-				ignore = true;
-			}
-
-			// TOFIX: 2.16.2, unknown why happen
-			if (ex.Message.Trim() == "The parameter is incorrect.")
-				ignore = true;
-
-			if (Terminated)
-				ignore = true;
-
-			if (ignore == false)
-				Logs.Log(LogType.Fatal, LanguageManager.GetText(LanguageItems.UnhandledException) + " - " + source + " - " + ex.Message + " - " + ex.StackTrace.ToString());
-		}
-
 		// ----------------------------------------------------
 		// Misc
 		// ----------------------------------------------------
@@ -1572,6 +1566,7 @@ namespace Eddie.Core
 			}
 			else
 			{
+				// TOCLEAN, curl not external anymore
 				// At 2.22.1, no platform reach this. Deprecated, still here for future need.
 				Tools.Curl curl = Software.GetTool("curl") as Tools.Curl;
 				return curl.Fetch(request);
@@ -1605,7 +1600,7 @@ namespace Eddie.Core
 			return true;
 		}
 
-		private void Auth()
+		protected void Auth()
 		{
 			if (AirVPN == null)
 				return;
@@ -1870,7 +1865,7 @@ namespace Eddie.Core
 
 		public void CheckEnvironmentApp()
 		{
-			if (Platform.Instance.HasAccessToWrite(GetDataPath()) == false)
+			if (Platform.Instance.DirectoryHasAccessToWrite(GetDataPath()) == false)
 				throw new Exception("Unable to write in path '" + GetDataPath() + "'");
 
 			// Local Time in the past
@@ -1884,7 +1879,7 @@ namespace Eddie.Core
 		{
 			Software.ExceptionForRequired();
 
-			if (Platform.Instance.HasAccessToWrite(GetDataPath()) == false)
+			if (Platform.Instance.DirectoryHasAccessToWrite(GetDataPath()) == false)
 				throw new Exception("Unable to write in path '" + GetDataPath() + "'");
 
 			string protocol = ProfileOptions.Get("mode.protocol").ToUpperInvariant();
@@ -2042,8 +2037,36 @@ namespace Eddie.Core
 				jVersion["text"].Value = GetVersionShow();
 				jVersion["int"].Value = Constants.VersionInt;
 
-				Manifest["languages"].Value = LanguageManager.GetJsonForManifest();
+				Manifest["languages"].Value = LanguageManager.GetJson();
 			}
+		}
+
+		public void UiBootRaise()
+		{
+			Json jBoot = new Json();
+			jBoot["command"].Value = "ui.boot";
+			jBoot["manifest"].Value = Engine.Instance.Manifest;
+			jBoot["main_status"].Value = Engine.Instance.MainStatusBuild();
+			jBoot["logs"].Value = Engine.Instance.Logs.GetJson();
+			jBoot["options"].Value = Engine.Instance.ProfileOptions.GetJson();
+
+			Json jPath = new Json();
+			jBoot["path"].Value = jPath;
+			jPath["profile"].Value = Engine.Instance.GetProfilePath();
+			jPath["data"].Value = Engine.Instance.GetDataPath();
+			jPath["application"].Value = Platform.Instance.GetApplicationPath();
+
+			Json jNetlockModes = new Json();
+			jBoot["netlock_modes"].Value = jNetlockModes;
+			foreach (NetworkLockPlugin lockPlugin in Engine.Instance.NetworkLockManager.Modes)
+			{
+				Json jNetlockMode = new Json();
+				jNetlockMode["code"].Value = lockPlugin.GetCode();
+				jNetlockMode["title"].Value = lockPlugin.GetTitleForList();
+				jNetlockModes.Append(jNetlockMode);
+			}
+
+			UiManager.Broadcast(jBoot);
 		}
 
 		public Json StatusBuild(string logMessage)
@@ -2366,6 +2389,39 @@ namespace Eddie.Core
 			}
 			Command(xml);
 			*/
+		}
+
+		public static void OnUnhandledException(string source, Exception ex)
+		{
+			if (Instance != null)
+			{
+				bool ignore = false;
+				string stackTrace = ex.StackTrace.ToString();
+
+				if (stackTrace.Contains("System.Windows.Forms.XplatUIX11"))
+				{
+					// Mono bug https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=742774
+					// Mono bug https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=727651
+					ignore = true;
+				}
+
+				if (stackTrace.Contains("System.Windows.Forms.ToolStripItem.OnParentChanged"))
+				{
+					// Mono bug https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=742774
+					// Mono bug https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=727651
+					ignore = true;
+				}
+
+				// TOFIX: 2.16.2, unknown why happen
+				if (ex.Message.Trim() == "The parameter is incorrect.")
+					ignore = true;
+
+				if (Instance.Terminated)
+					ignore = true;
+
+				if (ignore == false)
+					Instance.Logs.Log(LogType.Fatal, LanguageManager.GetText(LanguageItems.UnhandledException) + " - " + source + " - " + ex.Message + " - " + ex.StackTrace.ToString());
+			}
 		}
 	}
 }

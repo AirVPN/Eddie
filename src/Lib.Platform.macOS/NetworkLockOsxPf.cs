@@ -17,9 +17,6 @@
 // </eddie_source_header>
 
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
 using System.Xml;
 using Eddie.Core;
 
@@ -29,7 +26,6 @@ namespace Eddie.Platform.MacOS
 	{
 		private bool m_prevActive = false;
 		private bool m_connected = false;
-		private string m_pfctlPath = "";
 
 		public override string GetCode()
 		{
@@ -54,8 +50,6 @@ namespace Eddie.Platform.MacOS
 		public override void Init()
 		{
 			base.Init();
-
-			m_pfctlPath = Platform.Instance.LocateExecutable("pfctl");
 		}
 
 		public override void Activation()

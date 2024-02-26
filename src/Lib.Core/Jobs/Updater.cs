@@ -42,7 +42,7 @@ namespace Eddie.Core.Jobs
 				request.Url = Constants.WebSite + "/download/";
 				request.Url += "?mode=info";
 				request.Url += "&platform=" + Platform.Instance.GetCodeInstaller();
-				request.Url += "&arch=" + Platform.Instance.GetArchitecture();
+				request.Url += "&arch=" + Platform.Instance.GetProcessArchitecture();
 				request.Url += "&ui=" + "ui";
 				request.Url += "&format=updater";
 				request.Url += "&version=" + channel;

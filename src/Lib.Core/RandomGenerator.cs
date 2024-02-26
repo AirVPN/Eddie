@@ -31,30 +31,6 @@ namespace Eddie.Core
 			return m_randomSeed.Next(minValue, maxValue);
 		}
 
-		// TOCLEAN
-		/*
-
-		public static byte[] GetBuffer(int length)
-		{
-			RNGCryptoServiceProvider rng = null;
-
-			try
-			{
-				rng = new RNGCryptoServiceProvider();
-
-				byte[] output = new byte[length];
-				rng.GetBytes(output);
-				return output;
-			}
-			finally
-			{
-				// RNGCryptoServiceProvider doesn't implement the IDisposable interface
-				if (rng != null)
-					rng.Dispose();
-			}
-		}
-		*/
-
 		public static byte[] GetBuffer(int length)
 		{
 			using (RandomNumberGenerator rng = RandomNumberGenerator.Create())

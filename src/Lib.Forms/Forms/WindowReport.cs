@@ -51,7 +51,7 @@ namespace Eddie.Forms.Forms
 
 			CheckEnabled();
 
-			if (Platform.IsWindows())
+			if (GuiUtils.IsWindows())
 			{
 				// TOFIX: Under Mono crash...
 				m_toolTip = new Controls.ToolTip();

@@ -20,17 +20,22 @@ namespace Eddie.Core
 {
 	public class TemporaryFile
 	{
-		public string Group;
 		public string Path;
 
-		public TemporaryFile(string group, string extension)
+		public TemporaryFile(string extension, string friendlyName)
 		{
-			Group = group;
-			Path = Engine.Instance.GetPathInData(RandomGenerator.GetHash() + ".tmp." + extension);
+			string relName = friendlyName;
+			if (relName == "")
+				relName = RandomGenerator.GetHash() + ".tmp." + extension;
+			// If Data Path available, prefer
+			if (Engine.Instance.GetDataPath() != "")
+				Path = Engine.Instance.GetPathInData(relName);
+			else
+				Path = Platform.Instance.DirectoryTemp() + Platform.Instance.DirSep + relName;
 			TemporaryFiles.Add(this);
 		}
 
-		public TemporaryFile(string extension) : this("", extension)
+		public TemporaryFile(string extension) : this(extension, "")
 		{
 
 		}

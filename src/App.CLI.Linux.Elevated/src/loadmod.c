@@ -35,7 +35,8 @@
 #include <lzma.h> // Under debian, liblzma.dev
 #include <ctype.h>
 #include <sys/utsname.h>
-#include "loadmod.h"
+
+#include "../include/loadmod.h"
 
 #define init_module(module_module_image, len, param_values) syscall(__NR_init_module, module_module_image, len, param_values)
 

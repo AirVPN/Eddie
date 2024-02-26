@@ -159,23 +159,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\App.CLI.Common.Elevated\ibase.h" />
-    <ClInclude Include="..\App.CLI.Common.Elevated\sha256.h" />
-    <ClInclude Include="main.h" />
+    <ClInclude Include="..\Lib.CLI.Elevated\include\ibase.h" />
+    <ClInclude Include="include\impl.h" />
+    <ClInclude Include="include\iwindows.h" />
+    <ClInclude Include="include\main.h" />
     <ClInclude Include="Resource.h" />
-    <ClInclude Include="src\impl.h" />
-    <ClInclude Include="src\iwindows.h" />
-    <ClInclude Include="src\yxml.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\App.CLI.Common.Elevated\ibase.cpp" />
-    <ClCompile Include="..\App.CLI.Common.Elevated\ping.cpp" />
-    <ClCompile Include="..\App.CLI.Common.Elevated\sha256.cpp" />
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="..\..\dependencies\sha256\sha256.cpp" />
+    <ClCompile Include="..\..\dependencies\yxml\yxml.cpp" />
+    <ClCompile Include="..\Lib.CLI.Elevated\src\ibase.cpp" />
+    <ClCompile Include="..\Lib.CLI.Elevated\src\ping.cpp" />
     <ClCompile Include="src\impl.cpp" />
     <ClCompile Include="src\iwindows.cpp" />
-    <ClCompile Include="src\yxml.cpp" />
+    <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="App.CLI.Windows.Elevated.rc" />

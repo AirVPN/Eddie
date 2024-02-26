@@ -3,7 +3,7 @@
 set -euo pipefail
 
 # Check args
-if [ "$1" == "" ]; then
+if [ "${1-}" == "" ]; then
 	echo First arg must be Project: cli,ui
 	exit 1
 fi

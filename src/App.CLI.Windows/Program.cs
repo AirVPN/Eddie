@@ -16,32 +16,17 @@
 // along with Eddie. If not, see <http://www.gnu.org/licenses/>.
 // </eddie_source_header>
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading;
-using Eddie.Core;
-
 namespace Eddie.App.CLI.Windows
 {
 	internal sealed class Program
 	{
-		private static Core.ConsoleEdition.UiClient m_client;
-
 		static void Main(string[] args)
 		{
-			AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
+			Core.ConsoleEdition.Program.Init();
 
-			Core.Platform.Instance = new Eddie.Platform.Windows.Platform();
+			Core.Platform.Instance = new Platform.Windows.Platform();
 
-			m_client = new Core.ConsoleEdition.UiClient();
-			m_client.Init(Environment.CommandLine);
-		}
-
-		static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
-		{
-			if (m_client != null)
-				m_client.OnUnhandledException("CurrentDomain", e.ExceptionObject as Exception);
+			Core.ConsoleEdition.Program.Main();
 		}
 	}
 }

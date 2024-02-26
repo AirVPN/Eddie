@@ -181,7 +181,7 @@ namespace Eddie.Forms.Forms
 
 			Icon = m_iconGray;
 
-			if (Platform.Instance.IsWindowsSystem())
+			if (GuiUtils.IsWindows())
 			{
 				m_windowsNotifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
 				m_windowsNotifyIcon.Icon = m_iconGray;
@@ -278,7 +278,7 @@ namespace Eddie.Forms.Forms
 
 			chkRemember.BackColor = Color.Transparent;
 
-			if (Platform.IsWindows())
+			if (GuiUtils.IsWindows())
 			{
 				// TOFIX: Under Mono crash...
 				m_toolTip = new Controls.ToolTip();
@@ -531,7 +531,7 @@ namespace Eddie.Forms.Forms
 			try
 			{
 				// Another Mono Workaround. On some system, randomly ignore resized controls.
-				if (Platform.IsUnix())
+				if (GuiUtils.IsUnix())
 				{
 					if (m_tabMain.Width != ClientSize.Width)
 					{
@@ -637,11 +637,10 @@ namespace Eddie.Forms.Forms
 
 			e.Cancel = true;
 
-			if (Engine.Instance.AskExitConfirm())
+			if (Engine.Instance.NeedAskExitConfirm())
 			{
 				if (AskYesNo(LanguageManager.GetText(LanguageItems.ExitConfirm)) != true)
 				{
-					Engine.Instance.OnExitRejected();
 					return;
 				}
 			}
@@ -892,7 +891,7 @@ namespace Eddie.Forms.Forms
 
 		private void DeselectServersListItem()
 		{
-			if (Platform.Instance.IsUnixSystem())
+			if (GuiUtils.IsUnix())
 			{
 				// To avoid a Mono ListView crash, reproducible by allowlisting servers
 				foreach (ListViewItemServer item in m_listViewServers.Items)
@@ -1313,7 +1312,7 @@ namespace Eddie.Forms.Forms
 				this.WindowState = FormWindowState.Minimized; // Never occur
 			else
 			{
-				if (Platform.Instance.IsWindowsSystem())
+				if (GuiUtils.IsWindows())
 				{
 					ShowInTaskbar = false;
 					Hide();
@@ -1814,7 +1813,7 @@ namespace Eddie.Forms.Forms
 						return;
 
 					// For refresh Mono-Linux					
-					if (Platform.Instance.IsUnixSystem())
+					if (GuiUtils.IsUnix())
 					{
 						Invalidate();
 						Update();
@@ -2490,7 +2489,7 @@ namespace Eddie.Forms.Forms
 		}
 
 		public void NetworkLockActivation()
-		{			
+		{
 			if (NetworkLockKnowledge())
 			{
 				Engine.Instance.NetLockIn();

@@ -24,10 +24,13 @@ namespace Eddie.Core
 	{
 		public List<Json> Pendings = new List<Json>();
 
+		// TOCLEAN
+		/*
 		public override Json Command(Json data)
 		{
 			return Engine.Instance.UiManager.SendCommand(data, this);
 		}
+		*/
 
 		public override void OnReceive(Json data)
 		{

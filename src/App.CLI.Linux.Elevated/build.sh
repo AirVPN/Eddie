@@ -8,8 +8,6 @@ if [ "$1" == "" ]; then
 fi
 
 BASEPATH=$(dirname $(realpath -s $0))
-mkdir -p "$BASEPATH/bin"
-mkdir -p "$BASEPATH/obj"
 
 FILES=""
 FLAGS=""
@@ -17,12 +15,19 @@ DEFINES=""
 CONFIG="$1"
 SHARED="yes" # See pthread_static_issue/build.sh
 
+echo "Building eddie-cli-elevated - Config: $CONFIG, Shared: $SHARED"
+
+rm -rf "$BASEPATH/bin"
+rm -rf "$BASEPATH/obj"
+mkdir -p "$BASEPATH/bin"
+mkdir -p "$BASEPATH/obj"
+
 FILES="${FILES} $BASEPATH/src/main.cpp"
 FILES="${FILES} $BASEPATH/src/impl.cpp"
-FILES="${FILES} $BASEPATH/../App.CLI.Common.Elevated/iposix.cpp"
-FILES="${FILES} $BASEPATH/../App.CLI.Common.Elevated/ibase.cpp"
-FILES="${FILES} $BASEPATH/../App.CLI.Common.Elevated/ping.cpp"
-FILES="${FILES} $BASEPATH/../App.CLI.Common.Elevated/sha256.cpp"
+FILES="${FILES} $BASEPATH/../Lib.CLI.Elevated/src/iposix.cpp"
+FILES="${FILES} $BASEPATH/../Lib.CLI.Elevated/src/ibase.cpp"
+FILES="${FILES} $BASEPATH/../Lib.CLI.Elevated/src/ping.cpp"
+FILES="${FILES} $BASEPATH/../../dependencies/sha256/sha256.cpp"
 FILES="${FILES} $BASEPATH/obj/wireguard.o"
 
 #SPECIAL="$2"
@@ -39,8 +44,6 @@ FILES="${FILES} $BASEPATH/obj/wireguard.o"
 #	SHARED="no"
 #fi
 
-echo "Building eddie-cli-elevated - Config: $CONFIG, Shared: $SHARED"
-
 # WireGuard functions
 gcc -c "$BASEPATH/src/wireguard.c" -o "$BASEPATH/obj/wireguard.o"
 
@@ -55,4 +58,5 @@ strip -S --strip-unneeded "$BASEPATH/bin/eddie-cli-elevated"
 chmod a+x "$BASEPATH/bin/eddie-cli-elevated"
 
 echo "Building eddie-cli-elevated - Done"
+
 exit 0

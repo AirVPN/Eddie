@@ -25,11 +25,14 @@ namespace Eddie.Platform.Linux
 {
 	public static class NativeMethods
 	{
+		// Note: seem net7 look for this .so in the executable path (correct),
+		// net4 no (and mkbundle can't be patched with patchelf --set-rpath, and libdl.so/dlopen don't work)
+		// so currently there isn't solution about running eddie-ui(net4) from an outside working path. 
 		public const string NativeLibName = "Lib.Platform.Linux.Native.so";
 
 		public enum FileMode
 		{
-			Mode0600 = 33152, 
+			Mode0600 = 33152,
 			Mode0644 = 33188
 		}
 
@@ -129,7 +132,7 @@ namespace Eddie.Platform.Linux
 		public static int PipeWrite(string filename, string data)
 		{
 			return eddie_pipe_write(filename, data);
-		}		
+		}
 
 		[DllImport(NativeLibName)]
 		private static extern int eddie_kill(int pid, int sig);
@@ -158,6 +161,10 @@ namespace Eddie.Platform.Linux
 #endif
 
 		[DllImport("libc")]
-		public static extern uint getuid();
+		private static extern uint getuid();
+		public static uint GetUID()
+		{
+			return getuid();
+		}
 	}
 }

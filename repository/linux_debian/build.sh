@@ -1,10 +1,20 @@
 #!/bin/bash
 
+# Note 2.24.0, 2023-12-01
+# The .deb and .rpm UI editions now include eddie-cli executable and all related files.
+# It might be more appropriate (for package manager) for eddie-ui to not include eddie-cli, resources, etc., and to only have a package dependency on eddie-cli.
+# Since the majority of our users prefer the UI edition, they would also need to manually download the eddie-cli package (if they download and install manually .deb files, for example with dpkg -i), which we aim to prevent.
+
 set -euo pipefail
 
 # Check args
-if [ "$1" == "" ]; then
+if [ "${1-}" == "" ]; then
 	echo First arg must be Project: cli,ui
+	exit 1
+fi
+
+if [ "${2-}" == "" ]; then
+	echo Second arg must be framework: net4, net7
 	exit 1
 fi
 
@@ -15,6 +25,7 @@ if ! [ -x "$(command -v lintian)" ]; then
 fi
 
 PROJECT=$1
+FRAMEWORK=$2
 CONFIG=Release
 
 SCRIPTDIR=$(dirname $(realpath -s $0))
@@ -34,36 +45,37 @@ fi
 sudo rm -rf $TARGETDIR # root requested by dpkg
 
 # Package dependencies
-echo Step: Package dependencies - Build Mono
+echo Step: Package dependencies - Build Portable
 mkdir -p ${TARGETDIR}
-DEPPACKAGEPATH=${SCRIPTDIR}/../files/eddie-${PROJECT}_${VERSION}_linux_${ARCH}_mono.tar.gz  
-${SCRIPTDIR}/../linux_mono/build.sh ${PROJECT}
+DEPPACKAGEPATH=${SCRIPTDIR}/../files/eddie-${PROJECT}_${VERSION}_linux_${ARCH}_portable.tar.gz  
+${SCRIPTDIR}/../linux_portable/build.sh ${PROJECT} ${FRAMEWORK}
 tar xvfp "${DEPPACKAGEPATH}" -C "${TARGETDIR}"
-rm ${TARGETDIR}/eddie-${PROJECT}/eddie-${PROJECT} # old launcher not need
+rm -rf ${TARGETDIR}/eddie-${PROJECT}/portable.txt
 
 echo Step: Build Debian Structure
 
 mkdir -p ${TARGETDIR}/usr/lib;
-mv ${TARGETDIR}/eddie-${PROJECT}/bundle ${TARGETDIR}/usr/lib/eddie-${PROJECT}
+mv ${TARGETDIR}/eddie-${PROJECT} ${TARGETDIR}/usr/lib/eddie-${PROJECT}
 rm -rf ${TARGETDIR}/eddie-${PROJECT}
 
 mkdir -p ${TARGETDIR}/usr/share
 mv ${TARGETDIR}/usr/lib/eddie-${PROJECT}/res ${TARGETDIR}/usr/share/eddie-${PROJECT}
 
-# Copy bin
-cp ${SCRIPTDIR}/../../deploy/linux_${ARCH}/* $TARGETDIR/usr/lib/eddie-${PROJECT}
-
 # Resources
 cp -r ${SCRIPTDIR}/bundle/eddie-${PROJECT}/* ${TARGETDIR}
+if [ $PROJECT = "ui" ]; then
+    if [[ ${VERSION} =~ ^2 ]]; then
+        cp -r ${SCRIPTDIR}/bundle/eddie-ui2/* ${TARGETDIR}
+    fi
+fi
 
-# Add changelog (-k because used in old Debian that have LetsEncrypt CA issues)
 mkdir -p $TARGETDIR/usr/share/doc/eddie-${PROJECT}
-curl -k "https://eddie.website/changelog/?software=client&format=debian&hidden=yes" -o $TARGETDIR/usr/share/doc/eddie-${PROJECT}/changelog
+curl "https://eddie.website/changelog/?software=client&format=debian&hidden=yes" -o $TARGETDIR/usr/share/doc/eddie-${PROJECT}/changelog
 gzip -n -9 $TARGETDIR/usr/share/doc/eddie-${PROJECT}/changelog
 
 # Auto-call to make man
 mkdir -p $TARGETDIR/usr/share/man/man8
-mono $TARGETDIR/usr/lib/eddie-${PROJECT}/eddie-${PROJECT}.exe --cli --path.resources="${TARGETDIR}/usr/share/eddie-${PROJECT}" --help --help.format=man >$TARGETDIR/usr/share/man/man8/eddie-${PROJECT}.8
+$TARGETDIR/usr/lib/eddie-${PROJECT}/eddie-cli --path.resources="${TARGETDIR}/usr/share/eddie-${PROJECT}" --help --help.format=man >$TARGETDIR/usr/share/man/man8/eddie-${PROJECT}.8
 gzip -n -9 $TARGETDIR/usr/share/man/man8/eddie-${PROJECT}.8
 
 # Remove unneed
@@ -79,18 +91,45 @@ rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/hummingbird
 rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/stunnel
 rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/libgdiplus.so.0
 rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/libMonoPosixHelper.so
-rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/libayatana-appindicator3.so.1
-rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/libayatana-indicator3.so.7
 rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/libdbusmenu-glib.so.4
 rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/libdbusmenu-gtk3.so.4
+
+rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/libayatana-appindicator3.so.1
+rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/libayatana-indicator3.so.7
 rm -f "${TARGETDIR}"/usr/lib/eddie-${PROJECT}/libayatana-ido3-0.4.so.0
 
 # Owner and Permissions
 echo Step: Owner and Permissions
-chmod +x ${TARGETDIR}/usr/bin/eddie-${PROJECT}
 
-# Permissions
 sudo chown -R root:root ${TARGETDIR}/usr
+
+sudo chmod 0755 $TARGETDIR/usr
+sudo chmod 0755 $TARGETDIR/usr/bin
+sudo chmod 0755 $TARGETDIR/usr/lib
+sudo chmod 0755 $TARGETDIR/usr/share
+sudo chmod 0755 $TARGETDIR/usr/share/doc
+sudo chmod 0755 $TARGETDIR/usr/share/doc/eddie-${PROJECT}
+sudo chmod 0644 $TARGETDIR/usr/share/doc/eddie-${PROJECT}/copyright
+sudo chmod 0644 $TARGETDIR/usr/share/doc/eddie-${PROJECT}/changelog.gz
+sudo chmod 0755 $TARGETDIR/usr/share/man
+sudo chmod 0755 $TARGETDIR/usr/share/man/man8
+sudo chmod 0644 $TARGETDIR/usr/share/man/man8/eddie-${PROJECT}.8.gz
+sudo chmod 0755 $TARGETDIR/usr/share/pixmaps
+sudo chmod 0644 $TARGETDIR/usr/share/pixmaps/eddie-${PROJECT}.png
+sudo chmod 0755 $TARGETDIR/usr/share/polkit-1
+sudo chmod 0755 $TARGETDIR/usr/share/polkit-1/actions
+sudo chmod 0644 $TARGETDIR/usr/share/polkit-1/actions/org.airvpn.eddie.${PROJECT}.elevated.policy
+sudo chmod 0755 $TARGETDIR/usr/share/lintian
+sudo chmod 0755 $TARGETDIR/usr/share/lintian/overrides
+sudo chmod 0644 $TARGETDIR/usr/share/lintian/overrides/eddie-${PROJECT}
+
+if [ $PROJECT = "cli" ]; then 
+    sudo chmod 0755 $TARGETDIR/usr/bin/eddie-cli
+elif [ $PROJECT = "ui" ]; then 
+    sudo chmod 0755 $TARGETDIR/usr/share/applications
+    sudo chmod 0644 $TARGETDIR/usr/share/applications/eddie-ui.desktop
+    sudo chmod 0755 $TARGETDIR/usr/bin/eddie-ui    
+fi
 
 # Debian control file
 sed -i "s/{@version}/${VERSION}/g" ${TARGETDIR}/DEBIAN/control

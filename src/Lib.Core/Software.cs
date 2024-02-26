@@ -48,14 +48,10 @@ namespace Eddie.Core
 			AddTool("ssl", new Tools.SSL());
 			if (Platform.Instance.FetchUrlInternal() == false)
 				AddTool("curl", new Tools.Curl());
-			if (Platform.IsUnix())
+			if (Platform.Instance.IsWindowsSystem())
 			{
-				AddTool("update-resolv-conf", new Tools.File("update-resolv-conf"));
-			}
-			if (Platform.IsWindows())
-			{
-				AddTool("tap-windows6", new Tools.File("tap-windows.exe"));
-				AddTool("tapctl", new Tools.File("tapctl.exe"));
+				AddTool("tap-windows6", new Tools.FileDirect("tap-windows.exe"));
+				AddTool("tapctl", new Tools.FileDirect("tapctl.exe"));
 			}
 
 			foreach (Tools.ITool tool in Tools.Values)

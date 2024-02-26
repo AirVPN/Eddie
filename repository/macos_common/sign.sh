@@ -64,24 +64,17 @@ if [ ${VARSTAFF} = "yes" ]; then
 
         APPLEID=$(cat ${SCRIPTDIR}/../signing/apple-dev-id.txt)
 
-        #codesign -d --deep -v --force --sign "${APPLEID}" "${VARPATH}"
-
-        #codesign -d --deep -v --force --entitlements "${SCRIPTDIR}/Entitlements.plist" --options=runtime --sign "${APPLEID}" "${VARPATH}"
-
         # See comment in macos_portable/build.sh
 
-        if [ ${VARHARDENING} = "yes" ]; then
-            echo test
+        if [ ${VARHARDENING} = "yes" ]; then            
             echo codesign -d -v --force --entitlements "${SCRIPTDIR}/Entitlements.plist" --options=runtime --sign "${APPLEID}" "${VARPATH}"    
-            codesign -d -v --force --entitlements "${SCRIPTDIR}/Entitlements.plist" --options=runtime --sign "${APPLEID}" "${VARPATH}"    
+            codesign -d -v --force --entitlements "${SCRIPTDIR}/Entitlements.plist" --options=runtime --sign "${APPLEID}" "${VARPATH}"
         else
             codesign -d -v --force --sign "${APPLEID}" "${VARPATH}"
         fi
         
-        #codesign -d -v --force --sign "${APPLEID}" "${VARPATH}"
-        
         codesign --verify -v "${VARPATH}"
     fi
 else
-    echo "Signature of ${VARPATH} skipped, no keys.";
+    echo "Signature of ${VARPATH} skipped, no keys found.";
 fi

@@ -516,11 +516,9 @@ namespace Eddie.Core
 
 			SetDefaultInt("http.timeout", 10, LanguageManager.GetText(LanguageItems.ManOptionHttpTimeout));
 
-			/*
-			SetDefaultBool("webui.enabled", true, NotInMan); // WebUI it's a Eddie 3.* feature not yet committed on GitHub.
-			SetDefault("webui.ip", "text", "localhost", NotInMan);
-			SetDefaultInt("webui.port", 4649, NotInMan);
-			*/
+			SetDefaultBool("webui.enabled", false, NotInManYet); // WebUI it's a Eddie 3.* feature not yet committed on GitHub.
+			SetDefault("webui.ip", "text", "localhost", NotInManYet);
+			SetDefaultInt("webui.port", 4649, NotInManYet);
 
 			SetDefaultBool("external.rules.recommended", true, NotInManNever);
 			SetDefault("external.rules", "json", "[]", NotInManNever);
@@ -530,12 +528,12 @@ namespace Eddie.Core
 			SetDefaultInt("openvpn.sndbuf", -2, LanguageManager.GetText(LanguageItems.ManOptionOpenVpnSndBuf)); // 2.11
 			SetDefaultInt("openvpn.rcvbuf", -2, LanguageManager.GetText(LanguageItems.ManOptionOpenVpnRcvBuf)); // 2.11
 			SetDefault("openvpn.directives", "text", "client\r\ndev tun\r\nauth-nocache\r\nresolv-retry infinite\r\nnobind\r\npersist-key\r\npersist-tun\r\nverb 3\r\nconnect-retry-max 1\r\nping 10\r\nping-restart 60\r\nexplicit-exit-notify 5", LanguageManager.GetText(LanguageItems.ManOptionOpenVpnDirectives));
-			SetDefault("openvpn.directives.path", "path_file", "", LanguageManager.GetText(LanguageItems.ManOptionOpenVpnDirectivesPath));			
+			SetDefault("openvpn.directives.path", "path_file", "", LanguageManager.GetText(LanguageItems.ManOptionOpenVpnDirectivesPath));
 			SetDefault("openvpn.directives.data-ciphers", "text", "AES-256-GCM:AES-192-GCM:AES-128-GCM", LanguageManager.GetText(LanguageItems.ManOptionOpenVpnDirectivesDataCiphers));
 			SetDefault("openvpn.directives.data-ciphers-fallback", "text", "AES-256-GCM", LanguageManager.GetText(LanguageItems.ManOptionOpenVpnDirectivesDataCiphersFallback));
 			SetDefaultBool("openvpn.directives.chacha20", false, LanguageManager.GetText(LanguageItems.ManOptionOpenVpnDirectivesChacha20)); // Temporary
 			SetDefaultBool("openvpn.skip_defaults", false, LanguageManager.GetText(LanguageItems.ManOptionOpenVpnSkipDefaults));
-			
+
 			SetDefaultBool("wireguard.interface.skip_commands", true, NotInManNever); // Anyway are not implemented in Eddie, keep for future.
 			SetDefaultInt("wireguard.peer.persistentkeepalive", 15, LanguageManager.GetText(LanguageItems.ManOptionWireGuardPeerPersistentKeepalive));
 			SetDefaultInt("wireguard.handshake.timeout.first", 50, NotInManNever);
@@ -610,7 +608,7 @@ namespace Eddie.Core
 			// UI only
 			SetDefaultBool("gui.start_minimized", false, NotInManNever);
 			SetDefaultBool("gui.tray_show", true, NotInManNever);
-			SetDefaultBool("gui.tray_minimized", (Platform.Instance.IsLinuxSystem() == false), NotInManNever); // We can't know if the Linux Desktop Environment will support show tray.
+			SetDefaultBool("gui.tray_minimized", (Platform.Instance.IsUnixSystem() == false), NotInManNever); // We can't know if the Linux Desktop Environment will support show tray.
 			SetDefaultBool("gui.notifications", true, NotInManNever);
 			SetDefaultBool("gui.exit_confirm", true, NotInManNever);
 			SetDefault("gui.font.normal.name", "text", "", NotInManNever);

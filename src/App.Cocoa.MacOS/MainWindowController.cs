@@ -523,14 +523,11 @@ namespace Eddie.UI.Cocoa.Osx
 
         public bool Shutdown()
 		{
-			if (Engine.AskExitConfirm())
+			if (Engine.NeedAskExitConfirm())
 			{
 				bool result = GuiUtils.MessageYesNo(LanguageManager.GetText(LanguageItems.ExitConfirm));
 				if (result == false)
-				{
-					Engine.Instance.OnExitRejected();
 					return false;
-				}
 			}
 			ShutdownConfirmed = true;
 			if (windowAbout != null)
@@ -1200,7 +1197,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 		void SupportReport()
 		{
-            UiClient.Instance.Command("system.report.start");
+			UiClient.Instance.Command("system.report.start");
 		}
 
 		void LogsDoCopy(bool selectedOnly)

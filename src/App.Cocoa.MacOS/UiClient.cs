@@ -18,15 +18,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Reflection;
-using System.Xml;
 using Foundation;
 using AppKit;
 using Eddie.Core;
 
 namespace Eddie.UI.Cocoa.Osx
 {
-    public class UiClient : Eddie.Core.UiClient
+    public class UiClient : Eddie.Core.UiClientLegacy
 	{
         public static UiClient Instance;
         public Engine Engine;
@@ -76,18 +74,23 @@ namespace Eddie.UI.Cocoa.Osx
 				Engine.OnUnhandledException(source, e);
 		}
 
-		public override Json Command(Json data)
-        {
-            return Engine.UiManager.SendCommand(data, this);
-        }
-
-        public override void OnReceive(Json data)
+		public override void OnReceive(Json data)
         {
             base.OnReceive(data);
 
             string cmd = data["command"].Value as string;
 
-            if (cmd == "log")
+            if (cmd == "elevated.start")
+            {
+                string path = Core.Platform.Instance.GetElevatedHelperPath();
+				List<string> args = new List<string>();
+                foreach (var arg in data["args"].Json.GetArray())
+                {
+                    args.Add(arg as string);
+                }
+                ProcessRootLauncher.LaunchExternalTool(path, args.ToArray());
+			}
+            else if (cmd == "log")
             {
                 if(data["type"].Value as string == "fatal")
                 {
@@ -202,36 +205,5 @@ namespace Eddie.UI.Cocoa.Osx
                 }
             }
         }
-
-        /* // TOCLEAN
-        public void UpdateInterfaceStyle()
-        {
-            // AppleInterfaceStyle is user-level settings.
-            // Setting the 'Dark mode' in preferences, don't change the interface style of the ROOT user, and AirVPN client run as root.
-            // We detect the settings when this software relaunch itself, and here we update accordly the settings of the current (ROOT) user.
-            string defaultsPath = Core.Platform.Instance.LocateExecutable("defaults");
-            if (defaultsPath != "")
-            {
-                // If 'white', return error in StdErr and empty in StdOut.
-                SystemShell s = new SystemShell();
-                s.Path = defaultsPath;
-                s.Arguments.Add("read");
-                s.Arguments.Add("-g");
-                s.Arguments.Add("AppleInterfaceStyle");
-                s.Run();
-                string rootColorMode = s.StdOut.Trim().ToLowerInvariant();
-                if (rootColorMode == "")
-                    rootColorMode = "light";
-                string argsColorMode = Engine.Instance.StartCommandLine.Get("gui.osx.style", "light");
-                if (rootColorMode != argsColorMode)
-                {
-                    if (argsColorMode == "dark")
-                        Core.SystemShell.Shell(defaultsPath, new string[] { "write", "-g", "AppleInterfaceStyle", "Dark" });
-                    else
-                        Core.SystemShell.Shell(defaultsPath, new string[] { "remove", "-g", "AppleInterfaceStyle" });
-                }
-            }
-        }
-        */
     }
 }

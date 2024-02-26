@@ -17,11 +17,7 @@
 // </eddie_source_header>
 
 using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
-using System.Text;
-using System.Xml;
 using Eddie.Core;
 
 namespace Eddie.Platform.Linux
@@ -32,60 +28,55 @@ namespace Eddie.Platform.Linux
 		{
 			base.Start();
 
-			string tempPathToDelete = "";
-
 			try
 			{
 				string connectResult = Connect(Engine.Instance.GetElevatedServicePort());
+
 				if (connectResult != "Ok") // Will work if the service is active
 				{
+					if (connectResult != "No listening")
+						Engine.Instance.Logs.LogVerbose("Elevated in listening, but refuse connection: " + connectResult);
+
 					Engine.Instance.UiManager.Broadcast("init.step", "message", LanguageManager.GetText(LanguageItems.InitStepRaiseSystemPrivileges));
 					Engine.Instance.Logs.LogVerbose(LanguageManager.GetText(LanguageItems.InitStepRaiseSystemPrivileges));
 
-					string helperPath = Platform.Instance.GetElevatedHelperPath();
-
-					// Special environment: AppImage  
-					// pkexec/sudo can't see the file. Workaround: Copy, execute, remove.
-					bool appImageEnvironment = Platform.Instance.NeedExecuteOutsideAppPath(helperPath);
-					if (appImageEnvironment)
-					{
-						tempPathToDelete = Platform.Instance.FileTempName("eddie-cli-elevated");
-
-						if (File.Exists(tempPathToDelete))
-							File.Delete(tempPathToDelete);
-						File.Copy(helperPath, tempPathToDelete);
-
-						helperPath = tempPathToDelete;
-					}
-
 					int port = GetPortSpot();
 
-					int pid = Platform.Instance.StartProcessAsRoot(helperPath, new string[] { "mode=spot", "spot_port=" + port.ToString(CultureInfo.InvariantCulture), "service_port=" + Engine.Instance.GetElevatedServicePort().ToString(CultureInfo.InvariantCulture) }, Engine.Instance.ConsoleMode);
+					int pid = (Platform.Instance as Eddie.Platform.Linux.Platform).RunElevated(new string[] { "mode=spot", "spot_port=" + port.ToString(CultureInfo.InvariantCulture), "service_port=" + Engine.Instance.GetElevatedServicePort().ToString(CultureInfo.InvariantCulture) }, false);
+
 					System.Diagnostics.Process process = null;
 					if (pid > 0)
 						process = System.Diagnostics.Process.GetProcessById(pid);
 
-					long listeningPortStartTime = Utils.UnixTimeStamp();
-					for (; ; )
+					try
 					{
-						if (Platform.Instance.IsPortLocalListening(port))
-							break;
+						long listeningPortStartTime = Utils.UnixTimeStamp();
+						for (; ; )
+						{
+							System.Threading.Thread.Sleep(100);
 
-						if (process == null)
-							throw new Exception("Unable to start (null)");
+							if (Platform.Instance.IsPortLocalListening(port))
+								break;
 
-						if (process.HasExited)
-							throw new Exception("Unable to start (already exit)");
+							if (process == null)
+								throw new Exception("not started");
 
-						if (Utils.UnixTimeStamp() - listeningPortStartTime > 60)
-							throw new Exception("Unable to start (timeout)");
+							if (process.HasExited)
+								throw new Exception("already exit");
 
-						System.Threading.Thread.Sleep(100);
+							if (Utils.UnixTimeStamp() - listeningPortStartTime > 60)
+								throw new Exception("timeout");
+						}
+
+						connectResult = Connect(port);
+
+						if (connectResult != "Ok")
+							throw new Exception(connectResult);
 					}
-
-					connectResult = Connect(port);
-					if (connectResult != "Ok")
-						throw new Exception("Unable to start (" + connectResult + ")");
+					catch (Exception ex)
+					{
+						throw new Exception("Unable to start (" + ex.Message + "). Look https://eddie.website/support/elevation/ to address this issue.");
+					}
 				}
 				else
 				{
@@ -97,13 +88,6 @@ namespace Eddie.Platform.Linux
 				Stop();
 
 				throw new Exception(LanguageManager.GetText(LanguageItems.HelperPrivilegesFailed, ex.Message));
-			}
-			finally
-			{
-				if (tempPathToDelete != "")
-				{
-					Platform.Instance.FileDelete(tempPathToDelete);
-				}
 			}
 		}
 	}

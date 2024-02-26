@@ -47,7 +47,7 @@ namespace Eddie.Platform.Linux
 
 		public override void Init()
 		{
-			base.Init(); 
+			base.Init();
 		}
 
 		public void AddRule(System.Text.StringBuilder rules, string layer, string rule)
@@ -63,7 +63,7 @@ namespace Eddie.Platform.Linux
 		public override void Activation()
 		{
 			base.Activation();
-						
+
 			m_supportIPv4 = Platform.Instance.GetSupportIPv4();
 			m_supportIPv6 = Platform.Instance.GetSupportIPv6();
 
@@ -398,14 +398,14 @@ namespace Eddie.Platform.Linux
 
 		public override void AllowInterface(NetworkInterface networkInterface)
 		{
-			base.AllowInterface(networkInterface); 
+			base.AllowInterface(networkInterface);
 
 			Engine.Instance.Elevated.DoCommandSync("netlock-nftables-interface", "id", networkInterface.Id, "ipv4", m_supportIPv4 ? "1" : "0", "ipv6", m_supportIPv6 ? "1" : "0", "action", "add");
 		}
 
 		public override void DeallowInterface(NetworkInterface networkInterface)
 		{
-			base.DeallowInterface(networkInterface); 
+			base.DeallowInterface(networkInterface);
 
 			Engine.Instance.Elevated.DoCommandSync("netlock-nftables-interface", "id", networkInterface.Id, "ipv4", m_supportIPv4 ? "1" : "0", "ipv6", m_supportIPv6 ? "1" : "0", "action", "del");
 		}

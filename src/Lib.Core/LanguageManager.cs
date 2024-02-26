@@ -67,7 +67,7 @@ namespace Eddie.Core
 			return invFound;
 		}
 
-		public static Json GetJsonForManifest()
+		public static Json GetJson()
 		{
 			Json jData = new Json();
 

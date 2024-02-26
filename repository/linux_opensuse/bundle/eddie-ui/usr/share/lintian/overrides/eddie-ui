@@ -1,9 +1,0 @@
-# Use statically linked libc, to avoid issue with oldest distro
-# (at 2019-09, for example we compile from Debian8 and otherwise libc mismatch with CentOS7.6)
-eddie-ui binary: statically-linked-binary
-
-# Lintian 2.15.0 (Debian 10) throw
-# E: eddie-ui: misplaced-extra-member-in-deb _gpgbuilder (unexpected _member at position 3)
-# because it's signed with dpkg-sig.
-# https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=758054
-eddie-ui binary: misplaced-extra-member-in-deb

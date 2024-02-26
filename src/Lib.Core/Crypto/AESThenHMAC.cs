@@ -42,7 +42,7 @@ namespace Eddie.Core.Crypto
 		/// <returns></returns>
 		public static byte[] NewKey()
 		{
-			var key = new byte[KeyBitSize / 8];
+			byte[] key = new byte[KeyBitSize / 8];
 			Random.GetBytes(key);
 			return key;
 		}
@@ -67,7 +67,7 @@ namespace Eddie.Core.Crypto
 			if (string.IsNullOrEmpty(secretMessage))
 				throw new ArgumentException("Secret Message Required!", "secretMessage");
 
-			var plainText = Encoding.UTF8.GetBytes(secretMessage);
+			byte[] plainText = Encoding.UTF8.GetBytes(secretMessage);
 			var cipherText = SimpleEncrypt(plainText, cryptKey, authKey, nonSecretPayload);
 			return Convert.ToBase64String(cipherText);
 		}
@@ -154,7 +154,7 @@ namespace Eddie.Core.Crypto
 		/// </remarks>
 		public static byte[] SimpleEncrypt(byte[] secretMessage, byte[] cryptKey, byte[] authKey, byte[] nonSecretPayload = null)
 		{
-			//User Error Checks
+			// User Error Checks
 			if (cryptKey == null || cryptKey.Length != KeyBitSize / 8)
 				throw new ArgumentException(String.Format("Key needs to be {0} bit!", KeyBitSize), "cryptKey");
 
@@ -164,32 +164,30 @@ namespace Eddie.Core.Crypto
 			if (secretMessage == null || secretMessage.Length < 1)
 				throw new ArgumentException("Secret Message Required!", "secretMessage");
 
-			//non-secret payload optional
+			// non-secret payload optional
 			nonSecretPayload = nonSecretPayload ?? new byte[] { };
 
 			byte[] cipherText;
 			byte[] iv;
 
-			using (var aes = new AesManaged
+			using (Aes aes = Aes.Create())
 			{
-				KeySize = KeyBitSize,
-				BlockSize = BlockBitSize,
-				Mode = CipherMode.CBC,
-				Padding = PaddingMode.PKCS7
-			})
-			{
+				aes.KeySize = KeyBitSize;
+				aes.BlockSize = BlockBitSize;
+				aes.Mode = CipherMode.CBC;
+				aes.Padding = PaddingMode.PKCS7;
 
-				//Use random IV
+				// Use random IV
 				aes.GenerateIV();
 				iv = aes.IV;
 
-				using (var encrypter = aes.CreateEncryptor(cryptKey, iv))
-				using (var cipherStream = new MemoryStream())
+				using (ICryptoTransform encrypter = aes.CreateEncryptor(cryptKey, iv))
+				using (MemoryStream cipherStream = new MemoryStream())
 				{
-					using (var cryptoStream = new CryptoStream(cipherStream, encrypter, CryptoStreamMode.Write))
-					using (var binaryWriter = new BinaryWriter(cryptoStream))
+					using (CryptoStream cryptoStream = new CryptoStream(cipherStream, encrypter, CryptoStreamMode.Write))
+					using (BinaryWriter binaryWriter = new BinaryWriter(cryptoStream))
 					{
-						//Encrypt Data
+						// Encrypt Data
 						binaryWriter.Write(secretMessage);
 					}
 
@@ -198,23 +196,23 @@ namespace Eddie.Core.Crypto
 
 			}
 
-			//Assemble encrypted message and add authentication
+			// Assemble encrypted message and add authentication
 			using (var hmac = new HMACSHA256(authKey))
-			using (var encryptedStream = new MemoryStream())
+			using (MemoryStream encryptedStream = new MemoryStream())
 			{
 				using (var binaryWriter = new BinaryWriter(encryptedStream))
 				{
-					//Prepend non-secret payload if any
+					// Prepend non-secret payload if any
 					binaryWriter.Write(nonSecretPayload);
-					//Prepend IV
+					// Prepend IV
 					binaryWriter.Write(iv);
-					//Write Ciphertext
+					// Write Ciphertext
 					binaryWriter.Write(cipherText);
 					binaryWriter.Flush();
 
-					//Authenticate all data
+					// Authenticate all data
 					var tag = hmac.ComputeHash(encryptedStream.ToArray());
-					//Postpend tag
+					// Postpend tag
 					binaryWriter.Write(tag);
 				}
 				return encryptedStream.ToArray();
@@ -232,8 +230,7 @@ namespace Eddie.Core.Crypto
 		/// <returns>Decrypted Message</returns>
 		public static byte[] SimpleDecrypt(byte[] encryptedMessage, byte[] cryptKey, byte[] authKey, int nonSecretPayloadLength = 0)
 		{
-
-			//Basic Usage Error Checks
+			// Basic Usage Error Checks
 			if (cryptKey == null || cryptKey.Length != KeyBitSize / 8)
 				throw new ArgumentException(String.Format("CryptKey needs to be {0} bit!", KeyBitSize), "cryptKey");
 
@@ -246,53 +243,51 @@ namespace Eddie.Core.Crypto
 			using (var hmac = new HMACSHA256(authKey))
 			{
 				var sentTag = new byte[hmac.HashSize / 8];
-				//Calculate Tag
+				// Calculate Tag
 				var calcTag = hmac.ComputeHash(encryptedMessage, 0, encryptedMessage.Length - sentTag.Length);
 				var ivLength = (BlockBitSize / 8);
 
-				//if message length is to small just return null
+				// if message length is to small just return null
 				if (encryptedMessage.Length < sentTag.Length + nonSecretPayloadLength + ivLength)
 					return null;
 
-				//Grab Sent Tag
+				// Grab Sent Tag
 				Array.Copy(encryptedMessage, encryptedMessage.Length - sentTag.Length, sentTag, 0, sentTag.Length);
 
-				//Compare Tag with constant time comparison
+				// Compare Tag with constant time comparison
 				var compare = 0;
 				for (var i = 0; i < sentTag.Length; i++)
 					compare |= sentTag[i] ^ calcTag[i];
 
-				//if message doesn't authenticate return null
+				// if message doesn't authenticate return null
 				if (compare != 0)
 					return null;
 
-				using (var aes = new AesManaged
+				using (Aes aes = Aes.Create())
 				{
-					KeySize = KeyBitSize,
-					BlockSize = BlockBitSize,
-					Mode = CipherMode.CBC,
-					Padding = PaddingMode.PKCS7
-				})
-				{
+					aes.KeySize = KeyBitSize;
+					aes.BlockSize = BlockBitSize;
+					aes.Mode = CipherMode.CBC;
+					aes.Padding = PaddingMode.PKCS7;
 
-					//Grab IV from message
-					var iv = new byte[ivLength];
+					// Grab IV from message
+					byte[] iv = new byte[ivLength];
 					Array.Copy(encryptedMessage, nonSecretPayloadLength, iv, 0, iv.Length);
 
-					using (var decrypter = aes.CreateDecryptor(cryptKey, iv))
-					using (var plainTextStream = new MemoryStream())
+					using (ICryptoTransform decrypter = aes.CreateDecryptor(cryptKey, iv))
+					using (MemoryStream plainTextStream = new MemoryStream())
 					{
-						using (var decrypterStream = new CryptoStream(plainTextStream, decrypter, CryptoStreamMode.Write))
-						using (var binaryWriter = new BinaryWriter(decrypterStream))
+						using (CryptoStream decrypterStream = new CryptoStream(plainTextStream, decrypter, CryptoStreamMode.Write))
+						using (BinaryWriter binaryWriter = new BinaryWriter(decrypterStream))
 						{
-							//Decrypt Cipher Text from Message
+							// Decrypt Cipher Text from Message
 							binaryWriter.Write(
 								encryptedMessage,
 								nonSecretPayloadLength + iv.Length,
 								encryptedMessage.Length - nonSecretPayloadLength - iv.Length - sentTag.Length
 							);
 						}
-						//Return Plain Text
+						// Return Plain Text
 						return plainTextStream.ToArray();
 					}
 				}
@@ -321,38 +316,49 @@ namespace Eddie.Core.Crypto
 			if (secretMessage == null || secretMessage.Length == 0)
 				throw new ArgumentException("Secret Message Required!", "secretMessage");
 
-			var payload = new byte[((SaltBitSize / 8) * 2) + nonSecretPayload.Length];
+			byte[] payload = new byte[((SaltBitSize / 8) * 2) + nonSecretPayload.Length];
 
 			Array.Copy(nonSecretPayload, payload, nonSecretPayload.Length);
 			int payloadIndex = nonSecretPayload.Length;
 
 			byte[] cryptKey;
 			byte[] authKey;
-			//Use Random Salt to prevent pre-generated weak password attacks.
-			using (var generator = new Rfc2898DeriveBytes(password, SaltBitSize / 8, Iterations))
-			{
-				var salt = generator.Salt;
 
-				//Generate Keys
+#pragma warning disable CA5379 // SHA1 is weak, TOFIX
+			// Use Random Salt to prevent pre-generated weak password attacks.
+#if EDDIEMONO4LINUX // Mono under Linux don't have 4 params constructor
+			using (Rfc2898DeriveBytes generator = new Rfc2898DeriveBytes(password, SaltBitSize / 8, Iterations))
+#else
+			using (Rfc2898DeriveBytes generator = new Rfc2898DeriveBytes(password, SaltBitSize / 8, Iterations, HashAlgorithmName.SHA1))
+#endif
+			{
+				byte[] salt = generator.Salt;
+
+				// Generate Keys
 				cryptKey = generator.GetBytes(KeyBitSize / 8);
 
-				//Create Non Secret Payload
+				// Create Non Secret Payload
 				Array.Copy(salt, 0, payload, payloadIndex, salt.Length);
 				payloadIndex += salt.Length;
 			}
 
-			//Deriving separate key, might be less efficient than using HKDF, 
-			//but now compatible with RNEncryptor which had a very similar wireformat and requires less code than HKDF.
-			using (var generator = new Rfc2898DeriveBytes(password, SaltBitSize / 8, Iterations))
+			// Deriving separate key, might be less efficient than using HKDF, 
+			// but now compatible with RNEncryptor which had a very similar wireformat and requires less code than HKDF.
+#if EDDIEMONO4LINUX // Mono under Linux don't have 4 params constructor
+			using (Rfc2898DeriveBytes generator = new Rfc2898DeriveBytes(password, SaltBitSize / 8, Iterations))
+#else
+			using (Rfc2898DeriveBytes generator = new Rfc2898DeriveBytes(password, SaltBitSize / 8, Iterations, HashAlgorithmName.SHA1))
+#endif
 			{
 				var salt = generator.Salt;
 
-				//Generate Keys
+				// Generate Keys
 				authKey = generator.GetBytes(KeyBitSize / 8);
 
-				//Create Rest of Non Secret Payload
+				// Create Rest of Non Secret Payload
 				Array.Copy(salt, 0, payload, payloadIndex, salt.Length);
 			}
+#pragma warning restore CA5379
 
 			return SimpleEncrypt(secretMessage, cryptKey, authKey, payload);
 		}
@@ -379,26 +385,35 @@ namespace Eddie.Core.Crypto
 			var cryptSalt = new byte[SaltBitSize / 8];
 			var authSalt = new byte[SaltBitSize / 8];
 
-			//Grab Salt from Non-Secret Payload
+			// Grab Salt from Non-Secret Payload
 			Array.Copy(encryptedMessage, nonSecretPayloadLength, cryptSalt, 0, cryptSalt.Length);
 			Array.Copy(encryptedMessage, nonSecretPayloadLength + cryptSalt.Length, authSalt, 0, authSalt.Length);
 
 			byte[] cryptKey;
 			byte[] authKey;
 
-			//Generate crypt key
+#pragma warning disable CA5379 // SHA1 is weak, TOFIX
+			// Generate crypt key
+#if EDDIEMONO4LINUX // Mono under Linux don't have 4 params constructor
 			using (var generator = new Rfc2898DeriveBytes(password, cryptSalt, Iterations))
+#else
+			using (var generator = new Rfc2898DeriveBytes(password, cryptSalt, Iterations, HashAlgorithmName.SHA1))
+#endif
 			{
 				cryptKey = generator.GetBytes(KeyBitSize / 8);
 			}
-			//Generate auth key
+			// Generate auth key
+#if EDDIEMONO4LINUX // Mono under Linux don't have 4 params constructor
 			using (var generator = new Rfc2898DeriveBytes(password, authSalt, Iterations))
+#else
+			using (var generator = new Rfc2898DeriveBytes(password, authSalt, Iterations, HashAlgorithmName.SHA1))
+#endif
 			{
 				authKey = generator.GetBytes(KeyBitSize / 8);
 			}
+#pragma warning restore CA5379
 
 			return SimpleDecrypt(encryptedMessage, cryptKey, authKey, cryptSalt.Length + authSalt.Length + nonSecretPayloadLength);
 		}
-
 	}
 }

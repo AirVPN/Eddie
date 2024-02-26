@@ -20,10 +20,8 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Net;
 using System.Net.NetworkInformation;
 using System.Text;
-using System.Threading;
 using System.Xml;
 using Eddie.Core;
 
@@ -33,13 +31,15 @@ namespace Eddie.Platform.Linux
 	{
 		private string m_name = "";
 		private string m_version = "";
-		private string m_architecture = "";
 
 #if !EDDIE_DOTNET
+		private string m_architecture = "";
 		private string m_monoVersion = "";
 #endif
 
 		private UInt32 m_uid = 9999;
+
+		private string m_elevatedRunPath = "";
 
 		private List<IpV6ModeEntry> m_listIpV6Mode = new List<IpV6ModeEntry>();
 
@@ -70,14 +70,25 @@ namespace Eddie.Platform.Linux
 				// Workaround for https://github.com/mono/mono/issues/6752
 				Environment.SetEnvironmentVariable("TERM", "XTERM", EnvironmentVariableTarget.Process);
 			}
+
+			m_architecture = Utils.NormalizeArchitecture(SystemExec.Exec1(LocateExecutable("uname"), "-m").Trim());
 #endif
+			if (Platform.Instance.FileExists("/etc/os-release"))
+			{
+				string osrelease = FileContentsReadText("/etc/os-release");
+
+				m_name = osrelease.RegExMatchOne("NAME=\\\"(.+?)\\\"");
+				m_version = osrelease.RegExMatchOne("VERSION=\\\"(.+?)\\\"");
+			}
+
+			if (m_version == "")
+				m_version = SystemExec.Exec1(LocateExecutable("uname"), "-a");
 		}
 
 		public override string GetCode()
 		{
 			return "Linux";
 		}
-
 
 		public override string GetName()
 		{
@@ -90,6 +101,11 @@ namespace Eddie.Platform.Linux
 		}
 
 #if !EDDIE_DOTNET
+		public override string GetOsArchitecture()
+		{
+			return m_architecture;
+		}
+
 		public override string GetNetFrameworkVersion()
 		{
 			return m_monoVersion + "; Framework: " + System.Reflection.Assembly.GetExecutingAssembly().ImageRuntimeVersion;
@@ -100,66 +116,23 @@ namespace Eddie.Platform.Linux
 		{
 			base.OnInit();
 
-			if (Platform.Instance.FileExists("/etc/os-release"))
-			{
-				string osrelease = FileContentsReadText("/etc/os-release");
-
-				m_name = osrelease.RegExMatchOne("NAME=\\\"(.+?)\\\"");
-				m_version = osrelease.RegExMatchOne("VERSION=\\\"(.+?)\\\"");
-			}
-
-			if (m_version == "")
-				m_version = SystemExec.Exec1(LocateExecutable("uname"), "-a");
-
-			m_architecture = NormalizeArchitecture(SystemExec.Exec1(LocateExecutable("uname"), "-m").Trim());
-
 			try
 			{
 				bool result = (NativeMethods.Init() == 0);
 				if (result == false)
 					throw new Exception("fail");
 
-#if !EDDIE_DOTNET
-				// For MONO, used to listen CTRL+C in CLI edition, and perform a clean exit. Still don't listen a "kill -INT pid".
-				// dotnet catch well signal, both CTRL+C in terminal or "kill -INT pid"				
-				NativeMethods.Signal((int)NativeMethods.Signum.SIGHUP, SignalCallback);
-				NativeMethods.Signal((int)NativeMethods.Signum.SIGINT, SignalCallback);
-				NativeMethods.Signal((int)NativeMethods.Signum.SIGTERM, SignalCallback);
-				NativeMethods.Signal((int)NativeMethods.Signum.SIGUSR1, SignalCallback);
-				NativeMethods.Signal((int)NativeMethods.Signum.SIGUSR2, SignalCallback);
-#endif
 			}
 			catch
 			{
-				Console.WriteLine("Unable to initialize native library. Maybe a CPU architecture issue.");
+				Engine.Instance.Logs.LogFatal("Unable to initialize native library. Maybe a CPU architecture issue.");
 				return false;
 			}
 
 			return true;
 		}
 
-#if !EDDIE_DOTNET
-		private static void SignalCallback(int signum)
-		{
-			NativeMethods.Signum sig = (NativeMethods.Signum)signum;
-			if (sig == NativeMethods.Signum.SIGHUP)
-				Engine.Instance.OnSignal("SIGHUP");
-			else if (sig == NativeMethods.Signum.SIGINT)
-				Engine.Instance.OnSignal("SIGINT");
-			else if (sig == NativeMethods.Signum.SIGTERM)
-				Engine.Instance.OnSignal("SIGTERM");
-			else if (sig == NativeMethods.Signum.SIGUSR1)
-				Engine.Instance.OnSignal("SIGUSR1");
-			else if (sig == NativeMethods.Signum.SIGUSR2)
-				Engine.Instance.OnSignal("SIGUSR2");
-		}
-#endif
-
-		public override string GetOsArchitecture()
-		{
-			return m_architecture;
-		}
-
+		/* // TOCLEAN
 		public override string GetDefaultDataPath()
 		{
 			// Maybe the default can be "home" like macOS. 
@@ -167,11 +140,20 @@ namespace Eddie.Platform.Linux
 			return String.Empty;
 			//return "home";
 		}
+		*/
+
+		public override string GetDefaultResourcesDirName()
+		{
+			return "res";
+		}
 
 		public override Eddie.Core.Elevated.IElevated StartElevated()
 		{
 			ElevatedImpl e = new ElevatedImpl();
 			e.Start();
+
+			RootExecutionOutsideBundleDelete(m_elevatedRunPath);
+
 			return e;
 		}
 
@@ -179,7 +161,7 @@ namespace Eddie.Platform.Linux
 		{
 			if (m_uid == 9999)
 			{
-				m_uid = NativeMethods.getuid();
+				m_uid = NativeMethods.GetUID();
 			}
 			return (m_uid == 0);
 		}
@@ -234,12 +216,12 @@ namespace Eddie.Platform.Linux
 
 			if (value)
 			{
-				RunProcessAsRoot(GetElevatedHelperPath(), new string[] { "service=install", "service_port=" + Engine.Instance.GetElevatedServicePort() }, Engine.Instance.ConsoleMode);
+				RunElevated(new string[] { "service=install", "service_port=" + Engine.Instance.GetElevatedServicePort() }, true);
 				return (GetService() == true);
 			}
 			else
 			{
-				RunProcessAsRoot(GetElevatedHelperPath(), new string[] { "service=uninstall" }, Engine.Instance.ConsoleMode);
+				RunElevated(new string[] { "service=uninstall" }, true);
 				return (GetService() == false);
 			}
 		}
@@ -267,36 +249,6 @@ namespace Eddie.Platform.Linux
 
 			int result = NativeMethods.GetFileImmutable(path);
 			return (result == 1);
-
-			/* // TOCLEAN
-            // We don't find a better direct method in Mono/Posix without adding ioctl references
-            // The list of flags can be different between Linux distro (for example 16 on Debian, 19 on Manjaro)
-            string lsattrPath = LocateExecutable("lsattr");
-            if (lsattrPath != "")
-            {
-                SystemExec exec = new SystemExec();
-                exec.Path = lsattrPath;
-                exec.Arguments.Add(SystemExec.EscapePath(path));
-                exec.NoDebugLog = true;
-
-                if (exec.Run())
-                {
-                    string result = exec.Output;
-
-                    if (result.StartsWith("lsattr: ")) // Generic error
-                        return false;
-
-                    if (result.IndexOf(' ') != -1)
-                        result = result.Substring(0, result.IndexOf(' '));
-
-                    return (result.IndexOf("-i-") != -1);
-                }
-                else
-                    return false;
-            }
-            else
-                return false;
-            */
 		}
 
 		public override void FileImmutableSet(string path, bool value)
@@ -390,18 +342,6 @@ namespace Eddie.Platform.Linux
 #if !EDDIE_DOTNET
 		public override string GetExecutablePathEx()
 		{
-			// We use this because querying .Net Assembly (what the base class do) doesn't work within Mkbundle.
-
-			// TOFIX: Linux and OS X version are different, merge. Probably OS X it's more a clean approach.
-
-			// Removed in 2.11 to avoid dependencies with libMonoPosixHelper.so
-			// Useless, still required, but at least it's an external requirement.
-			/*
-            string output = "";
-            StringBuilder builder = new StringBuilder(8192);
-            if (Syscall.readlink("/proc/self/exe", builder) >= 0)
-                output = builder.ToString();
-            */
 			int pid = Process.GetCurrentProcess().Id;
 			string output = SystemExec.Exec1(LocateExecutable("readlink"), "/proc/" + pid.ToString() + "/exe");
 
@@ -445,64 +385,6 @@ namespace Eddie.Platform.Linux
 			if (paths.Contains("/root/bin") == false)
 				paths.Add("/root/bin");
 			return LocateExecutable(name, paths);
-		}
-
-		public override int StartProcessAsRoot(string path, string[] arguments, bool consoleMode)
-		{
-			System.Diagnostics.Process process = new System.Diagnostics.Process();
-
-			bool canRunAsRoot = FileRunAsRoot(path);
-
-			process = new System.Diagnostics.Process();
-			if (canRunAsRoot)
-			{
-				process.StartInfo.FileName = FileAdaptProcessExec(path);
-				process.StartInfo.Arguments = String.Join(" ", arguments);
-			}
-			else if (IsElevatedPrivileges())
-			{
-				process.StartInfo.FileName = FileAdaptProcessExec(path);
-				process.StartInfo.Arguments = String.Join(" ", arguments);
-			}
-			else if ( (Engine.Instance.StartCommandLine.Exists("sudo")) && (LocateExecutable("sudo") != "") )
-			{
-				// This mode don't work well, under Ubuntu (where pkexec works) break terminal, and in general different behiavour in different distro
-
-				// Under Manjaro, seem works even if not in groups
-				//List<string> groups = new List<string>(SystemExec.Exec0(LocateExecutable("groups")).ToLowerInv().Split(' '));
-				//if (groups.Contains("sudo"))
-
-				// Ask for password, but for unknown reason, password mismatch (endofline at first character), stdin issue, probably related to Mono.
-				//process.StartInfo.FileName = "su";
-				//process.StartInfo.Arguments = "-c \"'" + path + "' " + String.Join(" ", arguments) + "\"";
-
-				process.StartInfo.FileName = LocateExecutable("sudo");
-				process.StartInfo.Arguments = "\"" + path + "\" " + String.Join(" ", arguments);
-			}
-			else
-			{
-				process.StartInfo.FileName = LocateExecutable("pkexec");
-				process.StartInfo.Arguments = "\"" + path + "\" " + String.Join(" ", arguments);
-			}
-
-			if (process.StartInfo.FileName == "")
-			{
-				Engine.Instance.Logs.LogFatal("Unable to find a method to run elevated process. Install 'sudo' and ensure user is in sudo group, or run chown root:root eddie-cli-elevated;chmod u+s eddie-cli-elevated");
-				return 0;
-			}
-			else
-			{
-				process.StartInfo.WorkingDirectory = "";
-
-				process.StartInfo.Verb = "run";
-				process.StartInfo.CreateNoWindow = true;
-				process.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
-				process.StartInfo.UseShellExecute = false;
-
-				process.Start();
-
-				return process.Id;
-			}
 		}
 
 		public override void ExecASyncCore(string path, string[] arguments)
@@ -560,45 +442,6 @@ namespace Eddie.Platform.Linux
 			exec.WaitEnd = false;
 			exec.Run();
 		}
-
-		// This works, but we use base to avoid shell
-		/*
-        public override long Ping(IpAddress ip, int timeoutMs)
-        {
-            if ((ip == null) || (ip.Valid == false))
-                return -1;
-
-            // <2.17.3, require root
-            //return NativeMethods.PingIP(ip.ToString(), timeoutMs);
-
-            {
-                float iMS = -1;
-
-                string pingPath = LocateExecutable("ping");
-                if (pingPath != "")
-                {
-                    SystemExec exec = new SystemExec();
-                    exec.Path = pingPath;
-                    exec.Arguments.Add("-c 1");
-                    exec.Arguments.Add("-w " + timeoutSec.ToString());
-                    exec.Arguments.Add("-q");
-                    exec.Arguments.Add("-n");
-                    exec.Arguments.Add(ip.Address);
-                    exec.NoDebugLog = true;
-
-                    if (exec.Run())
-                    {
-                        string result = exec.Output;
-                        string sMS = UtilsString.ExtractBetween(result.ToLowerInvariant(), "min/avg/max/mdev = ", "/");
-                        if (float.TryParse(sMS, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out iMS) == false)
-                            iMS = -1;
-                    }
-                }
-
-                return (long)iMS;
-            }
-        }
-        */
 
 		public override void RouteApply(Json jRoute, string action)
 		{
@@ -786,13 +629,13 @@ namespace Eddie.Platform.Linux
 			try
 			{
 #if EDDIE_DOTNET
-                int currentId = Environment.ProcessId;
+				int currentId = Environment.ProcessId;
 #else
-                int currentId = Process.GetCurrentProcess().Id;
+				int currentId = Process.GetCurrentProcess().Id;
 #endif
 
 
-                string path = DirectoryTemp() + DirSep + Constants.Name + "_" + Constants.AppID + ".pid";
+				string path = DirectoryTemp() + DirSep + Constants.Name + "_" + Constants.AppID + ".pid";
 				if (File.Exists(path) == false)
 				{
 				}
@@ -825,11 +668,11 @@ namespace Eddie.Platform.Linux
 			try
 			{
 #if EDDIE_DOTNET
-                int currentId = Environment.ProcessId;
+				int currentId = Environment.ProcessId;
 #else
-                int currentId = Process.GetCurrentProcess().Id;
+				int currentId = Process.GetCurrentProcess().Id;
 #endif
-                string path = DirectoryTemp() + DirSep + Constants.Name + "_" + Constants.AppID + ".pid";
+				string path = DirectoryTemp() + DirSep + Constants.Name + "_" + Constants.AppID + ".pid";
 				if (File.Exists(path))
 				{
 					int otherId;
@@ -846,11 +689,30 @@ namespace Eddie.Platform.Linux
 			}
 		}
 
-		public override bool NeedExecuteOutsideAppPath(string exePath)
+		public override string RootExecutionOutsideBundleAdapt(string exePath)
 		{
-			if (IsAppImageAndPathWithin(exePath))
-				return true;
-			return base.NeedExecuteOutsideAppPath(exePath);
+			if (Environment.GetEnvironmentVariable("APPIMAGE") == null)
+				return exePath;
+
+			if (exePath.StartsWithInv(GetApplicationPath()) == false)
+				return exePath;
+
+			// Copy to temporary file, will be deleted by RootExecutionOutsideBundleDelete
+
+			string name = new FileInfo(exePath).Name;
+			string newPath = DirectoryTemp() + DirSep + name;
+			if (File.Exists(newPath))
+				File.Delete(newPath);
+			File.Copy(exePath, newPath);
+			return newPath;
+		}
+
+		public override void RootExecutionOutsideBundleDelete(string exePath)
+		{
+			if (exePath.StartsWithInv(DirectoryTemp()))
+			{
+				System.IO.File.Delete(exePath);
+			}
 		}
 
 		public override void OnNetworkLockManagerInit()
@@ -930,7 +792,7 @@ namespace Eddie.Platform.Linux
 			{
 				m_dnsSwitch = dns.Clone();
 
-				if(m_dnsSwitch.Count > 0)
+				if (m_dnsSwitch.Count > 0)
 					Engine.Instance.Elevated.DoCommandSync("dns-switch-do", "dns", m_dnsSwitch.ToString());
 			}
 
@@ -940,7 +802,7 @@ namespace Eddie.Platform.Linux
 		}
 
 		public override bool OnDnsSwitchRestore()
-		{			
+		{
 			Engine.Instance.Elevated.DoCommandSync("dns-switch-restore");
 			m_dnsSwitch.Clear();
 
@@ -1109,13 +971,136 @@ namespace Eddie.Platform.Linux
 				return "";
 		}
 
-		public bool IsAppImageAndPathWithin(string path)
+		public int RunElevated(string[] arguments, bool waitEnd)
 		{
-			// This occur for example when elevated run openvpn exe in bundle: a root process (elevated) can't read an user volume (AppImage/fuse)
-			if (Environment.GetEnvironmentVariable("APPIMAGE") == null)
-				return false;
+			m_elevatedRunPath = GetElevatedHelperPath();
 
-			return path.StartsWith(GetApplicationPath(), StringComparison.InvariantCulture);
+			m_elevatedRunPath = RootExecutionOutsideBundleAdapt(m_elevatedRunPath);
+
+			string elevationMethod = Engine.Instance.StartCommandLine.Get("elevation", "auto");
+			bool redirectStdOut = false;
+			if (elevationMethod == "auto")
+			{
+				elevationMethod = "";
+
+				if ((elevationMethod == "") && (FileRunAsRoot(m_elevatedRunPath)))
+				{
+					// chown root:root eddie-cli-elevated
+					// chmod u+s eddie-cli-elevated
+					elevationMethod = "none";
+				}
+
+				if ((elevationMethod == "") && (IsElevatedPrivileges()))
+				{
+					// Already root access
+					elevationMethod = "none";
+				}
+
+				if ((elevationMethod == "") && (Engine.Instance.IsUiApp()) && (LocateExecutable("pkexec") != ""))
+				{
+					elevationMethod = "pkexec";
+				}
+
+				if ((elevationMethod == "") && (Engine.Instance.IsConsole()) && (LocateExecutable("sudo") != ""))
+				{
+					List<string> groups = new List<string>(SystemExec.Exec0(LocateExecutable("groups")).ToLowerInv().Split(' '));
+
+					if (groups.Contains("sudo")) // Ubuntu
+						elevationMethod = "sudo";
+					if (groups.Contains("wheel")) // Manjaro
+						elevationMethod = "sudo";
+				}
+
+				if ((elevationMethod == "") && (Engine.Instance.IsConsole()) && (LocateExecutable("su") != ""))
+				{
+					elevationMethod = "su"; // Debian
+				}
+
+				if ((elevationMethod == "") && (LocateExecutable("pkexec") != ""))
+				{
+					elevationMethod = "pkexec";
+				}
+			}
+
+			System.Diagnostics.Process process = new System.Diagnostics.Process();
+			if (elevationMethod == "none")
+			{
+				process.StartInfo.FileName = FileAdaptProcessExec(m_elevatedRunPath);
+#if EDDIE_DOTNET
+				foreach (string arg in arguments)
+					process.StartInfo.ArgumentList.Add(arg);
+#else
+				process.StartInfo.Arguments = String.Join(" ", arguments);
+#endif
+			}
+			else if (elevationMethod == "sudo")
+			{
+				// Under Ubuntu 23 and Manjaro (but not in Debian12), 
+				// sudo change terminal endofline, like https://askubuntu.com/questions/1457265/piping-sudo-command-through-another-command-adds-excess-whitespace
+				// Redirect the output prevent that.
+				redirectStdOut = true;
+
+				process.StartInfo.FileName = LocateExecutable("sudo");
+#if EDDIE_DOTNET
+				process.StartInfo.ArgumentList.Add(m_elevatedRunPath);
+				foreach (string arg in arguments)
+					process.StartInfo.ArgumentList.Add(arg);
+#else
+				process.StartInfo.Arguments = "\"" + m_elevatedRunPath + "\" " + String.Join(" ", arguments);
+#endif
+			}
+			else if (elevationMethod == "su")
+			{
+				// Under Ubuntu don't work, root disabled.
+				// Under Debian12 works.
+				process.StartInfo.FileName = "su";
+#if EDDIE_DOTNET
+				process.StartInfo.ArgumentList.Add("-c");
+				process.StartInfo.ArgumentList.Add(m_elevatedRunPath + " " + String.Join(" ", arguments));
+#else
+				process.StartInfo.Arguments = "-c \"'" + m_elevatedRunPath + "' " + String.Join(" ", arguments) + "\"";
+#endif
+			}
+			else if (elevationMethod == "pkexec")
+			{
+				process.StartInfo.FileName = LocateExecutable("pkexec");
+#if EDDIE_DOTNET
+				process.StartInfo.ArgumentList.Add(m_elevatedRunPath);
+				foreach (string arg in arguments)
+					process.StartInfo.ArgumentList.Add(arg);
+#else
+				process.StartInfo.Arguments = "\"" + m_elevatedRunPath + "\" " + String.Join(" ", arguments);
+#endif
+			}
+
+			if (process.StartInfo.FileName == "")
+			{
+				Engine.Instance.Logs.LogFatal("Unable to find a method to run elevated process.");
+				return 0;
+			}
+			else
+			{
+				process.StartInfo.WorkingDirectory = "";
+
+				process.StartInfo.Verb = "run";
+				process.StartInfo.CreateNoWindow = true;
+				process.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+				process.StartInfo.UseShellExecute = false;
+				if (redirectStdOut)
+					process.StartInfo.RedirectStandardOutput = true;
+
+				process.Start();
+
+				if (waitEnd)
+				{
+					process.WaitForExit();
+					return process.ExitCode;
+				}
+				else
+				{
+					return process.Id;
+				}
+			}
 		}
 	}
 

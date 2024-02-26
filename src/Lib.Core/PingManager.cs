@@ -30,6 +30,7 @@ namespace Eddie.Core
 
 		// DotNet implementation can be cleaned when Elevated implement PingEngine also in Windows platform // WIP
 		// DotNet implementation don't work well on other OS (for example, Mono under macOS don't implement IPv6)
+		// Old consideration, must be re-tested with dotnet sdk 7
 		protected bool m_dotnet = false;
 
 		public void Init()

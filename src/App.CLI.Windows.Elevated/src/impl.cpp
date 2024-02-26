@@ -31,7 +31,7 @@ Some code by ValdikSS
 
 #include "Windows.h"
 
-#include "impl.h"
+#include "..\include\impl.h"
 
 #include <fcntl.h>
 
@@ -56,9 +56,9 @@ Some code by ValdikSS
 #pragma comment(lib, "fwpuclnt.lib")
 #pragma comment(lib, "rpcrt4.lib")
 
-#include "yxml.h" // WFP utils, maybe converted in JSON in future
+#include "../../../dependencies/yxml/yxml.h" // WFP utils, maybe converted in JSON in future
 
-#include "wintun.h"
+#include "../../../dependencies/wintun/wintun.h"
 
 #include <regex>
 
