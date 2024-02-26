@@ -17,8 +17,7 @@ chmod +x repository/linux_common/deploy.sh
 chmod +x repository/linux_portable/build.sh
 chmod +x repository/linux_appimage/build.sh
 chmod +x repository/linux_debian/build.sh
-chmod +x repository/linux_fedora/build.sh
-chmod +x repository/linux_opensuse/build.sh
+chmod +x repository/linux_rpm/build.sh
 chmod +x repository/linux_arch/build.sh
 chmod +x repository/linux_arch/build_aur_stable.sh
 chmod +x repository/linux_arch/build_aur_git.sh
