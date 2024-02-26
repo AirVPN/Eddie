@@ -137,3 +137,11 @@ tests/**/*.dll
 tests/**/FakesAssemblies/*.*
 tests/**/bin/**/*.Fakes.*
 tests/**/bin/**/*.xml
+
+# AirVPN Staff
+bin
+obj
+repository/files/*
+repository/signing/*
+
+
