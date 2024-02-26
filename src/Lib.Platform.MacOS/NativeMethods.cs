@@ -25,7 +25,7 @@ namespace Eddie.Platform.MacOS
 {
 	public static class NativeMethods
 	{
-		public const string NativeLibName = "libLib.Platform.macOS.Native.dylib";
+		public const string NativeLibName = "libLib.Platform.MacOS.Native.dylib";
 
 		public enum FileMode
 		{

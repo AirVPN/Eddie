@@ -679,13 +679,13 @@
       <Project>{1E979B7C-E6AD-4C6F-8BA6-3E33A99FAD76}</Project>
       <Name>Lib.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Lib.Platform.macOS\Lib.Platform.macOS.csproj">
+    <ProjectReference Include="..\Lib.Platform.MacOS\Lib.Platform.macOS.csproj">
       <Project>{BB467ECB-CEC3-4610-A1AD-EE08952AC06B}</Project>
       <Name>Lib.Platform.MacOS</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <NativeReference Include="..\..\deploy\macos_x64\libLib.Platform.macOS.Native.dylib">
+    <NativeReference Include="..\..\deploy\macos_x64\libLib.Platform.MacOS.Native.dylib">
       <Kind>Dynamic</Kind>
       <SmartLink>False</SmartLink>
     </NativeReference>
