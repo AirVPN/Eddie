@@ -1,0 +1,83 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+		<PackageId>Eddie.App.CLI.Windows</PackageId>
+		<Title>Eddie-CLI-Windows</Title>
+		<Product>Eddie-CLI-Windows</Product>
+		<AssemblyTitle>Eddie-CLI-Windows</AssemblyTitle>
+		<Company>AirVPN</Company>
+		<FileVersion>2.24</FileVersion>
+		<AssemblyVersion>2.24</AssemblyVersion>
+		<ReleaseVersion>2.24</ReleaseVersion>		
+		<Authors>Eddie Team</Authors>
+		<PackageProjectUrl>https://eddie.website</PackageProjectUrl>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<TargetFramework>net7.0-windows</TargetFramework>
+		<RootNamespace>Eddie.App.UI.Windows</RootNamespace>
+		<AssemblyName>Eddie-UI</AssemblyName>
+		<OutputType>WinExe</OutputType>
+		<OutputPath>bin\$(Configuration)\</OutputPath>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+
+		<PublishSingleFile>true</PublishSingleFile>
+		<PublishReadyToRun>true</PublishReadyToRun>		
+    <SelfContained>true</SelfContained>
+		<PublishTrimmed>false</PublishTrimmed>
+
+		<ApplicationManifest>app.manifest</ApplicationManifest>
+		<ApplicationIcon>Resources\icon.ico</ApplicationIcon>
+	</PropertyGroup>
+
+
+  <PropertyGroup>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
+    <Platforms>x86;x64</Platforms>    
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>    
+  </PropertyGroup>   
+  
+
+  <ItemGroup>
+    <ProjectReference Include="..\Lib.Core\Lib.Core.net7.csproj" />
+    <ProjectReference Include="..\Lib.Forms\Lib.Forms.net7.csproj" />
+    <ProjectReference Include="..\Lib.Platform.Windows\Lib.Platform.Windows.net7.csproj" />
+  </ItemGroup>
+
+  <Target Name="WindowsPostBuild" AfterTargets="PostBuildEvent">
+		<Exec Command="$(ProjectDir)\postbuild.bat &quot;$(TargetDir)&quot; $(RuntimeIdentifier) $(ConfigurationName) net4" />
+	</Target>
+
+
+
+  <ItemGroup>
+    <None Update="app.manifest">
+      <SubType>Designer</SubType>
+    </None>
+    <None Update="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Content Include="Resources\icon.ico" />
+    <None Include="Resources\about_airvpn.png" />
+  </ItemGroup>  
+  <ItemGroup>
+    <PackageReference Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" Version="0.2.222702">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>  
+  <ItemGroup>
+    <Compile Update="Properties\Settings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+  </ItemGroup>  
+
+
+</Project>

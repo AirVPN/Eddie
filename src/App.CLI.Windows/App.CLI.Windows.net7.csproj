@@ -1,0 +1,58 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<PackageId>Eddie.App.CLI.Windows</PackageId>
+		<Title>Eddie-CLI-Windows</Title>
+		<Product>Eddie-CLI-Windows</Product>
+		<AssemblyTitle>Eddie-CLI-Windows</AssemblyTitle>
+		<Company>AirVPN</Company>
+		<FileVersion>2.24</FileVersion>
+		<AssemblyVersion>2.24</AssemblyVersion>
+		<ReleaseVersion>2.24</ReleaseVersion>		
+		<Authors>Eddie Team</Authors>
+		<PackageProjectUrl>https://eddie.website</PackageProjectUrl>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<TargetFramework>net7.0</TargetFramework>
+		<RootNamespace>Eddie.App.CLI.Windows</RootNamespace>
+		<AssemblyName>Eddie-CLI</AssemblyName>
+		<OutputType>Exe</OutputType>
+		<OutputPath>bin\$(Configuration)\</OutputPath>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+		<GenerateDocumentationFiles>true</GenerateDocumentationFiles>
+
+		<PublishSingleFile>true</PublishSingleFile>
+		<PublishReadyToRun>true</PublishReadyToRun>		
+    	<SelfContained>true</SelfContained>
+		<PublishTrimmed>false</PublishTrimmed>
+
+		<ApplicationManifest>app.manifest</ApplicationManifest>
+		<ApplicationIcon>Resources\icon.ico</ApplicationIcon>
+	</PropertyGroup>
+	
+	<ItemGroup>
+		<Compile Update="Properties\Resources.Designer.cs">
+			<AutoGen>True</AutoGen>
+			<DesignTime>True</DesignTime>
+			<DependentUpon>Resources.resx</DependentUpon>
+		</Compile>
+	</ItemGroup>
+	
+	<ItemGroup>
+		<EmbeddedResource Update="Properties\Resources.resx">
+			<Generator>ResXFileCodeGenerator</Generator>
+			<LastGenOutput>Resources.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Lib.Core\Lib.Core.net7.csproj" />
+		<ProjectReference Include="..\Lib.Platform.Windows\Lib.Platform.Windows.net7.csproj" />
+	</ItemGroup>
+
+	<Target Name="WindowsPostBuild" AfterTargets="PostBuildEvent">
+		<Exec Command="$(ProjectDir)\postbuild.bat &quot;$(TargetDir)&quot; $(RuntimeIdentifier) $(ConfigurationName)" />
+	</Target>
+
+</Project>

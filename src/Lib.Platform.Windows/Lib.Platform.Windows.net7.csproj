@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+		<PackageId>Eddie.Lib.Platform.Windows</PackageId>
+		<Title>Eddie-Windows</Title>
+		<Product>Eddie-Windows</Product>
+		<AssemblyTitle>Eddie-Windows</AssemblyTitle>
+		<Company>AirVPN</Company>
+		<FileVersion>2.24</FileVersion>
+		<AssemblyVersion>2.24</AssemblyVersion>
+		<ReleaseVersion>2.24</ReleaseVersion>		
+		<Authors>Eddie Team</Authors>
+		<PackageProjectUrl>https://eddie.website</PackageProjectUrl>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<TargetFramework>net7.0</TargetFramework>
+		<RootNamespace>Eddie.Platform.Windows</RootNamespace>
+		<AssemblyName>Lib.Platform.Windows</AssemblyName>
+		<OutputType>Library</OutputType>
+		<OutputPath>bin\$(Configuration)\</OutputPath>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<DefineConstants>EDDIE_DOTNET</DefineConstants>
+	</PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Lib.Core\Lib.Core.net7.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
+  </ItemGroup>  
+</Project>
