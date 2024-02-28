@@ -7,13 +7,18 @@ realpath() {
 }
 
 SCRIPTDIR=$(dirname $(realpath "$0"))
-REMOTEDIR=$2
-if [[ ${REMOTEDIR} == "internal" ]]; then 
-    REMOTEDIR=/home/www/repository/eddie/internal
-fi
+FILEPACKAGE=$1
 
 if test -f "${SCRIPTDIR}/../signing/eddie.website_deploy.key"; then # Staff AirVPN
+
+    REMOTEDIR=$2
+    if [[ ${REMOTEDIR} == "internal" ]]; then 
+        REMOTEDIR=/home/www/repository/eddie/internal
+    fi
+
 	chmod 600 "${SCRIPTDIR}/../signing/eddie.website_deploy.key"
-    echo Send to eddie.website server: $1
-	scp -P 46333 -i "${SCRIPTDIR}/../signing/eddie.website_deploy.key" "$1"  deploy@eddie.website:${REMOTEDIR}
+    echo Send to eddie.website server: ${FILEPACKAGE}
+	scp -P 46333 -i "${SCRIPTDIR}/../signing/eddie.website_deploy.key" "${FILEPACKAGE}"  deploy@eddie.website:${REMOTEDIR}
+else
+    echo "Deploy of ${FILEPACKAGE} skipped, no keys found.";
 fi

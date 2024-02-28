@@ -100,6 +100,7 @@ elif [ $PROJECT = "ui" ]; then
         # msbuild/Mono under Linux don't honor the postbuild event, called manually
         "${SCRIPTDIR}/../../src/App.Forms.Linux/postbuild.sh" "${SCRIPTDIR}/../../src/App.Forms.Linux/bin/x64/${CONFIG}/" ${ARCH} ${CONFIG}
         
+        cp "${SCRIPTDIR}/../../src/App.Forms.Linux.Tray/bin/"eddie-tray ${TARGETBINDIR}/eddie-tray
         cp "${SCRIPTDIR}/../../src/App.Forms.Linux/bin/x64/${CONFIG}"/App.Forms.Linux.exe ${TARGETBINDIR}/eddie-ui.exe
         cp "${SCRIPTDIR}/../../src/App.Forms.Linux/bin/x64/${CONFIG}"/Lib.Core.dll ${TARGETBINDIR}/
         cp "${SCRIPTDIR}/../../src/App.Forms.Linux/bin/x64/${CONFIG}"/Lib.Platform.Linux.dll ${TARGETBINDIR}/
@@ -173,6 +174,7 @@ find ${TARGETBINDIR} -type f -exec chmod 644 {} +;
 chmod 755 "${TARGETBINDIR}/eddie-cli"
 if [ $PROJECT = "ui" ]; then
     chmod 755 "${TARGETBINDIR}/eddie-ui"
+    chmod 755 "${TARGETBINDIR}/eddie-tray"
 fi
 chmod 755 "${TARGETBINDIR}/eddie-cli-elevated"
 chmod 755 "${TARGETBINDIR}/openvpn"

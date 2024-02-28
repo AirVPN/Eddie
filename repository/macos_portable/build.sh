@@ -40,7 +40,7 @@ VERSION=$($SCRIPTDIR/../macos_common/get-version.sh)
 # We compile native on each MacOS architecture, cross-compiling not supported.
 ARCHOS=$($SCRIPTDIR/../macos_common/get-arch.sh)
 if [ ${ARCH} != ${ARCHOS} ]; then
-    echo "Skip on this OS"
+    echo "Portable build for '${ARCH}' arch build skipped on this OS, cross-compiling not supported."
     exit 0;
 fi
 
@@ -216,17 +216,14 @@ cd "${TARGETDIR}/"
 zip -r "${FINALPATH}" ${TARGETMAINDIR}
 
 # Sign archive
-
 "${SCRIPTDIR}/../macos_common/sign.sh" "${FINALPATH}" yes $VARHARDENING
 
 # Notarization
-
 if [ ${VARHARDENING} = "yes" ]; then    
     "${SCRIPTDIR}/../macos_common/notarize.sh" "${FINALPATH}"
 fi
 
 # Deploy to eddie.website
-
 "${SCRIPTDIR}/../macos_common/deploy.sh" "${FINALPATH}" "internal"
 
 # End

@@ -49,9 +49,9 @@ IF exist %VARDEPLOYPATH% (
 ) 
 
 %VARSCRIPTDIR%\..\windows_common\7za.exe -y x "%VARSCRIPTDIR%\..\files\eddie-%VARPROJECT%_%VARVERSION%_%VAROS%_%VARARCH%_portable.zip" -o"%VARTARGETDIR%" || goto :error
+del "%VARTARGETDIR%\eddie-%VARPROJECT%_%VARVERSION%_%VAROS%_%VARARCH%_portable\portable.txt"
 xcopy /s /e /i /Y "%VARTARGETDIR%\eddie-%VARPROJECT%_%VARVERSION%_%VAROS%_%VARARCH%_portable\*" "%VARTARGETDIR%\*" || goto :error
 rmdir /s /q "%VARTARGETDIR%\eddie-%VARPROJECT%_%VARVERSION%_%VAROS%_%VARARCH%_portable" || goto :error
-rm "%VARTARGETDIR%\eddie-%VARPROJECT%_%VARVERSION%_%VAROS%_%VARARCH%_portable\portable.txt"
 
 rem Build NSIS script
 "%VARSCRIPTDIR%\nsis-helper.exe" "%VARARCH%" "%VARTARGETDIR%" "%VARFINALPATH%" || goto :error

@@ -12,8 +12,6 @@ APPLE_NOTARYTOOL_FILEPATH=$1
 
 SCRIPTDIR=$(dirname $(realpath "$0"))
 
-# Staff AirVPN only
-
 if test -f "${SCRIPTDIR}/../signing/apple-dev-id.txt"; then 
     
     # Remember: ensure .txt files are UTF8 without BOM
@@ -34,11 +32,11 @@ if test -f "${SCRIPTDIR}/../signing/apple-dev-id.txt"; then
     # Note: don't work with .zip, ignore, for this "|| true"
     xcrun stapler staple "${APPLE_NOTARYTOOL_FILEPATH}" || true
     xcrun stapler validate "${APPLE_NOTARYTOOL_FILEPATH}" || true
-
-    exit 0
+else
+    echo "Notarization of ${APPLE_NOTARYTOOL_FILEPATH} skipped, no keys found.";
 fi
 
-exit 1
+exit 0
 
 
 

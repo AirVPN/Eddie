@@ -235,6 +235,7 @@ Unicode True
 		Delete "$INSTDIR\AirVPN.exe"
 		Delete "$INSTDIR\ssleay32.dll"
 		Delete "$INSTDIR\libeay32.dll"
+		Delete "$INSTDIR\portable.txt"
 		
 		; VCRuntime
 		

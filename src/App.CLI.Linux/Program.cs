@@ -19,7 +19,7 @@ namespace Eddie.App.CLI.Linux
 	internal sealed class Program
 	{
 		static void Main(string[] args)
-		{			
+		{
 			Core.ConsoleEdition.Program.Init();
 
 			Core.Platform.Instance = new Eddie.Platform.Linux.Platform();

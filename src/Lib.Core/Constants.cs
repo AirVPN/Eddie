@@ -30,8 +30,8 @@ namespace Eddie.Core
 		public static string PasswordIfEmpty = "e6552ddf3ac5c8755a82870d91273a63eab0da1e";
 		public static string WintunPool = "Eddie";
 		public static string Thanks = "Clodo, PJ, reiandrea, ProMIND, Berserker, OpenSourcerer, zhang888, LZ1, giganerd, Uncle Hunto, go558a83nk, sheivoko, NaDre, pfSense_fan, x0wllaar, cmaves";
-		public static int VersionInt = 290;
-		public static string VersionDesc = "2.24.0"; // Used by deploy system also to generate filenames
+		public static int VersionInt = 291;
+		public static string VersionDesc = "2.24.1"; // Used by deploy system also to generate filenames
 		public static bool VersionBeta = true;
 		public static string Domain = "eddie.website";
 		public static string WebSite = "https://eddie.website";

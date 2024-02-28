@@ -29,12 +29,7 @@ VARHARDENING=$3
 #VARFORCE="yes"
 #VARHARDENING="no"
 
-VARSTAFF="no"
 if test -f "${SCRIPTDIR}/../signing/apple-dev-id.txt"; then # Staff AirVPN
-    VARSTAFF="yes"
-fi
-
-if [ ${VARSTAFF} = "yes" ]; then
     echo Signing, checking: ${VARPATH}    
     DOSIGN=${VARFORCE}
 
@@ -78,3 +73,5 @@ if [ ${VARSTAFF} = "yes" ]; then
 else
     echo "Signature of ${VARPATH} skipped, no keys found.";
 fi
+
+exit 0

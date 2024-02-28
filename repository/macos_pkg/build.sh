@@ -42,7 +42,7 @@ fi
 
 ARCHOS=$($SCRIPTDIR/../macos_common/get-arch.sh)
 if [ ${ARCH} != ${ARCHOS} ]; then
-    echo "Skip on this OS"
+    echo "PKG build for '${ARCH}' arch build skipped on this OS, cross-compiling not supported."
     exit 0;
 fi
 
