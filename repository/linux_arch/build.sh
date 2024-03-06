@@ -47,7 +47,6 @@ function arch_env() {
 		sed -i "s|{@pkgdesc}|Eddie - VPN tunnel|g" PKGBUILD    
 		if [ "${PROJECT}" = "cli" ]; then
 			sed -i "s|{@pkgdesc}|Eddie - VPN tunnel - CLI - prebuilt|g" PKGBUILD    
-			#sed -i "s|{@pkgdepends}|(mono curl openvpn sudo)|g" PKGBUILD # TOCLEAN, pre 2.24.0
 			sed -i "s|{@pkgdepends}|(curl openvpn sudo)|g" PKGBUILD
 			sed -i "s|{@pkgmakedepends}|(cmake dotnet-sdk)|g" PKGBUILD
 		elif [ "${PROJECT}" = "ui" ]; then
@@ -73,11 +72,12 @@ function arch_env() {
 			sed -i "s|{@pkgname}|eddie-${PROJECT}-git|g" PKGBUILD    
 			if [ "${PROJECT}" = "cli" ]; then
 				sed -i "s|{@pkgdesc}|Eddie - VPN tunnel - CLI|g" PKGBUILD    
-				#sed -i "s|{@pkgdepends}|(mono curl openvpn sudo)|g" PKGBUILD # TOCLEAN, pre 2.24.0
 				sed -i "s|{@pkgdepends}|(curl openvpn sudo)|g" PKGBUILD
+				sed -i "s|{@pkgmakedepends}|(cmake dotnet-sdk)|g" PKGBUILD
 			else
 				sed -i "s|{@pkgdesc}|Eddie - VPN tunnel - UI|g" PKGBUILD    
 				sed -i "s|{@pkgdepends}|(mono curl openvpn sudo polkit desktop-file-utils libnotify libayatana-appindicator patchelf)|g" PKGBUILD
+				sed -i "s|{@pkgmakedepends}|(cmake dotnet-sdk mono-msbuild mono)|g" PKGBUILD
 			fi
 			sed -i "s|{@source}|git+https://github.com/AirVPN/Eddie.git|g" PKGBUILD    
 			sed -i "s|cd \"Eddie-\$pkgver\"|cd \"Eddie\"|g" PKGBUILD
@@ -97,11 +97,12 @@ function arch_env() {
 			sed -i "s|{@pkgname}|eddie-${PROJECT}|g" PKGBUILD    
 			if [ "${PROJECT}" = "cli" ]; then
 				sed -i "s|{@pkgdesc}|Eddie - VPN tunnel - CLI|g" PKGBUILD    
-				#sed -i "s|{@pkgdepends}|(mono curl openvpn sudo)|g" PKGBUILD # TOCLEAN, pre 2.24.0
 				sed -i "s|{@pkgdepends}|(curl openvpn sudo)|g" PKGBUILD
+				sed -i "s|{@pkgmakedepends}|(cmake dotnet-sdk)|g" PKGBUILD
 			else
 				sed -i "s|{@pkgdesc}|Eddie - VPN tunnel - UI|g" PKGBUILD
 				sed -i "s|{@pkgdepends}|(mono curl openvpn sudo polkit desktop-file-utils libnotify libayatana-appindicator patchelf)|g" PKGBUILD
+				sed -i "s|{@pkgmakedepends}|(cmake dotnet-sdk mono-msbuild mono)|g" PKGBUILD
 			fi
 			sed -i "s|{@source}|https://github.com/AirVPN/Eddie/archive/${VERSIONSTABLE}.tar.gz|g" PKGBUILD    
 			if test -f "${SCRIPTDIR}/../signing/aur.key.password.txt"; then # Staff AirVPN

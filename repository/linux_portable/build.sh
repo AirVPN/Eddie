@@ -132,15 +132,26 @@ elif [ $PROJECT = "ui" ]; then
         fi
 
         # Update config
-        cp ${HOME}/.mono/targets/${MKBUNDLECROSSTARGET}/etc/mono/config ${SCRIPTDIR}/mkbundle.config
-        sed -i 's/\$mono_libdir\///g' ${SCRIPTDIR}/mkbundle.config
+        # Removed in 2.24.2, now use a dllmap.config
+        #cp ${HOME}/.mono/targets/${MKBUNDLECROSSTARGET}/etc/mono/config ${SCRIPTDIR}/mkbundle.config
+        #sed -i 's/\$mono_libdir\///g' ${SCRIPTDIR}/mkbundle.config
 
         # Remember: libMonoPosixHelper.so and libmono-native.so are required for System.IO.File operations
         # Without --config, throw issue about Mono.Unix.Native.Syscall        
-        # Using '-L /usr/lib/mono/4.5' cause mscorlib mismatch
+        
         cd ${TARGETBINDIR}
+
+        # Using '-L /usr/lib/mono/4.5' cause mscorlib mismatch
         #mkbundle eddie-ui.exe -o eddie-${PROJECT} --cross ${MKBUNDLECROSSTARGET} --i18n all -L /usr/local/lib/mono/4.5 --config ${SCRIPTDIR}/mkbundle.config --library ${SCRIPTDIR}/mkbundle/${ARCH}/libMonoPosixHelper.so --library ${SCRIPTDIR}/mkbundle/${ARCH}/libgdiplus.so.0 --library /usr/lib/libmono-native.so
-        mkbundle eddie-ui.exe -o eddie-${PROJECT} --cross ${MKBUNDLECROSSTARGET} --i18n all --config ${SCRIPTDIR}/mkbundle.config --library ${SCRIPTDIR}/mkbundle/${ARCH}/libMonoPosixHelper.so --library ${SCRIPTDIR}/mkbundle/${ARCH}/libgdiplus.so.0 --library /usr/lib/libmono-native.so
+
+        # 2023-03-04 notes
+        # OpenSUSE / Fedora works, the 3 --library are bundled correctly.
+        # Arch: untested
+        # Raspbian: untested
+        # Debian: throw error, search /usr/lib/../lib/libMonoPosixHelper.so
+        # - Unresolved.
+        # - Solution: mono-runtime-common as dependencies, but 'portable' don't work standalone.  
+        mkbundle eddie-ui.exe -o eddie-${PROJECT} --cross ${MKBUNDLECROSSTARGET} --i18n all --simple --no-machine-config --config ${SCRIPTDIR}/mkbundle/dllmap.config --deps --library ${SCRIPTDIR}/mkbundle/${ARCH}/libgdiplus.so.0 --library ${SCRIPTDIR}/mkbundle/${ARCH}/libmono-native.so --library ${SCRIPTDIR}/mkbundle/${ARCH}/libMonoPosixHelper.so
 
         rm -f ${TARGETBINDIR}/eddie-ui.exe # Linked with mkbundle
         rm -f ${TARGETBINDIR}/App.Forms.Linux.exe # Linked with mkbundle

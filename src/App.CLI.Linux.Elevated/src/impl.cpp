@@ -227,80 +227,82 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 				std::string resolveNetifPath = "/run/systemd/resolve/netif";
 				if(FsDirectoryExists(resolveNetifPath))
 				{
-					std::vector<std::string> interfaces = GetNetworkInterfacesNames();
-
-					int iFaceIndex = 0;
-					for (std::vector<std::string>::const_iterator iIFace = interfaces.begin(); iIFace != interfaces.end(); ++iIFace)
+					struct if_nameindex *ifndx, *iface;
+					ifndx = if_nameindex();
+					if (ifndx != NULL)
 					{
-						std::string interface = (*iIFace);
-						iFaceIndex++;
-
-						if(interface == "lo") continue;
-						if(interface == "lo0") continue;
-
-						bool actionPerformed = false;
-
-						std::string expectedServers = StringFromVector(dns, " ");
-						std::string expectedDefaultRoute = StringStartsWith(interface, "tun") ? "yes":"no";
-
-						std::string servers;
-						std::string defaultRoute;
-
-						std::string resolveNetifAdapterPath = resolveNetifPath + FsPathSeparator + std::to_string(iFaceIndex);
-						if(FsFileExists(resolveNetifAdapterPath))
+						for(iface = ifndx; iface->if_index != 0 || iface->if_name != NULL; iface++)
 						{
-							if(check == false)
-							{
-								// Backup at start
-								std::string resolveNetifAdapterBackupPath = "/etc/systemd_resolve_netif_" + interface + ".eddievpn";								
-								if(FsFileExists(resolveNetifAdapterBackupPath) == false)
-								{
-									FsFileWriteText(resolveNetifAdapterBackupPath, FsFileReadText(resolveNetifAdapterPath));
-								}
-							}	
+							int iFaceIndex = iface->if_index;
+							std::string iFaceName = iface->if_name;
 
-							std::map<std::string, std::string> resolveNetIfMap = IniConfigToMap(FsFileReadText(resolveNetifAdapterPath), "", true);
-							if (resolveNetIfMap.find("servers") != resolveNetIfMap.end())
-								servers = resolveNetIfMap["servers"];
-							if (resolveNetIfMap.find("default_route") != resolveNetIfMap.end())
-								defaultRoute = resolveNetIfMap["default_route"];							
-						}
+							if(iFaceName == "lo") continue;
+							if(iFaceName == "lo0") continue;
 
-						if(servers != expectedServers)
-						{
-							std::vector<std::string> args;
-							args.push_back("dns");
-							args.push_back(StringEnsureInterfaceName(interface));
+							std::string expectedServers = StringFromVector(dns, " ");
+							std::string expectedDefaultRoute = StringStartsWith(iFaceName, "tun") ? "yes":"no";
+
+							std::string servers;
+							std::string defaultRoute;
+
+							std::string resolveNetifAdapterPath = resolveNetifPath + FsPathSeparator + std::to_string(iFaceIndex);
 							
-							for (std::vector<std::string>::const_iterator iDns = dns.begin(); iDns != dns.end(); ++iDns)
+							if(FsFileExists(resolveNetifAdapterPath))
 							{
-								args.push_back(StringEnsureIpAddress(*iDns));
+								if(check == false)
+								{
+									// Backup at start
+									std::string resolveNetifAdapterBackupPath = "/etc/systemd_resolve_netif_" + iFaceName + ".eddievpn";								
+									if(FsFileExists(resolveNetifAdapterBackupPath) == false)
+									{
+										FsFileWriteText(resolveNetifAdapterBackupPath, FsFileReadText(resolveNetifAdapterPath));
+									}
+								}	
+
+								std::map<std::string, std::string> resolveNetIfMap = IniConfigToMap(FsFileReadText(resolveNetifAdapterPath), "", true);
+								if (resolveNetIfMap.find("servers") != resolveNetIfMap.end())
+									servers = resolveNetIfMap["servers"];
+								if (resolveNetIfMap.find("default_route") != resolveNetIfMap.end())
+									defaultRoute = resolveNetIfMap["default_route"];
 							}
-							ExecResult execResultDns = ExecEx(resolvectlPath, args);
-							if (execResultDns.exit != 0)
-								ThrowException("resolvectl issue: " + GetExecResultReport(execResultDns));
 
-							actionPerformed = true;
+							if(servers != expectedServers)
+							{
+								std::vector<std::string> args;
+								args.push_back("dns");
+								args.push_back(StringEnsureInterfaceName(iFaceName));
+								
+								for (std::vector<std::string>::const_iterator iDns = dns.begin(); iDns != dns.end(); ++iDns)
+								{
+									args.push_back(StringEnsureIpAddress(*iDns));
+								}
+								ExecResult execResultDns = ExecEx(resolvectlPath, args);
+								if (execResultDns.exit != 0)
+									ThrowException("resolvectl issue: " + GetExecResultReport(execResultDns));
+
+								success = true;
+
+								LogRemote("DNS of the interface '" + iFaceName + "' switched to VPN DNS - via systemd-resolved (from '" + servers + "' to '" + expectedServers + "')");
+							}
+
+							if(defaultRoute != expectedDefaultRoute)
+							{
+								std::vector<std::string> args;
+								args.push_back("default-route");
+								args.push_back(StringEnsureInterfaceName(iFaceName));
+								args.push_back(StringStartsWith(iFaceName, "tun") ? "true":"false");
+								ExecResult execResultDefaultRoute = ExecEx(resolvectlPath, args);
+								if (execResultDefaultRoute.exit != 0)
+									ThrowException("resolvectl issue: " + GetExecResultReport(execResultDefaultRoute));
+
+								success = true;
+
+								LogRemote("Default Route of the interface '" + iFaceName + "' switched to VPN Route - via systemd-resolved (from '" + defaultRoute + "' to '" + expectedDefaultRoute + "')");
+							}
+							
 						}
 
-						if(defaultRoute != expectedDefaultRoute)
-						{
-							std::vector<std::string> args;
-							args.push_back("default-route");
-							args.push_back(StringEnsureInterfaceName(interface));
-							args.push_back(StringStartsWith(interface, "tun") ? "true":"false");
-							ExecResult execResultDefaultRoute = ExecEx(resolvectlPath, args);
-							if (execResultDefaultRoute.exit != 0)
-								ThrowException("resolvectl issue: " + GetExecResultReport(execResultDefaultRoute));
-
-							actionPerformed = true;
-						}
-
-						if(actionPerformed)
-						{
-							LogRemote("DNS of the interface '" + interface + "' switched to VPN DNS - via systemd-resolved");
-							success = true;
-						}
+						if_freenameindex(ifndx);
 					}
 				}
 				else
@@ -395,67 +397,75 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 			std::string resolvectlPath = FsLocateExecutable("resolvectl");
 			if (resolvectlPath != "")
 			{
-				std::vector<std::string> interfaces = GetNetworkInterfacesNames();
-
-				int iFaceIndex = 0;
-				for (std::vector<std::string>::const_iterator iIFace = interfaces.begin(); iIFace != interfaces.end(); ++iIFace)
+				struct if_nameindex *ifndx, *iface;
+				ifndx = if_nameindex();
+				if (ifndx != NULL)
 				{
-					std::string interface = (*iIFace);
-					iFaceIndex++;
-
-					if(interface == "lo") continue;
-					if(interface == "lo0") continue;
-
-					std::string resolveNetifAdapterBackupPath = "/etc/systemd_resolve_netif_" + interface + ".eddievpn";
-
-					if(FsFileExists(resolveNetifAdapterBackupPath))
+					for(iface = ifndx; iface->if_index != 0 || iface->if_name != NULL; iface++)
 					{
-						std::map<std::string, std::string> resolveNetIfMap = IniConfigToMap(FsFileReadText(resolveNetifAdapterBackupPath), "", true);
+						//int iFaceIndex = iface->if_index;
+						std::string iFaceName = iface->if_name;
+						
+						if(iFaceName == "lo") continue;
+						if(iFaceName == "lo0") continue;
 
-						if (resolveNetIfMap.find("servers") != resolveNetIfMap.end())
+						std::string resolveNetifAdapterBackupPath = "/etc/systemd_resolve_netif_" + iFaceName + ".eddievpn";
+
+						if(FsFileExists(resolveNetifAdapterBackupPath))
+						{
+							std::map<std::string, std::string> resolveNetIfMap = IniConfigToMap(FsFileReadText(resolveNetifAdapterBackupPath), "", true);
+
+							if (resolveNetIfMap.find("servers") != resolveNetIfMap.end())
+							{
+								std::vector<std::string> args;
+								args.push_back("dns");
+								args.push_back(StringEnsureInterfaceName(iFaceName));
+								std::string servers = resolveNetIfMap["servers"];
+								args.push_back(servers);
+								ExecResult execResultDns = ExecEx(resolvectlPath, args);
+								// No exception if fail
+								//if (execResultDns.exit != 0)
+								//	ThrowException("resolvectl issue: " + GetExecResultReport(execResultDns));
+
+								LogRemote("DNS of the interface '" + iFaceName + "' restored to '" + servers + "' - via systemd-resolved");
+							}
+
+							if (resolveNetIfMap.find("default_route") != resolveNetIfMap.end())
+							{
+								std::vector<std::string> args;
+								args.push_back("default-route");
+								args.push_back(StringEnsureInterfaceName(iFaceName));
+								std::string defaultRouteValue = (resolveNetIfMap["default_route"] == "yes") ? "yes":"no";
+								args.push_back(defaultRouteValue);
+								ExecResult execResultDefaultRoute = ExecEx(resolvectlPath, args);
+								// No exception if fail
+								//if (execResultDefaultRoute.exit != 0)
+								//	ThrowException("resolvectl issue: " + GetExecResultReport(execResultDefaultRoute));
+
+								LogRemote("Default Route of the interface '" + iFaceName + "' restored to '" + defaultRouteValue + "' - via systemd-resolved");
+							}
+
+							FsFileDelete(resolveNetifAdapterBackupPath);							
+						}
+						/*
+						else
 						{
 							std::vector<std::string> args;
-							args.push_back("dns");
+							args.push_back("revert");
 							args.push_back(StringEnsureInterfaceName(interface));
-							args.push_back(resolveNetIfMap["servers"]);							
-							ExecResult execResultDns = ExecEx(resolvectlPath, args);
+							ExecResult execResultRevert = ExecEx(resolvectlPath, args);
 							// No exception if fail
-							//if (execResultDns.exit != 0)
-							//	ThrowException("resolvectl issue: " + GetExecResultReport(execResultDns));
+							//if (execResultRevert.exit != 0)
+							//	ThrowException("resolvectl issue: " + GetExecResultReport(execResultRevert));						
+
+							LogRemote("DNS of the interface '" + interface + "' restored - via systemd-resolved, revert");
 						}
+						*/
 
-						if (resolveNetIfMap.find("default_route") != resolveNetIfMap.end())
-						{
-							std::vector<std::string> args;
-							args.push_back("default-route");
-							args.push_back(StringEnsureInterfaceName(interface));
-							args.push_back((resolveNetIfMap["default_route"] == "yes") ? "yes":"no");
-							ExecResult execResultDefaultRoute = ExecEx(resolvectlPath, args);
-							// No exception if fail
-							//if (execResultDefaultRoute.exit != 0)
-							//	ThrowException("resolvectl issue: " + GetExecResultReport(execResultDefaultRoute));
-						}
-
-						FsFileDelete(resolveNetifAdapterBackupPath);
-
-						LogRemote("DNS of the interface '" + interface + "' restored - via systemd-resolved");
+						success = true;
 					}
-					/*
-					else
-					{
-						std::vector<std::string> args;
-						args.push_back("revert");
-						args.push_back(StringEnsureInterfaceName(interface));
-						ExecResult execResultRevert = ExecEx(resolvectlPath, args);
-						// No exception if fail
-						//if (execResultRevert.exit != 0)
-						//	ThrowException("resolvectl issue: " + GetExecResultReport(execResultRevert));						
 
-						LogRemote("DNS of the interface '" + interface + "' restored - via systemd-resolved, revert");
-					}
-					*/
-
-					success = true;
+					if_freenameindex(ifndx);
 				}
 			}
 		}
@@ -1628,6 +1638,8 @@ bool Impl::ServiceUninstall()
 	return true;
 }
 
+// PAZZO TOCLEAN
+/*
 std::vector<std::string> Impl::GetNetworkInterfacesNames()
 {
 	// This code compile under macOS, but return nothing. Different approach.
@@ -1639,7 +1651,7 @@ std::vector<std::string> Impl::GetNetworkInterfacesNames()
 	{
 		for(iface = ifndx; iface->if_index != 0 || iface->if_name != NULL; iface++)
 		{
-			result.push_back(iface->if_name);
+			result.push_back(std::string(iface->if_name));
 		}
 
 		if_freenameindex(ifndx);
@@ -1647,6 +1659,7 @@ std::vector<std::string> Impl::GetNetworkInterfacesNames()
 
 	return result;
 }
+*/
 
 std::string Impl::CheckIfClientPathIsAllowed(const std::string& path)
 {

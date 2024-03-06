@@ -634,9 +634,11 @@ namespace Eddie.Core
 			MainStepDeInit();
 
 			UiManager.Broadcast("engine.shutdown");
+
 			Terminated = true;
 			if (TerminateEvent != null)
 				TerminateEvent();
+
 			TerminateExit.Set();
 		}
 
@@ -1433,13 +1435,17 @@ namespace Eddie.Core
 				}
 			}
 
-			try
+
+			lock (list)
 			{
-				// TOFIX: in try/catch because some users report exception, "Failed to compare two elements in the array".
-				list.Sort();
-			}
-			catch (Exception)
-			{
+				try
+				{
+					// In try/catch because some users report exception, "Failed to compare two elements in the array".
+					list.Sort();
+				}
+				catch (Exception)
+				{
+				}
 			}
 
 			return list;

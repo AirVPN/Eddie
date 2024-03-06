@@ -333,7 +333,7 @@ namespace Eddie.Forms.Controls
 
 				try
 				{
-					Sort();
+					Sort(); // Generally <10ms
 				}
 				catch (Exception)
 				{

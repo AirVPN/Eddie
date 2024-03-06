@@ -20,6 +20,7 @@
 
 #include <arpa/inet.h>
 #include <fstream>
+#include <iostream>
 #include <iomanip>
 #include <linux/fs.h>
 #include <memory>
@@ -81,18 +82,30 @@ extern "C" {
 
 	int eddie_file_get_immutable(const char* filename)
 	{
-		FILE* fp;
+        struct stat fileStat;
+        if (stat(filename, &fileStat) == -1)
+        {
+            return -1;
+        }
+        
+        if(S_ISFIFO(fileStat.st_mode))
+        {
+            // Otherwise will lock on fopen
+            return -1;
+        }
+    
+        FILE* fp;
 		if ((fp = fopen(filename, "r")) == NULL)
 			return -1;
-
+        
 		int result = -1;
 
 		int attr = 0;
 		if (ioctl(fileno(fp), FS_IOC_GETFLAGS, &attr) != -1)
 			result = (attr & FS_IMMUTABLE_FL) == FS_IMMUTABLE_FL;
-
+        
 		fclose(fp);
-
+        
 		return result;
 	}
 

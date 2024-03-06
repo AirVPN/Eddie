@@ -251,20 +251,9 @@ static void onMenuItemClick(GtkWidget *widget, gpointer data)
         writeOutput(menuItemID);
 }
 
-/*
-static void onExitCallback(GtkWidget *widget, gpointer data)
-{
-    writeOutput(FIFO_MENU_EXIT);
-
-    //doQuit();
-}
-*/
-
 static void quitHandler(int e)
 {
-    std::cout << "quitHandler" << std::endl;
-
-	doQuit();
+    doQuit();
 }
 
 static GtkWidget * createMenuItem(const std::string &id, const std::string &label, GtkWidget *parent, GtkWidget *icon = nullptr, void (* callback)(GtkWidget *widget, gpointer data) = nullptr)
@@ -520,7 +509,7 @@ static bool sendExitMessage(const std::string &filename)
     std::fstream tmp(filename.c_str());
     if(!tmp.is_open())
     {
-        std::cerr << "Failed to open '" << filename << "'";
+        // std::cerr << "Failed to open '" << filename << "'";
         return false;
     }
 
@@ -535,7 +524,7 @@ int main(int argc, char *argv[])
     g_rootPath = getCurrentPath();
     if(g_rootPath.empty())
     {
-        std::cerr << "Failed to get the current path" << std::endl;
+        // std::cerr << "Failed to get the current path" << std::endl;
         return -1;
     }
 
@@ -572,37 +561,39 @@ int main(int argc, char *argv[])
 
     if(mkfifo(inputFile.c_str(), 0666) != 0)
     {
-        std::cerr << "Failed to create '" << inputFile << "' input fifo";
+        // std::cerr << "Failed to create '" << inputFile << "' input fifo";
         return -1;
     }
 
     if(mkfifo(outputFile.c_str(), 0666) != 0)
     {
-        std::cerr << "Failed to create '" << outputFile << "' output fifo";
+        // std::cerr << "Failed to create '" << outputFile << "' output fifo";
         return -1;
     }
 
     g_fifoRead.reset(new std::fstream(inputFile.c_str()));
     if(!g_fifoRead->is_open())
     {
-        std::cerr << "Failed to open '" << inputFile << "'";
+        // std::cerr << "Failed to open '" << inputFile << "'";
         return -1;
     }
     g_fifoWrite.reset(new std::fstream(outputFile.c_str()));
     if(!g_fifoWrite->is_open())
     {
-        std::cerr << "Failed to open '" << outputFile << "'";
+        // std::cerr << "Failed to open '" << outputFile << "'";
         return -1;
     }
     g_fifoWatch = open(outputFile.c_str(), O_RDONLY);
     if(g_fifoWatch == -1)
     {
-        std::cerr << "Failed to create watcher of '" << outputFile << "'";
+        // std::cerr << "Failed to create watcher of '" << outputFile << "'";
         return -1;
     }
 
     g_fifoThread.reset(new std::thread(parseFifoCommands));
+    g_fifoThread->detach();
     g_watchThread.reset(new std::thread(watchCommands));
+    g_watchThread->detach();
 
     runUI(argc, argv);
 
@@ -614,8 +605,8 @@ int main(int argc, char *argv[])
         exit(-1);
     }
 
-    g_watchThread->join();
-    g_fifoThread->join();
+    //g_watchThread->join(); // 2.24.2, use detach() above, otherwise dump in cout a 'terminate called without an active exception'
+    //g_fifoThread->join(); // 2.24.2, use detach() above
 
     close(g_fifoWatch);
     g_fifoWatch = -1;

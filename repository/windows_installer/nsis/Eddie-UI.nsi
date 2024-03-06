@@ -274,11 +274,13 @@ Unicode True
 		!insertmacro MUI_STARTMENU_WRITE_BEGIN Application
 		
 		;Create shortcuts
+		SetShellVarContext all
 		CreateDirectory "$SMPROGRAMS\$STARTMENU_FOLDER"
 		CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\Eddie VPN - AirVPN.lnk" "$INSTDIR\Eddie-UI.exe" -path=home
-		CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\Website.lnk" "https://airvpn.org"
+		CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\Website.lnk" "https://eddie.website"
+		CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\Website AirVPN.lnk" "https://airvpn.org"
 		CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\Uninstall.lnk" "$INSTDIR\uninstall.exe"
-		CreateShortcut "$Desktop\Eddie VPN.lnk" "$INSTDIR\Eddie-UI.exe" -path=home
+		CreateShortcut "$Desktop\Eddie VPN - AirVPN.lnk" "$INSTDIR\Eddie-UI.exe" -path=home
 				
 		ExecWait '"$INSTDIR\Eddie-CLI-Elevated.exe" service=install'
 		

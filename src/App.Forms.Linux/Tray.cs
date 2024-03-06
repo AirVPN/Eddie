@@ -15,6 +15,8 @@ namespace Eddie.Forms.Linux
 		// So we mark when a real start is occured.
 		bool m_oneStart = false;
 
+		Process processTray;
+
 		public Tray()
 		{
 		}
@@ -32,6 +34,18 @@ namespace Eddie.Forms.Linux
 
 			// Mono treats FIFOs as if they are seekable (it's a bug), even though they aren't.
 			Platform.Linux.NativeMethods.PipeWrite(m_pathWrite, cmd + "\n");
+		}
+
+		public void Kill()
+		{
+			// SendCommand("action.exit");
+
+			CancelRequested = true;
+
+			if( (processTray != null) && (processTray.HasExited == false) )
+			{
+				Platform.Linux.NativeMethods.Kill(processTray.Id, 15);
+			}
 		}
 
 		public override void OnRun()
@@ -55,8 +69,7 @@ namespace Eddie.Forms.Linux
 					arguments.Add("-p " + pathRes);
 
 					string[] arguments2 = arguments.ToArray();
-
-					Process processTray;
+					
 					processTray = new Process();
 
 					processTray.StartInfo.FileName = Core.Platform.Instance.FileAdaptProcessExec(pathExe);

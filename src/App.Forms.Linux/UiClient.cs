@@ -36,11 +36,10 @@ namespace Eddie.Forms.Linux
 			string cmd = data["command"].Value as string;
 
 			if (cmd == "engine.shutdown")
-			{
+			{				
 				if (Tray != null)
 				{
-					Tray.CancelRequested = true;
-					Tray.SendCommand("action.exit");
+					Tray.Kill();
 					Tray = null;
 				}
 			}

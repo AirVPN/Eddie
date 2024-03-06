@@ -280,9 +280,9 @@ namespace Eddie.Forms.Forms
 
 			if (GuiUtils.IsWindows())
 			{
-				// TOFIX: Under Mono crash...
+				// In old version of Mono, crash.
+				// In newest the tooltip don't show anyway, so skip.
 				m_toolTip = new Controls.ToolTip();
-
 				Controls.Add(m_toolTip);
 			}
 
@@ -1812,13 +1812,15 @@ namespace Eddie.Forms.Forms
 					if (m_formReady == false) // To avoid useless calling that Windows.Forms do when initializing controls 
 						return;
 
-					// For refresh Mono-Linux					
+					/*// Removed in 2.24.2
+					// For refresh Mono-Linux
 					if (GuiUtils.IsUnix())
 					{
 						Invalidate();
 						Update();
 						Refresh();
 					}
+					*/
 
 					if ((mode == Core.Engine.RefreshUiMode.MainMessage) || (mode == Core.Engine.RefreshUiMode.Full))
 					{

@@ -16,6 +16,8 @@
 // along with Eddie. If not, see <http://www.gnu.org/licenses/>.
 // </eddie_source_header>
 
+//#define EDDIEMONO4LINUX // Temp: Decomment this for debug in MonoDevelop. Remember to re-comment when end.
+
 using System;
 using System.IO;
 using System.Security.Cryptography;
@@ -329,6 +331,7 @@ namespace Eddie.Core.Crypto
 #if EDDIEMONO4LINUX // Mono under Linux don't have 4 params constructor
 			using (Rfc2898DeriveBytes generator = new Rfc2898DeriveBytes(password, SaltBitSize / 8, Iterations))
 #else
+			// If you debug with old MonoDevelop, decomment the first line in this .cs file.
 			using (Rfc2898DeriveBytes generator = new Rfc2898DeriveBytes(password, SaltBitSize / 8, Iterations, HashAlgorithmName.SHA1))
 #endif
 			{
