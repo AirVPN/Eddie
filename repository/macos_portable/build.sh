@@ -95,6 +95,7 @@ if [ $PROJECT = "cli" ]; then
     dotnet publish App.CLI.MacOS.net7.csproj --configuration Release --runtime ${RID} --self-contained true -p:PublishTrimmed=true -p:EnableCompressionInSingleFile=true
     cp "${SCRIPTDIR}/../../src/App.CLI.MacOS/bin/${CONFIG}/net7.0/${RID}/publish"/* "${TARGETBINDIR}"
     cp "${SCRIPTDIR}/../../src/App.CLI.MacOS/bin/${CONFIG}/net7.0/${RID}/eddie-cli-elevated" "${TARGETBINDIR}"
+    cp "${SCRIPTDIR}/../../src/App.CLI.MacOS/bin/${CONFIG}/net7.0/${RID}/eddie-cli-elevated-service" "${TARGETBINDIR}"
     cp "${SCRIPTDIR}/../../src/App.CLI.MacOS/bin/${CONFIG}/net7.0/${RID}/libLib.Platform.MacOS.Native.dylib" "${TARGETBINDIR}"
 
     # Resources
@@ -161,6 +162,7 @@ if [ $PROJECT = "ui" ]; then
     chmod 755 "${TARGETBINDIR}/Eddie-UI"
 fi
 chmod 755 "${TARGETBINDIR}/eddie-cli-elevated"
+chmod 755 "${TARGETBINDIR}/eddie-cli-elevated-service"
 chmod 755 "${TARGETBINDIR}/openvpn"
 chmod 755 "${TARGETBINDIR}/hummingbird"
 chmod 755 "${TARGETBINDIR}/stunnel"
@@ -186,6 +188,7 @@ echo "Signing"
 # Remember: never sign openvpn/wg again here, changing it invalidate the hash already compiled in Elevated
 
 "${SCRIPTDIR}/../macos_common/sign.sh" "${TARGETBINDIR}/eddie-cli-elevated" no $VARHARDENING
+"${SCRIPTDIR}/../macos_common/sign.sh" "${TARGETBINDIR}/eddie-cli-elevated-service" no $VARHARDENING
 
 if [ $FRAMEWORK = "net7" ]; then
     "${SCRIPTDIR}/../macos_common/sign.sh" "${TARGETBINDIR}/libLib.Platform.macOS.Native.dylib" no $VARHARDENING

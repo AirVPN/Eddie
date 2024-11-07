@@ -88,8 +88,7 @@ namespace Eddie.Core.Elevated
 			catch
 			{
 			}
-
-			// See comment in C++ ServiceUninstallSupportRealtime
+			
 			if ((ServiceUninstallAtEnd) && (Platform.Instance.GetServiceUninstallSupportRealtime() == false))
 				Platform.Instance.SetService(false, true);
 		}

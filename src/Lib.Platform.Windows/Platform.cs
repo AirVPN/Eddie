@@ -869,7 +869,7 @@ namespace Eddie.Platform.Windows
 			// FlushDNS(); // Moved in 2.13.3 in ::session.cs, but only if a connection occur.
 
 			if (Engine.Instance.ProfileOptions.GetBool("windows.adapters.cleanup"))
-				Engine.Instance.Elevated.DoCommandSync("wintun-adapter-removepool", "pool", Constants.WintunPool);
+				Engine.Instance.Elevated.DoCommandSync("network-adapter-clear-all");
 
 			Recovery.Save();
 		}
@@ -1338,7 +1338,7 @@ namespace Eddie.Platform.Windows
 					Engine.Instance.Logs.Log(LogType.Warning, LanguageManager.GetText(LanguageItems.WfpRecovery));
 
 			if (Engine.Instance.ProfileOptions.GetBool("windows.adapters.cleanup"))
-				Engine.Instance.Elevated.DoCommandSync("wintun-adapter-removepool", "pool", Constants.WintunPool);
+				Engine.Instance.Elevated.DoCommandSync("network-adapter-clear-all");
 		}
 
 		public override void OnRecoveryLoad(XmlElement root)
@@ -1767,27 +1767,9 @@ namespace Eddie.Platform.Windows
 					if (ifaceName == "")
 						ifaceName = "Eddie";
 
-					/// WIP: remove the tapctl.exe dependencies, must be performed by Eddie Elevated
-
-					if (driver == "ovpn-dco")
-					{
-						ExecWithUAC(Software.FindResource("tapctl"), "create --hwid \"ovpn-dco\" --name \"" + ifaceName + "\"");
-						Engine.Instance.Logs.LogVerbose("Added new network interface \"" + ifaceName + "\", ovpn-dco");
-						jNetworkInfo = Engine.Instance.NetworkInfoUpdate(); // Refresh
-					}
-					else if (driver == "wintun")
-					{
-						string wintunVersion = Core.Engine.Instance.Elevated.DoCommandSync("wintun-adapter-ensure", "pool", Constants.WintunPool, "name", ifaceName);
-						float wintunVersionN = Conversions.ToFloat(wintunVersion) / 100;
-						Engine.Instance.Logs.LogVerbose("Added new network interface \"" + ifaceName + "\", Wintun version " + Conversions.ToString(wintunVersionN));
-						jNetworkInfo = Engine.Instance.NetworkInfoUpdate(); // Refresh
-					}
-					else if (driver == "tap-windows6")
-					{
-						ExecWithUAC(Software.FindResource("tapctl"), "create --hwid \"root\\tap0901\" --name \"" + ifaceName + "\"");
-						Engine.Instance.Logs.LogVerbose("Added new network interface \"" + ifaceName + "\", tap-windows6");
-						jNetworkInfo = Engine.Instance.NetworkInfoUpdate(); // Refresh
-					}
+					string details = Core.Engine.Instance.Elevated.DoCommandSync("network-adapter-create", "driver", driver, "name", ifaceName);
+					Engine.Instance.Logs.LogVerbose("Added new network interface \"" + ifaceName + "\", " + details);
+					jNetworkInfo = Engine.Instance.NetworkInfoUpdate(); // Refresh
 				}
 			}
 
@@ -1835,7 +1817,7 @@ namespace Eddie.Platform.Windows
 			{
 				if (adapter.Description.ToLowerInvariant().StartsWithInv("tap-win"))
 				{
-					ExecWithUAC(Software.FindResource("tapctl"), "delete \"" + adapter.Id + "\"");
+					Core.Engine.Instance.Elevated.DoCommandSync("network-adapter-delete", "id", adapter.Id);
 					nRemoved++;
 				}
 			}

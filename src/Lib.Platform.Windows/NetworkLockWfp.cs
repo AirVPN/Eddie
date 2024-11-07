@@ -144,6 +144,12 @@ namespace Eddie.Platform.Windows
 					}
 				}
 
+				if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_ipv4ipv6translation") == true)
+				{
+					AddRule("netlock_allow_ipv4ipv6translation1", Wfp.CreateItemAllowAddress("NetLock - IPv4-IPv6 Translation - Allow Subnet 1 - IPv6", new IpAddress("64:ff9b::/96"))); // RFC 6052 // 2.24.3
+					AddRule("netlock_allow_ipv4ipv6translation2", Wfp.CreateItemAllowAddress("NetLock - IPv4-IPv6 Translation - Allow Subnet 2 - IPv6", new IpAddress("64:ff9b:1::/48"))); // RFC 6052 // 2.24.3
+				}
+
 				if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_private") == true)
 				{
 					AddRule("netlock_allow_private_ipv4_local1", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Local Subnet 1 - IPv4", new IpAddress("192.168.0.0/255.255.0.0")));
@@ -155,6 +161,7 @@ namespace Eddie.Platform.Windows
 
 					AddRule("netlock_allow_private_ipv6_local1", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Local Subnet 1 - IPv6", new IpAddress("fe80::/10"))); // New in 2.23.0
 					AddRule("netlock_allow_private_ipv6_local2", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Local Subnet 2 - IPv6", new IpAddress("ff00::/8"))); // New in 2.23.0
+					AddRule("netlock_allow_private_ipv6_local3", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Local Subnet 2 - IPv6", new IpAddress("fc00::/7"))); // New in 2.24.3
 				}
 
 				// Without this, Windows stay in 'Identifying network...' and OpenVPN in 'Waiting TUN to come up'. // Note 2018: don't occur in Win10?

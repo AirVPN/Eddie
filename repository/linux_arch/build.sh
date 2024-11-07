@@ -48,11 +48,11 @@ function arch_env() {
 		if [ "${PROJECT}" = "cli" ]; then
 			sed -i "s|{@pkgdesc}|Eddie - VPN tunnel - CLI - prebuilt|g" PKGBUILD    
 			sed -i "s|{@pkgdepends}|(curl openvpn sudo)|g" PKGBUILD
-			sed -i "s|{@pkgmakedepends}|(cmake dotnet-sdk)|g" PKGBUILD
+			sed -i "s|{@pkgmakedepends}|(cmake patchelf dotnet-sdk)|g" PKGBUILD
 		elif [ "${PROJECT}" = "ui" ]; then
 			sed -i "s|{@pkgdesc}|Eddie - VPN tunnel - UI - prebuilt|g" PKGBUILD    
-			sed -i "s|{@pkgdepends}|(curl openvpn sudo polkit desktop-file-utils libnotify libayatana-appindicator patchelf)|g" PKGBUILD
-			sed -i "s|{@pkgmakedepends}|(cmake dotnet-sdk mono-msbuild mono)|g" PKGBUILD
+			sed -i "s|{@pkgdepends}|(curl openvpn sudo polkit libnotify libayatana-appindicator)|g" PKGBUILD
+			sed -i "s|{@pkgmakedepends}|(cmake patchelf dotnet-sdk mono-msbuild mono desktop-file-utils)|g" PKGBUILD
 		fi
 		sed -i "s|{@source}|git+file:///$2/|g" PKGBUILD    
 		sed -i "s|cd \"Eddie-\$pkgver\"|cd \"eddie-air\"|g" PKGBUILD
@@ -73,11 +73,11 @@ function arch_env() {
 			if [ "${PROJECT}" = "cli" ]; then
 				sed -i "s|{@pkgdesc}|Eddie - VPN tunnel - CLI|g" PKGBUILD    
 				sed -i "s|{@pkgdepends}|(curl openvpn sudo)|g" PKGBUILD
-				sed -i "s|{@pkgmakedepends}|(cmake dotnet-sdk)|g" PKGBUILD
+				sed -i "s|{@pkgmakedepends}|(cmake patchelf dotnet-sdk)|g" PKGBUILD
 			else
 				sed -i "s|{@pkgdesc}|Eddie - VPN tunnel - UI|g" PKGBUILD    
-				sed -i "s|{@pkgdepends}|(mono curl openvpn sudo polkit desktop-file-utils libnotify libayatana-appindicator patchelf)|g" PKGBUILD
-				sed -i "s|{@pkgmakedepends}|(cmake dotnet-sdk mono-msbuild mono)|g" PKGBUILD
+				sed -i "s|{@pkgdepends}|(mono curl openvpn sudo polkit libnotify libayatana-appindicator)|g" PKGBUILD
+				sed -i "s|{@pkgmakedepends}|(cmake patchelf dotnet-sdk mono-msbuild mono desktop-file-utils)|g" PKGBUILD
 			fi
 			sed -i "s|{@source}|git+https://github.com/AirVPN/Eddie.git|g" PKGBUILD    
 			sed -i "s|cd \"Eddie-\$pkgver\"|cd \"Eddie\"|g" PKGBUILD
@@ -98,11 +98,11 @@ function arch_env() {
 			if [ "${PROJECT}" = "cli" ]; then
 				sed -i "s|{@pkgdesc}|Eddie - VPN tunnel - CLI|g" PKGBUILD    
 				sed -i "s|{@pkgdepends}|(curl openvpn sudo)|g" PKGBUILD
-				sed -i "s|{@pkgmakedepends}|(cmake dotnet-sdk)|g" PKGBUILD
+				sed -i "s|{@pkgmakedepends}|(cmake patchelf dotnet-sdk)|g" PKGBUILD
 			else
 				sed -i "s|{@pkgdesc}|Eddie - VPN tunnel - UI|g" PKGBUILD
-				sed -i "s|{@pkgdepends}|(mono curl openvpn sudo polkit desktop-file-utils libnotify libayatana-appindicator patchelf)|g" PKGBUILD
-				sed -i "s|{@pkgmakedepends}|(cmake dotnet-sdk mono-msbuild mono)|g" PKGBUILD
+				sed -i "s|{@pkgdepends}|(mono curl openvpn sudo polkit libnotify libayatana-appindicator)|g" PKGBUILD
+				sed -i "s|{@pkgmakedepends}|(cmake patchelf dotnet-sdk mono-msbuild mono desktop-file-utils)|g" PKGBUILD
 			fi
 			sed -i "s|{@source}|https://github.com/AirVPN/Eddie/archive/${VERSIONSTABLE}.tar.gz|g" PKGBUILD    
 			if test -f "${SCRIPTDIR}/../signing/aur.key.password.txt"; then # Staff AirVPN

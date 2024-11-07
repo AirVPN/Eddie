@@ -94,7 +94,8 @@ namespace Eddie.Core.Providers
 
 			long ts = User.GetAttributeInt64("ts", 0);
 
-			if (ts < 1685348074) // AirVPN, date of migration of certs SHA1 to SHA512
+			long tsMinReauth = Manifest.GetAttributeInt64("force_reauth_ts", 0);
+			if( (tsMinReauth>0) && (ts < tsMinReauth) )
 			{
 				Engine.Instance.ReAuth();
 			}

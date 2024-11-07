@@ -53,6 +53,7 @@ if [ $PROJECT = "cli" ]; then
     dotnet publish App.CLI.Linux.net7.csproj --configuration Release --runtime ${RID} --self-contained true -p:PublishTrimmed=true -p:EnableCompressionInSingleFile=true
     cp "${SCRIPTDIR}/../../src/App.CLI.Linux/bin/${CONFIG}/net7.0/${RID}/publish"/* "${TARGETBINDIR}"
     cp "${SCRIPTDIR}/../../src/App.CLI.Linux/bin/${CONFIG}/net7.0/${RID}/eddie-cli-elevated" "${TARGETBINDIR}"
+    cp "${SCRIPTDIR}/../../src/App.CLI.Linux/bin/${CONFIG}/net7.0/${RID}/eddie-cli-elevated-service" "${TARGETBINDIR}"
     cp "${SCRIPTDIR}/../../src/App.CLI.Linux/bin/${CONFIG}/net7.0/${RID}/libLib.Platform.Linux.Native.so" "${TARGETBINDIR}"
 
     # Strip commented, at 2023-11-29, corrupt.    
@@ -149,6 +150,7 @@ elif [ $PROJECT = "ui" ]; then
         # Arch: untested
         # Raspbian: untested
         # Debian: throw error, search /usr/lib/../lib/libMonoPosixHelper.so
+        # Gentoo: libmono-native.so issue (reported by @overmorrow)
         # - Unresolved.
         # - Solution: mono-runtime-common as dependencies, but 'portable' don't work standalone.  
         mkbundle eddie-ui.exe -o eddie-${PROJECT} --cross ${MKBUNDLECROSSTARGET} --i18n all --simple --no-machine-config --config ${SCRIPTDIR}/mkbundle/dllmap.config --deps --library ${SCRIPTDIR}/mkbundle/${ARCH}/libgdiplus.so.0 --library ${SCRIPTDIR}/mkbundle/${ARCH}/libmono-native.so --library ${SCRIPTDIR}/mkbundle/${ARCH}/libMonoPosixHelper.so
@@ -188,6 +190,7 @@ if [ $PROJECT = "ui" ]; then
     chmod 755 "${TARGETBINDIR}/eddie-tray"
 fi
 chmod 755 "${TARGETBINDIR}/eddie-cli-elevated"
+chmod 755 "${TARGETBINDIR}/eddie-cli-elevated-service"
 chmod 755 "${TARGETBINDIR}/openvpn"
 chmod 755 "${TARGETBINDIR}/hummingbird"
 chmod 755 "${TARGETBINDIR}/stunnel"

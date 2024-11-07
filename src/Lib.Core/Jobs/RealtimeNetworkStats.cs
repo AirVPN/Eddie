@@ -106,11 +106,6 @@ namespace Eddie.Core.Jobs
 			m_timeEvery = 1000;
 		}
 
-		public void ResetTotal(string interfaceId)
-		{
-
-		}
-
 		public Json GetData()
 		{
 			lock (m_data)

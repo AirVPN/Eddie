@@ -48,7 +48,8 @@
 // --------------------------
 
 std::string serviceName = "eddie-elevated";
-std::string serviceDesc = "Eddie Elevation";
+std::string serviceDesc = "Eddie VPN Elevation";
+std::string serviceLauncherPath = "/sbin/eddie-vpn-service-launcher";
 std::string systemdPath = "/usr/lib/systemd/system";
 std::string systemdUnitName = serviceName + ".service";
 std::string systemdUnitPath = systemdPath + "/" + systemdUnitName;
@@ -366,9 +367,6 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 			}
 		}
 
-		// 
-		//ExecEx2(servicePath, StringEnsureFileName(service), "restart");
-		
 		ReplyCommand(commandId, success ? "1":"0");
 	}
 	else if (command == "dns-switch-restore")
@@ -391,7 +389,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 			if(servicePath != "")
 			{
 				ExecEx2(servicePath, StringEnsureFileName("systemd-resolved"), "restart");
-				LogRemote("systemd-resolved restarted");
+				LogRemote("Service systemd-resolved restarted");
 			}
 
 			std::string resolvectlPath = FsLocateExecutable("resolvectl");
@@ -1565,8 +1563,6 @@ bool Impl::IsServiceInstalled()
 
 bool Impl::ServiceInstall()
 {
-	std::string elevatedPath = GetProcessPathCurrent();
-
 	if (FsFileExists(systemdPath))
 	{
 		if (FsFileExists(systemdUnitPath)) // Remove if exists
@@ -1576,11 +1572,34 @@ bool Impl::ServiceInstall()
 			FsFileDelete(systemdUnitPath);
 		}
 
-		std::string elevatedArgs = "\"mode=service\"";
-		std::string integrity = ComputeIntegrityHash(GetProcessPathCurrent(), "");
+		std::string elevatedPath = GetProcessPathCurrent();
+
+		std::string elevatedArgs = "";
 		if (m_cmdline.find("service_port") != m_cmdline.end())
 			elevatedArgs += " \"service_port=" + StringEnsureNumericInt(m_cmdline["service_port"]) + "\"";
-		elevatedArgs += " \"integrity=" + StringEnsureIntegrity(integrity) + "\"";
+		
+		std::string serviceExecStart = "";
+		if (CheckIfExecutableIsAllowed(elevatedPath, false, true))
+		{
+			serviceExecStart = "\"" + elevatedPath + "\" \"mode=service\" " + elevatedArgs;
+		}
+		else
+		{
+			std::string elevatedLauncherOrig = GetProcessPathCurrent() + "-service";
+			if (FsFileCopy(elevatedLauncherOrig, serviceLauncherPath) == false)
+				return false;			
+			if (chown(serviceLauncherPath.c_str(), 0, 0) == -1)
+				return false;
+			if (chmod(serviceLauncherPath.c_str(), 0700) == -1)
+				return false;
+			if (CheckIfExecutableIsAllowed(serviceLauncherPath, false, true) == false)
+				return false;
+
+			if (IntegrityCheckUpdate("service") == false)
+				return false;
+			
+			serviceExecStart = "\"" + serviceLauncherPath + "\" \"" + elevatedPath + "\" " + elevatedArgs;
+		}				
 
 		std::string unit = "";
 		unit += "[Unit]\n";
@@ -1590,7 +1609,7 @@ bool Impl::ServiceInstall()
 		unit += "\n";
 		unit += "[Service]\n";
 		unit += "Type=simple\n";
-		unit += "ExecStart=\"" + elevatedPath + "\" " + elevatedArgs + "\n";
+		unit += "ExecStart=" + serviceExecStart + "\n";
 		unit += "Restart=always\n";
 		unit += "RestartSec=5s\n";
 		unit += "TimeoutStopSec=5s\n";
@@ -1600,7 +1619,7 @@ bool Impl::ServiceInstall()
 		unit += "[Install]\n";
 		unit += "WantedBy=multi-user.target\n";
 
-		FsFileWriteText(systemdUnitPath, unit);
+		FsFileWriteText(systemdUnitPath, unit);		
 
 		ExecResult enableResult = ExecEx2(FsLocateExecutable("systemctl"), "enable", systemdUnitName);
 		if (enableResult.exit != 0)
@@ -1635,31 +1654,20 @@ bool Impl::ServiceUninstall()
 		FsFileDelete(systemdUnitPath);
 	}
 
+	if (FsFileExists(serviceLauncherPath))
+	{
+		FsFileDelete(serviceLauncherPath);
+	}
+
+	IntegrityCheckClean("service");
+
 	return true;
 }
 
-// PAZZO TOCLEAN
-/*
-std::vector<std::string> Impl::GetNetworkInterfacesNames()
+std::string Impl::SystemWideDataPath()
 {
-	// This code compile under macOS, but return nothing. Different approach.
-	std::vector<std::string> result;
-
-	struct if_nameindex *ifndx, *iface;
-	ifndx = if_nameindex();
-	if (ifndx != NULL )
-	{
-		for(iface = ifndx; iface->if_index != 0 || iface->if_name != NULL; iface++)
-		{
-			result.push_back(std::string(iface->if_name));
-		}
-
-		if_freenameindex(ifndx);
-	}
-
-	return result;
+	return "/sbin/eddie-vpn.dat";
 }
-*/
 
 std::string Impl::CheckIfClientPathIsAllowed(const std::string& path)
 {

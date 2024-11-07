@@ -33,9 +33,7 @@ namespace Eddie.Forms.Windows
 			try
 			{
 				if (Environment.OSVersion.Version.Major >= 6)
-				{
 					NativeMethods.SetProcessDPIAware();
-				}
 
 				//Application.EnableVisualStyles();
 				Application.SetCompatibleTextRenderingDefault(false);

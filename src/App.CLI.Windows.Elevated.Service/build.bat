@@ -20,7 +20,7 @@ set VARCONFIG=%~1
 set VARARCH=%~2
 set VARARCHCOMPILE=%VARARCH%
 
-set VARSOLUTIONPATH="%VARSCRIPTDIR%\App.Service.Windows.Elevated.sln"
+set VARSOLUTIONPATH="%VARSCRIPTDIR%\App.CLI.Windows.Elevated.Service.sln"
 
 %VARMSBUILD% /verbosity:minimal /property:CodeAnalysisRuleSet=%VARRULESETPATH% /p:Configuration=%VARCONFIG% /p:Platform=%VARARCHCOMPILE% /t:Rebuild %VARSOLUTIONPATH% || GOTO error
 

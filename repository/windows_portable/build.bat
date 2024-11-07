@@ -57,7 +57,7 @@ IF "!VARPROJECT!"=="cli" (
 	dotnet publish App.CLI.Windows.net7.csproj --configuration Release --runtime !VARRID! --self-contained true -p:PublishTrimmed=true -p:EnableCompressionInSingleFile=true
 	copy !VARSCRIPTDIR!\..\..\src\App.CLI.Windows\bin\!VARCONFIG!\net7.0\!VARRID!\publish\* !VARTARGETDIR! || goto :error		
 	copy !VARSCRIPTDIR!\..\..\src\App.CLI.Windows\bin\!VARCONFIG!\net7.0\!VARRID!\Eddie-CLI-Elevated.exe !VARTARGETDIR! || goto :error		
-	copy !VARSCRIPTDIR!\..\..\src\App.CLI.Windows\bin\!VARCONFIG!\net7.0\!VARRID!\Eddie-Service-Elevated.exe !VARTARGETDIR! || goto :error		
+	copy !VARSCRIPTDIR!\..\..\src\App.CLI.Windows\bin\!VARCONFIG!\net7.0\!VARRID!\Eddie-CLI-Elevated-Service.exe !VARTARGETDIR! || goto :error		
 	copy !VARSCRIPTDIR!\..\..\src\App.CLI.Windows\bin\!VARCONFIG!\net7.0\!VARRID!\Lib.Platform.Windows.Native.dll !VARTARGETDIR! || goto :error				
 
 	rem Resources

@@ -61,30 +61,6 @@ echo TargetDir: $OUTPATH
 echo Arch: $ARCH
 echo Config: $CONFIG
 
-echo Adapt Elevated
-# Search 'expectedOpenvpnHash' in '/src/App.CLI.Common.Elevated/ibase.cpp' source for details
-ELEVATEDCSOURCEPATH=${BASEPATH}/../Lib.CLI.Elevated/include/hashes.h
-
-OPENVPNPATH="${BASEPATH}/../../deploy/macos_${ARCH}/openvpn"
-OPENVPNHASH=$(openssl dgst -sha256 "${OPENVPNPATH}");
-OPENVPNHASH=$(echo $OPENVPNHASH | cut -d "=" -f 2 | awk '{print $1}')
-sed -E -i .bak "s/expectedOpenVpnHash = \"([0-9a-f]{64})\";/expectedOpenVpnHash = \"${OPENVPNHASH}\";/g" "${ELEVATEDCSOURCEPATH}"
-
-HUMMINGBIRDPATH="${BASEPATH}/../../deploy/macos_${ARCH}/hummingbird"
-HUMMINGBIRDHASH=$(openssl dgst -sha256 "${HUMMINGBIRDPATH}");
-HUMMINGBIRDHASH=$(echo $HUMMINGBIRDHASH | cut -d "=" -f 2 | awk '{print $1}')
-sed -E -i .bak "s/expectedHummingbirdHash = \"([0-9a-f]{64})\";/expectedHummingbirdHash = \"${HUMMINGBIRDHASH}\";/g" "${ELEVATEDCSOURCEPATH}"
-
-WIREGUARDGOPATH="${BASEPATH}/../../deploy/macos_${ARCH}/wireguard-go"
-WIREGUARDGOHASH=$(openssl dgst -sha256 "${WIREGUARDGOPATH}");
-WIREGUARDGOHASH=$(echo $WIREGUARDGOHASH | cut -d "=" -f 2 | awk '{print $1}')
-sed -E -i .bak "s/expectedWireGuardGoHash = \"([0-9a-f]{64})\";/expectedWireGuardGoHash = \"${WIREGUARDGOHASH}\";/g" "${ELEVATEDCSOURCEPATH}"
-
-WIREGUARDWGPATH="${BASEPATH}/../../deploy/macos_${ARCH}/wg"
-WIREGUARDWGHASH=$(openssl dgst -sha256 "${WIREGUARDWGPATH}");
-WIREGUARDWGHASH=$(echo $WIREGUARDWGHASH | cut -d "=" -f 2 | awk '{print $1}')
-sed -E -i .bak "s/expectedWireGuardWgHash = \"([0-9a-f]{64})\";/expectedWireGuardWgHash = \"${WIREGUARDWGHASH}\";/g" "${ELEVATEDCSOURCEPATH}"
-
 # Note: folder structure are builded by "VS for Mac" AFTER the postbuild.sh call, for this we prebuild here one of the dirs
 mkdir -p "$OUTPATH/Eddie-UI.app/Contents/MacOS/"
 mkdir -p "$OUTPATH/Eddie-UI.app/Contents/MonoBundle/"
@@ -93,6 +69,9 @@ echo Compile and Copy Elevated
 chmod +x "$BASEPATH/../App.CLI.MacOS.Elevated/build.sh"
 "$BASEPATH/../App.CLI.MacOS.Elevated/build.sh" "$CONFIG"
 cp "$BASEPATH/../App.CLI.MacOS.Elevated/bin/eddie-cli-elevated" "$OUTPATH/Eddie-UI.app/Contents/MacOS/"    
+chmod +x "$BASEPATH/../App.CLI.MacOS.Elevated.Service/build.sh"
+"$BASEPATH/../App.CLI.MacOS.Elevated.Service/build.sh" "$CONFIG"
+cp "$BASEPATH/../App.CLI.MacOS.Elevated.Service/bin/eddie-cli-elevated-service" "$OUTPATH/Eddie-UI.app/Contents/MacOS/"    
 
 echo Compile and Copy Native
 chmod +x "${BASEPATH}/../Lib.Platform.MacOS.Native/build.sh"

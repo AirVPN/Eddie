@@ -185,7 +185,7 @@ namespace Eddie.Core.ConnectionTypes
 					if (Session.GetConnected() == false)
 					{
 						// Forced because actually exists only one version of WireGuard protocol, maybe in future detected based on protocol version
-						CipherInfo = "Data packets symmatric encryption: ChaCha20 - Poly1305; Perfect Forward Secrecy(PFS): ECDH with Curve25519";
+						CipherInfo = "Data packets symmetric encryption: ChaCha20 - Poly1305; Perfect Forward Secrecy(PFS): ECDH with Curve25519";
 
 						Session.ConnectedStep();
 					}

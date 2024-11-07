@@ -230,7 +230,7 @@ namespace Eddie.Core.ConnectionTypes
 							m_fileAuthProxy = new TemporaryFile("ppw");
 							fileNameAuthOvpn = m_fileAuthProxy.Path;
 							string fileNameData = options.Get("proxy.login") + "\n" + options.Get("proxy.password") + "\n";
-							Platform.Instance.FileContentsWriteText(m_fileAuthProxy.Path, fileNameData, Encoding.Default);
+							Platform.Instance.FileContentsWriteText(m_fileAuthProxy.Path, fileNameData, Encoding.ASCII);
 							Platform.Instance.FileEnsurePermission(m_fileAuthProxy.Path, "600");
 						}
 						proxyDirectiveArgs += " " + m_configStartup.EncodePath(Platform.Instance.FileGetPhysicalPath(fileNameAuthOvpn)) + " " + options.Get("proxy.auth").ToLowerInvariant(); // 2.6 Auth Fix
@@ -574,6 +574,10 @@ namespace Eddie.Core.ConnectionTypes
 
 				// Useless
 				if (message.Contains("Use --help for more information."))
+					log = false;
+
+				// Useless, occur with some third-party .ovpn
+				if (message.Contains("--ping should normally be used with --ping-restart or --ping-exit"))
 					log = false;
 
 				// Ignore, caused by Windows method GenerateConsoleCtrlEvent to soft-kill
@@ -988,7 +992,7 @@ namespace Eddie.Core.ConnectionTypes
 			string fileNameAuthOvpn = m_fileAuthPassword.Path;
 			string fileNameData = username + "\n" + password + "\n";
 
-			Platform.Instance.FileContentsWriteText(fileNameAuthOvpn, fileNameData, Encoding.Default); // TOFIX: Check if OpenVPN expect UTF-8
+			Platform.Instance.FileContentsWriteText(fileNameAuthOvpn, fileNameData, Encoding.ASCII); // TOFIX: with 'UTF8' fail, because write BOM and openvpn interpret as part of username
 			Platform.Instance.FileEnsurePermission(fileNameAuthOvpn, "600");
 
 			m_configStartup.AppendDirective("auth-user-pass", m_configStartup.EncodePath(Platform.Instance.FileGetPhysicalPath(fileNameAuthOvpn)), "Auth");
@@ -1125,11 +1129,11 @@ namespace Eddie.Core.ConnectionTypes
 		void VpnStartProcess()
 		{
 			m_fileConfig = new TemporaryFile("ovpn");
-			Platform.Instance.FileContentsWriteText(m_fileConfig.Path, m_configStartup.Build(), Encoding.UTF8);
+			Platform.Instance.FileContentsWriteText(m_fileConfig.Path, m_configStartup.Build(), Encoding.ASCII); // <2.24.3 was UTF8
 
 			m_openvpnBinary = Engine.Instance.GetOpenVpnTool().Path;
 			m_openvpnBinary = Platform.Instance.FileGetPhysicalPath(m_openvpnBinary);
-			m_openvpnBinary = Platform.Instance.RootExecutionOutsideBundleAdapt(m_openvpnBinary);
+			//m_openvpnBinary = Platform.Instance.RootExecutionOutsideBundleAdapt(m_openvpnBinary); // TOCLEAN, see /repository/linux_appimage/readme.txt
 
 			if (m_processTransport == null)
 				SetNetworkLockSoftwareExceptionPath(m_openvpnBinary);
@@ -1160,7 +1164,7 @@ namespace Eddie.Core.ConnectionTypes
 				else if (data.StartsWithInv("procid:"))
 				{
 					//m_pid = Conversions.ToInt32(data.Substring(7));					
-					Platform.Instance.RootExecutionOutsideBundleDelete(m_openvpnBinary);
+					//Platform.Instance.RootExecutionOutsideBundleDelete(m_openvpnBinary); // TOCLEAN, see /repository/linux_appimage/readme.txt
 				}
 				else if (data.StartsWithInv("return:"))
 				{
@@ -1300,7 +1304,7 @@ namespace Eddie.Core.ConnectionTypes
 			sslConfig += "\n";
 
 			string sslConfigPath = m_fileSslConfig.Path;
-			Platform.Instance.FileContentsWriteText(sslConfigPath, sslConfig, Encoding.UTF8);
+			Platform.Instance.FileContentsWriteText(sslConfigPath, sslConfig, Encoding.ASCII); // <2.24.3 was .UTF8
 
 			SetNetworkLockSoftwareExceptionPath(Software.GetTool("ssl").Path);
 

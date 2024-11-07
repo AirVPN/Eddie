@@ -291,10 +291,18 @@ Section "Uninstall"
 
 	ExecWait '"$INSTDIR\Eddie-CLI-Elevated.exe" service=uninstall-full'
 
-	{@files_delete}
+	{@files_delete}	
 		
-	; Cancellazione files di installazione
+	RMDir "$INSTDIR\Resources"
+	Delete "$INSTDIR\VC_redist.{@arch}.exe"
+	Delete "$INSTDIR\ndp48-web.exe"
 	Delete "$INSTDIR\Uninstall.exe"	
+
+	!insertmacro MUI_STARTMENU_GETFOLDER Application $MUI_TEMP
+	Delete "$SMPROGRAMS\$STARTMENU_FOLDER\Eddie VPN - AirVPN.lnk"	
+	Delete "$SMPROGRAMS\$STARTMENU_FOLDER\Website.lnk"
+	Delete "$SMPROGRAMS\$STARTMENU_FOLDER\Website AirVPN.lnk"
+	Delete "$SMPROGRAMS\$STARTMENU_FOLDER\Uninstall.lnk"
 			
 	;Delete empty program directories
 	;Loop because if someone specify C:\Program Files\Foo\Eddie, also Foo need to be removed if empty.
@@ -311,14 +319,6 @@ Section "Uninstall"
 		Call :programDeleteLoop		
 		
 	programDeleteLoopDone:  
-	
-	; Delete from Start Menu
-    
-	!insertmacro MUI_STARTMENU_GETFOLDER Application $MUI_TEMP
-	
-	Delete "$SMPROGRAMS\$MUI_TEMP\Eddie-UI.lnk"
-	Delete "$SMPROGRAMS\$MUI_TEMP\Uninstall.lnk"
-	
 	
 	;Delete empty start menu parent directories
 	StrCpy $MUI_TEMP "$SMPROGRAMS\$MUI_TEMP"

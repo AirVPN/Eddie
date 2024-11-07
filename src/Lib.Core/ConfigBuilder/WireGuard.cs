@@ -67,7 +67,7 @@ namespace Eddie.Core.ConfigBuilder
 
 			s.Append("# " + Utils.GenerateFileHeader() + Platform.Instance.EndOfLineSep + Platform.Instance.EndOfLineSep);
 			s.Append("[Interface]\n");
-			s.Append("Address = " + InterfaceAddresses.ToString() + Platform.Instance.EndOfLineSep);
+			s.Append("Address = " + InterfaceAddresses.ToStringAlwaysPrefix() + Platform.Instance.EndOfLineSep);
 			if (InterfaceListenPort != 0)
 				s.Append("ListenPort = " + InterfaceListenPort.ToString() + Platform.Instance.EndOfLineSep);
 			s.Append("PrivateKey = " + InterfacePrivateKey + Platform.Instance.EndOfLineSep);

@@ -69,7 +69,7 @@ public:
 class IBase
 {
 private:
-	std::string m_elevatedVersion = "v1377";
+	std::string m_elevatedVersion = "v1378";
 	int m_elevatedPortDefault = 9349;
 
 	std::string m_session_key;
@@ -127,9 +127,14 @@ protected:
 	virtual bool IsServiceInstalled();
 	virtual bool ServiceInstall();
 	virtual bool ServiceUninstall();
-	virtual bool ServiceReinstall();
-	virtual bool ServiceUninstallSupportRealtime();
+	virtual bool ServiceReinstall();	
 	virtual bool FullUninstall();
+
+	virtual bool IntegrityCheckUpdate(const std::string mode);
+	virtual void IntegrityCheckClean(const std::string mode);
+	virtual std::string IntegrityCheckRead(const std::string mode);
+	virtual std::string IntegrityCheckBuild();
+	virtual bool IntegrityCheckFileKnown(const std::string& path);
 
 	virtual std::string GetProcessPathCurrent();
 	virtual std::string GetProcessPathCurrentDir();
@@ -162,12 +167,16 @@ protected:
 	virtual bool FsFileDelete(const std::string& path) = 0;
 	virtual bool FsDirectoryDelete(const std::string& path, bool recursive) = 0;	
 	virtual bool FsFileMove(const std::string& source, const std::string& destination) = 0;
+	virtual bool FsFileCopy(const std::string& source, const std::string& destination) = 0;	
 	virtual std::string FsFileReadText(const std::string& path) = 0;
 	virtual std::vector<char> FsFileReadBytes(const std::string& path) = 0;
 	virtual std::vector<std::string> FsFilesInPath(const std::string& path) = 0;
 	virtual std::string FsGetTempPath() = 0;
 	virtual std::vector<std::string> FsGetEnvPath() = 0;
 	virtual std::string FsGetRealPath(std::string path) = 0;
+	virtual bool FsFileIsExecutable(std::string path) = 0;
+	virtual bool FsFileEnsureRootOnly(std::string path) = 0;
+	virtual bool FsFileIsRootOnly(std::string path) = 0;
 	virtual bool SocketIsValid(HSOCKET s) = 0;
 	virtual void SocketMarkReuseAddr(HSOCKET s) = 0;
 	virtual void SocketBlockMode(HSOCKET s, bool block) = 0;
@@ -176,17 +185,22 @@ protected:
 
 	// Virtual Pure, Other
 protected:
+	virtual bool SystemWideDataSet(const std::string& key, const std::string& value) = 0;
+	virtual std::string SystemWideDataGet(const std::string& key, const std::string& def) = 0;
+	virtual bool SystemWideDataDel(const std::string& key) = 0;
+	virtual bool SystemWideDataClean() = 0;
 	virtual std::string CheckIfClientPathIsAllowed(const std::string& path) = 0;
-	virtual bool CheckIfExecutableIsAllowed(const std::string& path, const bool& throwException) = 0;
+	virtual bool CheckIfExecutableIsAllowed(const std::string& path, const bool& throwException, const bool ignoreKnown = false) = 0;
 	virtual int GetProcessIdMatchingIPEndPoints(struct sockaddr_in& addrClient, struct sockaddr_in& addrServer) = 0;
 
 	// Utils filesystem
 protected:
 	bool FsFileWriteText(const std::string& path, const std::string& body);
 	bool FsFileAppendText(const std::string& path, const std::string& body);
+	std::string FsFileGetExtension(const std::string& path);
 	std::string FsFileGetDirectory(const std::string& path);
 	std::string FsFileSHA256Sum(const std::string& path);
-	std::string FsLocateExecutable(const std::string& name, const bool throwException = true);
+	std::string FsLocateExecutable(const std::string& name, const bool throwException = true, const bool includeTools = false);
 
 	// Utils string - Maybe in some class, but we prefer to leave code much simply as possible
 protected:
@@ -209,7 +223,6 @@ protected:
 	std::string StringDeleteLinesContain(const std::string& str, const std::string& search);
 	std::string StringEnsureAlphaNumeric(const std::string& str);
 	std::string StringEnsureHex(const std::string& str);
-	std::string StringEnsureIntegrity(const std::string& str);
 	std::string StringEnsureCidr(const std::string& str);
 	std::string StringEnsureFileName(const std::string& str);
 	std::string StringEnsureDirectoryName(const std::string& str);
@@ -241,8 +254,6 @@ protected:
 	std::string CheckValidOpenVpnConfigFile(const std::string& path);
 	std::string CheckValidHummingbirdConfigFile(const std::string& path);
 	std::string CheckValidWireGuardConfig(const std::string& path);
-	std::string ComputeIntegrityHash(const std::string& elevatedPath, const std::string& clientPath);
-	bool CheckIfExecutableIsWhitelisted(const std::string& path);
 	void PidAdd(pid_t pid);
 	void PidRemove(pid_t pid);
 	bool PidManaged(pid_t pid);

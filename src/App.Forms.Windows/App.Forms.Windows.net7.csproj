@@ -38,7 +38,10 @@
     <Platforms>x86;x64</Platforms>    
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>    
   </PropertyGroup>   
-  
+
+  <PropertyGroup>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+  </PropertyGroup>  
 
   <ItemGroup>
     <ProjectReference Include="..\Lib.Core\Lib.Core.net7.csproj" />

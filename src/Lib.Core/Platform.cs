@@ -961,20 +961,29 @@ namespace Eddie.Core
 		{
 			Json result = new Json();
 			result.EnsureArray();
-			NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
-			foreach (NetworkInterface adapter in interfaces)
+			NetworkInterface[] interfaces = Engine.Instance.GetNetworkInterfaces();
+			lock (interfaces)
 			{
-				string id = adapter.Id;
-				IPv4InterfaceStatistics istats = adapter.GetIPv4Statistics();
-				Int64 bytesRcv = istats.BytesReceived;
-				Int64 bytesSnd = istats.BytesSent;
+				foreach (NetworkInterface adapter in interfaces)
+				{
+					try
+					{
+						string id = adapter.Id;
+						IPv4InterfaceStatistics istats = adapter.GetIPv4Statistics();
+						Int64 bytesRcv = istats.BytesReceived;
+						Int64 bytesSnd = istats.BytesSent;
 
-				Json jInterface = new Json();
-				jInterface["id"].Value = id;
-				//jInterface["ts"].Value = Utils.UnixTimeStamp();
-				jInterface["rcv"].Value = bytesRcv;
-				jInterface["snd"].Value = bytesSnd;
-				result.Append(jInterface);
+						Json jInterface = new Json();
+						jInterface["id"].Value = id;
+						//jInterface["ts"].Value = Utils.UnixTimeStamp();
+						jInterface["rcv"].Value = bytesRcv;
+						jInterface["snd"].Value = bytesSnd;
+						result.Append(jInterface);
+					}
+					catch
+					{
+					}
+				}
 			}
 			return result;
 		}
@@ -1010,6 +1019,8 @@ namespace Eddie.Core
 		{
 		}
 
+		// TOCLEAN, see /repository/linux_appimage/readme.txt
+		/*
 		public virtual string RootExecutionOutsideBundleAdapt(string exePath)
 		{
 			// This is used for example when elevated run openvpn exe in a linux AppImage bundle: a root process (elevated) can't read an user volume (AppImage/fuse)
@@ -1020,6 +1031,7 @@ namespace Eddie.Core
 		public virtual void RootExecutionOutsideBundleDelete(string exePath)
 		{
 		}
+		*/
 
 		public virtual void OnNetworkLockManagerInit()
 		{

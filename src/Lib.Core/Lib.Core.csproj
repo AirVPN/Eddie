@@ -64,6 +64,9 @@
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+  </PropertyGroup>  
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />

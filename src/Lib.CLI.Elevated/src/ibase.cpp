@@ -38,13 +38,12 @@
 
 #endif
 
-#include "../include/hashes.h"       
 #include "../include/ibase.h"
 
 #include "../../../dependencies/base64/base64.h"
 #include "../../../dependencies/sha256/sha256.h"
 
-#define NETBUFSIZE 256*256*10 // Not: Maximum size of command
+#define NETBUFSIZE 256*256*10 // Note: Maximum size of command
 
 // --------------------------
 // Engine
@@ -184,14 +183,16 @@ void IBase::LogDebug(const std::string& msg)
 
 void IBase::LogDevDebug(const std::string& msg)
 {
-	/*
-	std::string logPath = FsGetTempPath() + FsPathSeparator + "eddie_elevated.log";
-	logPath = "C:\\elevated.log"; // Win temp
-	logPath = "/tmp/elevated.log";
-	FILE* f = fopen(logPath.c_str(), "a");
-	fprintf(f, "%lu - PID: %d - %s%s", (unsigned long)GetTimestampUnix(), (int)GetCurrentProcessId(), msg.c_str(), FsEndLine.c_str());
-	fclose(f);
-	*/
+	std::string logPath = "/tmp/eddie-elevated.log";
+	#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)	
+		logPath = "C:\\eddie-elevated.log";
+	#endif
+	if (FsFileExists(logPath))
+	{
+		FILE* f = fopen(logPath.c_str(), "a");
+		fprintf(f, "%lu - Elevated,PID: %d - %s%s", (unsigned long)GetTimestampUnix(), (int)GetCurrentProcessId(), msg.c_str(), FsEndLine.c_str());
+		fclose(f);
+	}
 }
 
 void IBase::ReplyPID(int pid)
@@ -304,6 +305,9 @@ int IBase::Main()
 
 		// If launched in SPOT mode, if service was active, they not accept for some reason (generally upgrade and fail integrity check), so reinstall.
 		ServiceReinstall();
+
+		// Update Security Info
+		IntegrityCheckUpdate("spot");
 	}
 	else if ((m_cmdline.find("mode") != m_cmdline.end()) && (m_cmdline["mode"] == "service"))
 	{
@@ -428,22 +432,7 @@ int IBase::Main()
 								parentPid = GetParentProcessId(parentPid);
 						}
 					}
-					// In service mode, hash must match. See description of ComputeIntegrityHash.
-					if (GetLaunchMode() == "service")
-					{
-						std::string integrityHashComputed = ComputeIntegrityHash(GetProcessPathCurrent(), clientProcessPath);
-						std::string integrityHashExpected = "";
-						if (m_cmdline.find("integrity") != m_cmdline.end())
-							integrityHashExpected = m_cmdline["integrity"];
-						if (integrityHashExpected != "")
-						{
-							if (integrityHashComputed == "")
-								ThrowException("Client not allowed: Client unknown " + clientProcessPath + " (service mode)");
-							else if (integrityHashComputed != integrityHashExpected)
-								ThrowException("Client not allowed: integrity mismatch (client " + integrityHashComputed + " != expected " + integrityHashExpected + ") (service mode)");
-						}
-					}
-
+					
 #if defined(Debug) || defined(_DEBUG)
 					// For example, launched with VSCode detect dotnet.exe as client
 #else
@@ -612,9 +601,15 @@ int IBase::Main()
 
 	SocketClose(sockServer);
 
-	if ((GetLaunchMode() == "service") && (m_singleConnMode) && (ServiceUninstallSupportRealtime()))
+	if (m_singleConnMode)
 	{
-		ServiceUninstall();
+		if (GetLaunchMode() == "service")
+		{
+			// Windows only, because only on Windows, Elevated is always a service also in "spot" mode.
+			ServiceUninstall();
+		}
+
+		IntegrityCheckClean(GetLaunchMode());
 	}
 
 	return 0;
@@ -787,23 +782,84 @@ bool IBase::ServiceReinstall()
 	}
 }
 
-bool IBase::ServiceUninstallSupportRealtime()
-{
-	// If in this OS, service can uninstall itself.
-	// Currently used in Windows, in Linux we encounter some issue about fork() a systemd for wait itself.
-	// Have the equivalent in C# ::Platform.
-
-	// Anyway, under Windows, spot mode is installation and activation of the service, so the self-uninstall is to avoid UAC prompt at every exit. 
-	// In Linux/macOS, it's better return false here.
-	return false;
-}
-
 bool IBase::FullUninstall()
 {
-	if (ServiceUninstall() == false)
+	bool result = true;
+	if (!ServiceUninstall()) result = false;
+	if (!SystemWideDataClean()) result = false;
+	return result;
+}
+
+bool IBase::IntegrityCheckUpdate(const std::string mode)
+{
+	// When Elevated launched as spot (manual accept of elevation) or when installed as service,
+	// compute a list of hashes of important/executable/libraries of the App/Elevated directory.
+	// This ensure:
+	// - In service mode, Elevation App is not executed by Elevation Launcher if not match the binaries present when service was installed (avoid also DLL-Injection), for portable editions.
+	// - Any executable or library launched or loaded by Elevation must be root-only access. If executable is in app directory, the entire hashes list must match (avoid DLL-Injection and check integrity computed when root elevation was asked).
+	//   This check is performed to ensure for example the service registration of a portable edition, launch, and AFTER a .dll is placed for DLL-Injection (also for example about a third-party executable like tapctl.exe).
+
+	return SystemWideDataSet("integrity_" + mode, IntegrityCheckBuild());
+}
+
+void IBase::IntegrityCheckClean(const std::string mode)
+{
+	SystemWideDataDel("integrity_" + mode);	
+}
+
+std::string IBase::IntegrityCheckRead(const std::string mode)
+{
+	return SystemWideDataGet("integrity_" + mode, "");
+}
+
+std::string IBase::IntegrityCheckBuild()
+{
+	std::string elevatedPath = GetProcessPathCurrent();
+	std::string output;
+	std::string checkPath = FsFileGetDirectory(elevatedPath);
+	std::vector<std::string> files = FsFilesInPath(checkPath);
+	std::sort(files.begin(), files.end());
+	for (std::vector<std::string>::const_iterator i = files.begin(); i != files.end(); ++i)
+	{
+		std::string file = *i;
+		std::string filePathFull = checkPath + FsPathSeparator + file;
+
+		std::string ext = "";
+		std::string::size_type extPos = file.rfind('.');
+
+		if (extPos != std::string::npos)
+			ext = StringToLower(file.substr(extPos + 1));
+
+		bool include = ((FsFileIsExecutable(filePathFull)) || (StringEndsWith(file, ".dll")) || (StringEndsWith(file, ".dylib")) || (StringEndsWith(file, ".so")) || (StringContain(file, ".so.")));
+
+		if (StringStartsWith(file, "System.")) include = false; // Hack, dotnet7, avoid a lots of intermediary files
+
+		if (include)
+		{
+			std::string sha256 = FsFileSHA256Sum(filePathFull);
+			output += sha256 + ";" + filePathFull + "\n";
+		}
+	}
+	return output;
+}
+
+bool IBase::IntegrityCheckFileKnown(const std::string& path)
+{
+	if (FsFileExists(path) == false)
 		return false;
 
-	return true;
+	if (FsFileGetDirectory(path) != FsFileGetDirectory(GetProcessPathCurrent()))
+	{
+		// Not Elevated Path
+		return false;
+	}
+
+	std::string integrityKnown = IntegrityCheckRead(GetLaunchMode());
+
+	// Seem excessive to check/compute-sha all files every time, but read comment in IntegrityCheckBuild.
+	std::string integrityComputed = IntegrityCheckBuild();
+
+	return (integrityKnown == integrityComputed);
 }
 
 std::string IBase::GetProcessPathCurrent()
@@ -881,6 +937,15 @@ bool IBase::FsFileAppendText(const std::string& path, const std::string& body)
 	return true;
 }
 
+std::string IBase::FsFileGetExtension(const std::string& path)
+{
+	std::string ext = "";
+	std::string::size_type extPos = path.rfind('.');
+	if (extPos != std::string::npos)
+		ext = StringToLower(path.substr(extPos + 1));
+	return ext;
+}
+
 std::string IBase::FsFileGetDirectory(const std::string& path)
 {
 	//std::filesystem::path p = path;
@@ -897,13 +962,21 @@ std::string IBase::FsFileSHA256Sum(const std::string& path)
 	return SHA256((unsigned char*)buf.data(), (unsigned long)buf.size());
 }
 
-std::string IBase::FsLocateExecutable(const std::string& name, const bool throwException)
+std::string IBase::FsLocateExecutable(const std::string& name, const bool throwException, const bool includeTools)
 {
-	std::vector<std::string> envPaths = FsGetEnvPath();
+	std::vector<std::string> paths;
 
-	std::vector<std::string> paths = m_binPaths;
+	if (includeTools)
+	{
+		// Used only for 'wireguard-go' and 'wg' in macOS
+		paths.insert(std::end(paths), std::begin(m_binPaths), std::end(m_binPaths));
+	}
 
-	paths.insert(std::end(paths), std::begin(envPaths), std::end(envPaths));
+	if (true)
+	{
+		std::vector<std::string> envPaths = FsGetEnvPath();
+		paths.insert(std::end(paths), std::begin(envPaths), std::end(envPaths));
+	}
 
 	for (std::vector<std::string>::const_iterator i = paths.begin(); i != paths.end(); ++i)
 	{
@@ -1103,11 +1176,6 @@ std::string IBase::StringEnsureAlphaNumeric(const std::string& str)
 std::string IBase::StringEnsureHex(const std::string& str)
 {
 	return StringPruneCharsNotIn(str, "0123456789abcdefABCDEF");
-}
-
-std::string IBase::StringEnsureIntegrity(const std::string& str)
-{
-	return StringPruneCharsNotIn(str, "0123456789abcdefABCDEF;");
 }
 
 std::string IBase::StringEnsureFileName(const std::string& str)
@@ -1434,73 +1502,6 @@ std::string IBase::CheckValidWireGuardConfig(const std::string& path)
 {
 	// Nothing here about security, anyway any PostUp and similar events are ignored in our implementation.
 	return "";
-}
-
-// When the service is installed, we build an hash of executable and library of the software.
-// When a client connect to service, the socket client path must be in this list, and the hash of the package (when service was installed) must match.
-// This ensure if the client is altered, the service don't accept it anymore, without need a digital signature (not possible because in some OS, the software is builded from sources).
-// If clientPath is empty, return the computed hash. If not empty, return the computed hash only if clientPath is one of the files computed.
-std::string IBase::ComputeIntegrityHash(const std::string& elevatedPath, const std::string& clientPath)
-{
-	bool clientPathFound = false;
-	std::string checkPath = FsFileGetDirectory(elevatedPath);
-	std::string integrity;
-	std::vector<std::string> files = FsFilesInPath(checkPath);
-	std::sort(files.begin(), files.end());
-	for (std::vector<std::string>::const_iterator i = files.begin(); i != files.end(); ++i)
-	{
-		std::string file = *i;
-
-		std::string ext = "";
-		std::string::size_type extPos = file.rfind('.');
-
-		if (extPos != std::string::npos)
-			ext = file.substr(extPos + 1);
-
-		bool include = ((ext == "") || (ext == "exe") || (ext == "dll") || (ext == "so") || (ext == "dylib"));
-
-		if(StringStartsWith(file,"System.")) include = false; // Hack, dotnet7, avoid a lots of intermediary files
-
-		if (include)
-		{
-			std::string checkPathFull = checkPath + FsPathSeparator + file;
-			integrity += FsFileSHA256Sum(checkPathFull) + ";";
-
-			if (clientPath != "")
-			{
-				if (clientPath == checkPathFull)
-					clientPathFound = true;
-			}
-		}
-	}
-
-	if ((clientPath != "") && (clientPathFound == false))
-		return "";
-
-	return integrity;
-}
-
-bool IBase::CheckIfExecutableIsWhitelisted(const std::string& path)
-{
-	// Exception: Maybe the bundle openvpn or hummingbird or wireguard tools (if not, doesn't matter).
-	// Portable or AppImage edition can't have other checks performed by CheckIfExecutableIsAllowed
-	// We hardcoded hash (updated by build scripts) in sources, like HTTP Content-Security-Policy approach.
-	// If match, trust it, otherwise other checks are performed.
-	std::string computedHash = FsFileSHA256Sum(path);
-
-	if (computedHash == expectedOpenVpnHash)
-		return true;
-
-	if (computedHash == expectedHummingbirdHash)
-		return true;
-
-	if (computedHash == expectedWireGuardGoHash)
-		return true;
-
-	if (computedHash == expectedWireGuardWgHash)
-		return true;
-
-	return false;
 }
 
 // If Elevated launch child process, add to this list.

@@ -134,14 +134,21 @@ namespace Eddie.Platform.Linux
 					AddRule(rules, "ipv6", "add rule ip6 filter INPUT ip6 saddr ff05::1:3 counter accept");
 				}
 
+				if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_ipv4ipv6translation") == true) // 2.24.3
+				{
+					AddRule(rules, "ipv6", "add rule ip6 filter INPUT ip6 saddr 64:ff9b::/96 ip6 daddr 64:ff9b::/96 counter accept"); // RFC 6052
+					AddRule(rules, "ipv6", "add rule ip6 filter INPUT ip6 saddr 64:ff9b:1::/48 ip6 daddr 64:ff9b:1::/48 counter accept"); // RFC 8215
+				}
+
 				if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_private"))
 				{
 					AddRule(rules, "ipv4", "add rule ip filter INPUT ip saddr 192.168.0.0/16 ip daddr 192.168.0.0/16 counter accept");
 					AddRule(rules, "ipv4", "add rule ip filter INPUT ip saddr 10.0.0.0/8 ip daddr 10.0.0.0/8 counter accept");
 					AddRule(rules, "ipv4", "add rule ip filter INPUT ip saddr 172.16.0.0/12 ip daddr 172.16.0.0/12 counter accept");
 
-					AddRule(rules, "ipv6", "add rule ip6 filter INPUT ip6 saddr fe80::/10 counter accept");
-					AddRule(rules, "ipv6", "add rule ip6 filter INPUT ip6 daddr ff00::/8 counter accept");
+					AddRule(rules, "ipv6", "add rule ip6 filter INPUT ip6 saddr fe80::/10 ip6 daddr fe80::/10 counter accept");
+					AddRule(rules, "ipv6", "add rule ip6 filter INPUT ip6 saddr ff00::/8 ip6 daddr ff00::/8 counter accept");
+					AddRule(rules, "ipv6", "add rule ip6 filter INPUT ip6 saddr fc00::/7 ip6 daddr fc00::/7 counter accept");
 				}
 
 				if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_ping"))
@@ -219,6 +226,12 @@ namespace Eddie.Platform.Linux
 					AddRule(rules, "ipv6", "add rule ip6 filter OUTPUT ip6 daddr ff05::1:3 counter accept");
 				}
 
+				if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_ipv4ipv6translation") == true) // 2.24.3
+				{
+					AddRule(rules, "ipv6", "add rule ip6 filter OUTPUT ip6 saddr 64:ff9b::/96 ip6 daddr 64:ff9b::/96 counter accept"); // RFC 6052
+					AddRule(rules, "ipv6", "add rule ip6 filter OUTPUT ip6 saddr 64:ff9b:1::/48 ip6 daddr 64:ff9b:1::/48 counter accept"); // RFC 8215
+				}
+
 				if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_private"))
 				{
 					// Private networks
@@ -241,11 +254,9 @@ namespace Eddie.Platform.Linux
 					AddRule(rules, "ipv4", "add rule ip filter OUTPUT ip saddr 10.0.0.0/8 ip daddr 239.255.255.253 counter accept");
 					AddRule(rules, "ipv4", "add rule ip filter OUTPUT ip saddr 172.16.0.0/12 ip daddr 239.255.255.253 counter accept");
 
-					// Allow Link-Local addresses
-					AddRule(rules, "ipv6", "add rule ip6 filter OUTPUT ip6 saddr fe80::/10 counter accept");
-
-					// Allow multicast
-					AddRule(rules, "ipv6", "add rule ip6 filter OUTPUT ip6 daddr ff00::/8 counter accept");
+					AddRule(rules, "ipv6", "add rule ip6 filter OUTPUT ip6 saddr fe80::/10 ip6 daddr fe80::/10 counter accept");
+					AddRule(rules, "ipv6", "add rule ip6 filter OUTPUT ip6 saddr ff00::/8 ip6 daddr ff00::/8 counter accept");
+					AddRule(rules, "ipv6", "add rule ip6 filter OUTPUT ip6 saddr fc00::/7 ip6 daddr fc00::/7 counter accept");
 				}
 
 				if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_ping"))

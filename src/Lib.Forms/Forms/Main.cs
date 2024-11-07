@@ -1312,6 +1312,13 @@ namespace Eddie.Forms.Forms
 				this.WindowState = FormWindowState.Minimized; // Never occur
 			else
 			{
+				ShowInTaskbar = false;
+				Hide();
+
+				EnabledUi();
+				Resizing();
+
+				/*// TOCLEAN, removed in 2.24.2
 				if (GuiUtils.IsWindows())
 				{
 					ShowInTaskbar = false;
@@ -1328,15 +1335,8 @@ namespace Eddie.Forms.Forms
 
 					EnabledUi();
 					Resizing();
-					/*
-                    ShowInTaskbar = false;
-
-                    Hide();
-
-                    EnabledUi();
-                    Resizing();
-                    */
 				}
+				*/
 			}
 		}
 
@@ -2474,9 +2474,9 @@ namespace Eddie.Forms.Forms
 					}
 				}
 			}
-			catch (Exception ex)
+			catch
 			{
-				Engine.Instance.Logs.LogUnexpected(ex);
+				//Engine.Instance.Logs.LogUnexpected(ex);
 			}
 		}
 

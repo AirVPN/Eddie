@@ -37,7 +37,8 @@
 // --------------------------
 
 std::string serviceName = "eddie-elevated";
-std::string serviceDesc = "Eddie Elevation";
+std::string serviceDesc = "Eddie VPN Elevation";
+std::string serviceLauncherPath = "/usr/local/bin/eddie-vpn-service-launcher";
 std::string launchdPath = "/Library/LaunchDaemons/org.airvpn.eddie.ui.elevated.plist";
 
 int Impl::Main()
@@ -467,8 +468,8 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 				FsDirectoryCreate(varRunPath);
 
 				std::string ifConfigPath = FsLocateExecutable("ifconfig");
-				std::string wireGuardGoPath = FsLocateExecutable("wireguard-go");
-				std::string wgPath = FsLocateExecutable("wg");
+				std::string wireGuardGoPath = FsLocateExecutable("wireguard-go", true, true);
+				std::string wgPath = FsLocateExecutable("wg", true, true);
 
 				// Add interface
 
@@ -658,14 +659,34 @@ bool Impl::ServiceInstall()
 #endif
 	launchd += "        <key>Label</key>\n";
 	launchd += "        <string>org.airvpn.eddie.ui.elevated</string>\n";
-	launchd += "           <key>ProgramArguments</key>\n";
+	launchd += "        <key>ProgramArguments</key>\n";
 	launchd += "        <array>\n";
+
+	if (CheckIfExecutableIsAllowed(elevatedPath, false, true))
+	{
+	}
+	else
+	{
+		std::string elevatedLauncherOrig = GetProcessPathCurrent() + "-service";
+		
+		if (FsFileCopy(elevatedLauncherOrig, serviceLauncherPath) == false)
+			return false;				
+		if (chown(serviceLauncherPath.c_str(), 0, 0) == -1)
+			return false;			
+		if (chmod(serviceLauncherPath.c_str(), 0700) == -1)
+			return false;			
+		if (CheckIfExecutableIsAllowed(serviceLauncherPath, false, true) == false)
+			return false;		
+
+		if (IntegrityCheckUpdate("service") == false)
+			return false;
+		
+		launchd += "            <string>" + StringXmlEncode(serviceLauncherPath) + "</string>\n";
+	}
 	launchd += "            <string>" + StringXmlEncode(elevatedPath) + "</string>\n";
 	launchd += "            <string>mode=service</string>\n";
 	if (m_cmdline.find("service_port") != m_cmdline.end())
 		launchd += "            <string>service_port=" + StringEnsureNumericInt(m_cmdline["service_port"]) + "</string>\n";
-	std::string integrity = ComputeIntegrityHash(GetProcessPathCurrent(), "");
-	launchd += "            <string>integrity=" + StringEnsureIntegrity(integrity) + "</string>\n";
 	launchd += "        </array>\n";
 	launchd += "        <key>RunAtLoad</key>\n";
 	launchd += "        <true/>\n";
@@ -677,22 +698,31 @@ bool Impl::ServiceInstall()
 
 	FsFileWriteText(launchdPath, launchd);
 
-	ExecResult launchctlResult = ExecEx2(FsLocateExecutable("launchctl"), "load", launchdPath);
+	ExecResult launchctlResult = ExecEx2(FsLocateExecutable("launchctl"), "load", launchdPath);	
 	return (launchctlResult.exit == 0);
 }
 
 bool Impl::ServiceUninstall()
 {
+	bool result = true;
+
 	if (FsFileExists(launchdPath))
 	{
 		ExecResult launchctlResult = ExecEx2(FsLocateExecutable("launchctl"), "unload", launchdPath);
+		if (launchctlResult.exit > 0)
+			result = false;
 
 		FsFileDelete(launchdPath);
-
-		return (launchctlResult.exit == 0);
 	}
-	else
-		return true;
+
+	if (FsFileExists(serviceLauncherPath))
+	{
+		FsFileDelete(serviceLauncherPath);
+	}
+
+	IntegrityCheckClean("service");
+	
+	return result;
 }
 
 std::vector<std::string> Impl::GetNetworkInterfacesNames()
@@ -720,6 +750,11 @@ std::vector<std::string> Impl::GetNetworkInterfacesNames()
 	}
 
 	return output;
+}
+
+std::string Impl::SystemWideDataPath()
+{
+	return "/usr/local/bin/eddie-vpn.dat";
 }
 
 std::string Impl::CheckIfClientPathIsAllowed(const std::string& path)

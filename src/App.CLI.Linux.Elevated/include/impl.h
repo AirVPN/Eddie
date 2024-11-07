@@ -33,8 +33,7 @@ protected:
 	virtual bool ServiceInstall();
 	virtual bool ServiceUninstall();
 
-	//pazzo TOCLEAN virtual std::vector<std::string> GetNetworkInterfacesNames();	
-	
+	virtual std::string SystemWideDataPath();
 	virtual std::string CheckIfClientPathIsAllowed(const std::string& path);
 
 	// Virtual Pure, OS

@@ -187,7 +187,7 @@ namespace Eddie.Core
 								catch (Exception ex)
 								{
 									// Note: If failed, continue anyway.
-									Engine.Logs.Log(LogType.Warning, LanguageManager.GetText(LanguageItems.AuthorizeConnectFailed, ex.Message));
+									Engine.Logs.Log(LogType.Verbose, LanguageManager.GetText(LanguageItems.AuthorizeConnectFailed, ex.Message));
 								}
 
 								if (xmlDoc != null)
@@ -452,6 +452,8 @@ namespace Eddie.Core
 							Platform.Instance.OnDnsSwitchRestore();
 
 						Platform.Instance.OnInterfaceRestore();
+
+						Engine.Instance.NetworkInfoUpdate();
 
 						if (m_connection != null)
 						{
@@ -796,9 +798,12 @@ namespace Eddie.Core
 			{
 				Engine.RunEventCommand("vpn.up");
 
-				Engine.Logs.Log(LogType.InfoImportant, LanguageManager.GetText(LanguageItems.ConnectionConnected));
 				SetConnected(true);
 				m_connection.TimeStart = DateTime.UtcNow;
+
+				Engine.Instance.NetworkInfoUpdate();
+
+				Engine.Logs.Log(LogType.InfoImportant, LanguageManager.GetText(LanguageItems.ConnectionConnected));
 
 				if (Engine.Instance.ProfileOptions.GetBool("advanced.testonly"))
 					Engine.RequestStop();

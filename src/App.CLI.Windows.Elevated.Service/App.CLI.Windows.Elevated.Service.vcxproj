@@ -20,7 +20,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{D6E78055-7BC4-4301-BDFC-C4DDA35E959C}</ProjectGuid>
-    <RootNamespace>App.Service.Windows.Elevated</RootNamespace>
+    <RootNamespace>App.CLI.Windows.Elevated.Service</RootNamespace>
     <Keyword>Win32Proj</Keyword>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
@@ -96,6 +96,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -112,6 +113,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -128,6 +130,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -147,6 +150,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -157,24 +161,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\dependencies\sha256\sha256.cpp" />
-    <ClCompile Include="..\..\dependencies\yxml\yxml.cpp" />
-    <ClCompile Include="..\App.CLI.Windows.Elevated\src\impl.cpp" />
-    <ClCompile Include="..\App.CLI.Windows.Elevated\src\iwindows.cpp" />
-    <ClCompile Include="..\Lib.CLI.Elevated\src\ibase.cpp" />
-    <ClCompile Include="..\Lib.CLI.Elevated\src\ping.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\App.CLI.Common.Elevated\ibase.h" />
-    <ClInclude Include="..\App.CLI.Windows.Elevated\src\impl.h" />
-    <ClInclude Include="..\App.CLI.Windows.Elevated\src\iwindows.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="App.Service.Windows.Elevated.rc" />
+    <ResourceCompile Include="App.CLI.Windows.Elevated.Service.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="App.Service.Windows.Elevated.ico" />
+    <Image Include="App.CLI.Windows.Elevated.Service.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

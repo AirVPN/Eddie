@@ -18,7 +18,33 @@
 
 #include "..\..\Lib.CLI.Elevated\include\ibase.h"
 
-#include "..\..\..\dependencies\wintun\wintun.h"
+// Note: In Eddie 2.24.3, we try to update from wintun 12.0 to wintun 14.1, but there are a lots of changes, mainly related to pool.
+// Also, in the new 14.1, the "Close" also destroy adapter (by docs), so i cannot understand how to Create permanently.
+// 2.24.3: still use WinTun 12.0.
+// For the future, the connection "openvpn" must create at-fly adapter and destroy when end (like what WireGuard do), removing also the windows.adapters.cleanup option.
+#define WINTUNLIB
+#ifdef WINTUNLIB
+	//#define WIP_WINTUN14
+	#ifdef WIP_WINTUN14
+		#include "..\..\..\dependencies\wintun\wintun.14.1.h"		
+		static WINTUN_CREATE_ADAPTER_FUNC* WintunLibraryCreateAdapter;
+		static WINTUN_CLOSE_ADAPTER_FUNC* WintunLibraryCloseAdapter;
+		static WINTUN_OPEN_ADAPTER_FUNC* WintunLibraryOpenAdapter;
+		static WINTUN_GET_ADAPTER_LUID_FUNC* WintunLibraryGetAdapterLUID;
+		static WINTUN_GET_RUNNING_DRIVER_VERSION_FUNC* WintunLibraryGetRunningDriverVersion;
+		static WINTUN_DELETE_DRIVER_FUNC* WintunLibraryDeleteDriver;
+		static WINTUN_SET_LOGGER_FUNC* WintunLibrarySetLogger;
+		static WINTUN_START_SESSION_FUNC* WintunLibraryStartSession;
+		static WINTUN_END_SESSION_FUNC* WintunLibraryEndSession;
+		static WINTUN_GET_READ_WAIT_EVENT_FUNC* WintunLibraryGetReadWaitEvent;
+		static WINTUN_RECEIVE_PACKET_FUNC* WintunLibraryReceivePacket;
+		static WINTUN_RELEASE_RECEIVE_PACKET_FUNC* WintunLibraryReleaseReceivePacket;
+		static WINTUN_ALLOCATE_SEND_PACKET_FUNC* WintunLibraryAllocateSendPacket;
+		static WINTUN_SEND_PACKET_FUNC* WintunLibrarySendPacket;
+	#else
+		#include "..\..\..\dependencies\wintun\wintun.12.h"
+	#endif
+#endif
 
 class IWindows : public IBase
 {
@@ -28,7 +54,6 @@ protected:
 	virtual bool IsServiceInstalled();
 	virtual bool ServiceInstall();
 	virtual bool ServiceUninstall();
-	virtual bool ServiceUninstallSupportRealtime();
 	virtual bool FullUninstall();
 
 	// Virtual
@@ -56,12 +81,16 @@ protected:
 	virtual bool FsFileDelete(const std::string& path);
 	virtual bool FsDirectoryDelete(const std::string& path, bool recursive);
 	virtual bool FsFileMove(const std::string& source, const std::string& destination);
+	virtual bool FsFileCopy(const std::string& source, const std::string& destination);
 	virtual std::string FsFileReadText(const std::string& path);
 	virtual std::vector<char> FsFileReadBytes(const std::string& path);
 	virtual std::vector<std::string> FsFilesInPath(const std::string& path);
 	virtual std::string FsGetTempPath();
 	virtual std::vector<std::string> FsGetEnvPath();
 	virtual std::string FsGetRealPath(std::string path);
+	virtual bool FsFileIsExecutable(std::string path);
+	virtual bool FsFileEnsureRootOnly(std::string path);
+	virtual bool FsFileIsRootOnly(std::string path);
 	virtual bool SocketIsValid(HSOCKET s);
 	virtual void SocketMarkReuseAddr(HSOCKET s);
 	virtual void SocketBlockMode(HSOCKET s, bool block);
@@ -70,8 +99,12 @@ protected:
 
 	// Virtual Pure, Other
 protected:
+	virtual bool SystemWideDataSet(const std::string& key, const std::string& value);
+	virtual std::string SystemWideDataGet(const std::string& key, const std::string& def);
+	virtual bool SystemWideDataDel(const std::string& key);
+	virtual bool SystemWideDataClean();
 	virtual std::string CheckIfClientPathIsAllowed(const std::string& path);
-	virtual bool CheckIfExecutableIsAllowed(const std::string& path, const bool& throwException);
+	virtual bool CheckIfExecutableIsAllowed(const std::string& path, const bool& throwException, const bool ignoreKnown = false);
 	virtual int GetProcessIdMatchingIPEndPoints(struct sockaddr_in& addrClient, struct sockaddr_in& addrServer);
 
 	// Protected
@@ -93,26 +126,26 @@ protected:
 	void ExecCleanup(t_shellinfo info);
 	int SetInterfaceMetric(const int index, const std::string layer, const int value);
 
-	bool ServiceDelete(const std::string& id);
-	bool ServiceUninstallDirect();
+	bool ServiceGenericDelete(const std::string& id);
 
+#ifdef WINTUNLIB
 	// Wintun	
 	HMODULE m_wintunLibrary = 0;
 	bool WintunEnsureLibrary();
 	DWORD WintunVersion();
-	void WintunAdapterAdd(const std::wstring& pool, const std::wstring& name);
-	void WintunAdapterEnsure(const std::wstring& pool, const std::wstring& name);
-	void WintunAdapterRemove(const std::wstring& pool, const std::wstring& name);
-	void WintunAdapterRemovePool(const std::wstring& pool);
-
-	// Tap	
-	void TapCreateInterface(const std::wstring& hwid, const std::string& name);
-	void TapDeleteInterface(const std::wstring& id);
-
-public:
-	WINTUN_ADAPTER_HANDLE WintunAdapterOpen(const std::wstring& pool, const std::wstring& name);
+	std::string WintunAdapterAdd(const std::wstring& name);
+	std::string WintunAdapterEnsure(const std::wstring& name);
+	void WintunAdapterRemove(const std::wstring& name);
+	WINTUN_ADAPTER_HANDLE WintunAdapterOpen(const std::wstring& name);
 	void WintunAdapterClose(WINTUN_ADAPTER_HANDLE hAdapter);
 	void WintunAdapterRemove(WINTUN_ADAPTER_HANDLE hAdapter);
+	//void WintunAdapterRemovePool();
+	std::string WintunAdapterGetGuid(WINTUN_ADAPTER_HANDLE hAdapter);
+#endif
+	
+	std::string NetworkAdapterCreate(const std::string& driver, const std::string& name);
+	bool NetworkAdapterDelete(const std::string& id);
+	void NetworkAdapterDeleteAll();
 
 protected:
 

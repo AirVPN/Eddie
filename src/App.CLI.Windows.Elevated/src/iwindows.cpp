@@ -32,7 +32,6 @@
 #include "psapi.h"
 #include "tlhelp32.h"
 
-//#include <iphlpapi.h>
 #include <codecvt> // For StringUTF8ToWString
 #include "sddl.h"	// For ConvertSidToStringSid
 #include "accctrl.h" // For GetSecurityInfo
@@ -348,24 +347,25 @@ void IWindows::Do(const std::string& commandId, const std::string& command, std:
 	else if (command == "hummingbird")
 	{
 		// At 2020/02/23, Hummingbird Windows is not public available.
-	}
-	else if (command == "wintun-version")
+	}		
+	else if (command == "network-adapter-create")
 	{
-		ReplyCommand(commandId, StringFrom(WintunVersion()));
-	}
-	else if (command == "wintun-adapter-ensure")
-	{
-		std::wstring pool = StringUTF8ToWString(params["pool"]);
-		std::wstring name = StringUTF8ToWString(params["name"]);
+		std::string driver = params["driver"];
+		std::string name = params["name"];
 
-		WintunAdapterEnsure(pool, name);
+		std::string result = NetworkAdapterCreate(driver, name);
 
-		ReplyCommand(commandId, std::to_string(WintunVersion()));
+		ReplyCommand(commandId, result);		
 	}
-	else if (command == "wintun-adapter-removepool")
+	else if (command == "network-adapter-delete")
 	{
-		std::wstring pool = StringUTF8ToWString(params["pool"]);
-		WintunAdapterRemovePool(pool);
+		std::string id = params["id"];
+
+		NetworkAdapterDelete(id);
+	}
+	else if (command == "network-adapter-clear-all")
+	{
+		NetworkAdapterDeleteAll();
 	}
 	else if (command == "wireguard-version")
 	{
@@ -386,7 +386,7 @@ void IWindows::Do(const std::string& commandId, const std::string& command, std:
 		{
 			m_keypair[keypairStopRequest] = "stop";
 			//std::string serviceId = "WireGuardTunnel_" + interfaceId;
-			//ServiceDelete(serviceId);
+			//ServiceGenericDelete(serviceId);
 		}
 		else if (action == "start")
 		{
@@ -414,7 +414,7 @@ void IWindows::Do(const std::string& commandId, const std::string& command, std:
 
 				try
 				{
-					ServiceDelete(serviceId); // Delete if already exists
+					ServiceGenericDelete(serviceId); // Delete if already exists
 
 					if (FsDirectoryCreate(tempPath) == false)
 						ThrowException("Unable to create config directory (" + GetLastErrorAsString() + ")");
@@ -711,7 +711,7 @@ void IWindows::Do(const std::string& commandId, const std::string& command, std:
 					CloseHandle(hPipe);
 
 				// Stop and delete service
-				ServiceDelete(serviceId);
+				ServiceGenericDelete(serviceId);
 
 
 				// Stop and delete temp files
@@ -762,24 +762,38 @@ bool IWindows::ServiceInstall()
 
 	std::string elevatedPath = GetProcessPathCurrent();
 
-	std::string path = FsFileGetDirectory(elevatedPath) + FsPathSeparator + "Eddie-Service-Elevated.exe";
+	std::string servicePath = FsFileGetDirectory(elevatedPath) + FsPathSeparator + "Eddie-CLI-Elevated-Service.exe";
 
 	std::string elevatedArgs = "mode=service";
-	std::string integrity = ComputeIntegrityHash(GetProcessPathCurrent(), "");
-	elevatedArgs += " integrity=" + StringEnsureIntegrity(integrity);
-
+	
 	if (m_cmdline.find("service_port") != m_cmdline.end())
 		elevatedArgs += " service_port=" + std::to_string(port);
 
 	// Can be active but old version that don't accept new client
-	ServiceUninstallDirect();
+	ServiceGenericDelete(GetServiceId());
+
+	// Copy in a secure directory the launcher
+	bool securePath = false;
+	if (CheckIfExecutableIsAllowed(servicePath, false, true))
+	{
+
+	}
+	else
+	{	
+		wchar_t systemDirectory[MAX_PATH];
+		UINT size = GetSystemDirectoryW(systemDirectory, MAX_PATH);
+		std::wstring servicePathSecure = std::wstring(systemDirectory) + L"\\Eddie-VPN-Elevated-Service.exe";
+		CopyFileW(StringUTF8ToWString(servicePath).c_str(), servicePathSecure.c_str(), FALSE);
+		servicePath = StringWStringToUTF8(servicePathSecure);
+		securePath = true;
+	}	
 
 	SC_HANDLE serviceControlManager = OpenSCManager(0, 0, SC_MANAGER_ALL_ACCESS); // GENERIC_WRITE is not enough
 	if (serviceControlManager)
 	{
 		std::wstring serviceServiceNameW = StringUTF8ToWString(GetServiceId());
 		std::wstring serviceDisplayNameW = StringUTF8ToWString(GetServiceName());
-		std::wstring servicePathW = StringUTF8ToWString("\"" + path + "\"");
+		std::wstring servicePathW = StringUTF8ToWString("\"" + servicePath + "\"");
 		LPCWSTR serviceDependsW = TEXT("nsi\0Tcpip\0"); // Added in 2.21.0
 		SC_HANDLE service = CreateService(serviceControlManager, serviceServiceNameW.c_str(), serviceDisplayNameW.c_str(), SC_MANAGER_ALL_ACCESS, SERVICE_WIN32_OWN_PROCESS, SERVICE_AUTO_START, SERVICE_ERROR_NORMAL, servicePathW.c_str(), NULL, NULL, serviceDependsW, NULL, NULL);
 		if (service)
@@ -794,17 +808,24 @@ bool IWindows::ServiceInstall()
 					success = false;
 				else
 				{
+					// Write Path
+					std::wstring serviceArgElevatedPath = StringUTF8ToWString(GetProcessPathCurrent());
+					if (RegSetValueEx(hKey, TEXT("EddieElevatedPath"), 0, REG_SZ, (LPBYTE)serviceArgElevatedPath.c_str(), (DWORD)(serviceArgElevatedPath.size() + 1) * sizeof(wchar_t)) != ERROR_SUCCESS)
+						success = false;
+
 					// Write Args
 					std::wstring serviceArgs = StringUTF8ToWString(elevatedArgs);
-					LONG setResA = RegSetValueEx(hKey, TEXT("EddieArgs"), 0, REG_SZ, (LPBYTE)serviceArgs.c_str(), (DWORD)(serviceArgs.size() + 1) * sizeof(wchar_t));
-					if (setResA != ERROR_SUCCESS)
+					if ( RegSetValueEx(hKey, TEXT("EddieArgs"), 0, REG_SZ, (LPBYTE)serviceArgs.c_str(), (DWORD)(serviceArgs.size() + 1) * sizeof(wchar_t)) != ERROR_SUCCESS)
 						success = false;
 
 					// Write Description
 					std::wstring serviceDisplayDescW = StringUTF8ToWString(GetServiceDesc());
-					LONG setResD = RegSetValueEx(hKey, TEXT("Description"), 0, REG_SZ, (LPBYTE)serviceDisplayDescW.c_str(), (DWORD)(serviceDisplayDescW.size() + 1) * sizeof(wchar_t));
-					if (setResD != ERROR_SUCCESS)
+					if (RegSetValueEx(hKey, TEXT("Description"), 0, REG_SZ, (LPBYTE)serviceDisplayDescW.c_str(), (DWORD)(serviceDisplayDescW.size() + 1) * sizeof(wchar_t)) != ERROR_SUCCESS)
 						success = false;
+
+					// Write Security Info
+					if (IntegrityCheckUpdate("service") == false)
+						return false;					
 				}
 			}
 
@@ -836,7 +857,11 @@ bool IWindows::ServiceInstall()
 			CloseServiceHandle(service);
 
 			if (success == false)
-				ServiceUninstallDirect();
+			{
+				ServiceGenericDelete(GetServiceId());
+				if (securePath)
+					FsFileDelete(servicePath);
+			}
 		}
 		CloseServiceHandle(serviceControlManager);
 	}
@@ -848,39 +873,56 @@ bool IWindows::ServiceUninstall()
 {
 	if (IsServiceInstalled())
 	{
-		std::string serviceId = GetServiceId();
+		IntegrityCheckClean("service");
+
+		wchar_t systemDirectory[MAX_PATH];
+		UINT size = GetSystemDirectoryW(systemDirectory, MAX_PATH);
+		std::wstring servicePathSecure = std::wstring(systemDirectory) + L"\\Eddie-VPN-Elevated-Service.exe";
 
 		if (GetLaunchMode() == "service")
 		{
-			// This is performed 'async' without wait the result, because launched from service itself.
-			// See comment in IBase::ServiceUninstallSupportRealtime
-			std::string path = FsLocateExecutable("sc.exe");
-			std::vector<std::string> args;
-			args.push_back("delete \"" + serviceId + "\"");
-			t_shellinfo info = ExecStart(path, args);
+			// in Windows, we cannot delete the same running process
+			std::wstring servicePathDeleteScript = std::wstring(systemDirectory) + L"\\Eddie-VPN-Elevated-Service-Delete.bat";
+
+			std::string scriptDelete = "";			
+			scriptDelete += ":loop\r\n";
+			scriptDelete += "sc delete EddieElevationService\r\n";
+			scriptDelete += "if '%errorlevel%' == '1072' (\r\n"; // If 'marked for deletion', still in execution...
+			scriptDelete += "	timeout / t 1 / nobreak > null\r\n";
+			scriptDelete += "	goto loop\r\n";
+			scriptDelete += ")\r\n";
+			if (FsFileExists(StringWStringToUTF8(servicePathSecure)))
+				scriptDelete += "del " + StringWStringToUTF8(servicePathSecure) + "\r\n";
+			scriptDelete += "del " + StringWStringToUTF8(servicePathDeleteScript) + "\r\n";
+			
+			FsFileWriteText(StringWStringToUTF8(servicePathDeleteScript), scriptDelete);
+
+			std::string commandDelete = "cmd /c " + StringWStringToUTF8(servicePathDeleteScript);
+			STARTUPINFOA si = { sizeof(si) };
+			PROCESS_INFORMATION pi;
+			if (CreateProcessA(NULL, const_cast<char*>(commandDelete.c_str()), NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi))
+			{
+				CloseHandle(pi.hProcess);
+				CloseHandle(pi.hThread);
+			}		
 
 			return true;
 		}
 		else
 		{
-			return ServiceUninstallDirect();
+			FsFileDelete(StringWStringToUTF8(servicePathSecure));
+			return ServiceGenericDelete(GetServiceId());
 		}
 	}
 	else
 		return false;
 }
 
-bool IWindows::ServiceUninstallSupportRealtime()
-{
-	// See comment in base
-	return true;
-}
-
 bool IWindows::FullUninstall()
 {
 	// Remove any adapter created from Eddie
-	WintunAdapterRemovePool(StringUTF8ToWString("Eddie"));
-
+	NetworkAdapterDeleteAll();
+	
 	return IBase::FullUninstall();
 }
 
@@ -899,31 +941,23 @@ void IWindows::AddTorCookiePaths(const std::string& torPath, const std::string& 
 
 bool IWindows::IsRoot()
 {
-	BOOL fIsElevated = FALSE;
 	HANDLE hToken = NULL;
 	TOKEN_ELEVATION elevation;
 	DWORD dwSize;
 
 	if (!OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &hToken))
-	{
-		// Failed to get Process Token
-		goto Cleanup; // if Failed, we treat as False
-	}
-
+		return false;
+	
 	if (!GetTokenInformation(hToken, TokenElevation, &elevation, sizeof(elevation), &dwSize))
 	{
-		// Failed to get Token Information
-		goto Cleanup; // if Failed, we treat as False
-	}
-
-	fIsElevated = elevation.TokenIsElevated;
-
-Cleanup:
-	if (hToken)
-	{
 		CloseHandle(hToken);
-		hToken = NULL;
+		return false;
 	}
+
+	bool fIsElevated = elevation.TokenIsElevated;
+
+	CloseHandle(hToken);
+
 	return fIsElevated;
 }
 
@@ -935,14 +969,14 @@ void IWindows::Sleep(int ms)
 uint64_t IWindows::GetTimestampUnixUsec()
 {
 	uint64_t EPOCH = ((uint64_t)116444736000000000ULL);
-	SYSTEMTIME  system_time;
-	FILETIME    file_time;
+	SYSTEMTIME  systemTime;
+	FILETIME    fileTime;
 	uint64_t    time;
-	GetSystemTime(&system_time);
-	SystemTimeToFileTime(&system_time, &file_time);
-	time = ((uint64_t)file_time.dwLowDateTime);
-	time += ((uint64_t)file_time.dwHighDateTime) << 32;
-	return (time - EPOCH) / 10 + uint64_t(system_time.wMilliseconds) * 1000;
+	GetSystemTime(&systemTime);
+	SystemTimeToFileTime(&systemTime, &fileTime);
+	time = ((uint64_t)fileTime.dwLowDateTime);
+	time += ((uint64_t)fileTime.dwHighDateTime) << 32;
+	return (time - EPOCH) / 10 + uint64_t(systemTime.wMilliseconds) * 1000;
 }
 
 pid_t IWindows::GetCurrentProcessId()
@@ -1161,10 +1195,8 @@ bool IWindows::FsFileExists(const std::string& path)
 		return false;
 
 	std::wstring pathW(StringUTF8ToWString(path));
-	if (INVALID_FILE_ATTRIBUTES == ::GetFileAttributes(pathW.c_str()) && ::GetLastError() == ERROR_FILE_NOT_FOUND)
-		return false;
-	else
-		return true;
+	DWORD fileAttributes = GetFileAttributes(pathW.c_str());
+	return (fileAttributes != INVALID_FILE_ATTRIBUTES) && !(fileAttributes & FILE_ATTRIBUTE_DIRECTORY);
 }
 
 bool IWindows::FsDirectoryExists(const std::string& path)
@@ -1213,6 +1245,11 @@ bool IWindows::FsDirectoryDelete(const std::string& path, bool recursive)
 bool IWindows::FsFileMove(const std::string& source, const std::string& destination)
 {
 	return (MoveFileW(StringUTF8ToWString(source).c_str(), StringUTF8ToWString(destination).c_str()));
+}
+
+bool IWindows::FsFileCopy(const std::string& source, const std::string& destination)
+{
+	return (CopyFileW(StringUTF8ToWString(source).c_str(), StringUTF8ToWString(destination).c_str(), FALSE));
 }
 
 std::string IWindows::FsFileReadText(const std::string& path)
@@ -1305,6 +1342,26 @@ std::string IWindows::FsGetRealPath(std::string path)
 	return "";
 }
 
+bool IWindows::FsFileIsExecutable(std::string path)
+{
+	if (FsFileExists(path) == false)
+		return false;
+	std::string ext = FsFileGetExtension(path);
+	return (ext == "exe" || ext == "msi" || ext == "bat" || ext == "ps1" || ext == "cmd" || ext == "com");
+}
+
+bool IWindows::FsFileEnsureRootOnly(std::string path)
+{
+	// Not used in Windows
+	return true;
+}
+
+bool IWindows::FsFileIsRootOnly(std::string path)
+{
+	// Not used in Windows
+	return true;
+}
+
 bool IWindows::SocketIsValid(HSOCKET s)
 {
 	return (s != INVALID_SOCKET);
@@ -1338,16 +1395,63 @@ int IWindows::SocketGetLastErrorCode()
 	return WSAGetLastError();
 }
 
-std::string IWindows::CheckIfClientPathIsAllowed(const std::string& path)
+bool IWindows::SystemWideDataSet(const std::string& key, const std::string& value)
 {
-#ifdef Debug
-	return "ok";
-#else
+	std::wstring keyW = StringUTF8ToWString(key);
+	std::wstring valueW = StringUTF8ToWString(value);
+	HKEY hKey;
+	
+	if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Eddie-VPN", 0, NULL, 0, KEY_WRITE, NULL, &hKey, NULL) != ERROR_SUCCESS)
+		return false;
+	DWORD dataSize = static_cast<DWORD>((value.size() + 1) * sizeof(wchar_t));
+	bool result = (RegSetValueEx(hKey, keyW.c_str(), 0, REG_SZ, (const BYTE*)valueW.c_str(), dataSize) == ERROR_SUCCESS);
+	RegCloseKey(hKey);
+	return result;
+}
+
+std::string IWindows::SystemWideDataGet(const std::string& key, const std::string& def)
+{
+	std::wstring keyW = StringUTF8ToWString(key);
+	HKEY hKey;
+	wchar_t buffer[4096];
+	DWORD bufferSize = sizeof(buffer);
+
+	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Eddie-VPN", 0, KEY_READ, &hKey) != ERROR_SUCCESS)
+		return def;
+	bool result = (RegQueryValueEx(hKey, keyW.c_str(), NULL, NULL, reinterpret_cast<BYTE*>(buffer), &bufferSize) == ERROR_SUCCESS);
+	RegCloseKey(hKey);
+	if (result)
+		return StringWStringToUTF8(std::wstring(buffer));
+	else
+		return def;
+}
+
+bool IWindows::SystemWideDataDel(const std::string& key)
+{
+	std::wstring keyW = StringUTF8ToWString(key);
+	HKEY hKey;
+
+	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Eddie-VPN", 0, KEY_SET_VALUE, &hKey) != ERROR_SUCCESS)
+		return false;
+
+	bool result = (RegDeleteValue(hKey, keyW.c_str()) == ERROR_SUCCESS);
+	RegCloseKey(hKey);
+	return result;
+}
+
+bool IWindows::SystemWideDataClean()
+{
+	return (RegDeleteKeyW(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Eddie-VPN") == ERROR_SUCCESS);
+}
+
+std::string IWindows::CheckIfClientPathIsAllowed(const std::string& path)
+{	
 	/*
 	// MacOS have equivalent.
 	// Linux don't have any signature check (and can't have, because in distro like Arch, binary are builded client-side from sources
 	// This is probably a superfluous check, and can cause issue for who compile from sources.
 	// If implemented, need a conversion from C# to C++ of the code below.
+	// Not yet implemented, redundant.
 
 	// Check signature (optional)
 	{
@@ -1386,108 +1490,103 @@ std::string IWindows::CheckIfClientPathIsAllowed(const std::string& path)
 	*/
 
 	return "ok";
-#endif
 }
 
-bool IWindows::CheckIfExecutableIsAllowed(const std::string& path, const bool& throwException)
+bool IWindows::CheckIfExecutableIsAllowed(const std::string& path, const bool& throwException, const bool ignoreKnown)
 {
 	std::string issues = "";
 
-	if (CheckIfExecutableIsWhitelisted(path)) // If true, skip other checks.
+	if ( (ignoreKnown == false) && (IntegrityCheckFileKnown(path)) ) // If true, skip other checks.
 		return true;
 
-	return true; // Commented, cause crash, and it's not used anyway right now
-
-	// Windows Security Descriptor
-	DWORD dwRtnCode = 0;
-	PSID pSidOwner = NULL;
-	BOOL bRtnBool = TRUE;
-	LPTSTR AcctName = NULL;
-	LPTSTR DomainName = NULL;
-	DWORD dwAcctName = 1, dwDomainName = 1;
-	SID_NAME_USE eUse = SidTypeUnknown;
-	HANDLE hFile;
-	PSECURITY_DESCRIPTOR pSD = NULL;
-
-	hFile = CreateFile(StringUTF8ToWString(path).c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-
-	if (hFile == INVALID_HANDLE_VALUE)
+	if (FsFileExists(path) == false)
 	{
-		DWORD dwErrorCode = 0;
-		dwErrorCode = GetLastError();
-		issues += "CheckIfExecutableIsAllowed - CreateFile error (" + StringFrom(dwErrorCode) + ");";
+		issues += "not found;";
 	}
 	else
-	{
-		dwRtnCode = GetSecurityInfo(hFile, SE_FILE_OBJECT, OWNER_SECURITY_INFORMATION, &pSidOwner, NULL, NULL, NULL, &pSD);
+	{	
+		std::wstring pathW = StringUTF8ToWString(path);
 
-		if (dwRtnCode != ERROR_SUCCESS)
+		DWORD dwRes;
+		PACL pDacl = NULL;
+		PSECURITY_DESCRIPTOR pSD = NULL;
+
+		dwRes = GetNamedSecurityInfoW(pathW.c_str(), SE_FILE_OBJECT, DACL_SECURITY_INFORMATION, NULL, NULL, &pDacl, NULL, &pSD);
+		if (dwRes != ERROR_SUCCESS)
 		{
-			DWORD dwErrorCode = 0;
-			dwErrorCode = GetLastError();
-			issues += "CheckIfExecutableIsAllowed - GetSecurityInfo error (" + StringFrom(dwErrorCode) + ");";
+			issues += "GetNamedSecurityInfoW error;";
 		}
 		else
 		{
-			CloseHandle(hFile);
+			PSID pSidSystem = NULL;
+			PSID pSidAdmins = NULL;
+			PSID pSidTrustedInstaller = NULL;
+			ConvertStringSidToSidW(L"S-1-5-18", &pSidSystem); // SYSTEM
+			ConvertStringSidToSidW(L"S-1-5-32-544", &pSidAdmins); // SID Administrators
+			ConvertStringSidToSidW(L"S-1-5-80-956008885-3418522649-1831038044-1853292631-2271478464", &pSidTrustedInstaller); // SID TrustedInstaller
 
-			bRtnBool = LookupAccountSid(NULL, pSidOwner, AcctName, (LPDWORD)&dwAcctName, DomainName, (LPDWORD)&dwDomainName, &eUse);
-
-			AcctName = (LPTSTR)GlobalAlloc(GMEM_FIXED, dwAcctName);
-
-			if (AcctName == NULL)
+			bool hasOtherWritePermissions = false;
+			for (DWORD i = 0; i < pDacl->AceCount; i++)
 			{
-				DWORD dwErrorCode = 0;
-				dwErrorCode = GetLastError();
-				issues += "CheckIfExecutableIsAllowed - GlobalAlloc error (" + StringFrom(dwErrorCode) + ");";
-			}
-			else
-			{
-				DomainName = (LPTSTR)GlobalAlloc(GMEM_FIXED, dwDomainName);
-
-				if (DomainName == NULL)
+				LPVOID pAce;
+				if (GetAce(pDacl, i, &pAce))
 				{
-					DWORD dwErrorCode = 0;
-					dwErrorCode = GetLastError();
-					issues += "CheckIfExecutableIsAllowed - GlobalAlloc error (" + StringFrom(dwErrorCode) + ");";
-				}
-				else
-				{
-					bRtnBool = LookupAccountSid(NULL, pSidOwner, AcctName, (LPDWORD)&dwAcctName, DomainName, (LPDWORD)&dwDomainName, &eUse);
+					ACE_HEADER* aceHeader = (ACE_HEADER*)pAce;
+					if (aceHeader->AceType == ACCESS_ALLOWED_ACE_TYPE)
+					{
+						ACCESS_ALLOWED_ACE* allowedAce = (ACCESS_ALLOWED_ACE*)pAce;
+						if ((allowedAce->Mask & FILE_WRITE_DATA) == FILE_WRITE_DATA)
+						{
+							PSID pAceSid = (PSID)&allowedAce->SidStart;
 
-					if (bRtnBool == FALSE)
-					{
-						DWORD dwErrorCode = 0;
-						dwErrorCode = GetLastError();
-						if (dwErrorCode == ERROR_NONE_MAPPED)
-							issues = "Account owner not found for specified SID;";
-						else
-							issues = "Error in LookupAccountSid;";
-					}
-					else
-					{
-						// TOFIX, issues for who use custom path...
-						/*
-						std::string sDomainName = StringWStringToUTF8(DomainName);
-						if (StringWStringToUTF8(DomainName) != "NT SERVICE")
-							issues = "not under NT SERVICE";
-						*/
+							if ((pSidSystem != NULL) && (EqualSid(pAceSid, pSidSystem)))
+								continue;
+							if ((pSidAdmins != NULL) && (EqualSid(pAceSid, pSidAdmins)))
+								continue;
+							if ((pSidTrustedInstaller != NULL) && (EqualSid(pAceSid, pSidTrustedInstaller)))
+								continue;
+
+							char name[256], domain[256];
+							DWORD nameSize = sizeof(name), domainSize = sizeof(domain);
+							SID_NAME_USE sidType;
+
+							if (LookupAccountSidA(NULL, pAceSid, name, &nameSize, domain, &domainSize, &sidType))
+							{
+								issues += std::string(domain) + "\\" + std::string(name) + " has write;";
+							}
+							else
+							{
+								issues += "unknown has write;";
+							}
+						}
 					}
 				}
 			}
+
+			if (pSidSystem != NULL)
+				FreeSid(pSidSystem);
+			if (pSidAdmins != NULL)
+				FreeSid(pSidAdmins);
+			if (pSidTrustedInstaller != NULL)
+				FreeSid(pSidTrustedInstaller);			
 		}
-	}
+		
+		if (pSD != NULL)
+			LocalFree(pSD);
+	}	
 
 	if (issues != "")
 	{
 		if (throwException)
+		{
 			ThrowException("Executable '" + path + "' not allowed: " + issues);
+			return false;
+		}
 		else
 			return false;
 	}
 	else
 		return true;
-
 }
 
 int IWindows::GetProcessIdMatchingIPEndPoints(struct sockaddr_in& addrClient, struct sockaddr_in& addrServer)
@@ -1684,7 +1783,8 @@ int IWindows::SetInterfaceMetric(const int index, const std::string layer, const
 	return err;
 }
 
-bool IWindows::ServiceDelete(const std::string& id)
+// Note: used both for Eddie Elevated service AND Wireguard service
+bool IWindows::ServiceGenericDelete(const std::string& id)
 {
 	bool success = false;
 
@@ -1734,11 +1834,7 @@ bool IWindows::ServiceDelete(const std::string& id)
 		return false;
 }
 
-bool IWindows::ServiceUninstallDirect()
-{
-	return ServiceDelete(GetServiceId());
-}
-
+#ifdef WINTUNLIB
 bool IWindows::WintunEnsureLibrary()
 {
 	if (m_wintunLibrary == 0)
@@ -1750,6 +1846,7 @@ bool IWindows::WintunEnsureLibrary()
 		if (IsWindows8OrGreater())
 		{
 			std::string path = GetProcessPathCurrentDir() + FsPathSeparator + "wintun.dll";
+			CheckIfExecutableIsAllowed(path, true);
 			std::wstring pathW = StringUTF8ToWString(path);
 			m_wintunLibrary = LoadLibraryExW(pathW.c_str(), NULL, LOAD_WITH_ALTERED_SEARCH_PATH);
 		}
@@ -1763,60 +1860,86 @@ DWORD IWindows::WintunVersion()
 	if (WintunEnsureLibrary() == false)
 		return 0;
 
+#ifdef WIP_WINTUN14
+	return WintunLibraryGetRunningDriverVersion();
+#else
+
 	WINTUN_GET_RUNNING_DRIVER_VERSION_FUNC funcWintunGetRunningDriverVersion = (WINTUN_GET_RUNNING_DRIVER_VERSION_FUNC)GetProcAddress(m_wintunLibrary, "WintunGetRunningDriverVersion");
 	if (funcWintunGetRunningDriverVersion == 0)
 		ThrowException("wintun.dll WintunGetRunningDriverVersion not found: " + GetLastErrorAsString());
 	else
 		return funcWintunGetRunningDriverVersion();
+#endif
 
 	return 0;
 }
 
-void IWindows::WintunAdapterAdd(const std::wstring& pool, const std::wstring& name)
+std::string IWindows::WintunAdapterAdd(const std::wstring& name)
 {
 	if (WintunEnsureLibrary() == false)
-		return;
+		return "";
+#ifdef WIP_WINTUN14
+	WINTUN_ADAPTER_HANDLE hAdapter = WintunLibraryCreateAdapter(pool.c_str(), name.c_str(), NULL);
 
+	if (hAdapter == 0)
+	{
+		ThrowException("wintun.dll WintunCreateAdapter fail, pool:'" + StringWStringToUTF8(pool) + "', name:'" + StringWStringToUTF8(name) + "', error : '" + GetLastErrorAsString() + "'");
+	}
+	else
+		WintunAdapterClose(hAdapter);
+#else
 	WINTUN_CREATE_ADAPTER_FUNC funcWintunCreateAdapter = (WINTUN_CREATE_ADAPTER_FUNC)GetProcAddress(m_wintunLibrary, "WintunCreateAdapter");
 	if (funcWintunCreateAdapter == 0)
+	{
 		ThrowException("wintun.dll WintunCreateAdapter not found");
+		return "";
+	}
 	else
 	{
 		BOOL needReboot = false;
 
+		std::wstring pool = L"Eddie";
 		WINTUN_ADAPTER_HANDLE hAdapter = funcWintunCreateAdapter(pool.c_str(), name.c_str(), NULL, &needReboot);
 		
 		if (hAdapter == 0)
 		{
 			ThrowException("wintun.dll WintunCreateAdapter fail, pool:'" + StringWStringToUTF8(pool) +"', name:'" + StringWStringToUTF8(name) + "', nr:" + (needReboot ? "Y":"N") + ", error : '" + GetLastErrorAsString() + "'");
+			return "";
 		}
 		else
+		{
+			std::string guid = WintunAdapterGetGuid(hAdapter);
 			WintunAdapterClose(hAdapter);
+			return guid;
+		}
 	}
+#endif
 }
 
-void IWindows::WintunAdapterEnsure(const std::wstring& pool, const std::wstring& name)
+std::string IWindows::WintunAdapterEnsure(const std::wstring& name)
 {
 	if (WintunEnsureLibrary() == false)
-		return;
+		return "";
 
-	WINTUN_ADAPTER_HANDLE hAdapter = WintunAdapterOpen(pool, name);
+	WINTUN_ADAPTER_HANDLE hAdapter = WintunAdapterOpen(name);
 	if (hAdapter == 0)
 	{
-		WintunAdapterAdd(pool, name);
+		return WintunAdapterAdd(name);
 	}
 	else
 	{
+		std::string guid = WintunAdapterGetGuid(hAdapter);
 		WintunAdapterClose(hAdapter);
+		return guid;
 	}
 }
 
-void IWindows::WintunAdapterRemove(const std::wstring& pool, const std::wstring& name)
+void IWindows::WintunAdapterRemove(const std::wstring& name)
 {
 	if (WintunEnsureLibrary() == false)
 		return;
 
-	WINTUN_ADAPTER_HANDLE hAdapter = WintunAdapterOpen(pool, name);
+	WINTUN_ADAPTER_HANDLE hAdapter = WintunAdapterOpen(name);
 	if (hAdapter != 0)
 	{
 		WintunAdapterRemove(hAdapter);
@@ -1825,8 +1948,12 @@ void IWindows::WintunAdapterRemove(const std::wstring& pool, const std::wstring&
 	}
 }
 
-WINTUN_ADAPTER_HANDLE IWindows::WintunAdapterOpen(const std::wstring& pool, const std::wstring& name)
+WINTUN_ADAPTER_HANDLE IWindows::WintunAdapterOpen(const std::wstring& name)
 {
+#ifdef WIP_WINTUN14
+	WINTUN_ADAPTER_HANDLE hAdapter = WintunLibraryOpenAdapter(pool.c_str(), name.c_str());
+	return hAdapter;
+#else
 	WINTUN_OPEN_ADAPTER_FUNC funcWintunOpenAdapter = (WINTUN_OPEN_ADAPTER_FUNC)GetProcAddress(m_wintunLibrary, "WintunOpenAdapter");
 	if (funcWintunOpenAdapter == 0)
 	{
@@ -1835,22 +1962,31 @@ WINTUN_ADAPTER_HANDLE IWindows::WintunAdapterOpen(const std::wstring& pool, cons
 	}
 	else
 	{
+		std::wstring pool = L"Eddie";
 		WINTUN_ADAPTER_HANDLE hAdapter = funcWintunOpenAdapter(pool.c_str(), name.c_str());
 		return hAdapter;
 	}
+#endif
 }
 
 void IWindows::WintunAdapterClose(WINTUN_ADAPTER_HANDLE hAdapter)
 {
+#ifdef WIP_WINTUN14
+	WintunLibraryCloseAdapter(hAdapter);
+#else
 	WINTUN_FREE_ADAPTER_FUNC funcWintunFreeAdapter = (WINTUN_FREE_ADAPTER_FUNC)GetProcAddress(m_wintunLibrary, "WintunFreeAdapter");
 	if (funcWintunFreeAdapter == 0)
 		ThrowException("wintun.dll WintunFreeAdapter not found");
 	else
 		funcWintunFreeAdapter(hAdapter);
+#endif
 }
 
 void IWindows::WintunAdapterRemove(WINTUN_ADAPTER_HANDLE hAdapter)
 {
+#ifdef WIP_WINTUN14
+	#error WIP
+#else
 	WINTUN_DELETE_ADAPTER_FUNC funcWintunDeleteAdapter = (WINTUN_DELETE_ADAPTER_FUNC)GetProcAddress(m_wintunLibrary, "WintunDeleteAdapter");
 	if (funcWintunDeleteAdapter == 0)
 		ThrowException("wintun.dll WintunDeleteAdapter not found");
@@ -1859,16 +1995,20 @@ void IWindows::WintunAdapterRemove(WINTUN_ADAPTER_HANDLE hAdapter)
 		BOOL needReboot = false;
 		funcWintunDeleteAdapter(hAdapter, true, &needReboot);
 	}
+#endif
 }
 
+/*
 BOOL WintunAdapterRemovePoolCallback(WINTUN_ADAPTER_HANDLE hAdapter, LPARAM param) // TOFIX: convert to member function
 {
 	IWindows* pImpl = (IWindows*)param;
 	pImpl->WintunAdapterRemove(hAdapter);
 	return TRUE;
 }
+*/
 
-void IWindows::WintunAdapterRemovePool(const std::wstring& pool)
+/*
+void IWindows::WintunAdapterRemovePool()
 {
 	if (WintunEnsureLibrary() == false)
 		return;
@@ -1881,6 +2021,7 @@ void IWindows::WintunAdapterRemovePool(const std::wstring& pool)
 	}
 	else
 	{
+		std::wstring pool = L"Eddie";
 		funcWintunEnumAdapters(pool.c_str(), &WintunAdapterRemovePoolCallback, (LPARAM)this);
 	}
 #else
@@ -1888,16 +2029,173 @@ void IWindows::WintunAdapterRemovePool(const std::wstring& pool)
 	WintunAdapterRemove(pool, StringUTF8ToWString("Eddie OpenVPN"));
 #endif
 }
+*/
+#endif // WINTUNLIB
 
-void IWindows::TapCreateInterface(const std::wstring& hwid, const std::string& name)
+std::string IWindows::WintunAdapterGetGuid(WINTUN_ADAPTER_HANDLE hAdapter)
 {
-	// WIP
+#ifdef WIP_WINTUN14
+#error WIP
+#else
+	WINTUN_GET_ADAPTER_LUID_FUNC funcWintunGetAdapterLUID = (WINTUN_GET_ADAPTER_LUID_FUNC)GetProcAddress(m_wintunLibrary, "WintunGetAdapterLUID");
+	if (funcWintunGetAdapterLUID == 0)
+	{
+		ThrowException("wintun.dll WintunGetAdapterLUID not found");
+		return "";
+	}
+	else
+	{
+		NET_LUID luid;
+		funcWintunGetAdapterLUID(hAdapter, &luid);
+
+		GUID guid;
+		if (ConvertInterfaceLuidToGuid(&luid, &guid) == NO_ERROR)
+		{
+			wchar_t guidString[39];
+			StringFromGUID2(guid, guidString, 39);
+
+			return StringWStringToUTF8(guidString);
+		}
+		else
+		{
+			ThrowException("wintun.dll WintunGetAdapterLUID fail");
+			return "";
+		}
+	}
+#endif
 }
 
-void IWindows::TapDeleteInterface(const std::wstring& id)
+std::string IWindows::NetworkAdapterCreate(const std::string& driver, const std::string& name)
 {
-	// WIP
+	// We keep a list of network adapter created by Eddie	
+
+	std::string guid = "";
+
+	if (driver == "ovpn-dco")
+	{
+		std::string tapctl = FsLocateExecutable("tapctl.exe", false, true);
+		if (tapctl != "")
+		{
+			ExecResult result = ExecEx3(tapctl, "create", "--hwid \"ovpn-dco\"", "--name \"" + name + "\"");
+			if (result.exit == 0)
+				guid = StringTrim(result.out);
+		}
+	}
+	else if (driver == "wintun")
+	{
+#ifdef WINTUNLIB
+		guid = WintunAdapterEnsure(StringUTF8ToWString(name));
+#else
+		// Note 2.24.3: tapctl don't create wintun if driver is not installed, so we absolutely need to use wintun.h (12.0 or 14.1, for now 12.0)
+		std::string tapctl = FsLocateExecutable("tapctl.exe", false, true);
+		if (tapctl != "")
+		{
+			ExecResult result = ExecEx3(tapctl, "create", "--hwid \"wintun\"", "--name \"" + name + "\"");
+			if (result.exit == 0)
+				guid = StringTrim(result.out);
+		}
+#endif
+	}
+	else if (driver == "tap-windows6")
+	{
+		std::string tapctl = FsLocateExecutable("tapctl.exe", false, true);
+		if (tapctl != "")
+		{
+			ExecResult result = ExecEx3(tapctl, "create", "--hwid \"root\\tap0901\"", "--name \"" + name + "\"");
+			if (result.exit == 0)
+				guid = StringTrim(result.out);
+		}
+	}
+
+	if (guid != "")
+	{
+		std::string eddieList = SystemWideDataGet("network_adapters", "");
+		eddieList += guid + ";";
+		SystemWideDataSet("network_adapters", eddieList);
+
+		return guid;
+	}
+	else
+		return "";
 }
+
+bool IWindows::NetworkAdapterDelete(const std::string& id)
+{
+	std::string tapctl = FsLocateExecutable("tapctl.exe", false, true);
+	if (tapctl != "")
+	{
+		ExecResult result = ExecEx2(tapctl, "delete", id);
+		if (result.exit == 0)
+		{
+			std::string eddieList = SystemWideDataGet("network_adapters", "");
+			eddieList = StringReplaceAll(eddieList, id + ";", "");
+			SystemWideDataSet("network_adapters", eddieList);
+			return true;
+		}
+	}
+
+	return false;
+}
+
+void IWindows::NetworkAdapterDeleteAll()
+{
+/*
+#ifdef WINTUNLIB
+	// Only wintun for now
+	WintunAdapterRemovePool();
+#else
+*/
+	std::vector<std::string> list = StringToVector(SystemWideDataGet("network_adapters", ""), ';', true);
+	for (std::vector<std::string>::const_iterator i = list.begin(); i != list.end(); ++i)
+	{
+		std::string id = *i;
+		NetworkAdapterDelete(id);
+	}
+//#endif
+}
+	
+/* TOCLEAN
+void EnumerateNetworkAdapters()
+{
+	ULONG flags = GAA_FLAG_INCLUDE_ALL_INTERFACES;
+	ULONG family = AF_UNSPEC;
+	PIP_ADAPTER_ADDRESSES pAddresses = nullptr;
+	ULONG outBufLen = 0;
+
+	ULONG ret = GetAdaptersAddresses(family, flags, nullptr, pAddresses, &outBufLen);
+	if (ret == ERROR_BUFFER_OVERFLOW)
+	{
+		pAddresses = (IP_ADAPTER_ADDRESSES*)malloc(outBufLen);
+		if (pAddresses == nullptr)
+		{
+			return;
+		}
+	}
+	else if (ret != ERROR_BUFFER_OVERFLOW)
+	{
+		return;
+	}
+
+	ret = GetAdaptersAddresses(family, flags, nullptr, pAddresses, &outBufLen);
+	if (ret == NO_ERROR)
+	{
+		PIP_ADAPTER_ADDRESSES pCurrAddresses = pAddresses;
+		while (pCurrAddresses) {
+
+			std::string id(pCurrAddresses->AdapterName);
+			std::wstring name(pCurrAddresses->FriendlyName);
+			std::wstring desc(pCurrAddresses->Description);
+			
+			pCurrAddresses = pCurrAddresses->Next;
+		}
+	}
+
+	if (pAddresses)
+	{
+		free(pAddresses);
+	}
+}
+*/
 
 // Note 2021-05-06:
 // It's not possible to call directly the wgtunnel.dll entrypoint, because throw
@@ -1910,7 +2208,11 @@ int IWindows::WireGuardTunnel(const std::string& configName)
 	// Write a file for any fatal error
 	std::string error = "";
 
-	HINSTANCE hInstanceTunnel = LoadLibrary(TEXT("wgtunnel.dll"));
+	std::string path = GetProcessPathCurrentDir() + FsPathSeparator + "wgtunnel.dll";
+	CheckIfExecutableIsAllowed(path, true);
+	std::wstring pathW = StringUTF8ToWString(path);
+	HINSTANCE hInstanceTunnel = LoadLibraryExW(pathW.c_str(), NULL, LOAD_WITH_ALTERED_SEARCH_PATH);
+
 	if (hInstanceTunnel != NULL)
 	{
 		typedef int(__cdecl* WGTUNNELPROC)(LPWSTR);
@@ -2001,220 +2303,24 @@ int IWindows::WireGuardTunnel(const std::string& configName)
 
 std::wstring IWindows::StringUTF8ToWString(const std::string& str)
 {
-	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> conv;
-	return conv.from_bytes(str);
+	// Pre C++17
+	//std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> conv;
+	//return conv.from_bytes(str);
+	if (str.empty()) return std::wstring();
+	int sizeNeeded = MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), NULL, 0);
+	std::wstring wstrTo(sizeNeeded, 0);
+	MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), &wstrTo[0], sizeNeeded);
+	return wstrTo;
 }
 
-std::string IWindows::StringWStringToUTF8(const std::wstring& str)
+std::string IWindows::StringWStringToUTF8(const std::wstring& wstr)
 {
-	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> conv;
-	return conv.to_bytes(str);
+	// Pre C++17
+	//std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> conv;
+	//return conv.to_bytes(str);
+	if (wstr.empty()) return std::string();
+	int sizeNeeded = WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), NULL, 0, NULL, NULL);
+	std::string strTo(sizeNeeded, 0);
+	WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), &strTo[0], sizeNeeded, NULL, NULL);
+	return strTo;
 }
-
-
-
-/*
-
-#include "setupapi.h"
-
-// Temp, to understand issues
-const static GUID GUID_DEVCLASS_NET = { 0x4d36e972L, 0xe325, 0x11ce, { 0xbf, 0xc1, 0x08, 0x00, 0x2b, 0xe1, 0x03, 0x18 } };
-
-#define M_DEBUG_LEVEL     (0x0F)         // debug level mask 
-#define M_FATAL           (1<<4)         // exit program 
-#define M_NONFATAL        (1<<5)         // non-fatal error 
-#define M_ERRNO           (1<<8)         // show errno description 
-
-#define EXIT_FATAL(flags) do { if ((flags) & M_FATAL) {_exit(1);}} while (false)
-#define msg(flags, ...) do { if (msg_test(flags)) {x_msg((flags), __VA_ARGS__);} EXIT_FATAL(flags); } while (false)
-void x_msg(const unsigned int flags, const char* format, ...);     // should be called via msg above
-
-bool dont_mute(unsigned int flags);
-
-unsigned int x_debug_level;
-static inline bool
-check_debug_level(unsigned int level)
-{
-	return (level & M_DEBUG_LEVEL) <= x_debug_level;
-}
-
-// Return true if flags represent and enabled, not muted log level 
-static inline bool
-msg_test(unsigned int flags)
-{
-	return check_debug_level(flags) && dont_mute(flags);
-}
-
-
-DWORD
-tap_create_adapter(
-	_In_opt_ HWND hwndParent,
-	_In_opt_ LPCTSTR szDeviceDescription,
-	_In_ LPCTSTR szHwId,
-	_Inout_ LPBOOL pbRebootRequired,
-	_Out_ LPGUID pguidAdapter)
-{
-	DWORD dwResult;
-	HMODULE libnewdev = NULL;
-
-	if (szHwId == NULL
-		|| pbRebootRequired == NULL
-		|| pguidAdapter == NULL)
-	{
-		return ERROR_BAD_ARGUMENTS;
-	}
-
-	// Create an empty device info set for network adapter device class
-	HDEVINFO hDevInfoList = SetupDiCreateDeviceInfoList(&GUID_DEVCLASS_NET, hwndParent);
-	if (hDevInfoList == INVALID_HANDLE_VALUE)
-	{
-		dwResult = GetLastError();
-		msg(M_NONFATAL, "%s: SetupDiCreateDeviceInfoList failed", __FUNCTION__);
-		return dwResult;
-	}
-
-	// Get the device class name from GUID.
-	TCHAR szClassName[MAX_CLASS_NAME_LEN];
-	if (!SetupDiClassNameFromGuid(
-		&GUID_DEVCLASS_NET,
-		szClassName,
-		_countof(szClassName),
-		NULL))
-	{
-		dwResult = GetLastError();
-		msg(M_NONFATAL, "%s: SetupDiClassNameFromGuid failed", __FUNCTION__);
-		goto cleanup_hDevInfoList;
-	}
-
-	// Create a new device info element and add it to the device info set.
-	SP_DEVINFO_DATA devinfo_data = { .cbSize = sizeof(SP_DEVINFO_DATA) };
-	if (!SetupDiCreateDeviceInfo(
-		hDevInfoList,
-		szClassName,
-		&GUID_DEVCLASS_NET,
-		szDeviceDescription,
-		hwndParent,
-		DICD_GENERATE_ID,
-		&devinfo_data))
-	{
-		dwResult = GetLastError();
-		msg(M_NONFATAL, "%s: SetupDiCreateDeviceInfo failed", __FUNCTION__);
-		goto cleanup_hDevInfoList;
-	}
-
-	// Set a device information element as the selected member of a device information set.
-	if (!SetupDiSetSelectedDevice(
-		hDevInfoList,
-		&devinfo_data))
-	{
-		dwResult = GetLastError();
-		msg(M_NONFATAL, "%s: SetupDiSetSelectedDevice failed", __FUNCTION__);
-		goto cleanup_hDevInfoList;
-	}
-
-	// Set Plug&Play device hardware ID property.
-	if (!SetupDiSetDeviceRegistryProperty(
-		hDevInfoList,
-		&devinfo_data,
-		SPDRP_HARDWAREID,
-		(const BYTE*)szHwId, (DWORD)((_tcslen(szHwId) + 1) * sizeof(TCHAR))))
-	{
-		dwResult = GetLastError();
-		msg(M_NONFATAL, "%s: SetupDiSetDeviceRegistryProperty failed", __FUNCTION__);
-		goto cleanup_hDevInfoList;
-	}
-
-	// Register the device instance with the PnP Manager
-	if (!SetupDiCallClassInstaller(
-		DIF_REGISTERDEVICE,
-		hDevInfoList,
-		&devinfo_data))
-	{
-		dwResult = GetLastError();
-		msg(M_NONFATAL, "%s: SetupDiCallClassInstaller(DIF_REGISTERDEVICE) failed", __FUNCTION__);
-		goto cleanup_hDevInfoList;
-	}
-
-	// Install the device using DiInstallDevice()
-	// We instruct the system to use the best driver in the driver store
-	// by setting the drvinfo argument of DiInstallDevice as NULL. This
-	// assumes a driver is already installed in the driver store.
-	 
-#ifdef HAVE_DIINSTALLDEVICE
-	if (!DiInstallDevice(hwndParent, hDevInfoList, &devinfo_data, NULL, 0, pbRebootRequired))
-#else
-	 // mingw does not resolve DiInstallDevice, so load it at run time. 
-	typedef BOOL(WINAPI* DiInstallDeviceFn)(HWND, HDEVINFO, SP_DEVINFO_DATA*,
-		SP_DRVINFO_DATA*, DWORD, BOOL*);
-	DiInstallDeviceFn installfn
-		= find_function(L"newdev.dll", "DiInstallDevice", &libnewdev);
-
-	if (!installfn)
-	{
-		dwResult = GetLastError();
-		msg(M_NONFATAL | M_ERRNO, "%s: Failed to locate DiInstallDevice()", __FUNCTION__);
-		goto cleanup_hDevInfoList;
-	}
-
-	if (!installfn(hwndParent, hDevInfoList, &devinfo_data, NULL, 0, pbRebootRequired))
-#endif
-	{
-		dwResult = GetLastError();
-		msg(M_NONFATAL | M_ERRNO, "%s: DiInstallDevice failed", __FUNCTION__);
-		goto cleanup_remove_device;
-	}
-
-	// Get network adapter ID from registry. Retry for max 30sec. 
-	dwResult = get_net_adapter_guid(hDevInfoList, &devinfo_data, 30, pguidAdapter);
-
-cleanup_remove_device:
-	if (dwResult != ERROR_SUCCESS)
-	{
-		// The adapter was installed. But, the adapter ID was unobtainable. Clean-up. 
-		SP_REMOVEDEVICE_PARAMS removedevice_params =
-		{
-			.ClassInstallHeader =
-			{
-				.cbSize = sizeof(SP_CLASSINSTALL_HEADER),
-				.InstallFunction = DIF_REMOVE,
-			},
-			.Scope = DI_REMOVEDEVICE_GLOBAL,
-			.HwProfile = 0,
-		};
-
-		// Set class installer parameters for DIF_REMOVE. 
-		if (SetupDiSetClassInstallParams(
-			hDevInfoList,
-			&devinfo_data,
-			&removedevice_params.ClassInstallHeader,
-			sizeof(SP_REMOVEDEVICE_PARAMS)))
-		{
-			// Call appropriate class installer. 
-			if (SetupDiCallClassInstaller(
-				DIF_REMOVE,
-				hDevInfoList,
-				&devinfo_data))
-			{
-				// Check if a system reboot is required. 
-				check_reboot(hDevInfoList, &devinfo_data, pbRebootRequired);
-			}
-			else
-			{
-				msg(M_NONFATAL | M_ERRNO, "%s: SetupDiCallClassInstaller(DIF_REMOVE) failed", __FUNCTION__);
-			}
-		}
-		else
-		{
-			msg(M_NONFATAL | M_ERRNO, "%s: SetupDiSetClassInstallParams failed", __FUNCTION__);
-		}
-	}
-
-cleanup_hDevInfoList:
-	if (libnewdev)
-	{
-		FreeLibrary(libnewdev);
-	}
-	SetupDiDestroyDeviceInfoList(hDevInfoList);
-	return dwResult;
-}
-*/

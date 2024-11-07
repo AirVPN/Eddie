@@ -37,6 +37,9 @@
 #include "../../../dependencies/PStreams/pstream.h"
 using namespace redi; // related to pstream.h
 
+#include "../../../dependencies/NlohmannJSON/json.hpp"
+using json = nlohmann::json;
+
 // --------------------------
 // Virtual
 // --------------------------
@@ -539,7 +542,8 @@ bool IPosix::FsFileExists(const std::string& path)
 
 bool IPosix::FsDirectoryExists(const std::string& path)
 {
-	return FsFileExists(path);
+	struct stat db;
+	return (stat(path.c_str(), &db) == 0 && S_ISDIR(db.st_mode));
 }
 
 bool IPosix::FsFileDelete(const std::string& path)
@@ -560,6 +564,45 @@ bool IPosix::FsDirectoryDelete(const std::string& path, bool recursive)
 bool IPosix::FsFileMove(const std::string& source, const std::string& destination)
 {
 	return (rename(source.c_str(), destination.c_str()) == 0);
+}
+
+bool IPosix::FsFileCopy(const std::string& source, const std::string& destination)
+{
+	if(FsFileExists(destination))
+	{
+		if (FsFileDelete(destination) == false)
+			return false;
+	}
+	
+	char buf[BUFSIZ];
+    ssize_t bytesRead;
+
+    int sourceHandle = open(source.c_str(), O_RDONLY, 0);
+	if (sourceHandle<0)
+		return false;
+
+    int destHandle = open(destination.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	if (destHandle<0)
+	{
+		close(sourceHandle);
+		return false;
+	}
+
+    while ((bytesRead = read(sourceHandle, buf, BUFSIZ)) > 0)
+	{
+        ssize_t bytesWritten = write(destHandle, buf, bytesRead);
+		if(bytesRead != bytesWritten)
+		{
+			close(sourceHandle);
+			close(destHandle);
+			return false;
+		}
+    }
+
+    close(sourceHandle);
+    close(destHandle);
+
+	return true;
 }
 
 std::string IPosix::FsFileReadText(const std::string& path)
@@ -644,6 +687,55 @@ std::string IPosix::FsGetRealPath(std::string path)
 		return std::string(resolvedPathResult);
 }
 
+bool IPosix::FsFileIsExecutable(std::string path)
+{	
+	struct stat sb;
+	if (stat(path.c_str(), &sb) == 0 && S_ISREG(sb.st_mode) && (sb.st_mode & S_IXUSR))
+		return true;
+	else
+		return false;
+}
+
+bool IPosix::FsFileEnsureRootOnly(std::string path)
+{
+	if (chown(path.c_str(), 0, 0) == -1)
+		return false;
+	if (chmod(path.c_str(), 0600) == -1)
+		return false;
+	return true;
+}
+
+bool IPosix::FsFileIsRootOnly(std::string path)
+{
+	struct stat st;
+	memset(&st, 0, sizeof(struct stat));
+	if (stat(path.c_str(), &st) != 0)
+	{
+		return false; // Not found
+	}
+	else
+	{
+		if (st.st_uid != 0)
+		{
+			return false; // Not owned by root
+		}
+		else if ((st.st_mode & S_ISUID) == 0) // If not SUID
+		{
+			if ((st.st_mode & S_IWGRP) != 0)
+			{
+				return false;; // Writable by group
+			}
+
+			if ((st.st_mode & S_IWOTH) != 0)
+			{
+				return false;; // Writable by other
+			}
+		}
+	}
+
+	return true;
+}
+
 bool IPosix::SocketIsValid(HSOCKET s)
 {
 	return (s > 0);
@@ -678,43 +770,199 @@ int IPosix::SocketGetLastErrorCode()
 	return errno;
 }
 
-bool IPosix::CheckIfExecutableIsAllowed(const std::string& path, const bool& throwException)
+bool IPosix::SystemWideDataSet(const std::string& key, const std::string& value)
 {
-#if defined(Debug) || defined(_DEBUG)
-	return true;
-#endif	
+	std::string path = SystemWideDataPath();
+	json j;
+
+	std::ifstream inFile(path);
+	if (inFile.is_open()) 
+	{
+		try 
+		{
+			inFile >> j;
+		}
+		catch (const json::parse_error&) 
+		{
+			j = json::object();
+		}
+		inFile.close();
+	}
+
+	j[key] = value;
+
+	std::ofstream outFile(path);
+	if (outFile.is_open()) 
+	{
+		try 
+		{
+			outFile << j.dump(4);
+
+			if (FsFileEnsureRootOnly(path) == false)
+				return false;
+		}
+		catch (...) 
+		{
+			outFile.close();
+			return false;
+		}
+		outFile.close();
+
+		return true;
+	}
+	else 
+	{
+		return false;
+	}
+}
+
+std::string IPosix::SystemWideDataGet(const std::string& key, const std::string& def)
+{
+	std::string path = SystemWideDataPath();
+
+	if (FsFileIsRootOnly(path) == false)
+		return "";
+
+	json j;
+
+	std::ifstream inFile(path);
+	if (inFile.is_open()) 
+	{
+		try 
+		{
+			inFile >> j;
+		}
+		catch (const json::parse_error&) 
+		{
+			inFile.close();
+			return def;
+		}
+		inFile.close();
+	}
+	else 
+	{
+		return def;
+	}
+
+	if (j.contains(key)) 
+	{
+		return j[key].get<std::string>();
+	}
+	else 
+	{
+		return def;
+	}
+}
+
+bool IPosix::SystemWideDataDel(const std::string& key)
+{
+	std::string path = SystemWideDataPath();
+	json j;
+
+	std::ifstream inFile(path);
+	if (inFile.is_open()) 
+	{
+		try 
+		{
+			inFile >> j;
+
+			if (FsFileEnsureRootOnly(path) == false)
+				return false;
+		}
+		catch (const json::parse_error&) 
+		{
+			inFile.close();
+			return false;
+		}
+		inFile.close();
+	}
+	else 
+	{
+		return false;
+	}
+
+	if (j.contains(key)) 
+	{
+		j.erase(key);
+
+		if(j.empty())
+		{
+			FsFileDelete(path);
+			return true;
+		}
+		else
+		{
+			std::ofstream outFile(path);
+			if (outFile.is_open()) 
+			{
+				try 
+				{
+					outFile << j.dump(4);
+				}
+				catch (...) 
+				{
+					outFile.close();
+					return false;
+				}
+				outFile.close();
+				return true;
+			}
+			else 
+			{
+				return false;
+			}
+		}
+	}
+	else 
+	{
+		return false;
+	}
+}
+
+bool IPosix::SystemWideDataClean()
+{
+	return FsFileDelete(SystemWideDataPath());
+}
+
+bool IPosix::CheckIfExecutableIsAllowed(const std::string& path, const bool& throwException, const bool ignoreKnown)
+{
 	std::string issues = "";
 
-	if (CheckIfExecutableIsWhitelisted(path)) // If true, skip other checks.
+	if ((ignoreKnown == false) && (IntegrityCheckFileKnown(path))) // If true, skip other checks.
 		return true;
 
-	struct stat st;
-	memset(&st, 0, sizeof(struct stat));
-	if (stat(path.c_str(), &st) != 0)
-	{
-		issues += "Not readable;";
-	}
+	if (FsFileExists(path) == false)
+		issues += "Not found;";
 	else
 	{
-		if (st.st_uid != 0)
+		struct stat st;
+		memset(&st, 0, sizeof(struct stat));
+		if (stat(path.c_str(), &st) != 0)
 		{
-			issues += "Not owned by root;";
+			issues += "Not readable;";
 		}
-		else if ((st.st_mode & S_ISUID) == 0)
+		else
 		{
-			if ((st.st_mode & S_IXUSR) == 0)
+			if (st.st_uid != 0)
 			{
-				issues += "Not executable by owner;";
+				issues += "Not owned by root;";
 			}
-
-			if ((st.st_mode & S_IWGRP) != 0)
+			else if ((st.st_mode & S_ISUID) == 0)
 			{
-				issues += "Writable by group";
-			}
+				if ((st.st_mode & S_IXUSR) == 0)
+				{
+					issues += "Not executable by owner;";
+				}
 
-			if ((st.st_mode & S_IWOTH) != 0)
-			{
-				issues += "Writable by other;";
+				if ((st.st_mode & S_IWGRP) != 0)
+				{
+					issues += "Writable by group";
+				}
+
+				if ((st.st_mode & S_IWOTH) != 0)
+				{
+					issues += "Writable by other;";
+				}
 			}
 		}
 	}

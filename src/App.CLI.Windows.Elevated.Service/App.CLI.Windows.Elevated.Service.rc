@@ -44,9 +44,9 @@ BEGIN
             VALUE "CompanyName", "AirVPN"
             VALUE "FileDescription", "Eddie - Service - Windows - Elevated"
             VALUE "FileVersion", "2.24.0.0"
-            VALUE "InternalName", "App.Service.Windows.Elevated"
+            VALUE "InternalName", "App.CLI.Windows.Elevated.Service"
             VALUE "LegalCopyright", "Copyright (C) 2011 - 2023 AirVPN"
-            VALUE "OriginalFilename", "App.Service.Windows.Elevated"
+            VALUE "OriginalFilename", "App.CLI.Windows.Elevated.Service"
             VALUE "ProductName", "Eddie - VPN Tunnel"
             VALUE "ProductVersion", "2.24.0.0"
         END
@@ -65,7 +65,7 @@ END
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDI_ICON1               ICON                    "App.Service.Windows.Elevated.ico"
+IDI_ICON1               ICON                    "App.CLI.Windows.Elevated.Service.ico"
 
 #endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////

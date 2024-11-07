@@ -220,6 +220,20 @@ namespace Eddie.Core
 			}
 		}
 
+		public IpAddress FirstPreferIPv6
+		{
+			get
+			{
+				IpAddresses list = OnlyIPv6;
+				if (list.Count > 0)
+					return list.First;
+				list = OnlyIPv4;
+				if (list.Count > 0)
+					return list.First;
+				return null;
+			}
+		}
+
 		public void Clear()
 		{
 			lock (m_list)
@@ -302,6 +316,17 @@ namespace Eddie.Core
 			return result.ToArray();
 		}
 
+		public string ToStringAlwaysPrefix()
+		{
+			List<string> items = new List<string>();
+			lock (m_list)
+			{
+				foreach (IpAddress ip in m_list)
+					items.Add(ip.ToCIDR(true));
+			}
+			return string.Join(",", items.ToArray());
+		}
+
 		public override bool Equals(object obj)
 		{
 			if (obj == null)
@@ -314,19 +339,7 @@ namespace Eddie.Core
 			// Note: return false if contains the same IPs but in different order // 2.19.5
 			return ToString() == two.ToString();
 		}
-		/*
-		public static bool operator ==(IpAddresses i1, IpAddresses i2)
-		{
-			if (i1 is null)
-				return (i2 is null);
-			return i1.Equals(i2);
-		}
 
-		public static bool operator !=(IpAddresses i1, IpAddresses i2)
-		{
-			return !(i1 == i2);
-		}
-		*/
 		public override int GetHashCode()
 		{
 			return ToString().GetHashCode();

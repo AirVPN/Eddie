@@ -47,6 +47,14 @@ namespace Eddie.Core
 			command.DoSync();
 		}
 
+		public static void LogDeprecatedOptions()
+		{
+			if (Engine.Instance.ProfileOptions.GetBool("windows.adapters.cleanup") == false)
+			{
+				Engine.Instance.Logs.LogWarning("Deprecated option: In Settings > Networking, check 'Remove adapter when session ends.' If you still need to leave it unchecked, please open a ticket and provide the reason.");
+			}
+		}
+
 		public static string AdaptProfileNameOption(string name)
 		{
 			// Eddie <2.17 use an old .xml format. If anyone use "profile=my.xml", it will adapted to "profile=my.profile"

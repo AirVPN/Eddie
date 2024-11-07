@@ -55,23 +55,6 @@ echo TargetDir: $OUTPATH
 echo Arch: $ARCH
 echo Config: $CONFIG
 
-# Adapt Elevated
-# Search 'expectedOpenvpnHash' in '/src/App.CLI.Common.Elevated/ibase.cpp' source for details
-
-ELEVATEDCSOURCEPATH=${BASEPATH}/../Lib.CLI.Elevated/include/hashes.h
-
-OPENVPNPATH="${BASEPATH}/../../deploy/linux_${ARCH}/openvpn"
-OPENVPNHASH=$(sha256sum "${OPENVPNPATH}");
-OPENVPNHASH=${OPENVPNHASH%% *}
-sed -ri "s/expectedOpenVpnHash = \"([0-9a-f]{64})\";/expectedOpenVpnHash = \"${OPENVPNHASH}\";/g" ${ELEVATEDCSOURCEPATH}
-
-HUMMINGBIRDPATH="${BASEPATH}/../../deploy/linux_${ARCH}/hummingbird"
-if test -f "${HUMMINGBIRDPATH}"; then    
-    HUMMINGBIRDHASH=$(sha256sum "${HUMMINGBIRDPATH}");
-    HUMMINGBIRDHASH=${HUMMINGBIRDHASH%% *}
-    sed -ri "s/expectedHummingbirdHash = \"([0-9a-f]{64})\";/expectedHummingbirdHash = \"${HUMMINGBIRDHASH}\";/g" ${ELEVATEDCSOURCEPATH}
-fi
-
 # Compile and Copy Elevated
 ELEVATED_SPECIAL="STANDARD"
 if [ -f "/etc/arch-release" ]; then
@@ -80,6 +63,9 @@ fi
 chmod +x "$BASEPATH/../App.CLI.Linux.Elevated/build.sh"
 "$BASEPATH/../App.CLI.Linux.Elevated/build.sh" "$CONFIG" "$ELEVATED_SPECIAL"
 cp "$BASEPATH/../App.CLI.Linux.Elevated/bin/eddie-cli-elevated" "$OUTPATH"
+chmod +x "$BASEPATH/../App.CLI.Linux.Elevated.Service/build.sh"
+"$BASEPATH/../App.CLI.Linux.Elevated.Service/build.sh" "$CONFIG"
+cp "$BASEPATH/../App.CLI.Linux.Elevated.Service/bin/eddie-cli-elevated-service" "$OUTPATH"
 
 # Compile and Copy Native
 chmod +x "${BASEPATH}/../Lib.Platform.Linux.Native/build.sh"

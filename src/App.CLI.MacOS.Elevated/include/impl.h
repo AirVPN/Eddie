@@ -30,8 +30,8 @@ protected:
 
 	virtual std::vector<std::string> GetNetworkInterfacesNames();	
 
-	virtual std::string CheckIfClientPathIsAllowed(const std::string& path);
-	/*virtual void CheckIfExecutableIsAllowed(const std::string& path);*/
+	virtual std::string SystemWideDataPath();
+	virtual std::string CheckIfClientPathIsAllowed(const std::string& path);	
 	virtual int GetProcessIdMatchingIPEndPoints(struct sockaddr_in& addrClient, struct sockaddr_in& addrServer);
 	void AddTorCookiePaths(const std::string& torPath, const std::string& username, std::vector<std::string>& result);
 

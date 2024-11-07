@@ -43,8 +43,6 @@ Some code by ValdikSS
 
 #include <fcntl.h> 
 
-
-
 #define XMLBUFSIZE 4096 // WFP
 #define MALLOC(x) HeapAlloc(GetProcessHeap(), 0, (x)) // WFP
 #define FREE(x) HeapFree(GetProcessHeap(), 0, (x)) // WFP
@@ -52,18 +50,22 @@ Some code by ValdikSS
 
 #pragma comment(lib, "wsock32.lib")
 #pragma comment(lib, "Ws2_32.lib")
-#pragma comment(lib, "IPHLPAPI.lib")
-#pragma comment(lib, "fwpuclnt.lib")
-#pragma comment(lib, "rpcrt4.lib")
+#pragma comment(lib, "IPHLPAPI.lib") // GetExtendedTcpTable
+#pragma comment(lib, "fwpuclnt.lib") // FwpmFilterDeleteById0
+#pragma comment(lib, "rpcrt4.lib") // UuidCreate
 
 #include "../../../dependencies/yxml/yxml.h" // WFP utils, maybe converted in JSON in future
 
-#include "../../../dependencies/wintun/wintun.h"
-
 #include <regex>
+
+#include <delayimp.h>
 
 int Impl::Main()
 {
+	// WSOCK32.dll;IPHLPAPI.DLL;fwpuclnt.dll in delayed load
+	SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_SYSTEM32);
+	SetDllDirectory(L"");
+
 	signal(SIGINT, SIG_IGN); // See comment in Linux implementation
 
 	if ((m_cmdline.find("mode") != m_cmdline.end()) && (m_cmdline["mode"] == "wireguard"))
@@ -829,11 +831,11 @@ UINT64 Impl::WfpRuleAdd(const std::string& xml)
 					{
 						Condition[conditionIndex].conditionValue.type = FWP_UINT8;
 						if (attrValue == "tcp")
-							Condition[conditionIndex].conditionValue.uint8 = IPPROTO_TCP;
+							Condition[conditionIndex].conditionValue.int8 = IPPROTO_TCP; // Was .uint8 <2.24.3
 						else if (attrValue == "udp")
-							Condition[conditionIndex].conditionValue.uint8 = IPPROTO_UDP;
+							Condition[conditionIndex].conditionValue.int8 = IPPROTO_UDP;
 						else if (attrValue == "icmp")
-							Condition[conditionIndex].conditionValue.uint8 = IPPROTO_ICMP;
+							Condition[conditionIndex].conditionValue.int8 = IPPROTO_ICMP;
 					}
 					else if (attrName == "interface")
 					{

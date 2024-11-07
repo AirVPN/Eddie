@@ -444,7 +444,7 @@ namespace Eddie.Forms.Forms
 			string protocol = o.Get("mode.protocol").ToUpperInvariant();
 			int port = o.GetInt("mode.port");
 			int entryIP = o.GetInt("mode.alt");
-			if ( (modeType != "auto") && (Engine.Instance.AirVPN != null) )
+			if ((modeType != "auto") && (Engine.Instance.AirVPN != null))
 			{
 				ConnectionMode mode = Engine.Instance.AirVPN.GetMode();
 				modeType = mode.Type;
@@ -1155,7 +1155,7 @@ namespace Eddie.Forms.Forms
 
 			// Advanced - WireGuard
 			string wireguardInterfaceMTU = cboWireGuardMTU.Text;
-			if(wireguardInterfaceMTU == "Recommended (1320)")
+			if (wireguardInterfaceMTU == "Recommended (1320)")
 				o.Set("wireguard.interface.mtu", "-1");
 			else if (wireguardInterfaceMTU == "Omit (WG automatic)")
 				o.Set("wireguard.interface.mtu", "0");

@@ -16,13 +16,6 @@
 // along with Eddie. If not, see <http://www.gnu.org/licenses/>.
 // </eddie_source_header>
 
-#include <iostream> 
-#include <string>
-#include <map>
-
-#include <unistd.h>
-#include <sys/types.h>
-
 #include "../include/impl.h"
 
 int main(int argc, char* argv[])

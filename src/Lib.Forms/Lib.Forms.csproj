@@ -60,6 +60,9 @@
     <CodeAnalysisRuleSet>..\ruleset\eddie.ruleset</CodeAnalysisRuleSet>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+  </PropertyGroup>  
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />

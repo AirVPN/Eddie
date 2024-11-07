@@ -73,6 +73,40 @@ namespace Eddie.Core.Providers
 
 				if (connectionOpenVPN.ConfigStartup.ExistsDirective("auth-retry"))
 					connectionOpenVPN.ConfigStartup.AppendDirective("auth-retry", "none", "");
+
+				// 2.23.3
+				// 'remote' are choosen by Eddie, because need to known before connection (for routing rules reason)
+				List<ConfigBuilder.OpenVPN.Directive> directiveRemotes = connectionOpenVPN.ConfigStartup.GetDirectiveList("remote");
+				if (directiveRemotes.Count == 0)
+					throw new Exception("Unexpected missing 'remote' directive");
+				ConfigBuilder.OpenVPN.Directive directiveRemote = directiveRemotes[0];
+				if (connectionOpenVPN.ConfigStartup.ExistsDirective("remote-random"))
+					directiveRemote = directiveRemotes[RandomGenerator.GetInt(0, directiveRemotes.Count - 1)];
+				string[] remoteParts = directiveRemote.Text.Trim().Split(' ');
+				if (remoteParts.Length > 0)
+				{
+					IpAddresses ips = new IpAddresses();
+					ips.Add(remoteParts[0]);
+
+					IpAddress ip = null;
+					string entryIpLayer = Engine.Instance.ProfileOptions.Get("network.entry.iplayer");
+					if (entryIpLayer == "ipv6-ipv4")
+						ip = ips.FirstPreferIPv6;
+					else if (entryIpLayer == "ipv4-ipv6")
+						ip = ips.FirstPreferIPv4;
+					else if (entryIpLayer == "ipv6-only")
+						ip = ips.OnlyIPv6.First;
+					else if (entryIpLayer == "ipv4-only")
+						ip = ips.OnlyIPv4.First;
+					connection.EntryIP = ip;
+				}
+				if (remoteParts.Length > 1)
+					connection.EntryPort = Conversions.ToInt32(remoteParts[1]);
+				else
+					connection.EntryPort = 1194;
+
+				connectionOpenVPN.ConfigStartup.RemoveDirective("remote");
+				connectionOpenVPN.ConfigStartup.AppendDirective("remote", connection.EntryIP + " " + Conversions.ToString(connection.EntryPort), "Computed by Eddie");
 			}
 			else
 				throw new Exception("Unexpected connection type");

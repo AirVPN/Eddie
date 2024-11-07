@@ -51,12 +51,16 @@ protected:
 	virtual bool FsFileDelete(const std::string& path);
 	virtual bool FsDirectoryDelete(const std::string& path, bool recursive);	
 	virtual bool FsFileMove(const std::string& source, const std::string& destination);
+	virtual bool FsFileCopy(const std::string& source, const std::string& destination);
 	virtual std::string FsFileReadText(const std::string& path);
 	virtual std::vector<char> FsFileReadBytes(const std::string& path);
 	virtual std::vector<std::string> FsFilesInPath(const std::string& path);
 	virtual std::string FsGetTempPath();
 	virtual std::vector<std::string> FsGetEnvPath();
 	virtual std::string FsGetRealPath(std::string path);
+	virtual bool FsFileIsExecutable(std::string path);
+	virtual bool FsFileEnsureRootOnly(std::string path);
+	virtual bool FsFileIsRootOnly(std::string path);
 	virtual bool SocketIsValid(HSOCKET s);
 	virtual void SocketMarkReuseAddr(HSOCKET s);
 	virtual void SocketBlockMode(HSOCKET s, bool block);
@@ -65,7 +69,12 @@ protected:
 
 	// Virtual Pure, Other
 protected:
-	virtual bool CheckIfExecutableIsAllowed(const std::string& path, const bool& throwException);
+	virtual bool SystemWideDataSet(const std::string& key, const std::string& value);
+	virtual std::string SystemWideDataGet(const std::string& key, const std::string& def);
+	virtual bool SystemWideDataDel(const std::string& key);
+	virtual bool SystemWideDataClean();
+	virtual std::string SystemWideDataPath() = 0;
+	virtual bool CheckIfExecutableIsAllowed(const std::string& path, const bool& throwException, const bool ignoreKnown = false);
 	virtual int GetProcessIdMatchingIPEndPoints(struct sockaddr_in& addrClient, struct sockaddr_in& addrServer);
 
 	// Utils filesystem

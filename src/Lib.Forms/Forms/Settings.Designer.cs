@@ -356,7 +356,7 @@ namespace Eddie.Forms.Forms
 			this.lblHummingbirdPrefer.Name = "lblHummingbirdPrefer";
 			this.lblHummingbirdPrefer.Size = new System.Drawing.Size(330, 32);
 			this.lblHummingbirdPrefer.TabIndex = 95;
-			this.lblHummingbirdPrefer.Text = "Use Hummingbird if available";
+			this.lblHummingbirdPrefer.Text = "Use Hummingbird";
 			this.lblHummingbirdPrefer.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			// 
 			// chkHummingbirdPrefer
@@ -1563,7 +1563,6 @@ namespace Eddie.Forms.Forms
 			// 
 			// chkSystemService
 			// 
-			this.chkSystemService.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
 			this.chkSystemService.BackColor = System.Drawing.Color.Transparent;
 			this.chkSystemService.ForeColor = System.Drawing.Color.Black;
 			this.chkSystemService.Location = new System.Drawing.Point(591, 87);
@@ -2086,7 +2085,7 @@ namespace Eddie.Forms.Forms
 			this.lblProtocolsAvailable.Location = new System.Drawing.Point(336, 24);
 			this.lblProtocolsAvailable.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.lblProtocolsAvailable.Name = "lblProtocolsAvailable";
-			this.lblProtocolsAvailable.Size = new System.Drawing.Size(658, 30);
+			this.lblProtocolsAvailable.Size = new System.Drawing.Size(658, 38);
 			this.lblProtocolsAvailable.TabIndex = 73;
 			this.lblProtocolsAvailable.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			// 
@@ -2128,7 +2127,7 @@ namespace Eddie.Forms.Forms
 			this.chkProtocolsAutomatic.Location = new System.Drawing.Point(20, 21);
 			this.chkProtocolsAutomatic.Margin = new System.Windows.Forms.Padding(4);
 			this.chkProtocolsAutomatic.Name = "chkProtocolsAutomatic";
-			this.chkProtocolsAutomatic.Size = new System.Drawing.Size(975, 33);
+			this.chkProtocolsAutomatic.Size = new System.Drawing.Size(975, 42);
 			this.chkProtocolsAutomatic.TabIndex = 70;
 			this.chkProtocolsAutomatic.Text = "Automatic";
 			this.chkProtocolsAutomatic.UseVisualStyleBackColor = true;
@@ -2149,12 +2148,12 @@ namespace Eddie.Forms.Forms
 			this.lstProtocols.FullRowSelect = true;
 			this.lstProtocols.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
 			this.lstProtocols.HideSelection = false;
-			this.lstProtocols.Location = new System.Drawing.Point(20, 57);
+			this.lstProtocols.Location = new System.Drawing.Point(20, 67);
 			this.lstProtocols.Margin = new System.Windows.Forms.Padding(4);
 			this.lstProtocols.MultiSelect = false;
 			this.lstProtocols.Name = "lstProtocols";
 			this.lstProtocols.OwnerDraw = true;
-			this.lstProtocols.Size = new System.Drawing.Size(973, 475);
+			this.lstProtocols.Size = new System.Drawing.Size(973, 465);
 			this.lstProtocols.TabIndex = 69;
 			this.lstProtocols.UseCompatibleStateImageBehavior = false;
 			this.lstProtocols.View = System.Windows.Forms.View.Details;
@@ -2344,7 +2343,7 @@ namespace Eddie.Forms.Forms
 			this.label17.Location = new System.Drawing.Point(628, 316);
 			this.label17.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.label17.Name = "label17";
-			this.label17.Size = new System.Drawing.Size(366, 123);
+			this.label17.Size = new System.Drawing.Size(366, 210);
 			this.label17.TabIndex = 45;
 			this.label17.Text = "If you use Tor as proxy, \r\nyou need to set up \r\nyour real proxy\r\ninside Tor confi" +
     "guration";
@@ -2360,7 +2359,7 @@ namespace Eddie.Forms.Forms
 			this.label12.Location = new System.Drawing.Point(633, 22);
 			this.label12.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.label12.Name = "label12";
-			this.label12.Size = new System.Drawing.Size(362, 180);
+			this.label12.Size = new System.Drawing.Size(362, 218);
 			this.label12.TabIndex = 44;
 			this.label12.Text = "UDP, SSH and SSL connections \r\nwill not be available\r\nif you use a proxy.";
 			this.label12.TextAlign = System.Drawing.ContentAlignment.TopRight;
@@ -2938,7 +2937,7 @@ namespace Eddie.Forms.Forms
 			this.lblLockAllowlistOutgoingIPs.Location = new System.Drawing.Point(418, 413);
 			this.lblLockAllowlistOutgoingIPs.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.lblLockAllowlistOutgoingIPs.Name = "lblLockAllowlistOutgoingIPs";
-			this.lblLockAllowlistOutgoingIPs.Size = new System.Drawing.Size(262, 38);
+			this.lblLockAllowlistOutgoingIPs.Size = new System.Drawing.Size(389, 38);
 			this.lblLockAllowlistOutgoingIPs.TabIndex = 107;
 			this.lblLockAllowlistOutgoingIPs.Text = "IPs allowed for outgoing:";
 			this.lblLockAllowlistOutgoingIPs.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -3126,7 +3125,7 @@ namespace Eddie.Forms.Forms
 			this.lblLockAllowlistIncomingIPs.Location = new System.Drawing.Point(21, 413);
 			this.lblLockAllowlistIncomingIPs.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.lblLockAllowlistIncomingIPs.Name = "lblLockAllowlistIncomingIPs";
-			this.lblLockAllowlistIncomingIPs.Size = new System.Drawing.Size(262, 38);
+			this.lblLockAllowlistIncomingIPs.Size = new System.Drawing.Size(389, 38);
 			this.lblLockAllowlistIncomingIPs.TabIndex = 76;
 			this.lblLockAllowlistIncomingIPs.Text = "IPs allowed for incoming:";
 			this.lblLockAllowlistIncomingIPs.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;

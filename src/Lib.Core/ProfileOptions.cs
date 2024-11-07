@@ -418,11 +418,7 @@ namespace Eddie.Core
 		{
 			string NotInManNever = ""; // Option not listed in 'man' documentation.			
 			string NotInManYet = ""; // Option that will be added in 'man' documentation.
-#if DEBUG
-			bool devDefault = true;
-#else
-            bool devDefault = false;
-#endif
+
 			SetDefaultBool("start_os", Platform.Instance.GetAutoStart(), NotInManYet);
 
 			SetDefault("login", "text", "", LanguageManager.GetText(LanguageItems.ManOptionLogin));
@@ -494,6 +490,7 @@ namespace Eddie.Core
 			SetDefaultBool("netlock.allow_dhcp", true, LanguageManager.GetText(LanguageItems.ManOptionNetLockAllowDHCP)); // Win only
 			SetDefaultBool("netlock.allow_ping", true, LanguageManager.GetText(LanguageItems.ManOptionNetLockAllowPing));
 			SetDefaultBool("netlock.allow_dns", false, LanguageManager.GetText(LanguageItems.ManOptionNetLockAllowDNS));
+			SetDefaultBool("netlock.allow_ipv4ipv6translation", true, NotInManYet);
 			SetDefaultChoice("netlock.incoming", "allow,block", "block", LanguageManager.GetText(LanguageItems.ManOptionNetLockIncoming));
 			SetDefaultChoice("netlock.outgoing", "allow,block", "block", LanguageManager.GetText(LanguageItems.ManOptionNetLockOutgoing));
 			SetDefault("netlock.allowlist.incoming.ips", "text", "", LanguageManager.GetText(LanguageItems.ManOptionNetLockAllowlistIncomingIps));
@@ -563,7 +560,7 @@ namespace Eddie.Core
 
 			SetDefaultInt("advanced.penality_on_error", 30, NotInManNever);
 			SetDefaultBool("advanced.skip_alreadyrun", false, NotInManNever); // Continue even if openvpn is already running.
-			SetDefaultBool("connections.allow_anyway", devDefault, NotInManNever); // Allow connection even if in 'Not available' status.
+			SetDefaultBool("connections.allow_anyway", false, NotInManNever); // Allow connection even if in 'Not available' status.
 			SetDefaultBool("advanced.testonly", false, NotInManNever); // Disconnect when connection occur.
 
 			EnsureDefaultsEvent("app.start");

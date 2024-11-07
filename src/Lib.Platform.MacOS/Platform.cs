@@ -931,20 +931,23 @@ namespace Eddie.Platform.MacOS
 
 			// Expect the sequence is the same.
 			// C++ edition don't detect interface name right now, otherwise NetworkInterface here can be removed.
-			NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
-			for (int i = 0; i < interfaces.Length; i++)
+			NetworkInterface[] interfaces = Engine.Instance.GetNetworkInterfaces();
+			lock (interfaces)
 			{
-				if (i < jNative.GetArray().Count)
+				for (int i = 0; i < interfaces.Length; i++)
 				{
-					Json jNativeIf = jNative.GetIndex(i) as Json;
+					if (i < jNative.GetArray().Count)
+					{
+						Json jNativeIf = jNative.GetIndex(i) as Json;
 
-					Int64 rcv = jNativeIf["rcv"].ValueInt64;
-					Int64 snd = jNativeIf["snd"].ValueInt64;
-					Json jInterface = new Json();
-					jInterface["id"].Value = interfaces[i].Id;
-					jInterface["rcv"].Value = rcv;
-					jInterface["snd"].Value = snd;
-					result.Append(jInterface);
+						Int64 rcv = jNativeIf["rcv"].ValueInt64;
+						Int64 snd = jNativeIf["snd"].ValueInt64;
+						Json jInterface = new Json();
+						jInterface["id"].Value = interfaces[i].Id;
+						jInterface["rcv"].Value = rcv;
+						jInterface["snd"].Value = snd;
+						result.Append(jInterface);
+					}
 				}
 			}
 

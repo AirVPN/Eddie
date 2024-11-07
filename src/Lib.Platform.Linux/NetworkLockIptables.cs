@@ -269,13 +269,17 @@ namespace Eddie.Platform.Linux
 							rulesIPv6.AppendLine("-A INPUT -s ff05::1:3 -j ACCEPT");
 						}
 
+						if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_ipv4ipv6translation") == true) // 2.24.3
+						{							
+							rulesIPv6.AppendLine("-A INPUT -s 64:ff9b::/96 -d 64:ff9b::/96 -j ACCEPT"); // RFC 6052
+							rulesIPv6.AppendLine("-A INPUT -s 64:ff9b:1::/48 -d 64:ff9b:1::/48 -j ACCEPT"); // RFC 8215
+						}
+
 						if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_private"))
 						{
-							// Allow Link-Local addresses
-							rulesIPv6.AppendLine("-A INPUT -s fe80::/10 -j ACCEPT");
-
-							// Allow multicast
-							rulesIPv6.AppendLine("-A INPUT -d ff00::/8 -j ACCEPT");
+							rulesIPv6.AppendLine("-A INPUT -s fe80::/10 -d fe80::/10 -j ACCEPT");
+							rulesIPv6.AppendLine("-A INPUT -d ff00::/8 -d ff00::/8 -j ACCEPT");
+							rulesIPv6.AppendLine("-A INPUT -d fc00::/7 -d fc00::/7 -j ACCEPT");
 						}
 
 						if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_ping"))
@@ -322,13 +326,17 @@ namespace Eddie.Platform.Linux
 							rulesIPv6.AppendLine("-A OUTPUT -d ff05::1:3 -j ACCEPT");
 						}
 
+						if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_ipv4ipv6translation") == true) // 2.24.3
+						{
+							rulesIPv6.AppendLine("-A OUTPUT -s 64:ff9b::/96 -d 64:ff9b::/96 -j ACCEPT"); // RFC 6052
+							rulesIPv6.AppendLine("-A OUTPUT -s 64:ff9b:1::/48 -d 64:ff9b:1::/48 -j ACCEPT"); // RFC 8215
+						}
+
 						if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_private"))
 						{
-							// Allow Link-Local addresses
-							rulesIPv6.AppendLine("-A OUTPUT -s fe80::/10 -j ACCEPT");
-
-							// Allow multicast
-							rulesIPv6.AppendLine("-A OUTPUT -d ff00::/8 -j ACCEPT");
+							rulesIPv6.AppendLine("-A OUTPUT -s fe80::/10 -d fe80::/10 -j ACCEPT");
+							rulesIPv6.AppendLine("-A OUTPUT -d ff00::/8 -d ff00::/8 -j ACCEPT");
+							rulesIPv6.AppendLine("-A OUTPUT -d fc00::/7 -d fc00::/7 -j ACCEPT");
 						}
 
 						if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_ping"))

@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="App.Service.Windows.Elevated"
+	Name="App.CLI.Windows.Elevated.Service"
 	ProjectGUID="{D6E78055-7BC4-4301-BDFC-C4DDA35E959C}"
-	RootNamespace="App.Service.Windows.Elevated"
+	RootNamespace="App.CLI.Windows.Elevated.Service"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="196613"
 	>

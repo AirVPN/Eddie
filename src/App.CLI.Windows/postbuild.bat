@@ -7,6 +7,7 @@ echo Command Line: %0 %*
 @if "%~2"=="" GOTO error
 @if "%~3"=="" GOTO error
 
+
 SET basepath=%~dp0
 SET targetdir=%1
 SET arch=%2
@@ -24,24 +25,27 @@ echo TargetDir: %targetdir%
 echo Arch: %arch%
 echo Config: %config%
 
-echo Compile and copy Elevated - CLI Edition
-call %basepath%\..\App.CLI.Windows.Elevated\build.bat %config% %arch% || GOTO error
-copy %basepath%\..\App.CLI.Windows.Elevated\bin\%arch%\%config%\App.CLI.Windows.Elevated.exe "%targetdir%"\Eddie-CLI-Elevated.exe /Y /V || GOTO error
-
-echo Compile and copy Elevated - Service Edition
-call %basepath%\..\App.Service.Windows.Elevated\build.bat %config% %arch% || GOTO error
-copy %basepath%\..\App.Service.Windows.Elevated\bin\%arch%\%config%\App.Service.Windows.Elevated.exe "%targetdir%"\Eddie-Service-Elevated.exe /Y /V || GOTO error
+echo Copy Deploy files
+copy %basepath%\..\..\deploy\windows_%arch%\* "%targetdir%\" /Y /V || GOTO error
 
 echo Compile and copy native library
 call %basepath%\..\Lib.Platform.Windows.Native\build.bat Release %arch% || GOTO error
 copy %basepath%\..\Lib.Platform.Windows.Native\bin\%arch%\Release\Lib.Platform.Windows.Native.dll "%targetdir%" /Y /V || GOTO error
 
-echo Copy WireGuard library
-copy %basepath%\..\..\deploy\windows_%arch%\wgtunnel.dll "%targetdir%\wgtunnel.dll" /Y /V || GOTO error
-copy %basepath%\..\..\deploy\windows_%arch%\wireguard.dll "%targetdir%\wireguard.dll" /Y /V || GOTO error
+rem echo Copy WireGuard library
+rem copy %basepath%\..\..\deploy\windows_%arch%\wgtunnel.dll "%targetdir%\wgtunnel.dll" /Y /V || GOTO error
+rem copy %basepath%\..\..\deploy\windows_%arch%\wireguard.dll "%targetdir%\wireguard.dll" /Y /V || GOTO error
 
-echo Copy Wintun library
-copy %basepath%\..\..\deploy\windows_%arch%\wintun.dll "%targetdir%\wintun.dll" /Y /V || GOTO error
+rem echo Copy Wintun library
+rem copy %basepath%\..\..\deploy\windows_%arch%\wintun.dll "%targetdir%\wintun.dll" /Y /V || GOTO error
+
+echo Compile and copy Elevated - CLI Edition
+call %basepath%\..\App.CLI.Windows.Elevated\build.bat %config% %arch% || GOTO error
+copy %basepath%\..\App.CLI.Windows.Elevated\bin\%arch%\%config%\App.CLI.Windows.Elevated.exe "%targetdir%"\Eddie-CLI-Elevated.exe /Y /V || GOTO error
+
+echo Compile and copy Elevated - Service
+call %basepath%\..\App.CLI.Windows.Elevated.Service\build.bat %config% %arch% || GOTO error
+copy %basepath%\..\App.CLI.Windows.Elevated.Service\bin\%arch%\%config%\App.CLI.Windows.Elevated.Service.exe "%targetdir%"\Eddie-CLI-Elevated-Service.exe /Y /V || GOTO error
 
 GOTO done
 

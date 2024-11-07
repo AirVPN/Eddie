@@ -60,6 +60,7 @@ namespace Eddie.Core
 		private bool m_areasInfoUpdated = false;
 		private TimeDelta m_tickDeltaUiRefreshFull = new TimeDelta();
 		private Json m_networkInfo;
+		private NetworkInterface[] m_networkInterfaces = new NetworkInterface[0];
 
 		public enum ActionService
 		{
@@ -77,8 +78,8 @@ namespace Eddie.Core
 			None = 0,
 			Stats = 1,
 			Full = 2,
-			MainMessage = 3, // Clodo, TOCLEAN?
-			Log = 4 // Clodo, TOCLEAN?
+			MainMessage = 3, // TOCLEAN?
+			Log = 4 // TOCLEAN?
 		}
 
 		private List<ActionService> m_actionsList = new List<ActionService>();
@@ -219,6 +220,11 @@ namespace Eddie.Core
 			{
 				return m_areas;
 			}
+		}
+
+		public NetworkInterface[] GetNetworkInterfaces()
+		{
+			return m_networkInterfaces;
 		}
 
 		public Providers.Service AirVPN // TOFIX, for compatibility
@@ -499,6 +505,8 @@ namespace Eddie.Core
 
 				OnReady();
 
+				CompatibilityManager.LogDeprecatedOptions();
+
 				if ((StartCommandLine.Exists("batch")) || (ProfileOptions.GetBool("connect")))
 					Connect();
 
@@ -609,6 +617,8 @@ namespace Eddie.Core
 			RunEventCommand("app.stop");
 
 			OnDeInit2();
+
+			AppDomain.CurrentDomain.ProcessExit -= OnAppExit;
 
 			Logs.Log(LogType.Verbose, LanguageManager.GetText(LanguageItems.AppShutdownComplete));
 		}
@@ -2228,12 +2238,20 @@ namespace Eddie.Core
 
 		public Json NetworkInfoUpdate()
 		{
-			Engine.Logs.LogVerbose(LanguageManager.GetText(LanguageItems.CollectNetworkInfo));
-			m_networkInfo = NetworkInfoBuild();
+			// Remember: don't use net NetworkChange.NetworkAddressChanged event, is not invoked under Xamarin, and in general invoked too many useless times in other platform.
 
-			Json j = m_networkInfo.Clone();
-			j["command"].Value = "ui.network-info";
-			UiManager.Broadcast(j);
+			lock (m_networkInterfaces)
+			{
+				Engine.Logs.LogVerbose(LanguageManager.GetText(LanguageItems.CollectNetworkInfo));
+
+				m_networkInterfaces = NetworkInterface.GetAllNetworkInterfaces();
+
+				m_networkInfo = NetworkInfoBuild();
+
+				Json j = m_networkInfo.Clone();
+				j["command"].Value = "ui.network-info";
+				UiManager.Broadcast(j);
+			}
 
 			return m_networkInfo;
 		}

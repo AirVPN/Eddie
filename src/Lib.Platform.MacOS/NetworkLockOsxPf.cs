@@ -171,6 +171,14 @@ namespace Eddie.Platform.MacOS
 				pf += "pass out quick inet6 to ff05::1:3\n";
 			}
 
+			if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_ipv4ipv6translation") == true) // 2.24.3
+			{
+				pf += "pass in quick inet6 from 64:ff9b::/96 to 64:ff9b::/96\n"; // RFC 6052
+				pf += "pass out quick inet6 from 64:ff9b::/96 to 64:ff9b::/96\n"; // RFC 6052
+				pf += "pass in quick inet6 from 64:ff9b:1::/48 to 64:ff9b:1::/48\n"; // RFC 8215
+				pf += "pass out quick inet6 from 64:ff9b:1::/48 to 64:ff9b:1::/48\n"; // RFC 8215
+			}
+
 			if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_private"))
 			{
 				pf += "# IPv4 - Private networks\n";
@@ -203,6 +211,10 @@ namespace Eddie.Platform.MacOS
 				pf += "# IPv6 - Allow Link-Local addresses\n";
 				pf += "pass out quick inet6 from ff00::/8 to ff00::/8\n";
 				pf += "pass in quick inet6 from ff00::/8 to ff00::/8\n";
+
+				pf += "# IPv6 - Allow ULA addresses\n"; // 2.24.3
+				pf += "pass out quick inet6 from fc00::/7 to fc00::/7\n";
+				pf += "pass in quick inet6 from fc00::/7 to fc00::/7\n";
 			}
 
 			if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_ping"))
