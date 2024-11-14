@@ -4,14 +4,14 @@ if not exist "files" mkdir "files"
 
 call windows_common\presign.bat
 
-call windows_portable\build.bat cli x64 windows net7 || goto :error
-call windows_portable\build.bat cli x64 windows-7 net7 || goto :error
-rem [deprecated in 2.24.0] call windows_portable\build.bat cli x64 windows-vista net7 || goto :error
-rem [deprecated in 2.24.0] call windows_portable\build.bat cli x64 windows-xp net7 || goto :error
-call windows_portable\build.bat cli x86 windows net7 || goto :error
-call windows_portable\build.bat cli x86 windows-7 net7 || goto :error
-rem [deprecated in 2.24.0] call windows_portable\build.bat cli x86 windows-vista net7 || goto :error
-rem [deprecated in 2.24.0] call windows_portable\build.bat cli x86 windows-xp net7 || goto :error
+call windows_portable\build.bat cli x64 windows net8 || goto :error
+call windows_portable\build.bat cli x64 windows-7 net8 || goto :error
+rem [deprecated in 2.24.0] call windows_portable\build.bat cli x64 windows-vista net8 || goto :error
+rem [deprecated in 2.24.0] call windows_portable\build.bat cli x64 windows-xp net8 || goto :error
+call windows_portable\build.bat cli x86 windows net8 || goto :error
+call windows_portable\build.bat cli x86 windows-7 net8 || goto :error
+rem [deprecated in 2.24.0] call windows_portable\build.bat cli x86 windows-vista net8 || goto :error
+rem [deprecated in 2.24.0] call windows_portable\build.bat cli x86 windows-xp net8 || goto :error
 call windows_portable\build.bat ui x64 windows net4 || goto :error
 call windows_portable\build.bat ui x64 windows-7 net4 || goto :error
 rem [deprecated in 2.24.0] call windows_portable\build.bat ui x64 windows-vista net4 || goto :error

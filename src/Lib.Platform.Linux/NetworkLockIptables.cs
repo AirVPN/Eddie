@@ -278,8 +278,8 @@ namespace Eddie.Platform.Linux
 						if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_private"))
 						{
 							rulesIPv6.AppendLine("-A INPUT -s fe80::/10 -d fe80::/10 -j ACCEPT");
-							rulesIPv6.AppendLine("-A INPUT -d ff00::/8 -d ff00::/8 -j ACCEPT");
-							rulesIPv6.AppendLine("-A INPUT -d fc00::/7 -d fc00::/7 -j ACCEPT");
+							rulesIPv6.AppendLine("-A INPUT -s ff00::/8 -d ff00::/8 -j ACCEPT");
+							rulesIPv6.AppendLine("-A INPUT -s fc00::/7 -d fc00::/7 -j ACCEPT");
 						}
 
 						if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_ping"))
@@ -335,8 +335,8 @@ namespace Eddie.Platform.Linux
 						if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_private"))
 						{
 							rulesIPv6.AppendLine("-A OUTPUT -s fe80::/10 -d fe80::/10 -j ACCEPT");
-							rulesIPv6.AppendLine("-A OUTPUT -d ff00::/8 -d ff00::/8 -j ACCEPT");
-							rulesIPv6.AppendLine("-A OUTPUT -d fc00::/7 -d fc00::/7 -j ACCEPT");
+							rulesIPv6.AppendLine("-A OUTPUT -s ff00::/8 -d ff00::/8 -j ACCEPT");
+							rulesIPv6.AppendLine("-A OUTPUT -s fc00::/7 -d fc00::/7 -j ACCEPT");
 						}
 
 						if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_ping"))

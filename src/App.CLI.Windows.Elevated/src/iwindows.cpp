@@ -444,7 +444,7 @@ void IWindows::Do(const std::string& commandId, const std::string& command, std:
 						std::wstring serviceNameW = TEXT("WireGuard Eddie - Interface ") + StringUTF8ToWString(interfaceId);
 						std::wstring servicePathW = StringUTF8ToWString(pathWithArgs);
 						LPCWSTR serviceDependsW = TEXT("Nsi\0TcpIp"); // Added in 2.21.0
-						serviceDependsW = NULL; // Removed, cause issue. Anyway Elevated itself have this depends. // TOFIX?
+						serviceDependsW = NULL; // Removed, cause issue. Anyway Elevated itself have this depends.
 						service = CreateService(serviceControlManager, serviceIdW.c_str(), serviceNameW.c_str(), SC_MANAGER_ALL_ACCESS, SERVICE_WIN32_OWN_PROCESS, SERVICE_DEMAND_START, SERVICE_ERROR_NORMAL, servicePathW.c_str(), NULL, NULL, serviceDependsW, NULL, NULL);
 						if (!service)
 							ThrowException("Service creation failed (" + GetLastErrorAsString() + ")");

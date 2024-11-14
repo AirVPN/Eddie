@@ -24,7 +24,7 @@
 
 # There are '#pragma warning' in files directly also in legacy code that need deprecation. Currently:
 # - When related to specific scope, generally linux/Mono.
-# - CA1416 for Windows-only code (net7 dev), that need deprecation
+# - CA1416 for Windows-only code (net8 dev), that need deprecation
 # - CA1816 UnmanagedPointer.Dispose(bool) calls GC.SuppressFinalize(object) in AuthenticodeTools.cs
 
 # Lib.Forms, Lib.Forms.Skin, App.Forms.Linux, App.Cocoa.MacOS are ignored, because need deprecation
@@ -39,15 +39,21 @@ dotnet_analyzer_diagnostic.severity = warning
 dotnet_analyzer_diagnostic.category-Style.severity = warning
 dotnet_analyzer_diagnostic.category-CodeQuality.severity = warning
 
-# Use VS Analyze > Run Code Analysis on a .sln (or App.Checking/All.CS.net7.sln) to evaluate IDE*.
+# Use VS Analyze > Run Code Analysis on a .sln (or App.Checking/All.CS.net8.sln) to evaluate IDE*.
+
+# Eddie - New in migration from Net7 to Net8, pending work, understand if fixes are compatible with net4
+dotnet_diagnostic.CA1865.severity = none # Use 'string.StartsWith(char)' instead of 'string.StartsWith(string)'
+dotnet_diagnostic.CA1861.severity = none # Prefer 'static readonly' fields over constant array arguments if the called method is called repeatedly and is not mutating the passed array
+dotnet_diagnostic.CA1862.severity = none # Prefer using 'string.Equals(string, StringComparison)' to perform a case-insensitive comparison, but keep in mind that this might cause subtle changes in behavior, so make sure to conduct thorough testing after applying the suggestion, or if culturally sensitive comparison is not required, consider using 'StringComparison.OrdinalIgnoreCase'
+dotnet_diagnostic.CA2249.severity = none # Use 'string.Contains' instead of 'string.IndexOf' to improve readability
 
 # Eddie - Right, TODO, WIP
 
 dotnet_diagnostic.CA2020.severity = none # Starting with .NET 7 the explicit conversion '(IntPtr)Int64' will not throw when overflowing in an unchecked context.
 dotnet_diagnostic.CA1838.severity = none # Avoid 'StringBuilder' parameters for P/Invokes. Consider using a character buffer instead.
 dotnet_diagnostic.CA2101.severity = none # Specify marshaling for P/Invoke string arguments
-#dotnet_diagnostic.CA1401.severity = none # P/Invoke method 'x' should not be visible 
-#dotnet_diagnostic.CA1001.severity = none # Type 'Platform' owns disposable field(s) 'm_mutexSingleInstance' but is not disposable 
+dotnet_diagnostic.CA1401.severity = none # P/Invoke method 'x' should not be visible 
+dotnet_diagnostic.CA1001.severity = none # Type 'Platform' owns disposable field(s) 'm_mutexSingleInstance' but is not disposable 
 
 # Eddie - Right, TODO, WIP, Style
 
@@ -62,7 +68,7 @@ dotnet_diagnostic.IDE0040.severity = none # Accessibility modifiers required
 dotnet_diagnostic.IDE0044.severity = none # Add readonly modifier
 dotnet_diagnostic.IDE0045.severity = none # 'if' statement can be simplified
 dotnet_diagnostic.IDE0054.severity = none # Use compound assignment
-#dotnet_diagnostic.IDE0055.severity = none # Fix formatting
+dotnet_diagnostic.IDE0055.severity = none # Fix formatting
 dotnet_diagnostic.IDE0057.severity = none # Substring can be simplified
 dotnet_diagnostic.IDE0059.severity = none # Unnecessary assignment of a value to 'x' # Generally, unnecessary var initialization
 dotnet_diagnostic.IDE0060.severity = none # Remove unused parameter 'x' if it is not part of a shipped public API
@@ -84,7 +90,7 @@ dotnet_diagnostic.CA1711.severity = none # Either replace the suffix 'Ex' in mem
 dotnet_diagnostic.CA1720.severity = none # Identifier 'Guid' contains type name 
 dotnet_diagnostic.CA1507.severity = none # Use nameof in place of string literal
 
-# Eddie - net7, fix not compatible with net4, avoid conditional pragma net4 vs net7 for this for now.
+# Eddie - net8, fix not compatible with net4, avoid conditional pragma net4 vs net8 for this for now.
 
 dotnet_diagnostic.CA1845.severity = none # CA1845: Use span-based 'string.Concat' and 'AsSpan' instead of 'Substring'
 dotnet_diagnostic.SYSLIB1054.severity = none # NativeMethods.cs(105,31): warning SYSLIB1054: Mark the method 'x' with 'LibraryImportAttribute' instead of 'DllImportAttribute' to generate P/Invoke marshalling code at compile time
@@ -135,7 +141,7 @@ dotnet_diagnostic.IDE0230.severity = none # Use UTF-8 string literal
 # Eddie - False positive
 
 dotnet_diagnostic.JSON002.severity = none # Probable JSON string detected
-dotnet_diagnostic.IDE0079.severity = none # Remove unnecessary suppression # Detect CA1416 as unnecessary, but if compiled on net7 are necessary
+dotnet_diagnostic.IDE0079.severity = none # Remove unnecessary suppression # Detect CA1416 as unnecessary, but if compiled on net8 are necessary
 
 [*.{cs,vb}]
 #### Naming styles ####

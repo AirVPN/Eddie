@@ -54,11 +54,11 @@ copy !VARSCRIPTDIR!\portable.txt !VARTARGETDIR!
 
 IF "!VARPROJECT!"=="cli" (
 	cd "!VARSCRIPTDIR!\..\..\src\App.CLI.Windows\"
-	dotnet publish App.CLI.Windows.net7.csproj --configuration Release --runtime !VARRID! --self-contained true -p:PublishTrimmed=true -p:EnableCompressionInSingleFile=true
-	copy !VARSCRIPTDIR!\..\..\src\App.CLI.Windows\bin\!VARCONFIG!\net7.0\!VARRID!\publish\* !VARTARGETDIR! || goto :error		
-	copy !VARSCRIPTDIR!\..\..\src\App.CLI.Windows\bin\!VARCONFIG!\net7.0\!VARRID!\Eddie-CLI-Elevated.exe !VARTARGETDIR! || goto :error		
-	copy !VARSCRIPTDIR!\..\..\src\App.CLI.Windows\bin\!VARCONFIG!\net7.0\!VARRID!\Eddie-CLI-Elevated-Service.exe !VARTARGETDIR! || goto :error		
-	copy !VARSCRIPTDIR!\..\..\src\App.CLI.Windows\bin\!VARCONFIG!\net7.0\!VARRID!\Lib.Platform.Windows.Native.dll !VARTARGETDIR! || goto :error				
+	dotnet publish App.CLI.Windows.net8.csproj --configuration Release --runtime !VARRID! --self-contained true -p:PublishTrimmed=true -p:EnableCompressionInSingleFile=true
+	copy !VARSCRIPTDIR!\..\..\src\App.CLI.Windows\bin\!VARCONFIG!\net8.0\!VARRID!\publish\* !VARTARGETDIR! || goto :error		
+	copy !VARSCRIPTDIR!\..\..\src\App.CLI.Windows\bin\!VARCONFIG!\net8.0\!VARRID!\Eddie-CLI-Elevated.exe !VARTARGETDIR! || goto :error		
+	copy !VARSCRIPTDIR!\..\..\src\App.CLI.Windows\bin\!VARCONFIG!\net8.0\!VARRID!\Eddie-CLI-Elevated-Service.exe !VARTARGETDIR! || goto :error		
+	copy !VARSCRIPTDIR!\..\..\src\App.CLI.Windows\bin\!VARCONFIG!\net8.0\!VARRID!\Lib.Platform.Windows.Native.dll !VARTARGETDIR! || goto :error				
 
 	rem Resources
 	echo Step: Resources
@@ -76,7 +76,7 @@ IF "!VARPROJECT!"=="ui" (
 	%VARSCRIPTDIR%\..\windows_common\7za.exe -y x "%VARSCRIPTDIR%\..\files\eddie-cli_%VARVERSION%_%VAROS%_%VARARCH%_portable.zip" -o"%VARTARGETDIR%" || goto :error
 	robocopy "%VARTARGETDIR%\eddie-cli_%VARVERSION%_%VAROS%_%VARARCH%_portable" "%VARTARGETDIR%" *.* /E /MOVE
 
-	IF "!VARFRAMEWORK!"=="net7" (
+	IF "!VARFRAMEWORK!"=="net8" (
 		echo Build UI App
 		call "%VARSCRIPTDIR%\..\..\src\App.UI.Windows\build.bat" %VARCONFIG% %VARARCH% || GOTO error
 		copy "%VARSCRIPTDIR%\..\..\src\App.UI.Windows\bin\*" "%VARTARGETDIR%\" /Y /V || GOTO error	

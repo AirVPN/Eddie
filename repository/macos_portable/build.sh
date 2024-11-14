@@ -25,7 +25,7 @@ if [ "$3" == "" ]; then
 fi
 
 if [ "$4" == "" ]; then
-	echo Fourth arg must be framework: net4, net7
+	echo Fourth arg must be framework: net4, net8
 	exit 1
 fi
 
@@ -55,7 +55,7 @@ if ! [ -x "$(command -v tar)" ]; then
   exit 1
 fi
 
-if [ $FRAMEWORK = "net7" ]; then
+if [ $FRAMEWORK = "net8" ]; then
     if ! [ -x "$(command -v dotnet)" ]; then
         echo 'Error: dotnet is not installed.' >&2
         exit 1  
@@ -92,11 +92,12 @@ if [ $PROJECT = "cli" ]; then
     mkdir "${TARGETBINDIR}"        
 
     cd "${SCRIPTDIR}/../../src/App.CLI.MacOS/"
-    dotnet publish App.CLI.MacOS.net7.csproj --configuration Release --runtime ${RID} --self-contained true -p:PublishTrimmed=true -p:EnableCompressionInSingleFile=true
-    cp "${SCRIPTDIR}/../../src/App.CLI.MacOS/bin/${CONFIG}/net7.0/${RID}/publish"/* "${TARGETBINDIR}"
-    cp "${SCRIPTDIR}/../../src/App.CLI.MacOS/bin/${CONFIG}/net7.0/${RID}/eddie-cli-elevated" "${TARGETBINDIR}"
-    cp "${SCRIPTDIR}/../../src/App.CLI.MacOS/bin/${CONFIG}/net7.0/${RID}/eddie-cli-elevated-service" "${TARGETBINDIR}"
-    cp "${SCRIPTDIR}/../../src/App.CLI.MacOS/bin/${CONFIG}/net7.0/${RID}/libLib.Platform.MacOS.Native.dylib" "${TARGETBINDIR}"
+    dotnet publish App.CLI.MacOS.net8.csproj --configuration Release --runtime ${RID} --self-contained true -p:PublishTrimmed=true -p:EnableCompressionInSingleFile=true
+    cp "${SCRIPTDIR}/../../src/App.CLI.MacOS/bin/${CONFIG}/net8.0/${RID}/publish"/* "${TARGETBINDIR}"
+    cp "${SCRIPTDIR}/../../src/App.CLI.MacOS/bin/${CONFIG}/net8.0/${RID}/eddie-cli-elevated" "${TARGETBINDIR}"
+    cp "${SCRIPTDIR}/../../src/App.CLI.MacOS/bin/${CONFIG}/net8.0/${RID}/eddie-cli-elevated-service" "${TARGETBINDIR}"
+    cp "${SCRIPTDIR}/../../src/App.CLI.MacOS/bin/${CONFIG}/net8.0/${RID}/libLib.Platform.MacOS.Native.dylib" "${TARGETBINDIR}"
+    rm "${TARGETBINDIR}/Eddie-CLI.xml"
 
     # Resources
     echo Step: Resources
@@ -111,14 +112,14 @@ elif [ $PROJECT = "ui" ]; then
     TARGETBINDIR="${TARGETDIR}/Eddie.app/Contents/MacOS"
 
     echo Step: Dependencies        
-    "${SCRIPTDIR}/../macos_portable/build.sh" cli ${ARCH} ${VAROS} net7
+    "${SCRIPTDIR}/../macos_portable/build.sh" cli ${ARCH} ${VAROS} net8
     DEPPACKAGEPATH=${SCRIPTDIR}/../files/eddie-cli_${VERSION}_${VAROS}_${ARCH}_portable.zip
     cp "${DEPPACKAGEPATH}" "${TARGETDIR}"
     cd "${TARGETDIR}"
     unzip *.zip
     rm -rf "${TARGETDIR}/Eddie-CLI/_CodeSignature" # Otherwise issue after "codesign subcomponent error"
 
-    if [ $FRAMEWORK = "net7" ]; then
+    if [ $FRAMEWORK = "net8" ]; then
         echo Step: Compile
         "${SCRIPTDIR}/../../src/App.UI.MacOS/build.sh" ${CONFIG}
     
@@ -190,7 +191,7 @@ echo "Signing"
 "${SCRIPTDIR}/../macos_common/sign.sh" "${TARGETBINDIR}/eddie-cli-elevated" no $VARHARDENING
 "${SCRIPTDIR}/../macos_common/sign.sh" "${TARGETBINDIR}/eddie-cli-elevated-service" no $VARHARDENING
 
-if [ $FRAMEWORK = "net7" ]; then
+if [ $FRAMEWORK = "net8" ]; then
     "${SCRIPTDIR}/../macos_common/sign.sh" "${TARGETBINDIR}/libLib.Platform.macOS.Native.dylib" no $VARHARDENING
 else
     "${SCRIPTDIR}/../macos_common/sign.sh" "${TARGETBINDIR}/../MonoBundle/libLib.Platform.macOS.Native.dylib" no $VARHARDENING

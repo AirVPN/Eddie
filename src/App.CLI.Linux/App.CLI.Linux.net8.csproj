@@ -13,14 +13,14 @@
 	</PropertyGroup>
 
 	<PropertyGroup>
-		<TargetFramework>net7.0</TargetFramework>
+		<TargetFramework>net8.0</TargetFramework>
 		<RootNamespace>Eddie.App.CLI.Linux</RootNamespace>
 		<AssemblyName>eddie-cli</AssemblyName>
 		<OutputType>Exe</OutputType>
 		<OutputPath>bin\$(Configuration)\</OutputPath>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-		<GenerateDocumentationFiles>true</GenerateDocumentationFiles>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		
 		<PublishSingleFile>true</PublishSingleFile>
 		<PublishReadyToRun>true</PublishReadyToRun>		
@@ -47,8 +47,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\Lib.Core\Lib.Core.net7.csproj" />
-		<ProjectReference Include="..\Lib.Platform.Linux\Lib.Platform.Linux.net7.csproj" />
+		<ProjectReference Include="..\Lib.Core\Lib.Core.net8.csproj" />
+		<ProjectReference Include="..\Lib.Platform.Linux\Lib.Platform.Linux.net8.csproj" />
 	</ItemGroup>
 
 	<Target Name="LinuxPostBuild" AfterTargets="PostBuildEvent">		

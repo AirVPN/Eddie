@@ -9,7 +9,7 @@ if [ "${1-}" == "" ]; then
 fi
 
 if [ "${2-}" == "" ]; then
-	echo Second arg must be framework: net4, net7
+	echo Second arg must be framework: net4, net8
 	exit 1
 fi
 
@@ -138,7 +138,7 @@ REQUIRES=""
 if [ $PROJECT = "cli" ]; then 
     REQUIRES="${REQUIRES} openvpn stunnel polkit"
 elif [ $PROJECT = "ui" ]; then
-    if [ $PROJECT = "net7" ]; then
+    if [ $PROJECT = "net8" ]; then
         REQUIRES="${REQUIRES} openvpn stunnel polkit libnotify"
     elif [ $PROJECT = "net4" ]; then 
         REQUIRES="${REQUIRES} openvpn stunnel polkit libnotify"

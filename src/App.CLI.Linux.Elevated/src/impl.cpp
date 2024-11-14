@@ -283,7 +283,8 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 
 								success = true;
 
-								LogRemote("DNS of the interface '" + iFaceName + "' switched to VPN DNS - via systemd-resolved (from '" + servers + "' to '" + expectedServers + "')");
+								// TOFIX: some users report flood of this, need investigation
+								//LogRemote("DNS of the interface '" + iFaceName + "' switched to VPN DNS - via systemd-resolved (from '" + servers + "' to '" + expectedServers + "')");
 							}
 
 							if(defaultRoute != expectedDefaultRoute)
@@ -298,7 +299,8 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 
 								success = true;
 
-								LogRemote("Default Route of the interface '" + iFaceName + "' switched to VPN Route - via systemd-resolved (from '" + defaultRoute + "' to '" + expectedDefaultRoute + "')");
+								// TOFIX: some users report flood of this, need investigation
+								//LogRemote("Default Route of the interface '" + iFaceName + "' switched to VPN Route - via systemd-resolved (from '" + defaultRoute + "' to '" + expectedDefaultRoute + "')");
 							}
 							
 						}
@@ -308,7 +310,8 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 				}
 				else
 				{
-					LogRemote("Detected systemd-resolved active, but " + resolveNetifPath + " missing. Unexpected.");
+					// TOFIX, Linux Arch don't have this directory
+					//LogRemote("Detected systemd-resolved active, but " + resolveNetifPath + " missing. Unexpected.");
 				}
 			}
 			else

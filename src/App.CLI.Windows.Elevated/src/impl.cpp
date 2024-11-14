@@ -69,7 +69,10 @@ int Impl::Main()
 	signal(SIGINT, SIG_IGN); // See comment in Linux implementation
 
 	if ((m_cmdline.find("mode") != m_cmdline.end()) && (m_cmdline["mode"] == "wireguard"))
+	{
+		SetLaunchMode("service"); // Read for check security hashes
 		return WireGuardTunnel(m_cmdline["config"]);
+	}
 
 	WSADATA	WSAData;
 	if (WSAStartup(MAKEWORD(2, 2), &WSAData))

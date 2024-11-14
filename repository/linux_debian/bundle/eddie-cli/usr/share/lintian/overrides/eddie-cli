@@ -27,7 +27,7 @@
 # 2023-11-29: not need anymore
 
 # -------------------
-# 2023-11-29: added, strip corrupt a net7 single-file publish
+# 2023-11-29: added, strip corrupt a net8 single-file publish
 eddie-cli: unstripped-binary-or-object
 
 

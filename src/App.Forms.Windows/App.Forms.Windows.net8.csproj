@@ -14,7 +14,7 @@
 	</PropertyGroup>
 
 	<PropertyGroup>
-		<TargetFramework>net7.0-windows</TargetFramework>
+		<TargetFramework>net8.0-windows</TargetFramework>
 		<RootNamespace>Eddie.App.UI.Windows</RootNamespace>
 		<AssemblyName>Eddie-UI</AssemblyName>
 		<OutputType>WinExe</OutputType>
@@ -44,9 +44,9 @@
   </PropertyGroup>  
 
   <ItemGroup>
-    <ProjectReference Include="..\Lib.Core\Lib.Core.net7.csproj" />
-    <ProjectReference Include="..\Lib.Forms\Lib.Forms.net7.csproj" />
-    <ProjectReference Include="..\Lib.Platform.Windows\Lib.Platform.Windows.net7.csproj" />
+    <ProjectReference Include="..\Lib.Core\Lib.Core.net8.csproj" />
+    <ProjectReference Include="..\Lib.Forms\Lib.Forms.net8.csproj" />
+    <ProjectReference Include="..\Lib.Platform.Windows\Lib.Platform.Windows.net8.csproj" />
   </ItemGroup>
 
   <Target Name="WindowsPostBuild" AfterTargets="PostBuildEvent">

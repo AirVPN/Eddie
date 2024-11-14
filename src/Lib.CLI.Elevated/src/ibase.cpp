@@ -134,6 +134,11 @@ std::string IBase::GetLaunchMode()
 	return m_launchMode;
 }
 
+void IBase::SetLaunchMode(const std::string& mode)
+{
+	m_launchMode = mode;
+}
+
 void IBase::LogFatal(const std::string& msg)
 {
 	LogDebug("Fatal: " + msg);
@@ -296,7 +301,7 @@ int IBase::Main()
 
 	if ((m_cmdline.find("mode") != m_cmdline.end()) && (m_cmdline["mode"] == "spot"))
 	{
-		m_launchMode = "spot";
+		SetLaunchMode("spot");
 
 		if (m_cmdline.find("spot_port") != m_cmdline.end())
 			port = StringToInt(m_cmdline["spot_port"]);
@@ -311,7 +316,7 @@ int IBase::Main()
 	}
 	else if ((m_cmdline.find("mode") != m_cmdline.end()) && (m_cmdline["mode"] == "service"))
 	{
-		m_launchMode = "service";
+		SetLaunchMode("service");
 
 		if (m_cmdline.find("service_port") != m_cmdline.end())
 			port = StringToInt(m_cmdline["service_port"]);

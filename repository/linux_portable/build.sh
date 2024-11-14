@@ -8,7 +8,7 @@ if [ "${1-}" == "" ]; then
 fi
 
 if [ "${2-}" == "" ]; then
-	echo Second arg must be framework: net4, net7
+	echo Second arg must be framework: net4, net8
 	exit 1
 fi
 
@@ -50,11 +50,11 @@ cp "${SCRIPTDIR}/portable.txt" "${TARGETBINDIR}"
 if [ $PROJECT = "cli" ]; then
 
     cd "${SCRIPTDIR}/../../src/App.CLI.Linux/"
-    dotnet publish App.CLI.Linux.net7.csproj --configuration Release --runtime ${RID} --self-contained true -p:PublishTrimmed=true -p:EnableCompressionInSingleFile=true
-    cp "${SCRIPTDIR}/../../src/App.CLI.Linux/bin/${CONFIG}/net7.0/${RID}/publish"/* "${TARGETBINDIR}"
-    cp "${SCRIPTDIR}/../../src/App.CLI.Linux/bin/${CONFIG}/net7.0/${RID}/eddie-cli-elevated" "${TARGETBINDIR}"
-    cp "${SCRIPTDIR}/../../src/App.CLI.Linux/bin/${CONFIG}/net7.0/${RID}/eddie-cli-elevated-service" "${TARGETBINDIR}"
-    cp "${SCRIPTDIR}/../../src/App.CLI.Linux/bin/${CONFIG}/net7.0/${RID}/libLib.Platform.Linux.Native.so" "${TARGETBINDIR}"
+    dotnet publish App.CLI.Linux.net8.csproj --configuration Release --runtime ${RID} --self-contained true -p:PublishTrimmed=true -p:EnableCompressionInSingleFile=true
+    cp "${SCRIPTDIR}/../../src/App.CLI.Linux/bin/${CONFIG}/net8.0/${RID}/publish"/* "${TARGETBINDIR}"
+    cp "${SCRIPTDIR}/../../src/App.CLI.Linux/bin/${CONFIG}/net8.0/${RID}/eddie-cli-elevated" "${TARGETBINDIR}"
+    cp "${SCRIPTDIR}/../../src/App.CLI.Linux/bin/${CONFIG}/net8.0/${RID}/eddie-cli-elevated-service" "${TARGETBINDIR}"
+    cp "${SCRIPTDIR}/../../src/App.CLI.Linux/bin/${CONFIG}/net8.0/${RID}/libLib.Platform.Linux.Native.so" "${TARGETBINDIR}"
 
     # Strip commented, at 2023-11-29, corrupt.    
     # Even without "--strip-unneeded".
@@ -75,7 +75,7 @@ if [ $PROJECT = "cli" ]; then
 elif [ $PROJECT = "ui" ]; then 
 
     echo Step: Dependencies        
-    "${SCRIPTDIR}/../linux_portable/build.sh" cli net7
+    "${SCRIPTDIR}/../linux_portable/build.sh" cli net8
     DEPPACKAGEPATH=${SCRIPTDIR}/../files/eddie-cli_${VERSION}_linux_${ARCH}_portable.tar.gz
     cp "${DEPPACKAGEPATH}" "${TARGETDIR}"
     cd "${TARGETDIR}"
@@ -83,7 +83,7 @@ elif [ $PROJECT = "ui" ]; then
 
     mv -f "${TARGETDIR}/eddie-cli"/* "${TARGETBINDIR}"
     
-    if [ $FRAMEWORK = "net7" ]; then
+    if [ $FRAMEWORK = "net8" ]; then
         echo Step: Compile
         "${SCRIPTDIR}/../../src/App.UI.Linux/build.sh" ${CONFIG}    
         cp -r "${SCRIPTDIR}/../../src/App.UI.Linux/bin"/* ${TARGETBINDIR}        

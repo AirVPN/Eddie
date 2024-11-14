@@ -97,6 +97,7 @@ public:
 	// Engine, Protected
 protected:
 	std::string GetLaunchMode();
+	void SetLaunchMode(const std::string& mode);
 	void LogFatal(const std::string& msg);
 	void LogRemote(const std::string& msg);
 	void LogLocal(const std::string& msg);

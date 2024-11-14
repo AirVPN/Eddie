@@ -14,7 +14,7 @@ if [ "${1-}" == "" ]; then
 fi
 
 if [ "${2-}" == "" ]; then
-	echo Second arg must be framework: net4, net7
+	echo Second arg must be framework: net4, net8
 	exit 1
 fi
 

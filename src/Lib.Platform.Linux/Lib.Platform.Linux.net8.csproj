@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<PackageId>Eddie.Lib.Platform.MacOS</PackageId>
-		<Title>Eddie-MacOS</Title>
-		<Product>Eddie-MacOS</Product>
-		<AssemblyTitle>Eddie-MacOS</AssemblyTitle>
+		<PackageId>Eddie.Lib.Platform.Linux</PackageId>
+		<Title>Eddie-Linux</Title>
+		<Product>Eddie-Linux</Product>
+		<AssemblyTitle>Eddie-Linux</AssemblyTitle>
 		<Company>AirVPN</Company>
 		<FileVersion>2.24</FileVersion>
 		<AssemblyVersion>2.24</AssemblyVersion>
@@ -13,9 +13,9 @@
 	</PropertyGroup>
 
 	<PropertyGroup>
-		<TargetFramework>net7.0</TargetFramework>
-		<RootNamespace>Eddie.Platform.MacOS</RootNamespace>
-		<AssemblyName>Lib.Platform.MacOS</AssemblyName>
+		<TargetFramework>net8.0</TargetFramework>
+		<RootNamespace>Eddie.Platform.Linux</RootNamespace>
+		<AssemblyName>Lib.Platform.Linux</AssemblyName>
 		<OutputType>Library</OutputType>
 		<OutputPath>bin\$(Configuration)\</OutputPath>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
@@ -24,8 +24,8 @@
 	<PropertyGroup>
 		<DefineConstants>EDDIE_DOTNET</DefineConstants>
 	</PropertyGroup>
-
+		
 	<ItemGroup>
-		<ProjectReference Include="..\Lib.Core\Lib.Core.net7.csproj" />
+		<ProjectReference Include="..\Lib.Core\Lib.Core.net8.csproj" />
 	</ItemGroup>
 </Project>

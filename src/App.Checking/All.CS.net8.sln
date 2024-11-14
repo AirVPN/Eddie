@@ -3,19 +3,19 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.6.33723.286
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lib.Core.net7", "..\Lib.Core\Lib.Core.net7.csproj", "{D9DC6597-6E24-4522-836D-8CAD3135EEB3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lib.Core.net8", "..\Lib.Core\Lib.Core.net8.csproj", "{D9DC6597-6E24-4522-836D-8CAD3135EEB3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lib.Platform.Windows.net7", "..\Lib.Platform.Windows\Lib.Platform.Windows.net7.csproj", "{2C7DDA3D-131F-4892-B0BE-C59C1BD395DA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lib.Platform.Windows.net8", "..\Lib.Platform.Windows\Lib.Platform.Windows.net8.csproj", "{2C7DDA3D-131F-4892-B0BE-C59C1BD395DA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "App.CLI.MacOS.net7", "..\App.CLI.MacOS\App.CLI.MacOS.net7.csproj", "{164E76FF-97FF-43BA-8F71-BD1DE92D2C65}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "App.CLI.MacOS.net8", "..\App.CLI.MacOS\App.CLI.MacOS.net8.csproj", "{164E76FF-97FF-43BA-8F71-BD1DE92D2C65}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "App.CLI.Linux.net7", "..\App.CLI.Linux\App.CLI.Linux.net7.csproj", "{D60E1B02-EBEF-45CA-9133-4C037B39D87C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "App.CLI.Linux.net8", "..\App.CLI.Linux\App.CLI.Linux.net8.csproj", "{D60E1B02-EBEF-45CA-9133-4C037B39D87C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lib.Platform.Linux.net7", "..\Lib.Platform.Linux\Lib.Platform.Linux.net7.csproj", "{EBAA17A4-AB55-414E-9B65-8ABBA95C909A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lib.Platform.Linux.net8", "..\Lib.Platform.Linux\Lib.Platform.Linux.net8.csproj", "{EBAA17A4-AB55-414E-9B65-8ABBA95C909A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lib.Platform.MacOS.net7", "..\Lib.Platform.MacOS\Lib.Platform.MacOS.net7.csproj", "{5C5F58CB-509C-463C-B973-3232D44FACE3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lib.Platform.MacOS.net8", "..\Lib.Platform.MacOS\Lib.Platform.MacOS.net8.csproj", "{5C5F58CB-509C-463C-B973-3232D44FACE3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "App.CLI.Windows.net7", "..\App.CLI.Windows\App.CLI.Windows.net7.csproj", "{9EC49F84-B841-404C-8718-6308766603AB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "App.CLI.Windows.net8", "..\App.CLI.Windows\App.CLI.Windows.net8.csproj", "{9EC49F84-B841-404C-8718-6308766603AB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
