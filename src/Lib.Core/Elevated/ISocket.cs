@@ -71,7 +71,7 @@ namespace Eddie.Core.Elevated
 
 				m_sessionKey = RandomGenerator.GetHash();
 
-				DoCommandSync("session-key", "key", m_sessionKey, "version", Constants.ElevatedVersionExpected);
+				DoCommandSync("session-key", "key", m_sessionKey, "version", Constants.ElevatedVersionExpected, "path", Platform.Instance.GetApplicationPath());
 
 				if (m_failedReason != "")
 					return m_failedReason;

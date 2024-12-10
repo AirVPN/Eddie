@@ -919,14 +919,14 @@ namespace Eddie.Platform.MacOS
 		{
 			// Mono NetworkInterface::GetIPv4Statistics().BytesReceived always return 0 under OSX.
 
-			Json result = new Json();
-			result.EnsureArray();
-
 			int maxLen = 1024;
 			byte[] buf = new byte[maxLen];
 			NativeMethods.GetRealtimeNetworkStats(buf, maxLen);
 			string jNativeStr = System.Text.Encoding.ASCII.GetString(buf);
 
+			return Json.Parse(jNativeStr);
+			
+			/* TOCLEAN
 			Json jNative = Json.Parse(jNativeStr);
 
 			// Expect the sequence is the same.
@@ -944,6 +944,7 @@ namespace Eddie.Platform.MacOS
 						Int64 snd = jNativeIf["snd"].ValueInt64;
 						Json jInterface = new Json();
 						jInterface["id"].Value = interfaces[i].Id;
+						jInterface["pazzoid"].Value = jNativeIf["idn"].ValueString;												
 						jInterface["rcv"].Value = rcv;
 						jInterface["snd"].Value = snd;
 						result.Append(jInterface);
@@ -951,7 +952,11 @@ namespace Eddie.Platform.MacOS
 				}
 			}
 
+			System.IO.File.WriteAllText("/tmp/pazzo2.json", result.ToJsonPretty());
+			// pazzo
+
 			return result;
+			*/
 		}
 
 		public override void OnNetworkInterfaceInfoBuild(NetworkInterface networkInterface, Json jNetworkInterface)

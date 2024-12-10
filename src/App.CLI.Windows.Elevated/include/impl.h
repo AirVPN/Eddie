@@ -53,5 +53,7 @@ private:
 	bool WfpRemovePending(const std::string& filterName, const std::string& xml);
 	const char* WfpGetLastError();
 	DWORD WfpGetLastErrorCode();
+
+	void CleanupCompatibility();
 };
 

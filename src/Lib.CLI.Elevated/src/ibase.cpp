@@ -93,6 +93,17 @@ void IBase::MainDo(const std::string& commandId, const std::string& command, std
 				if (clientVersion != m_elevatedVersion)
 					ThrowException("Unexpected version, elevated: " + m_elevatedVersion + ", client: " + clientVersion);
 
+				if (params.find("path") != params.end()) // 2.24.5
+				{
+					if (GetProcessPathCurrentDir() != params["path"])
+					{
+						// This occur for example if Eddie in installed and service active, but another portable is running.
+						// Basically this is not a problem, if ElevatedVersion above match.
+						// But Security Hashes Checks will fail.
+						ThrowException("Unexpected path mismatch, elevated: " + GetProcessPathCurrentDir() + ", client: " + params["path"]);
+					}
+				}
+
 				m_session_key = params["key"];
 			}
 			else
@@ -997,7 +1008,6 @@ std::string IBase::FsLocateExecutable(const std::string& name, const bool throwE
 
 	return "";
 }
-
 
 // --------------------------
 // Utils string

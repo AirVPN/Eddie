@@ -439,7 +439,7 @@ namespace Eddie.Core
 			SetDefault("areas.allowlist", "text", "", LanguageManager.GetText(LanguageItems.ManOptionAreasAllowlist));
 			SetDefault("areas.denylist", "text", "", LanguageManager.GetText(LanguageItems.ManOptionAreasDenylist));
 
-			SetDefault("discover.ip_webservice.list", "text", "https://ipleak.net/json/{@ip};https://freegeoip.net/json/{@ip};http://ip-api.com/json/{@ip}", LanguageManager.GetText(LanguageItems.ManOptionDiscoverIpWebserviceList));
+			SetDefault("discover.ip_webservice.list", "text", "https://eddie.website/ipinfo/{@ip};https://ipleak.net/json/{@ip};http://ip-api.com/json/{@ip}", LanguageManager.GetText(LanguageItems.ManOptionDiscoverIpWebserviceList));
 			SetDefaultInt("discover.interval", 60 * 60 * 24, LanguageManager.GetText(LanguageItems.ManOptionDiscoverInterval));
 			SetDefaultBool("discover.exit", true, LanguageManager.GetText(LanguageItems.ManOptionDiscoverExit));
 

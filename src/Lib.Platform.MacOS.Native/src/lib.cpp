@@ -193,9 +193,13 @@ extern "C" {
 						//totalibytes += if2m->ifm_data.ifi_ibytes;
 						//totalobytes += if2m->ifm_data.ifi_obytes;
 
+						char ifname[IF_NAMESIZE];
+        				if_indextoname(if2m->ifm_index, ifname);
+
 						if (nRecords > 0)
 							jsonStr += ",";
-						jsonStr += "{ \"id\":" + std::to_string(if2m->ifm_index) + ",\"rcv\":" + std::to_string(if2m->ifm_data.ifi_ibytes) + ",\"snd\":" + std::to_string(if2m->ifm_data.ifi_obytes) + " }";
+						jsonStr += "{ \"id\":\"" + std::string(ifname) + "\",\"rcv\":" + std::to_string(if2m->ifm_data.ifi_ibytes) + ",\"snd\":" + std::to_string(if2m->ifm_data.ifi_obytes) + " }";
+						nRecords++;
 					}
 				}
 			}

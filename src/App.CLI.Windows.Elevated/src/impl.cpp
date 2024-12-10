@@ -80,6 +80,8 @@ int Impl::Main()
 		ThrowException("Error in sockets initialization");
 	}
 
+	// CleanupCompatibility();
+
 	int result = IWindows::Main();
 
 	WSACleanup();
@@ -1074,4 +1076,122 @@ const char* Impl::WfpGetLastError()
 DWORD Impl::WfpGetLastErrorCode()
 {
 	return m_wfpLastErrorCode;
+}
+
+#include <shlobj.h>   // Necessario per SHGetKnownFolderPath
+
+// Note: not yet used
+void Impl::CleanupCompatibility()
+{
+	// Old NSIS Start Menu Folder
+	if (true)
+	{
+		HKEY hKey;
+		wchar_t bufferName[4096];
+		DWORD bufferNameSize = sizeof(bufferName);
+
+		if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, L"SOFTWARE\\WOW6432Node\\AirVPN", 0, KEY_READ, &hKey) == ERROR_SUCCESS)
+		{
+			bool result = (RegQueryValueEx(hKey, L"Start Menu Folder", NULL, NULL, reinterpret_cast<BYTE*>(bufferName), &bufferNameSize) == ERROR_SUCCESS);
+			RegCloseKey(hKey);
+			if (result)
+			{
+				PWSTR path = NULL;
+				HRESULT hr = SHGetKnownFolderPath(FOLDERID_CommonPrograms, 0, NULL, &path);
+				if (SUCCEEDED(hr))
+				{
+					std::wstring commonProgramsPath(path);
+					commonProgramsPath += L"\\";
+					commonProgramsPath += std::wstring(bufferName);
+					CoTaskMemFree(path);
+
+					WIN32_FIND_DATA fd;
+					HANDLE h = FindFirstFile((commonProgramsPath + L"\\*.lnk").c_str(), &fd);
+					if (h != INVALID_HANDLE_VALUE)
+					{
+						do 
+						{
+							DeleteFile((commonProgramsPath + L"\\" + fd.cFileName).c_str());
+						} while (FindNextFile(h, &fd));
+						FindClose(h);
+					}
+					h = FindFirstFile((commonProgramsPath + L"\\*").c_str(), &fd);
+					if (h != INVALID_HANDLE_VALUE)
+					{
+						bool empty = true;
+						do
+						{
+							if (wcscmp(fd.cFileName, L".") && wcscmp(fd.cFileName, L".."))
+							{
+								empty = false;
+								break;
+							}
+						} while (FindNextFile(h, &fd));
+						FindClose(h);
+						if (empty)
+							RemoveDirectory(commonProgramsPath.c_str());
+					}
+				}
+			}
+		}
+	}
+
+	// Old NSIS installer entry
+	if (true)
+	{
+		HKEY hKey;
+		wchar_t buffer[4096];
+		DWORD bufferSize = sizeof(buffer);
+
+		if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, L"SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\AirVPN", 0, KEY_READ, &hKey) == ERROR_SUCCESS)
+		{
+			bool result = (RegQueryValueEx(hKey, L"UninstallString", NULL, NULL, reinterpret_cast<BYTE*>(buffer), &bufferSize) == ERROR_SUCCESS);
+			RegCloseKey(hKey);
+			if (result)
+			{
+				// Delete NSIS uninstall.exe
+				std::wstring uninstallerExe(buffer);
+				std::string uninstallerExeUtf8 = StringWStringToUTF8(uninstallerExe);
+				uninstallerExeUtf8 = StringTrim(uninstallerExeUtf8, "\"");
+				FsFileDelete(uninstallerExeUtf8);
+
+				// Delete Program Entry
+				RegDeleteKeyEx(
+					HKEY_LOCAL_MACHINE,
+					L"SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\AirVPN",
+					KEY_WOW64_32KEY,
+					0
+				);
+			}
+		}
+	}
+
+	// Old NSIS RegKey
+	if (true)
+	{
+		RegDeleteKeyEx(
+			HKEY_LOCAL_MACHINE,
+			L"SOFTWARE\\WOW6432Node\\AirVPN",
+			KEY_WOW64_32KEY,
+			0
+		);
+	}
+
+	// Old NSIS directory
+	if (false)
+	{
+		HKEY hKey;
+		wchar_t buffer[4096];
+		DWORD bufferSize = sizeof(buffer);
+
+		if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, L"SOFTWARE\\WOW6432Node\\AirVPN", 0, KEY_READ, &hKey) == ERROR_SUCCESS)
+		{
+			bool result = (RegQueryValueEx(hKey, L"", NULL, NULL, reinterpret_cast<BYTE*>(buffer), &bufferSize) == ERROR_SUCCESS);
+			RegCloseKey(hKey);
+			if (result)
+			{
+				// TODO
+			}
+		}
+	}
 }

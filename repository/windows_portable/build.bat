@@ -53,7 +53,7 @@ mkdir !VARTARGETDIR!
 copy !VARSCRIPTDIR!\portable.txt !VARTARGETDIR!
 
 IF "!VARPROJECT!"=="cli" (
-	cd "!VARSCRIPTDIR!\..\..\src\App.CLI.Windows\"
+	cd /d "!VARSCRIPTDIR!\..\..\src\App.CLI.Windows\"
 	dotnet publish App.CLI.Windows.net8.csproj --configuration Release --runtime !VARRID! --self-contained true -p:PublishTrimmed=true -p:EnableCompressionInSingleFile=true
 	copy !VARSCRIPTDIR!\..\..\src\App.CLI.Windows\bin\!VARCONFIG!\net8.0\!VARRID!\publish\* !VARTARGETDIR! || goto :error		
 	copy !VARSCRIPTDIR!\..\..\src\App.CLI.Windows\bin\!VARCONFIG!\net8.0\!VARRID!\Eddie-CLI-Elevated.exe !VARTARGETDIR! || goto :error		

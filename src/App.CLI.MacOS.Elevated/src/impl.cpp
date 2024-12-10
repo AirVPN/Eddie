@@ -430,10 +430,13 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 	}
 	else if (command == "wireguard-version")
 	{
-		std::string wgPath = FsLocateExecutable("wg"); // Expected in macOS .app bundle
+		std::string wgPath = FsLocateExecutable("wg", false, true); // Expected in macOS .app bundle
 		std::string version = ExecEx1(wgPath, "version").out;
-		version = StringReplaceAll(version, "wireguard-tools v", "");
-		version = StringReplaceAll(version, " - https://git.zx2c4.com/wireguard-tools/", "");
+		version = StringReplaceAll(version, "wireguard-tools", "");
+		version = StringTrim(version, "v ");
+		size_t afterPos = version.find(' ');
+		if(afterPos != std::string::npos)
+			version = version.substr(0, afterPos);
 		ReplyCommand(commandId, version);
 	}
 	else if (command == "wireguard")

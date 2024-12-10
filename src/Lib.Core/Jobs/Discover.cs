@@ -149,7 +149,8 @@ namespace Eddie.Core.Jobs
 						httpRequest.Url = url;
 						httpRequest.IpLayer = layer;
 
-						string json = Engine.Instance.FetchUrl(httpRequest).GetBody();
+						HttpResponse httpResponse = Engine.Instance.FetchUrl(httpRequest);
+						string json = httpResponse.GetBody();
 						Json jDoc = Json.Parse(json);
 
 						NormalizeServiceResponse(jDoc);
