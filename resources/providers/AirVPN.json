@@ -23,6 +23,9 @@
       },
       {
         "address":"http://[2a03:b0c0:0:1010::9b:c001]"
+      },
+      {
+        "address":"http://bootme.org"
       }
     ]
   }

@@ -870,8 +870,11 @@ namespace Eddie.Core.Providers
 					IpAddress ip = new IpAddress(sUrl);
 					if (ip.IsV4)
 						sUrl = "http://" + ip.ToString();
-					else
+					else if(ip.IsV6)
 						sUrl = "http://[" + ip.ToString() + "]";
+
+					if ((!sUrl.StartsWithInv("http://")) && (!sUrl.StartsWithInv("https://")))
+						sUrl = "http://" + sUrl;
 
 					string host = Utils.HostFromUrl(sUrl);
 					if (host != "")
@@ -888,7 +891,7 @@ namespace Eddie.Core.Providers
 					urls.Add(nodeUrl.Attributes["address"].Value);
 				}
 			}
-
+			
 			return urls;
 		}
 

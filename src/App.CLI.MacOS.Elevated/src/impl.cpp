@@ -38,7 +38,7 @@
 
 std::string serviceName = "eddie-elevated";
 std::string serviceDesc = "Eddie VPN Elevation";
-std::string serviceLauncherPath = "/usr/local/bin/eddie-vpn-service-launcher";
+std::string serviceLauncherPath = "/Library/PrivilegedHelperTools/website.eddie.Helper";
 std::string launchdPath = "/Library/LaunchDaemons/org.airvpn.eddie.ui.elevated.plist";
 
 int Impl::Main()
@@ -757,7 +757,7 @@ std::vector<std::string> Impl::GetNetworkInterfacesNames()
 
 std::string Impl::SystemWideDataPath()
 {
-	return "/usr/local/bin/eddie-vpn.dat";
+	return "/Library/PrivilegedHelperTools/website.eddie.Helper.dat";
 }
 
 std::string Impl::CheckIfClientPathIsAllowed(const std::string& path)

@@ -1724,7 +1724,7 @@ namespace Eddie.Platform.Windows
 					string interfaceDescription = jNetworkInterface["description"].ValueString;
 					string interfaceType = jNetworkInterface["type"].ValueString;
 					string interfaceStatus = jNetworkInterface["status"].ValueString;
-
+										
 					if (jNetworkInterface.HasKey("device_id") == false)
 						continue;
 					if (interfaceType != "Virtual")
@@ -1732,6 +1732,9 @@ namespace Eddie.Platform.Windows
 					if (interfaceStatus != "Down")
 						continue;
 					if ((ifaceName != "") && (interfaceName != ifaceName))
+						continue;
+
+					if (interfaceDescription.Contains("ExpressVPN")) // 2.24.6: Unresolved compatibility, detected ok but OpenVPN fail on "open_tun".
 						continue;
 
 					string interfaceDeviceID = jNetworkInterface["device_id"].ValueString;

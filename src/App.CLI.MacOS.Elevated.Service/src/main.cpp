@@ -36,7 +36,7 @@ using json = nlohmann::json;
 
 std::string serviceName = "eddie-elevated";
 std::string serviceDesc = "Eddie Elevation";
-std::string serviceLauncherPath = "/usr/local/bin/eddie-vpn-service-launcher";
+std::string serviceLauncherPath = "/Library/PrivilegedHelperTools/website.eddie.Helper";
 std::string launchdPath = "/Library/LaunchDaemons/org.airvpn.eddie.ui.elevated.plist";
 
 const std::string FsPathSeparator = "/";
@@ -156,7 +156,7 @@ bool FsFileIsRootOnly(std::string path)
 
 std::string SystemWideDataPath()
 {
-	return "/usr/local/bin/eddie-vpn.dat";
+	return "/Library/PrivilegedHelperTools/website.eddie.Helper.dat";
 }
 
 std::string SystemWideDataGet(const std::string& key, const std::string& def)

@@ -944,16 +944,12 @@ namespace Eddie.Platform.MacOS
 						Int64 snd = jNativeIf["snd"].ValueInt64;
 						Json jInterface = new Json();
 						jInterface["id"].Value = interfaces[i].Id;
-						jInterface["pazzoid"].Value = jNativeIf["idn"].ValueString;												
 						jInterface["rcv"].Value = rcv;
 						jInterface["snd"].Value = snd;
 						result.Append(jInterface);
 					}
 				}
 			}
-
-			System.IO.File.WriteAllText("/tmp/pazzo2.json", result.ToJsonPretty());
-			// pazzo
 
 			return result;
 			*/
