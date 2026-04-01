@@ -1025,7 +1025,16 @@ namespace Eddie.Core
 						try
 						{
 							string logPath = ProfileOptions.Get("log.file.path").Trim();
-							Encoding encoding = ProfileOptions.GetEncoding("log.file.encoding");
+							string encodingStr = ProfileOptions.Get("log.file.encoding");
+							Encoding encoding = Encoding.ASCII;
+							if (encodingStr == "utf-8")
+								encoding = Encoding.UTF8;
+							else if (encodingStr == "utf-32")
+								encoding = Encoding.UTF32;
+							else if (encodingStr == "utf-16")
+								encoding = Encoding.Unicode;
+							else if (encodingStr == "ascii")
+								encoding = Encoding.ASCII;
 
 							List<string> paths = Logs.ParseLogFilePath(logPath);
 							foreach (string path in paths)

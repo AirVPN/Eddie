@@ -9,7 +9,7 @@ if "%~1"=="" (
 set VARSCRIPTDIR=%~dp0
 
 IF exist "%EDDIESIGNINGDIR%\eddie.website_deploy.ppk" (
-	%VARSCRIPTDIR%\pscp.exe -P 46333 -i "%EDDIESIGNINGDIR%\eddie.website_deploy.ppk" "%~1"  deploy@eddie.website:/home/www/repository/eddie/internal
+	%VARSCRIPTDIR%\pscp.exe -P 46333 -i "%EDDIESIGNINGDIR%\eddie.website_deploy.ppk" "%~1"  deploy@eddie.website:/opt/repository/eddie/internal
 )
 
 :done

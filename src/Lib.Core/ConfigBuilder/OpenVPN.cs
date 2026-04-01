@@ -234,6 +234,17 @@ namespace Eddie.Core.ConfigBuilder
 					AppendDirective("data-ciphers-fallback", Engine.Instance.ProfileOptions.Get("openvpn.directives.data-ciphers-fallback"), "");
 			}
 
+			if (Engine.Instance.GetOpenVpnTool().VersionAboveOrEqual("2.7")) // 2.26.0
+			{
+				RemoveDirective("persist-key");
+				RemoveDirective("windows-driver");
+				RemoveDirective("secret");
+				RemoveDirective("opt-verify");
+				RemoveDirective("memstats");
+				RemoveDirective("reneg-byte");
+				RemoveDirective("reneg-packets");
+			}
+
 			// Platform specific
 			Platform.Instance.AdaptConfigOpenVpn(this);
 		}

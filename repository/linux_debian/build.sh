@@ -157,9 +157,9 @@ lintian "${FINALPATH}"
 # Staff Deploy
 if test -n "${EDDIESIGNINGDIR:-}"; then    
     echo Step: Signing
-    PASSPHRASE=$(cat ${EDDIESIGNINGDIR}/eddie.gpg-signing.passphrase)
+    PASSPHRASE=$(cat ${EDDIESIGNINGDIR}/eddie_gpg_2026.passphrase)
     export GPG_TTY=$(tty) # Fix for gpg: signing failed: Inappropriate ioctl for device
-    dpkg-sig -m "maintainer@eddie.website" -g "--batch --yes --pinentry-mode loopback --passphrase ${PASSPHRASE}" --sign builder ${FINALPATH}
+    dpkg-sig -m "apt@eddie.website" -g "--batch --yes --pinentry-mode loopback --passphrase ${PASSPHRASE}" --sign builder ${FINALPATH}
     dpkg-sig --verify ${FINALPATH}
 
     echo Step: Deploy

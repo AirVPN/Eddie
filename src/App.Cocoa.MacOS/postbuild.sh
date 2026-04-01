@@ -80,5 +80,11 @@ cp "$BASEPATH/../Lib.Platform.MacOS.Native/bin/libLib.Platform.MacOS.Native.dyli
 
 echo Copy Info.plist
 cp "$BASEPATH/Info.plist" "$OUTPATH/Eddie-UI.app/Contents/"
+VERSION=$("$BASEPATH/../../repository/macos_common/get-version.sh")
+if [ -z "$VERSION" ]; then
+    echo "Error: version is empty"
+    exit 1
+fi
+/usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $VERSION" "$OUTPATH/Eddie-UI.app/Contents/Info.plist"
 
 exit 0

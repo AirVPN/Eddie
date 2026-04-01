@@ -13,7 +13,7 @@ if test -f "${EDDIESIGNINGDIR}/eddie.website_deploy.key"; then # Staff AirVPN
 
     REMOTEDIR=$2
     if [[ ${REMOTEDIR} == "internal" ]]; then 
-        REMOTEDIR=/home/www/repository/eddie/internal
+        REMOTEDIR=/opt/repository/eddie/internal
     fi
 
 	chmod 600 "${EDDIESIGNINGDIR}/eddie.website_deploy.key"

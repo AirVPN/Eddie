@@ -278,21 +278,6 @@ namespace Eddie.Core
 			return Conversions.ToInt64(Get(name));
 		}
 
-		public Encoding GetEncoding(string name)
-		{
-			string v = Get(name);
-			if (v == "utf-8")
-				return Encoding.UTF8;
-			else if (v == "utf-32")
-				return Encoding.UTF32;
-			else if (v == "utf-16")
-				return Encoding.Unicode;
-			else if (v == "ascii")
-				return Encoding.ASCII;
-			else
-				return Encoding.ASCII;
-		}
-
 		public List<string> GetList(string name)
 		{
 			List<string> output = new List<string>();
@@ -419,7 +404,7 @@ namespace Eddie.Core
 			string NotInManNever = ""; // Option not listed in 'man' documentation.			
 			string NotInManYet = ""; // Option that will be added in 'man' documentation.
 
-			SetDefaultBool("start_os", Platform.Instance.GetAutoStart(), NotInManYet);
+			
 
 			SetDefault("login", "text", "", LanguageManager.GetText(LanguageItems.ManOptionLogin));
 			SetDefault("password", "password", "", LanguageManager.GetText(LanguageItems.ManOptionPassword));
@@ -444,7 +429,7 @@ namespace Eddie.Core
 			SetDefaultBool("discover.exit", true, LanguageManager.GetText(LanguageItems.ManOptionDiscoverExit));
 
 			SetDefaultBool("log.file.enabled", false, LanguageManager.GetText(LanguageItems.ManOptionLogFileEnabled));
-			SetDefault("log.file.encoding", "encoding", "utf-8", LanguageManager.GetText(LanguageItems.ManOptionLogFileEncoding));
+			SetDefault("log.file.encoding", "text", "utf-8", LanguageManager.GetText(LanguageItems.ManOptionLogFileEncoding));
 			SetDefault("log.file.path", "text", "logs/eddie_%y-%m-%d.log", LanguageManager.GetText(LanguageItems.ManOptionLogFilePath));
 			SetDefaultBool("log.level.debug", false, LanguageManager.GetText(LanguageItems.ManOptionLogLevelDebug));
 			SetDefaultBool("log.repeat", false, LanguageManager.GetText(LanguageItems.ManOptionLogRepeat));
@@ -514,7 +499,7 @@ namespace Eddie.Core
 
 			SetDefaultInt("http.timeout", 10, LanguageManager.GetText(LanguageItems.ManOptionHttpTimeout));
 
-			SetDefaultBool("webui.enabled", false, NotInManYet); // WebUI it's a Eddie 3.* feature not yet committed on GitHub.
+			SetDefaultBool("webui.enabled", true, NotInManYet); // WebUI it's a Eddie 3.* feature not yet committed on GitHub.
 			SetDefault("webui.ip", "text", "localhost", NotInManYet);
 			SetDefaultInt("webui.port", 4649, NotInManYet);
 
@@ -573,6 +558,7 @@ namespace Eddie.Core
 			EnsureDefaultsEvent("vpn.down");
 
 			// Windows only			
+			SetDefaultBool("windows.start_os", Platform.Instance.GetAutoStart(), NotInManYet);
 			SetDefaultChoice("windows.driver", "auto,ovpn-dco,wintun,tap-windows6,none", "auto", LanguageManager.GetText(LanguageItems.ManOptionWindowsDriver));
 			SetDefaultBool("windows.adapters.cleanup", true, LanguageManager.GetText(LanguageItems.ManOptionWindowsDriverCleanup));
 			SetDefault("windows.adapter_service", "text", "tap0901", LanguageManager.GetText(LanguageItems.ManOptionWindowsAdapterService));
@@ -624,9 +610,6 @@ namespace Eddie.Core
 			SetDefaultBool("gui.osx.sysbar.show_speed", false, NotInManNever); // Menu Status, Window Title, Tray Tooltip
 			SetDefaultBool("gui.osx.sysbar.show_server", false, NotInManNever);
 
-			// Platform-specific
-			m_options["start_os"].Platforms = "Windows;";
-
 			// Internal only
 			m_options["servers.last"].InternalOnly = true;
 			m_options["gui.window.main"].InternalOnly = true;
@@ -674,9 +657,9 @@ namespace Eddie.Core
 
 		public void OnChange(string name)
 		{
-			if (name == "start_os")
+			if (name == "windows.start_os")
 			{
-				Platform.Instance.SetAutoStart(GetBool("start_os"));
+				Platform.Instance.SetAutoStart(GetBool("windows.start_os"));
 			}
 			else if (name == "tools.openvpn.path")
 			{

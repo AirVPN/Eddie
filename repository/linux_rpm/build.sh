@@ -176,11 +176,13 @@ mv eddie-${PROJECT}-${VERSION}-0.${ARCHRPM}.rpm ${FINALPATH}
 
 # Staff Deploy
 if test -n "${EDDIESIGNINGDIR:-}"; then
-    echo Step: Signing
-    echo if requested, enter $(cat "${EDDIESIGNINGDIR}/eddie.gpg-signing.passphrase") as passphrase
-    echo -e "%_signature gpg\n%_gpg_name Eddie <maintainer@eddie.website>\n%__gpg /usr/bin/gpg\n" >~/.rpmmacros
-    export GPG_TTY=$(tty) # Fix for gpg: signing failed: Inappropriate ioctl for device
-    rpmsign --addsign "${FINALPATH}"
+
+    #echo Step: Signing - Not available, "Unsupported PGP signature".
+    #echo Step: Signing
+    #echo if requested, enter $(cat "${EDDIESIGNINGDIR}/eddie_gpg_2026.passphrase") as passphrase
+    #echo -e "%_signature gpg\n%_gpg_name 239FD9507903EA9FBF7DCCF1C6E338858A239AEC\n%__gpg /usr/bin/gpg\n" >~/.rpmmacros
+    #export GPG_TTY=$(tty) # Fix for gpg: signing failed: Inappropriate ioctl for device
+    #rpmsign --addsign "${FINALPATH}"
 
     echo Step: Deploy
     ${SCRIPTDIR}/../linux_common/deploy.sh ${FINALPATH}

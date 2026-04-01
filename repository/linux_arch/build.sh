@@ -146,11 +146,11 @@ if [ "$MODE" == "local" ]; then
 	arch_env self "${REPODIR}" "${TARGETDIR}" "${SCRIPTDIR}"
 
 elif [ "$MODE" == "git" ]; then
-	if test -f "${EDDIESIGNINGDIR}/eddie.gpg-signing.passphrase"; then # Staff AirVPN
+	if test -f "${EDDIESIGNINGDIR}/eddie_gpg_2026.passphrase"; then # Staff AirVPN
 		arch_env git "${REPODIR}" "${TARGETDIR}" "${SCRIPTDIR}"
 	fi
 elif [ "$MODE" == "stable" ]; then
-	if test -f "${EDDIESIGNINGDIR}/eddie.gpg-signing.passphrase"; then # Staff AirVPN
+	if test -f "${EDDIESIGNINGDIR}/eddie_gpg_2026.passphrase"; then # Staff AirVPN
 		arch_env stable "${REPODIR}" "${TARGETDIR}" "${SCRIPTDIR}"
 	fi
 fi

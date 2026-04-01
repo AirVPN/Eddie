@@ -956,39 +956,42 @@ namespace Eddie.Platform.Windows
 				config.AppendDirectives("pull-filter ignore \"dhcp-option DNS6\"", "OS");
 			}
 
-			string driver = Engine.Instance.ProfileOptions.Get("windows.driver");
-
-			if (driver == "auto")
-				driver = "ovpn-dco";
-
-			if ((IsWin10OrNewer() == false) && (driver == "ovpn-dco"))
-				driver = "wintun";
-
-			if ((GetDriverVersion("ovpn-dco") == "") && (driver == "ovpn-dco")) // Temp 2.23.0, until we install the driver directly.
-				driver = "wintun";
-
-			if ((config.ExistsDirective("comp-lzo")) && (driver == "ovpn-dco"))
-				driver = "wintun";
-
-			if ((Engine.Instance.GetOpenVpnTool().VersionUnder("2.6")) && (driver == "ovpn-dco"))
-				driver = "wintun";
-
-			if ((Engine.Instance.GetOpenVpnTool().VersionUnder("2.5")) && (driver == "wintun"))
-				driver = "tap-windows6";
-
-			config.RemoveDirective("windows-driver");
-			if ((driver != "none") && (Engine.Instance.GetOpenVpnTool().VersionAboveOrEqual("2.5")))
+			if (Engine.Instance.GetOpenVpnTool().VersionUnder("2.7"))
 			{
-				config.AppendDirectives("windows-driver " + driver, "OS");
-			}
+				string driver = Engine.Instance.ProfileOptions.Get("windows.driver");
 
-			if ((driver == "ovpn-dco") || (driver == "wintun"))
-			{
-				// TOFIX
-				// First issue: OpenVPN 2.6 seem to ignore dev-node
-				// Second issue: tapctl.exe don't work well in rename adapter (for example when a wintun adapter already exists and tapctl need to create the same adapter name with ovpn-dco				
-				if (Core.Engine.Instance.ProfileOptions.Get("network.iface.name") != "")
-					config.AppendDirectives("dev-node \"" + Core.Engine.Instance.ProfileOptions.Get("network.iface.name").EscapeQuote() + "\"", "OS");
+				if (driver == "auto")
+					driver = "ovpn-dco";
+
+				if ((IsWin10OrNewer() == false) && (driver == "ovpn-dco"))
+					driver = "wintun";
+
+				if ((GetDriverVersion("ovpn-dco") == "") && (driver == "ovpn-dco")) // Temp 2.23.0, until we install the driver directly.
+					driver = "wintun";
+
+				if ((config.ExistsDirective("comp-lzo")) && (driver == "ovpn-dco"))
+					driver = "wintun";
+
+				if ((Engine.Instance.GetOpenVpnTool().VersionUnder("2.6")) && (driver == "ovpn-dco"))
+					driver = "wintun";
+
+				if ((Engine.Instance.GetOpenVpnTool().VersionUnder("2.5")) && (driver == "wintun"))
+					driver = "tap-windows6";
+
+				config.RemoveDirective("windows-driver");
+				if ((driver != "none") && (Engine.Instance.GetOpenVpnTool().VersionAboveOrEqual("2.5")))
+				{
+					config.AppendDirectives("windows-driver " + driver, "OS");
+				}
+
+				if ((driver == "ovpn-dco") || (driver == "wintun"))
+				{
+					// TOFIX
+					// First issue: OpenVPN 2.6 seem to ignore dev-node
+					// Second issue: tapctl.exe don't work well in rename adapter (for example when a wintun adapter already exists and tapctl need to create the same adapter name with ovpn-dco				
+					if (Core.Engine.Instance.ProfileOptions.Get("network.iface.name") != "")
+						config.AppendDirectives("dev-node \"" + Core.Engine.Instance.ProfileOptions.Get("network.iface.name").EscapeQuote() + "\"", "OS");
+				}
 			}
 		}
 
@@ -998,6 +1001,7 @@ namespace Eddie.Platform.Windows
 			{
 				Core.ConnectionTypes.OpenVPN connectionOpenVPN = connection as Core.ConnectionTypes.OpenVPN;
 				string driver = connectionOpenVPN.ConfigStartup.GetOneDirectiveText("windows-driver");
+				
 				if (driver == "")
 					return "tap-windows6";
 				else
@@ -1685,7 +1689,7 @@ namespace Eddie.Platform.Windows
 			if (driver == "ovpn-dco")
 			{
 				// WIP // ovpn-dco driver install
-				// https://github.com/OpenVPN/ovpn-dco-win				
+				// https://github.com/OpenVPN/ovpn-dco-win			
 			}
 			else if (driver == "wintun")
 			{
@@ -1693,11 +1697,6 @@ namespace Eddie.Platform.Windows
 			}
 			else if (driver == "tap-windows6")
 			{
-				if (Engine.Instance.GetOpenVpnTool().VersionAboveOrEqual("2.5"))
-				{
-					Engine.Instance.Logs.LogWarning("Deprecated tap-windows6 driver: please select 'Auto' in Preferences > Advanced > Windows > Driver.");
-				}
-
 				// Need driver install?
 
 				string version = GetDriverVersion("tap-windows6");
@@ -2018,7 +2017,7 @@ namespace Eddie.Platform.Windows
 
 			return "";
 		}
-
+		
 		public bool ExecWithUAC(string filename, string arguments)
 		{
 			return Platform.Instance.ExecExecuteCore(filename, arguments, true);

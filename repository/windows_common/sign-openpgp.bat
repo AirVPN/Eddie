@@ -12,12 +12,12 @@ set VARGPGDIR=!VARREPO!staff\dependencies\gpg-windows
 set VARGPG=!VARGPGDIR!\gpg.exe
 if not exist "!VARGPG!" set VARGPG=!VARGPGDIR!\bin\gpg.exe
 if not exist "!VARGPG!" exit /b 0
-if not exist "%EDDIESIGNINGDIR%\eddie.gpg-signing.passphrase" exit /b 0
+if not exist "%EDDIESIGNINGDIR%\eddie_gpg_2026.passphrase" exit /b 0
 
 set "GNUPGHOME=%EDDIESIGNINGDIR%\gpg-home"
 set "PATH=!VARGPGDIR!;!VARGPGDIR!\bin;!PATH!"
-set /p PASSPHRASE=<"%EDDIESIGNINGDIR%\eddie.gpg-signing.passphrase"
-"!VARGPG!" --batch --yes --pinentry-mode loopback --passphrase "!PASSPHRASE!" --detach-sign --armor -u "maintainer@eddie.website" -o "%~1.asc" "%~1"
+set /p PASSPHRASE=<"%EDDIESIGNINGDIR%\eddie_gpg_2026.passphrase"
+"!VARGPG!" --batch --yes --pinentry-mode loopback --passphrase "!PASSPHRASE!" --detach-sign --armor -u "apt@eddie.website" -o "%~1.asc" "%~1"
 if errorlevel 1 exit /b 1
 "!VARGPG!" --verify "%~1.asc" "%~1"
 exit /b 0
