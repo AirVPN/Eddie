@@ -36,6 +36,7 @@ namespace Eddie.Core
 		protected string m_userPath = "";
 		protected string m_commonPath = "";
 		protected string m_wireGuardVersion = "unknown";
+		protected string m_amneziaWgVersion = "unknown";
 		protected Dictionary<string, string> m_locateExecutableCache = new Dictionary<string, string>();
 
 		protected List<Json> m_routes = new List<Json>();
@@ -159,6 +160,25 @@ namespace Eddie.Core
 			string v = GetWireGuardVersion();
 			if (v == "") v = LanguageManager.GetText(LanguageItems.NotAvailable);
 			return v;
+		}
+
+		public virtual string GetAmneziaWgVersion()
+		{
+			if (m_amneziaWgVersion == "unknown")
+				m_amneziaWgVersion = Engine.Instance.Elevated.DoCommandSync("amneziawg-version");
+			return m_amneziaWgVersion;
+		}
+
+		public virtual string GetAmneziaWgVersionShow()
+		{
+			string v = GetAmneziaWgVersion();
+			if (v == "") v = LanguageManager.GetText(LanguageItems.NotAvailable);
+			return v;
+		}
+
+		public virtual bool GetSupportAmneziaWG()
+		{
+			return (GetAmneziaWgVersion() != "");
 		}
 
 		public virtual bool OnInit()

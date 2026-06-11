@@ -35,6 +35,17 @@ namespace Eddie.Core.ConfigBuilder
 		public string InterfacePreDown = "";
 		public string InterfacePostDown = "";
 
+		// AmneziaWG obfuscation parameters (Interface section)
+		public int AmneziaJc = 0;   // Junk packet count
+		public int AmneziaJmin = 0; // Junk packet minimum size
+		public int AmneziaJmax = 0; // Junk packet maximum size
+		public int AmneziaS1 = 0;   // Init packet junk size
+		public int AmneziaS2 = 0;   // Response packet junk size
+		public int AmneziaH1 = 0;   // Init packet magic header
+		public int AmneziaH2 = 0;   // Response packet magic header
+		public int AmneziaH3 = 0;   // Underload packet magic header
+		public int AmneziaH4 = 0;   // Transport packet magic header
+
 		// Section [Peer]
 		public string PeerPublicKey = "";
 		public string PeerPresharedKey = "";
@@ -86,6 +97,19 @@ namespace Eddie.Core.ConfigBuilder
 
 			if (InterfaceFwMark != "")
 				s.Append("FwMark = " + InterfaceFwMark + Platform.Instance.EndOfLineSep);
+
+			if (IsAmneziaWG())
+			{
+				s.Append("Jc = " + AmneziaJc.ToString() + Platform.Instance.EndOfLineSep);
+				s.Append("Jmin = " + AmneziaJmin.ToString() + Platform.Instance.EndOfLineSep);
+				s.Append("Jmax = " + AmneziaJmax.ToString() + Platform.Instance.EndOfLineSep);
+				s.Append("S1 = " + AmneziaS1.ToString() + Platform.Instance.EndOfLineSep);
+				s.Append("S2 = " + AmneziaS2.ToString() + Platform.Instance.EndOfLineSep);
+				s.Append("H1 = " + AmneziaH1.ToString() + Platform.Instance.EndOfLineSep);
+				s.Append("H2 = " + AmneziaH2.ToString() + Platform.Instance.EndOfLineSep);
+				s.Append("H3 = " + AmneziaH3.ToString() + Platform.Instance.EndOfLineSep);
+				s.Append("H4 = " + AmneziaH4.ToString() + Platform.Instance.EndOfLineSep);
+			}
 
 			if (Engine.Instance.ProfileOptions.GetBool("wireguard.interface.skip_commands") == false)
 			{
@@ -187,6 +211,24 @@ namespace Eddie.Core.ConfigBuilder
 							InterfacePreDown = value;
 						else if ((section == "interface") && (key == "postdown"))
 							InterfacePostDown = value;
+						else if ((section == "interface") && (key == "jc"))
+							AmneziaJc = Conversions.ToInt32(value);
+						else if ((section == "interface") && (key == "jmin"))
+							AmneziaJmin = Conversions.ToInt32(value);
+						else if ((section == "interface") && (key == "jmax"))
+							AmneziaJmax = Conversions.ToInt32(value);
+						else if ((section == "interface") && (key == "s1"))
+							AmneziaS1 = Conversions.ToInt32(value);
+						else if ((section == "interface") && (key == "s2"))
+							AmneziaS2 = Conversions.ToInt32(value);
+						else if ((section == "interface") && (key == "h1"))
+							AmneziaH1 = Conversions.ToInt32(value);
+						else if ((section == "interface") && (key == "h2"))
+							AmneziaH2 = Conversions.ToInt32(value);
+						else if ((section == "interface") && (key == "h3"))
+							AmneziaH3 = Conversions.ToInt32(value);
+						else if ((section == "interface") && (key == "h4"))
+							AmneziaH4 = Conversions.ToInt32(value);
 						else if ((section == "peer") && (key == "publickey"))
 							PeerPublicKey = value;
 						else if ((section == "peer") && (key == "presharedkey"))
@@ -231,6 +273,11 @@ namespace Eddie.Core.ConfigBuilder
 
 			// Platform specific
 			Platform.Instance.AdaptConfigWireGuard(this);
+		}
+
+		public bool IsAmneziaWG()
+		{
+			return Engine.Instance.ProfileOptions.GetBool("amneziawg.enabled");
 		}
 	}
 }

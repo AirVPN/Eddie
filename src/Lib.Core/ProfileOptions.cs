@@ -523,6 +523,17 @@ namespace Eddie.Core
 			SetDefaultInt("wireguard.handshake.timeout.connected", 180 + 20, NotInManNever); // To maintain the session a client must handshake at least once every 180 seconds.
 			SetDefaultInt("wireguard.interface.mtu", -1, LanguageManager.GetText(LanguageItems.ManOptionWireGuardInterfaceMTU));
 
+			SetDefaultBool("amneziawg.enabled", false, "Enable AmneziaWG obfuscation for WireGuard connections");
+			SetDefaultInt("amneziawg.jc", 0, "AmneziaWG junk packet count (Jc)");
+			SetDefaultInt("amneziawg.jmin", 0, "AmneziaWG junk packet minimum size (Jmin)");
+			SetDefaultInt("amneziawg.jmax", 0, "AmneziaWG junk packet maximum size (Jmax)");
+			SetDefaultInt("amneziawg.s1", 0, "AmneziaWG init packet junk size (S1)");
+			SetDefaultInt("amneziawg.s2", 0, "AmneziaWG response packet junk size (S2)");
+			SetDefaultInt("amneziawg.h1", 1, "AmneziaWG init packet magic header (H1)");
+			SetDefaultInt("amneziawg.h2", 2, "AmneziaWG response packet magic header (H2)");
+			SetDefaultInt("amneziawg.h3", 3, "AmneziaWG underload packet magic header (H3)");
+			SetDefaultInt("amneziawg.h4", 4, "AmneziaWG transport packet magic header (H4)");
+
 			// Not in Settings			
 			SetDefaultInt("ssh.port", 0, LanguageManager.GetText(LanguageItems.ManOptionSshPort));
 			SetDefaultInt("ssl.port", 0, LanguageManager.GetText(LanguageItems.ManOptionSslPort));

@@ -418,6 +418,12 @@ namespace Eddie.UI.Cocoa.Osx
             CboWireGuardMTU.AddItem("1320");
             CboWireGuardMTU.AddItem("1280");
 
+			// AmneziaWG
+			ChkAmneziaWGEnabled.Activated += (object sender, EventArgs e) =>
+			{
+				EnableIde();
+			};
+
             // Events
 
             TableAdvancedEvents.DoubleClick += (object sender, EventArgs e) =>
@@ -1019,6 +1025,18 @@ namespace Eddie.UI.Cocoa.Osx
 			else
 				GuiUtils.SetSelected(CboWireGuardMTU, "Recommended (1320)");
 
+			// AmneziaWG
+			GuiUtils.SetCheck(ChkAmneziaWGEnabled, o.GetBool("amneziawg.enabled"));
+			TxtAmneziaWGJc.StringValue = o.GetInt("amneziawg.jc").ToString();
+			TxtAmneziaWGJmin.StringValue = o.GetInt("amneziawg.jmin").ToString();
+			TxtAmneziaWGJmax.StringValue = o.GetInt("amneziawg.jmax").ToString();
+			TxtAmneziaWGS1.StringValue = o.GetInt("amneziawg.s1").ToString();
+			TxtAmneziaWGS2.StringValue = o.GetInt("amneziawg.s2").ToString();
+			TxtAmneziaWGH1.StringValue = o.GetInt("amneziawg.h1").ToString();
+			TxtAmneziaWGH2.StringValue = o.GetInt("amneziawg.h2").ToString();
+			TxtAmneziaWGH3.StringValue = o.GetInt("amneziawg.h3").ToString();
+			TxtAmneziaWGH4.StringValue = o.GetInt("amneziawg.h4").ToString();
+
             // Events
             ReadOptionsEvent("app.start", 0);
 			ReadOptionsEvent("app.stop", 1);
@@ -1395,6 +1413,18 @@ namespace Eddie.UI.Cocoa.Osx
             else
                 o.Set("wireguard.interface.mtu", "-1");
 
+			// AmneziaWG
+			o.SetBool("amneziawg.enabled", GuiUtils.GetCheck(ChkAmneziaWGEnabled));
+			o.SetInt("amneziawg.jc", Conversions.ToInt32(TxtAmneziaWGJc.StringValue));
+			o.SetInt("amneziawg.jmin", Conversions.ToInt32(TxtAmneziaWGJmin.StringValue));
+			o.SetInt("amneziawg.jmax", Conversions.ToInt32(TxtAmneziaWGJmax.StringValue));
+			o.SetInt("amneziawg.s1", Conversions.ToInt32(TxtAmneziaWGS1.StringValue));
+			o.SetInt("amneziawg.s2", Conversions.ToInt32(TxtAmneziaWGS2.StringValue));
+			o.SetInt("amneziawg.h1", Conversions.ToInt32(TxtAmneziaWGH1.StringValue));
+			o.SetInt("amneziawg.h2", Conversions.ToInt32(TxtAmneziaWGH2.StringValue));
+			o.SetInt("amneziawg.h3", Conversions.ToInt32(TxtAmneziaWGH3.StringValue));
+			o.SetInt("amneziawg.h4", Conversions.ToInt32(TxtAmneziaWGH4.StringValue));
+
             // Events
             SaveOptionsEvent("app.start", 0);
 			SaveOptionsEvent("app.stop", 1);
@@ -1440,6 +1470,18 @@ namespace Eddie.UI.Cocoa.Osx
 			GuiUtils.SetEnabled(CmdDnsAdd, true);
 			GuiUtils.SetEnabled(CmdDnsRemove, (TableDnsServers.SelectedRowCount > 0));
 			GuiUtils.SetEnabled(CmdDnsEdit, (TableDnsServers.SelectedRowCount == 1));
+
+			// AmneziaWG
+			bool amneziaWGEnabled = GuiUtils.GetCheck(ChkAmneziaWGEnabled);
+			GuiUtils.SetEnabled(TxtAmneziaWGJc, amneziaWGEnabled);
+			GuiUtils.SetEnabled(TxtAmneziaWGJmin, amneziaWGEnabled);
+			GuiUtils.SetEnabled(TxtAmneziaWGJmax, amneziaWGEnabled);
+			GuiUtils.SetEnabled(TxtAmneziaWGS1, amneziaWGEnabled);
+			GuiUtils.SetEnabled(TxtAmneziaWGS2, amneziaWGEnabled);
+			GuiUtils.SetEnabled(TxtAmneziaWGH1, amneziaWGEnabled);
+			GuiUtils.SetEnabled(TxtAmneziaWGH2, amneziaWGEnabled);
+			GuiUtils.SetEnabled(TxtAmneziaWGH3, amneziaWGEnabled);
+			GuiUtils.SetEnabled(TxtAmneziaWGH4, amneziaWGEnabled);
 
 			// Events
 			GuiUtils.SetEnabled(CmdAdvancedEventsClear, (TableAdvancedEvents.SelectedRowCount == 1));

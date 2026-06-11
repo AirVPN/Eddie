@@ -143,3 +143,14 @@ bin
 obj
 repository/files/*
 
+
+# macOS
+.DS_Store
+
+# IDE / Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+

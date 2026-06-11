@@ -31,6 +31,8 @@ namespace Eddie.Core.ConnectionTypes
 
 		public override string GetTypeName()
 		{
+			if ((m_configStartup != null) && m_configStartup.IsAmneziaWG())
+				return "AmneziaWG";
 			return "WireGuard";
 		}
 
@@ -75,6 +77,19 @@ namespace Eddie.Core.ConnectionTypes
 				m_configStartup.InterfaceDns.Clear();
 			}
 
+			if (m_configStartup.IsAmneziaWG())
+			{
+				m_configStartup.AmneziaJc = Engine.Instance.ProfileOptions.GetInt("amneziawg.jc");
+				m_configStartup.AmneziaJmin = Engine.Instance.ProfileOptions.GetInt("amneziawg.jmin");
+				m_configStartup.AmneziaJmax = Engine.Instance.ProfileOptions.GetInt("amneziawg.jmax");
+				m_configStartup.AmneziaS1 = Engine.Instance.ProfileOptions.GetInt("amneziawg.s1");
+				m_configStartup.AmneziaS2 = Engine.Instance.ProfileOptions.GetInt("amneziawg.s2");
+				m_configStartup.AmneziaH1 = Engine.Instance.ProfileOptions.GetInt("amneziawg.h1");
+				m_configStartup.AmneziaH2 = Engine.Instance.ProfileOptions.GetInt("amneziawg.h2");
+				m_configStartup.AmneziaH3 = Engine.Instance.ProfileOptions.GetInt("amneziawg.h3");
+				m_configStartup.AmneziaH4 = Engine.Instance.ProfileOptions.GetInt("amneziawg.h4");
+			}
+
 			m_configStartup.Adaptation();
 		}
 
@@ -90,6 +105,7 @@ namespace Eddie.Core.ConnectionTypes
 			m_elevatedCommand.Parameters["config"] = m_configStartup.Build();
 			m_elevatedCommand.Parameters["handshake_timeout_first"] = Engine.Instance.ProfileOptions.GetInt("wireguard.handshake.timeout.first").ToString();
 			m_elevatedCommand.Parameters["handshake_timeout_connected"] = Engine.Instance.ProfileOptions.GetInt("wireguard.handshake.timeout.connected").ToString();
+			m_elevatedCommand.Parameters["amneziawg"] = m_configStartup.IsAmneziaWG() ? "1" : "0";
 
 			m_elevatedCommand.ExceptionEvent += delegate (Elevated.Command cmd, string message)
 			{

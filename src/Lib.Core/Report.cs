@@ -174,6 +174,7 @@ namespace Eddie.Core
 			Add("OpenVPN", Software.GetTool("openvpn").GetVersionDesc());
 			Add("Hummingbird", Software.GetTool("hummingbird").GetVersionDesc());
 			Add("WireGuard", Platform.Instance.GetWireGuardVersionShow());
+			Add("AmneziaWG", Platform.Instance.GetAmneziaWgVersionShow());
 			Add("SSH", Software.GetTool("ssh").GetVersionDesc());
 			Add("SSL", Software.GetTool("ssl").GetVersionDesc());
 			if (Platform.Instance.FetchUrlInternal() == false)

@@ -15,6 +15,36 @@ namespace Eddie.UI.Cocoa.Osx
         [Outlet]
         AppKit.NSPopUpButton CboWireGuardMTU { get; set; }
 
+        [Outlet]
+        AppKit.NSButton ChkAmneziaWGEnabled { get; set; }
+
+        [Outlet]
+        AppKit.NSTextField TxtAmneziaWGJc { get; set; }
+
+        [Outlet]
+        AppKit.NSTextField TxtAmneziaWGJmin { get; set; }
+
+        [Outlet]
+        AppKit.NSTextField TxtAmneziaWGJmax { get; set; }
+
+        [Outlet]
+        AppKit.NSTextField TxtAmneziaWGS1 { get; set; }
+
+        [Outlet]
+        AppKit.NSTextField TxtAmneziaWGS2 { get; set; }
+
+        [Outlet]
+        AppKit.NSTextField TxtAmneziaWGH1 { get; set; }
+
+        [Outlet]
+        AppKit.NSTextField TxtAmneziaWGH2 { get; set; }
+
+        [Outlet]
+        AppKit.NSTextField TxtAmneziaWGH3 { get; set; }
+
+        [Outlet]
+        AppKit.NSTextField TxtAmneziaWGH4 { get; set; }
+
 		[Outlet]
 		AppKit.NSPopUpButton CboAdvancedManifestRefresh { get; set; }
 
@@ -383,6 +413,56 @@ namespace Eddie.UI.Cocoa.Osx
 		
 		void ReleaseDesignerOutlets ()
 		{
+			if (ChkAmneziaWGEnabled != null) {
+				ChkAmneziaWGEnabled.Dispose ();
+				ChkAmneziaWGEnabled = null;
+			}
+
+			if (TxtAmneziaWGJc != null) {
+				TxtAmneziaWGJc.Dispose ();
+				TxtAmneziaWGJc = null;
+			}
+
+			if (TxtAmneziaWGJmin != null) {
+				TxtAmneziaWGJmin.Dispose ();
+				TxtAmneziaWGJmin = null;
+			}
+
+			if (TxtAmneziaWGJmax != null) {
+				TxtAmneziaWGJmax.Dispose ();
+				TxtAmneziaWGJmax = null;
+			}
+
+			if (TxtAmneziaWGS1 != null) {
+				TxtAmneziaWGS1.Dispose ();
+				TxtAmneziaWGS1 = null;
+			}
+
+			if (TxtAmneziaWGS2 != null) {
+				TxtAmneziaWGS2.Dispose ();
+				TxtAmneziaWGS2 = null;
+			}
+
+			if (TxtAmneziaWGH1 != null) {
+				TxtAmneziaWGH1.Dispose ();
+				TxtAmneziaWGH1 = null;
+			}
+
+			if (TxtAmneziaWGH2 != null) {
+				TxtAmneziaWGH2.Dispose ();
+				TxtAmneziaWGH2 = null;
+			}
+
+			if (TxtAmneziaWGH3 != null) {
+				TxtAmneziaWGH3.Dispose ();
+				TxtAmneziaWGH3 = null;
+			}
+
+			if (TxtAmneziaWGH4 != null) {
+				TxtAmneziaWGH4.Dispose ();
+				TxtAmneziaWGH4 = null;
+			}
+
 			if (CboAdvancedManifestRefresh != null) {
 				CboAdvancedManifestRefresh.Dispose ();
 				CboAdvancedManifestRefresh = null;

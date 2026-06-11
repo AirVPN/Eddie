@@ -98,6 +98,7 @@ namespace Eddie.UI.Cocoa.Osx
 				string t = i.Type.ToLowerInvariant();
 				if (t == "openvpn") t = "OpenVPN";
 				if (t == "wireguard") t = "WireGuard";
+				if (t == "amneziawg") t = "AmneziaWG";
 				return new NSString(t);
 			}
 			else if (tableColumn.Identifier == "Protocol")
