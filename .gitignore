@@ -143,7 +143,6 @@ bin
 obj
 repository/files/*
 
-
 # macOS
 .DS_Store
 
