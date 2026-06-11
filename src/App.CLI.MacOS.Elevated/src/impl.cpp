@@ -546,6 +546,10 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 							configSetConf += "S1 = " + configmap["interface.s1"] + "\n";
 						if (configmap.find("interface.s2") != configmap.end())
 							configSetConf += "S2 = " + configmap["interface.s2"] + "\n";
+						if (configmap.find("interface.s3") != configmap.end())
+							configSetConf += "S3 = " + configmap["interface.s3"] + "\n";
+						if (configmap.find("interface.s4") != configmap.end())
+							configSetConf += "S4 = " + configmap["interface.s4"] + "\n";
 						if (configmap.find("interface.h1") != configmap.end())
 							configSetConf += "H1 = " + configmap["interface.h1"] + "\n";
 						if (configmap.find("interface.h2") != configmap.end())
@@ -554,6 +558,16 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 							configSetConf += "H3 = " + configmap["interface.h3"] + "\n";
 						if (configmap.find("interface.h4") != configmap.end())
 							configSetConf += "H4 = " + configmap["interface.h4"] + "\n";
+						if (configmap.find("interface.i1") != configmap.end())
+							configSetConf += "I1 = " + configmap["interface.i1"] + "\n";
+						if (configmap.find("interface.i2") != configmap.end())
+							configSetConf += "I2 = " + configmap["interface.i2"] + "\n";
+						if (configmap.find("interface.i3") != configmap.end())
+							configSetConf += "I3 = " + configmap["interface.i3"] + "\n";
+						if (configmap.find("interface.i4") != configmap.end())
+							configSetConf += "I4 = " + configmap["interface.i4"] + "\n";
+						if (configmap.find("interface.i5") != configmap.end())
+							configSetConf += "I5 = " + configmap["interface.i5"] + "\n";
 					}
 					configSetConf += "[Peer]\n";
 					if (configmap.find("peer.publickey") != configmap.end())

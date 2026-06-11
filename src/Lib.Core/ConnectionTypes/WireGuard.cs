@@ -84,10 +84,57 @@ namespace Eddie.Core.ConnectionTypes
 				m_configStartup.AmneziaJmax = Engine.Instance.ProfileOptions.GetInt("amneziawg.jmax");
 				m_configStartup.AmneziaS1 = Engine.Instance.ProfileOptions.GetInt("amneziawg.s1");
 				m_configStartup.AmneziaS2 = Engine.Instance.ProfileOptions.GetInt("amneziawg.s2");
-				m_configStartup.AmneziaH1 = Engine.Instance.ProfileOptions.GetInt("amneziawg.h1");
-				m_configStartup.AmneziaH2 = Engine.Instance.ProfileOptions.GetInt("amneziawg.h2");
-				m_configStartup.AmneziaH3 = Engine.Instance.ProfileOptions.GetInt("amneziawg.h3");
-				m_configStartup.AmneziaH4 = Engine.Instance.ProfileOptions.GetInt("amneziawg.h4");
+				m_configStartup.AmneziaS3 = Engine.Instance.ProfileOptions.GetInt("amneziawg.s3");
+				m_configStartup.AmneziaS4 = Engine.Instance.ProfileOptions.GetInt("amneziawg.s4");
+				m_configStartup.AmneziaH1 = Engine.Instance.ProfileOptions.Get("amneziawg.h1");
+				m_configStartup.AmneziaH2 = Engine.Instance.ProfileOptions.Get("amneziawg.h2");
+				m_configStartup.AmneziaH3 = Engine.Instance.ProfileOptions.Get("amneziawg.h3");
+				m_configStartup.AmneziaH4 = Engine.Instance.ProfileOptions.Get("amneziawg.h4");
+
+				// CPS preset logic: random preset > selected preset > manual I1-I5
+				string cpsI1 = "", cpsI2 = "", cpsI3 = "", cpsI4 = "", cpsI5 = "";
+				if (Engine.Instance.ProfileOptions.GetBool("amneziawg.cps.random"))
+				{
+					AmneziaCPSDatabase.CPS randomCps = AmneziaCPSDatabase.GetRandomPreset();
+					if (randomCps != null)
+					{
+						cpsI1 = randomCps.I1;
+						cpsI2 = randomCps.I2;
+						cpsI3 = randomCps.I3;
+						cpsI4 = randomCps.I4;
+						cpsI5 = randomCps.I5;
+					}
+				}
+				else
+				{
+					string presetName = Engine.Instance.ProfileOptions.Get("amneziawg.cps.preset");
+					if (!string.IsNullOrEmpty(presetName))
+					{
+						AmneziaCPSDatabase.CPS preset = AmneziaCPSDatabase.GetPreset(presetName);
+						if (preset != null)
+						{
+							cpsI1 = preset.I1;
+							cpsI2 = preset.I2;
+							cpsI3 = preset.I3;
+							cpsI4 = preset.I4;
+							cpsI5 = preset.I5;
+						}
+					}
+				}
+
+				// Manual I1-I5 values override preset values
+				m_configStartup.AmneziaI1 = Engine.Instance.ProfileOptions.Get("amneziawg.i1");
+				m_configStartup.AmneziaI2 = Engine.Instance.ProfileOptions.Get("amneziawg.i2");
+				m_configStartup.AmneziaI3 = Engine.Instance.ProfileOptions.Get("amneziawg.i3");
+				m_configStartup.AmneziaI4 = Engine.Instance.ProfileOptions.Get("amneziawg.i4");
+				m_configStartup.AmneziaI5 = Engine.Instance.ProfileOptions.Get("amneziawg.i5");
+
+				// Fall back to preset values if manual is empty
+				if (string.IsNullOrEmpty(m_configStartup.AmneziaI1)) m_configStartup.AmneziaI1 = cpsI1;
+				if (string.IsNullOrEmpty(m_configStartup.AmneziaI2)) m_configStartup.AmneziaI2 = cpsI2;
+				if (string.IsNullOrEmpty(m_configStartup.AmneziaI3)) m_configStartup.AmneziaI3 = cpsI3;
+				if (string.IsNullOrEmpty(m_configStartup.AmneziaI4)) m_configStartup.AmneziaI4 = cpsI4;
+				if (string.IsNullOrEmpty(m_configStartup.AmneziaI5)) m_configStartup.AmneziaI5 = cpsI5;
 			}
 
 			m_configStartup.Adaptation();

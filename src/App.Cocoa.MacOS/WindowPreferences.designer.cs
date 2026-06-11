@@ -34,6 +34,12 @@ namespace Eddie.UI.Cocoa.Osx
         AppKit.NSTextField TxtAmneziaWGS2 { get; set; }
 
         [Outlet]
+        AppKit.NSTextField TxtAmneziaWGS3 { get; set; }
+
+        [Outlet]
+        AppKit.NSTextField TxtAmneziaWGS4 { get; set; }
+
+        [Outlet]
         AppKit.NSTextField TxtAmneziaWGH1 { get; set; }
 
         [Outlet]
@@ -44,6 +50,27 @@ namespace Eddie.UI.Cocoa.Osx
 
         [Outlet]
         AppKit.NSTextField TxtAmneziaWGH4 { get; set; }
+
+        [Outlet]
+        AppKit.NSTextField TxtAmneziaWGI1 { get; set; }
+
+        [Outlet]
+        AppKit.NSTextField TxtAmneziaWGI2 { get; set; }
+
+        [Outlet]
+        AppKit.NSTextField TxtAmneziaWGI3 { get; set; }
+
+        [Outlet]
+        AppKit.NSTextField TxtAmneziaWGI4 { get; set; }
+
+        [Outlet]
+        AppKit.NSTextField TxtAmneziaWGI5 { get; set; }
+
+        [Outlet]
+        AppKit.NSPopUpButton CboAmneziaWGCpsPreset { get; set; }
+
+        [Outlet]
+        AppKit.NSButton ChkAmneziaWGCpsRandom { get; set; }
 
 		[Outlet]
 		AppKit.NSPopUpButton CboAdvancedManifestRefresh { get; set; }
@@ -461,6 +488,51 @@ namespace Eddie.UI.Cocoa.Osx
 			if (TxtAmneziaWGH4 != null) {
 				TxtAmneziaWGH4.Dispose ();
 				TxtAmneziaWGH4 = null;
+			}
+
+			if (TxtAmneziaWGS3 != null) {
+				TxtAmneziaWGS3.Dispose ();
+				TxtAmneziaWGS3 = null;
+			}
+
+			if (TxtAmneziaWGS4 != null) {
+				TxtAmneziaWGS4.Dispose ();
+				TxtAmneziaWGS4 = null;
+			}
+
+			if (TxtAmneziaWGI1 != null) {
+				TxtAmneziaWGI1.Dispose ();
+				TxtAmneziaWGI1 = null;
+			}
+
+			if (TxtAmneziaWGI2 != null) {
+				TxtAmneziaWGI2.Dispose ();
+				TxtAmneziaWGI2 = null;
+			}
+
+			if (TxtAmneziaWGI3 != null) {
+				TxtAmneziaWGI3.Dispose ();
+				TxtAmneziaWGI3 = null;
+			}
+
+			if (TxtAmneziaWGI4 != null) {
+				TxtAmneziaWGI4.Dispose ();
+				TxtAmneziaWGI4 = null;
+			}
+
+			if (TxtAmneziaWGI5 != null) {
+				TxtAmneziaWGI5.Dispose ();
+				TxtAmneziaWGI5 = null;
+			}
+
+			if (CboAmneziaWGCpsPreset != null) {
+				CboAmneziaWGCpsPreset.Dispose ();
+				CboAmneziaWGCpsPreset = null;
+			}
+
+			if (ChkAmneziaWGCpsRandom != null) {
+				ChkAmneziaWGCpsRandom.Dispose ();
+				ChkAmneziaWGCpsRandom = null;
 			}
 
 			if (CboAdvancedManifestRefresh != null) {

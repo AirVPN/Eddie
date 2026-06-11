@@ -423,6 +423,29 @@ namespace Eddie.UI.Cocoa.Osx
 			{
 				EnableIde();
 			};
+			ChkAmneziaWGCpsRandom.Activated += (object sender, EventArgs e) =>
+			{
+				EnableIde();
+			};
+			CboAmneziaWGCpsPreset.RemoveAllItems();
+			foreach (string code in Eddie.Core.AmneziaCPSDatabase.GetCodes())
+				CboAmneziaWGCpsPreset.AddItem(code);
+			CboAmneziaWGCpsPreset.Activated += (object sender, EventArgs e) =>
+			{
+				string selectedPreset = GuiUtils.GetSelected(CboAmneziaWGCpsPreset);
+				if (!string.IsNullOrEmpty(selectedPreset))
+				{
+					Eddie.Core.AmneziaCPSDatabase.CPS preset = Eddie.Core.AmneziaCPSDatabase.GetPreset(selectedPreset);
+					if (preset != null)
+					{
+						TxtAmneziaWGI1.StringValue = preset.I1;
+						TxtAmneziaWGI2.StringValue = preset.I2;
+						TxtAmneziaWGI3.StringValue = preset.I3;
+						TxtAmneziaWGI4.StringValue = preset.I4;
+						TxtAmneziaWGI5.StringValue = preset.I5;
+					}
+				}
+			};
 
             // Events
 
@@ -1032,10 +1055,19 @@ namespace Eddie.UI.Cocoa.Osx
 			TxtAmneziaWGJmax.StringValue = o.GetInt("amneziawg.jmax").ToString();
 			TxtAmneziaWGS1.StringValue = o.GetInt("amneziawg.s1").ToString();
 			TxtAmneziaWGS2.StringValue = o.GetInt("amneziawg.s2").ToString();
-			TxtAmneziaWGH1.StringValue = o.GetInt("amneziawg.h1").ToString();
-			TxtAmneziaWGH2.StringValue = o.GetInt("amneziawg.h2").ToString();
-			TxtAmneziaWGH3.StringValue = o.GetInt("amneziawg.h3").ToString();
-			TxtAmneziaWGH4.StringValue = o.GetInt("amneziawg.h4").ToString();
+			TxtAmneziaWGS3.StringValue = o.GetInt("amneziawg.s3").ToString();
+			TxtAmneziaWGS4.StringValue = o.GetInt("amneziawg.s4").ToString();
+			TxtAmneziaWGH1.StringValue = o.Get("amneziawg.h1");
+			TxtAmneziaWGH2.StringValue = o.Get("amneziawg.h2");
+			TxtAmneziaWGH3.StringValue = o.Get("amneziawg.h3");
+			TxtAmneziaWGH4.StringValue = o.Get("amneziawg.h4");
+			TxtAmneziaWGI1.StringValue = o.Get("amneziawg.i1");
+			TxtAmneziaWGI2.StringValue = o.Get("amneziawg.i2");
+			TxtAmneziaWGI3.StringValue = o.Get("amneziawg.i3");
+			TxtAmneziaWGI4.StringValue = o.Get("amneziawg.i4");
+			TxtAmneziaWGI5.StringValue = o.Get("amneziawg.i5");
+			GuiUtils.SetCheck(ChkAmneziaWGCpsRandom, o.GetBool("amneziawg.cps.random"));
+			GuiUtils.SetSelected(CboAmneziaWGCpsPreset, o.Get("amneziawg.cps.preset"));
 
             // Events
             ReadOptionsEvent("app.start", 0);
@@ -1420,10 +1452,19 @@ namespace Eddie.UI.Cocoa.Osx
 			o.SetInt("amneziawg.jmax", Conversions.ToInt32(TxtAmneziaWGJmax.StringValue));
 			o.SetInt("amneziawg.s1", Conversions.ToInt32(TxtAmneziaWGS1.StringValue));
 			o.SetInt("amneziawg.s2", Conversions.ToInt32(TxtAmneziaWGS2.StringValue));
-			o.SetInt("amneziawg.h1", Conversions.ToInt32(TxtAmneziaWGH1.StringValue));
-			o.SetInt("amneziawg.h2", Conversions.ToInt32(TxtAmneziaWGH2.StringValue));
-			o.SetInt("amneziawg.h3", Conversions.ToInt32(TxtAmneziaWGH3.StringValue));
-			o.SetInt("amneziawg.h4", Conversions.ToInt32(TxtAmneziaWGH4.StringValue));
+			o.SetInt("amneziawg.s3", Conversions.ToInt32(TxtAmneziaWGS3.StringValue));
+			o.SetInt("amneziawg.s4", Conversions.ToInt32(TxtAmneziaWGS4.StringValue));
+			o.Set("amneziawg.h1", TxtAmneziaWGH1.StringValue);
+			o.Set("amneziawg.h2", TxtAmneziaWGH2.StringValue);
+			o.Set("amneziawg.h3", TxtAmneziaWGH3.StringValue);
+			o.Set("amneziawg.h4", TxtAmneziaWGH4.StringValue);
+			o.Set("amneziawg.i1", TxtAmneziaWGI1.StringValue);
+			o.Set("amneziawg.i2", TxtAmneziaWGI2.StringValue);
+			o.Set("amneziawg.i3", TxtAmneziaWGI3.StringValue);
+			o.Set("amneziawg.i4", TxtAmneziaWGI4.StringValue);
+			o.Set("amneziawg.i5", TxtAmneziaWGI5.StringValue);
+			o.SetBool("amneziawg.cps.random", GuiUtils.GetCheck(ChkAmneziaWGCpsRandom));
+			o.Set("amneziawg.cps.preset", GuiUtils.GetSelected(CboAmneziaWGCpsPreset));
 
             // Events
             SaveOptionsEvent("app.start", 0);
@@ -1478,10 +1519,19 @@ namespace Eddie.UI.Cocoa.Osx
 			GuiUtils.SetEnabled(TxtAmneziaWGJmax, amneziaWGEnabled);
 			GuiUtils.SetEnabled(TxtAmneziaWGS1, amneziaWGEnabled);
 			GuiUtils.SetEnabled(TxtAmneziaWGS2, amneziaWGEnabled);
+			GuiUtils.SetEnabled(TxtAmneziaWGS3, amneziaWGEnabled);
+			GuiUtils.SetEnabled(TxtAmneziaWGS4, amneziaWGEnabled);
 			GuiUtils.SetEnabled(TxtAmneziaWGH1, amneziaWGEnabled);
 			GuiUtils.SetEnabled(TxtAmneziaWGH2, amneziaWGEnabled);
 			GuiUtils.SetEnabled(TxtAmneziaWGH3, amneziaWGEnabled);
 			GuiUtils.SetEnabled(TxtAmneziaWGH4, amneziaWGEnabled);
+			GuiUtils.SetEnabled(TxtAmneziaWGI1, amneziaWGEnabled);
+			GuiUtils.SetEnabled(TxtAmneziaWGI2, amneziaWGEnabled);
+			GuiUtils.SetEnabled(TxtAmneziaWGI3, amneziaWGEnabled);
+			GuiUtils.SetEnabled(TxtAmneziaWGI4, amneziaWGEnabled);
+			GuiUtils.SetEnabled(TxtAmneziaWGI5, amneziaWGEnabled);
+			GuiUtils.SetEnabled(CboAmneziaWGCpsPreset, amneziaWGEnabled && !GuiUtils.GetCheck(ChkAmneziaWGCpsRandom));
+			GuiUtils.SetEnabled(ChkAmneziaWGCpsRandom, amneziaWGEnabled);
 
 			// Events
 			GuiUtils.SetEnabled(CmdAdvancedEventsClear, (TableAdvancedEvents.SelectedRowCount == 1));

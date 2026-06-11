@@ -529,10 +529,19 @@ namespace Eddie.Core
 			SetDefaultInt("amneziawg.jmax", 0, "AmneziaWG junk packet maximum size (Jmax)");
 			SetDefaultInt("amneziawg.s1", 0, "AmneziaWG init packet junk size (S1)");
 			SetDefaultInt("amneziawg.s2", 0, "AmneziaWG response packet junk size (S2)");
-			SetDefaultInt("amneziawg.h1", 1, "AmneziaWG init packet magic header (H1)");
-			SetDefaultInt("amneziawg.h2", 2, "AmneziaWG response packet magic header (H2)");
-			SetDefaultInt("amneziawg.h3", 3, "AmneziaWG underload packet magic header (H3)");
-			SetDefaultInt("amneziawg.h4", 4, "AmneziaWG transport packet magic header (H4)");
+			SetDefaultInt("amneziawg.s3", 0, "AmneziaWG cookie message padding (S3)");
+			SetDefaultInt("amneziawg.s4", 0, "AmneziaWG transport data padding (S4)");
+			SetDefault("amneziawg.h1", "text", "1", "AmneziaWG init packet magic header (H1)");
+			SetDefault("amneziawg.h2", "text", "2", "AmneziaWG response packet magic header (H2)");
+			SetDefault("amneziawg.h3", "text", "3", "AmneziaWG underload packet magic header (H3)");
+			SetDefault("amneziawg.h4", "text", "4", "AmneziaWG transport packet magic header (H4)");
+			SetDefault("amneziawg.i1", "text", "", "AmneziaWG CPS signature packet 1 (I1)");
+			SetDefault("amneziawg.i2", "text", "", "AmneziaWG CPS signature packet 2 (I2)");
+			SetDefault("amneziawg.i3", "text", "", "AmneziaWG CPS signature packet 3 (I3)");
+			SetDefault("amneziawg.i4", "text", "", "AmneziaWG CPS signature packet 4 (I4)");
+			SetDefault("amneziawg.i5", "text", "", "AmneziaWG CPS signature packet 5 (I5)");
+			SetDefault("amneziawg.cps.preset", "text", "", "AmneziaWG CPS preset name");
+			SetDefaultBool("amneziawg.cps.random", false, "AmneziaWG use random CPS preset on each connection");
 
 			// Not in Settings			
 			SetDefaultInt("ssh.port", 0, LanguageManager.GetText(LanguageItems.ManOptionSshPort));
