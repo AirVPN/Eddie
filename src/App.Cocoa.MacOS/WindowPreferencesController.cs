@@ -418,6 +418,35 @@ namespace Eddie.UI.Cocoa.Osx
             CboWireGuardMTU.AddItem("1320");
             CboWireGuardMTU.AddItem("1280");
 
+			// AmneziaWG
+			ChkAmneziaWGEnabled.Activated += (object sender, EventArgs e) =>
+			{
+				EnableIde();
+			};
+			ChkAmneziaWGCpsRandom.Activated += (object sender, EventArgs e) =>
+			{
+				EnableIde();
+			};
+			CboAmneziaWGCpsPreset.RemoveAllItems();
+			foreach (string code in Eddie.Core.AmneziaCPSDatabase.GetCodes())
+				CboAmneziaWGCpsPreset.AddItem(code);
+			CboAmneziaWGCpsPreset.Activated += (object sender, EventArgs e) =>
+			{
+				string selectedPreset = GuiUtils.GetSelected(CboAmneziaWGCpsPreset);
+				if (!string.IsNullOrEmpty(selectedPreset))
+				{
+					Eddie.Core.AmneziaCPSDatabase.CPS preset = Eddie.Core.AmneziaCPSDatabase.GetPreset(selectedPreset);
+					if (preset != null)
+					{
+						TxtAmneziaWGI1.StringValue = preset.I1;
+						TxtAmneziaWGI2.StringValue = preset.I2;
+						TxtAmneziaWGI3.StringValue = preset.I3;
+						TxtAmneziaWGI4.StringValue = preset.I4;
+						TxtAmneziaWGI5.StringValue = preset.I5;
+					}
+				}
+			};
+
             // Events
 
             TableAdvancedEvents.DoubleClick += (object sender, EventArgs e) =>
@@ -1019,6 +1048,27 @@ namespace Eddie.UI.Cocoa.Osx
 			else
 				GuiUtils.SetSelected(CboWireGuardMTU, "Recommended (1320)");
 
+			// AmneziaWG
+			GuiUtils.SetCheck(ChkAmneziaWGEnabled, o.GetBool("amneziawg.enabled"));
+			TxtAmneziaWGJc.StringValue = o.GetInt("amneziawg.jc").ToString();
+			TxtAmneziaWGJmin.StringValue = o.GetInt("amneziawg.jmin").ToString();
+			TxtAmneziaWGJmax.StringValue = o.GetInt("amneziawg.jmax").ToString();
+			TxtAmneziaWGS1.StringValue = o.GetInt("amneziawg.s1").ToString();
+			TxtAmneziaWGS2.StringValue = o.GetInt("amneziawg.s2").ToString();
+			TxtAmneziaWGS3.StringValue = o.GetInt("amneziawg.s3").ToString();
+			TxtAmneziaWGS4.StringValue = o.GetInt("amneziawg.s4").ToString();
+			TxtAmneziaWGH1.StringValue = o.Get("amneziawg.h1");
+			TxtAmneziaWGH2.StringValue = o.Get("amneziawg.h2");
+			TxtAmneziaWGH3.StringValue = o.Get("amneziawg.h3");
+			TxtAmneziaWGH4.StringValue = o.Get("amneziawg.h4");
+			TxtAmneziaWGI1.StringValue = o.Get("amneziawg.i1");
+			TxtAmneziaWGI2.StringValue = o.Get("amneziawg.i2");
+			TxtAmneziaWGI3.StringValue = o.Get("amneziawg.i3");
+			TxtAmneziaWGI4.StringValue = o.Get("amneziawg.i4");
+			TxtAmneziaWGI5.StringValue = o.Get("amneziawg.i5");
+			GuiUtils.SetCheck(ChkAmneziaWGCpsRandom, o.GetBool("amneziawg.cps.random"));
+			GuiUtils.SetSelected(CboAmneziaWGCpsPreset, o.Get("amneziawg.cps.preset"));
+
             // Events
             ReadOptionsEvent("app.start", 0);
 			ReadOptionsEvent("app.stop", 1);
@@ -1060,6 +1110,132 @@ namespace Eddie.UI.Cocoa.Osx
 						return false;
 			}
 
+			// AmneziaWG parameter validation
+			if (GuiUtils.GetCheck(ChkAmneziaWGEnabled))
+			{
+				if (CheckAwgIntParam(TxtAmneziaWGJc.StringValue, "Jc", 0, 128) == false)
+					return false;
+				if (CheckAwgIntParam(TxtAmneziaWGJmin.StringValue, "Jmin", 0, 1280) == false)
+					return false;
+				if (CheckAwgIntParam(TxtAmneziaWGJmax.StringValue, "Jmax", 0, 1280) == false)
+					return false;
+				if (CheckAwgIntParam(TxtAmneziaWGS1.StringValue, "S1", 0, 1280) == false)
+					return false;
+				if (CheckAwgIntParam(TxtAmneziaWGS2.StringValue, "S2", 0, 1280) == false)
+					return false;
+				if (CheckAwgIntParam(TxtAmneziaWGS3.StringValue, "S3", 0, 1280) == false)
+					return false;
+				if (CheckAwgIntParam(TxtAmneziaWGS4.StringValue, "S4", 0, 32) == false)
+					return false;
+
+				int jmin = Conversions.ToInt32(TxtAmneziaWGJmin.StringValue);
+				int jmax = Conversions.ToInt32(TxtAmneziaWGJmax.StringValue);
+				if (jmax < jmin)
+				{
+					GuiUtils.MessageBoxError("AmneziaWG: Jmax (" + jmax + ") must be greater than or equal to Jmin (" + jmin + ").");
+					return false;
+				}
+
+				int jc = Conversions.ToInt32(TxtAmneziaWGJc.StringValue);
+				if (jc > 0 && (jmin == 0 || jmax == 0))
+				{
+					GuiUtils.MessageBoxError("AmneziaWG: When Jc is greater than 0, both Jmin and Jmax must also be greater than 0.");
+					return false;
+				}
+
+				// H1-H4: single positive integer or "int-int" range
+				if (CheckAwgHeaderParam(TxtAmneziaWGH1.StringValue, "H1") == false)
+					return false;
+				if (CheckAwgHeaderParam(TxtAmneziaWGH2.StringValue, "H2") == false)
+					return false;
+				if (CheckAwgHeaderParam(TxtAmneziaWGH3.StringValue, "H3") == false)
+					return false;
+				if (CheckAwgHeaderParam(TxtAmneziaWGH4.StringValue, "H4") == false)
+					return false;
+
+				// I1-I5: length check (max 4096 chars)
+				if (CheckAwgCpsLength(TxtAmneziaWGI1.StringValue, "I1") == false)
+					return false;
+				if (CheckAwgCpsLength(TxtAmneziaWGI2.StringValue, "I2") == false)
+					return false;
+				if (CheckAwgCpsLength(TxtAmneziaWGI3.StringValue, "I3") == false)
+					return false;
+				if (CheckAwgCpsLength(TxtAmneziaWGI4.StringValue, "I4") == false)
+					return false;
+				if (CheckAwgCpsLength(TxtAmneziaWGI5.StringValue, "I5") == false)
+					return false;
+			}
+
+			return true;
+		}
+
+		bool CheckAwgIntParam(string value, string name, int min, int max)
+		{
+			int v;
+			if (Int32.TryParse(value, System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out v) == false)
+			{
+				GuiUtils.MessageBoxError("AmneziaWG: " + name + " must be a valid integer.");
+				return false;
+			}
+			if (v < min || v > max)
+			{
+				GuiUtils.MessageBoxError("AmneziaWG: " + name + " must be between " + min + " and " + max + " (got " + v + ").");
+				return false;
+			}
+			return true;
+		}
+
+		bool CheckAwgHeaderParam(string value, string name)
+		{
+			if (string.IsNullOrWhiteSpace(value))
+			{
+				GuiUtils.MessageBoxError("AmneziaWG: " + name + " cannot be empty.");
+				return false;
+			}
+
+			int single;
+			if (Int32.TryParse(value.Trim(), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out single))
+			{
+				if (single <= 0)
+				{
+					GuiUtils.MessageBoxError("AmneziaWG: " + name + " must be a positive integer (got " + single + ").");
+					return false;
+				}
+				return true;
+			}
+
+			string[] parts = value.Trim().Split('-');
+			if (parts.Length == 2)
+			{
+				int rangeMin, rangeMax;
+				if (Int32.TryParse(parts[0], System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out rangeMin) &&
+					Int32.TryParse(parts[1], System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out rangeMax))
+				{
+					if (rangeMin <= 0 || rangeMax <= 0)
+					{
+						GuiUtils.MessageBoxError("AmneziaWG: " + name + " range values must be positive integers.");
+						return false;
+					}
+					if (rangeMin >= rangeMax)
+					{
+						GuiUtils.MessageBoxError("AmneziaWG: " + name + " range minimum (" + rangeMin + ") must be less than maximum (" + rangeMax + ").");
+						return false;
+					}
+					return true;
+				}
+			}
+
+			GuiUtils.MessageBoxError("AmneziaWG: " + name + " must be a positive integer or a range in the format \"MIN-MAX\" (e.g. \"1\" or \"1-5\").");
+			return false;
+		}
+
+		bool CheckAwgCpsLength(string value, string name)
+		{
+			if (value != null && value.Length > 4096)
+			{
+				GuiUtils.MessageBoxError("AmneziaWG: " + name + " exceeds maximum length of 4096 characters.");
+				return false;
+			}
 			return true;
 		}
 
@@ -1395,6 +1571,27 @@ namespace Eddie.UI.Cocoa.Osx
             else
                 o.Set("wireguard.interface.mtu", "-1");
 
+			// AmneziaWG
+			o.SetBool("amneziawg.enabled", GuiUtils.GetCheck(ChkAmneziaWGEnabled));
+			o.SetInt("amneziawg.jc", Conversions.ToInt32(TxtAmneziaWGJc.StringValue));
+			o.SetInt("amneziawg.jmin", Conversions.ToInt32(TxtAmneziaWGJmin.StringValue));
+			o.SetInt("amneziawg.jmax", Conversions.ToInt32(TxtAmneziaWGJmax.StringValue));
+			o.SetInt("amneziawg.s1", Conversions.ToInt32(TxtAmneziaWGS1.StringValue));
+			o.SetInt("amneziawg.s2", Conversions.ToInt32(TxtAmneziaWGS2.StringValue));
+			o.SetInt("amneziawg.s3", Conversions.ToInt32(TxtAmneziaWGS3.StringValue));
+			o.SetInt("amneziawg.s4", Conversions.ToInt32(TxtAmneziaWGS4.StringValue));
+			o.Set("amneziawg.h1", TxtAmneziaWGH1.StringValue);
+			o.Set("amneziawg.h2", TxtAmneziaWGH2.StringValue);
+			o.Set("amneziawg.h3", TxtAmneziaWGH3.StringValue);
+			o.Set("amneziawg.h4", TxtAmneziaWGH4.StringValue);
+			o.Set("amneziawg.i1", TxtAmneziaWGI1.StringValue);
+			o.Set("amneziawg.i2", TxtAmneziaWGI2.StringValue);
+			o.Set("amneziawg.i3", TxtAmneziaWGI3.StringValue);
+			o.Set("amneziawg.i4", TxtAmneziaWGI4.StringValue);
+			o.Set("amneziawg.i5", TxtAmneziaWGI5.StringValue);
+			o.SetBool("amneziawg.cps.random", GuiUtils.GetCheck(ChkAmneziaWGCpsRandom));
+			o.Set("amneziawg.cps.preset", GuiUtils.GetSelected(CboAmneziaWGCpsPreset));
+
             // Events
             SaveOptionsEvent("app.start", 0);
 			SaveOptionsEvent("app.stop", 1);
@@ -1440,6 +1637,27 @@ namespace Eddie.UI.Cocoa.Osx
 			GuiUtils.SetEnabled(CmdDnsAdd, true);
 			GuiUtils.SetEnabled(CmdDnsRemove, (TableDnsServers.SelectedRowCount > 0));
 			GuiUtils.SetEnabled(CmdDnsEdit, (TableDnsServers.SelectedRowCount == 1));
+
+			// AmneziaWG
+			bool amneziaWGEnabled = GuiUtils.GetCheck(ChkAmneziaWGEnabled);
+			GuiUtils.SetEnabled(TxtAmneziaWGJc, amneziaWGEnabled);
+			GuiUtils.SetEnabled(TxtAmneziaWGJmin, amneziaWGEnabled);
+			GuiUtils.SetEnabled(TxtAmneziaWGJmax, amneziaWGEnabled);
+			GuiUtils.SetEnabled(TxtAmneziaWGS1, amneziaWGEnabled);
+			GuiUtils.SetEnabled(TxtAmneziaWGS2, amneziaWGEnabled);
+			GuiUtils.SetEnabled(TxtAmneziaWGS3, amneziaWGEnabled);
+			GuiUtils.SetEnabled(TxtAmneziaWGS4, amneziaWGEnabled);
+			GuiUtils.SetEnabled(TxtAmneziaWGH1, amneziaWGEnabled);
+			GuiUtils.SetEnabled(TxtAmneziaWGH2, amneziaWGEnabled);
+			GuiUtils.SetEnabled(TxtAmneziaWGH3, amneziaWGEnabled);
+			GuiUtils.SetEnabled(TxtAmneziaWGH4, amneziaWGEnabled);
+			GuiUtils.SetEnabled(TxtAmneziaWGI1, amneziaWGEnabled);
+			GuiUtils.SetEnabled(TxtAmneziaWGI2, amneziaWGEnabled);
+			GuiUtils.SetEnabled(TxtAmneziaWGI3, amneziaWGEnabled);
+			GuiUtils.SetEnabled(TxtAmneziaWGI4, amneziaWGEnabled);
+			GuiUtils.SetEnabled(TxtAmneziaWGI5, amneziaWGEnabled);
+			GuiUtils.SetEnabled(CboAmneziaWGCpsPreset, amneziaWGEnabled && !GuiUtils.GetCheck(ChkAmneziaWGCpsRandom));
+			GuiUtils.SetEnabled(ChkAmneziaWGCpsRandom, amneziaWGEnabled);
 
 			// Events
 			GuiUtils.SetEnabled(CmdAdvancedEventsClear, (TableAdvancedEvents.SelectedRowCount == 1));

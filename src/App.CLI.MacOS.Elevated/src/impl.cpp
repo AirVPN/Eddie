@@ -442,6 +442,25 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 			version = version.substr(0, afterPos);
 		ReplyCommand(commandId, version);
 	}
+	else if (command == "amneziawg-version")
+	{
+		std::string awgPath = FsLocateExecutable("awg", false, true);
+		if (awgPath == "")
+		{
+			ReplyCommand(commandId, "");
+		}
+		else
+		{
+			std::string version = ExecEx1(awgPath, "version").out;
+			version = StringReplaceAll(version, "wireguard-tools", "");
+			version = StringReplaceAll(version, "amneziawg-tools", "");
+			version = StringTrim(version, "v ");
+			size_t afterPos = version.find(' ');
+			if(afterPos != std::string::npos)
+				version = version.substr(0, afterPos);
+			ReplyCommand(commandId, version);
+		}
+	}
 	else if (command == "wireguard")
 	{
 		std::string id = params["id"];
@@ -460,6 +479,10 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 			unsigned long handshakeTimeoutFirst = StringToULong(params["handshake_timeout_first"]);
 			unsigned long handshakeTimeoutConnected = StringToULong(params["handshake_timeout_connected"]);
 
+			bool useAmneziaWG = false;
+			if (params.find("amneziawg") != params.end())
+				useAmneziaWG = (params["amneziawg"] == "1");
+
 			FsFileWriteText("/tmp/testwg.conf", config);
 
 			std::string varRunPath = "/var/run/wireguard";
@@ -474,8 +497,20 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 				FsDirectoryCreate(varRunPath);
 
 				std::string ifConfigPath = FsLocateExecutable("ifconfig");
-				std::string wireGuardGoPath = FsLocateExecutable("wireguard-go", true, true);
-				std::string wgPath = FsLocateExecutable("wg", true, true);
+				std::string wireGuardGoPath;
+				std::string wgPath;
+
+				if (useAmneziaWG)
+				{
+					wireGuardGoPath = FsLocateExecutable("amneziawg-go", true, true);
+					wgPath = FsLocateExecutable("awg", true, true);
+					LogRemote("Using AmneziaWG binaries");
+				}
+				else
+				{
+					wireGuardGoPath = FsLocateExecutable("wireguard-go", true, true);
+					wgPath = FsLocateExecutable("wg", true, true);
+				}
 
 				// Add interface
 
@@ -499,6 +534,41 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 						configSetConf += "ListenPort = " + configmap["interface.listenport"] + "\n";
 					if (configmap.find("interface.fwmark") != configmap.end())
 						configSetConf += "FwMark = " + configmap["interface.fwmark"] + "\n";
+					if (useAmneziaWG)
+					{
+						if (configmap.find("interface.jc") != configmap.end())
+							configSetConf += "Jc = " + configmap["interface.jc"] + "\n";
+						if (configmap.find("interface.jmin") != configmap.end())
+							configSetConf += "Jmin = " + configmap["interface.jmin"] + "\n";
+						if (configmap.find("interface.jmax") != configmap.end())
+							configSetConf += "Jmax = " + configmap["interface.jmax"] + "\n";
+						if (configmap.find("interface.s1") != configmap.end())
+							configSetConf += "S1 = " + configmap["interface.s1"] + "\n";
+						if (configmap.find("interface.s2") != configmap.end())
+							configSetConf += "S2 = " + configmap["interface.s2"] + "\n";
+						if (configmap.find("interface.s3") != configmap.end())
+							configSetConf += "S3 = " + configmap["interface.s3"] + "\n";
+						if (configmap.find("interface.s4") != configmap.end())
+							configSetConf += "S4 = " + configmap["interface.s4"] + "\n";
+						if (configmap.find("interface.h1") != configmap.end())
+							configSetConf += "H1 = " + configmap["interface.h1"] + "\n";
+						if (configmap.find("interface.h2") != configmap.end())
+							configSetConf += "H2 = " + configmap["interface.h2"] + "\n";
+						if (configmap.find("interface.h3") != configmap.end())
+							configSetConf += "H3 = " + configmap["interface.h3"] + "\n";
+						if (configmap.find("interface.h4") != configmap.end())
+							configSetConf += "H4 = " + configmap["interface.h4"] + "\n";
+						if (configmap.find("interface.i1") != configmap.end())
+							configSetConf += "I1 = " + configmap["interface.i1"] + "\n";
+						if (configmap.find("interface.i2") != configmap.end())
+							configSetConf += "I2 = " + configmap["interface.i2"] + "\n";
+						if (configmap.find("interface.i3") != configmap.end())
+							configSetConf += "I3 = " + configmap["interface.i3"] + "\n";
+						if (configmap.find("interface.i4") != configmap.end())
+							configSetConf += "I4 = " + configmap["interface.i4"] + "\n";
+						if (configmap.find("interface.i5") != configmap.end())
+							configSetConf += "I5 = " + configmap["interface.i5"] + "\n";
+					}
 					configSetConf += "[Peer]\n";
 					if (configmap.find("peer.publickey") != configmap.end())
 						configSetConf += "PublicKey = " + configmap["peer.publickey"] + "\n";

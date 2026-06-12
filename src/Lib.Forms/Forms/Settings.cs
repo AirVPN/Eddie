@@ -175,6 +175,7 @@ namespace Eddie.Forms.Forms
 					string modeType = mode.Type;
 					if (modeType == "openvpn") modeType = "OpenVPN";
 					if (modeType == "wireguard") modeType = "WireGuard";
+					if (modeType == "amneziawg") modeType = "AmneziaWG";
 					string protocol = mode.Protocol;
 					if (mode.Transport != "") protocol = mode.Transport + ">" + protocol;
 					itemMode.SubItems[0].Text = modeType;

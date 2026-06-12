@@ -15,6 +15,63 @@ namespace Eddie.UI.Cocoa.Osx
         [Outlet]
         AppKit.NSPopUpButton CboWireGuardMTU { get; set; }
 
+        [Outlet]
+        AppKit.NSButton ChkAmneziaWGEnabled { get; set; }
+
+        [Outlet]
+        AppKit.NSTextField TxtAmneziaWGJc { get; set; }
+
+        [Outlet]
+        AppKit.NSTextField TxtAmneziaWGJmin { get; set; }
+
+        [Outlet]
+        AppKit.NSTextField TxtAmneziaWGJmax { get; set; }
+
+        [Outlet]
+        AppKit.NSTextField TxtAmneziaWGS1 { get; set; }
+
+        [Outlet]
+        AppKit.NSTextField TxtAmneziaWGS2 { get; set; }
+
+        [Outlet]
+        AppKit.NSTextField TxtAmneziaWGS3 { get; set; }
+
+        [Outlet]
+        AppKit.NSTextField TxtAmneziaWGS4 { get; set; }
+
+        [Outlet]
+        AppKit.NSTextField TxtAmneziaWGH1 { get; set; }
+
+        [Outlet]
+        AppKit.NSTextField TxtAmneziaWGH2 { get; set; }
+
+        [Outlet]
+        AppKit.NSTextField TxtAmneziaWGH3 { get; set; }
+
+        [Outlet]
+        AppKit.NSTextField TxtAmneziaWGH4 { get; set; }
+
+        [Outlet]
+        AppKit.NSTextField TxtAmneziaWGI1 { get; set; }
+
+        [Outlet]
+        AppKit.NSTextField TxtAmneziaWGI2 { get; set; }
+
+        [Outlet]
+        AppKit.NSTextField TxtAmneziaWGI3 { get; set; }
+
+        [Outlet]
+        AppKit.NSTextField TxtAmneziaWGI4 { get; set; }
+
+        [Outlet]
+        AppKit.NSTextField TxtAmneziaWGI5 { get; set; }
+
+        [Outlet]
+        AppKit.NSPopUpButton CboAmneziaWGCpsPreset { get; set; }
+
+        [Outlet]
+        AppKit.NSButton ChkAmneziaWGCpsRandom { get; set; }
+
 		[Outlet]
 		AppKit.NSPopUpButton CboAdvancedManifestRefresh { get; set; }
 
@@ -383,6 +440,101 @@ namespace Eddie.UI.Cocoa.Osx
 		
 		void ReleaseDesignerOutlets ()
 		{
+			if (ChkAmneziaWGEnabled != null) {
+				ChkAmneziaWGEnabled.Dispose ();
+				ChkAmneziaWGEnabled = null;
+			}
+
+			if (TxtAmneziaWGJc != null) {
+				TxtAmneziaWGJc.Dispose ();
+				TxtAmneziaWGJc = null;
+			}
+
+			if (TxtAmneziaWGJmin != null) {
+				TxtAmneziaWGJmin.Dispose ();
+				TxtAmneziaWGJmin = null;
+			}
+
+			if (TxtAmneziaWGJmax != null) {
+				TxtAmneziaWGJmax.Dispose ();
+				TxtAmneziaWGJmax = null;
+			}
+
+			if (TxtAmneziaWGS1 != null) {
+				TxtAmneziaWGS1.Dispose ();
+				TxtAmneziaWGS1 = null;
+			}
+
+			if (TxtAmneziaWGS2 != null) {
+				TxtAmneziaWGS2.Dispose ();
+				TxtAmneziaWGS2 = null;
+			}
+
+			if (TxtAmneziaWGH1 != null) {
+				TxtAmneziaWGH1.Dispose ();
+				TxtAmneziaWGH1 = null;
+			}
+
+			if (TxtAmneziaWGH2 != null) {
+				TxtAmneziaWGH2.Dispose ();
+				TxtAmneziaWGH2 = null;
+			}
+
+			if (TxtAmneziaWGH3 != null) {
+				TxtAmneziaWGH3.Dispose ();
+				TxtAmneziaWGH3 = null;
+			}
+
+			if (TxtAmneziaWGH4 != null) {
+				TxtAmneziaWGH4.Dispose ();
+				TxtAmneziaWGH4 = null;
+			}
+
+			if (TxtAmneziaWGS3 != null) {
+				TxtAmneziaWGS3.Dispose ();
+				TxtAmneziaWGS3 = null;
+			}
+
+			if (TxtAmneziaWGS4 != null) {
+				TxtAmneziaWGS4.Dispose ();
+				TxtAmneziaWGS4 = null;
+			}
+
+			if (TxtAmneziaWGI1 != null) {
+				TxtAmneziaWGI1.Dispose ();
+				TxtAmneziaWGI1 = null;
+			}
+
+			if (TxtAmneziaWGI2 != null) {
+				TxtAmneziaWGI2.Dispose ();
+				TxtAmneziaWGI2 = null;
+			}
+
+			if (TxtAmneziaWGI3 != null) {
+				TxtAmneziaWGI3.Dispose ();
+				TxtAmneziaWGI3 = null;
+			}
+
+			if (TxtAmneziaWGI4 != null) {
+				TxtAmneziaWGI4.Dispose ();
+				TxtAmneziaWGI4 = null;
+			}
+
+			if (TxtAmneziaWGI5 != null) {
+				TxtAmneziaWGI5.Dispose ();
+				TxtAmneziaWGI5 = null;
+			}
+
+			if (CboAmneziaWGCpsPreset != null) {
+				CboAmneziaWGCpsPreset.Dispose ();
+				CboAmneziaWGCpsPreset = null;
+			}
+
+			if (ChkAmneziaWGCpsRandom != null) {
+				ChkAmneziaWGCpsRandom.Dispose ();
+				ChkAmneziaWGCpsRandom = null;
+			}
+
 			if (CboAdvancedManifestRefresh != null) {
 				CboAdvancedManifestRefresh.Dispose ();
 				CboAdvancedManifestRefresh = null;
