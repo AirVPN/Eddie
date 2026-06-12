@@ -1110,6 +1110,132 @@ namespace Eddie.UI.Cocoa.Osx
 						return false;
 			}
 
+			// AmneziaWG parameter validation
+			if (GuiUtils.GetCheck(ChkAmneziaWGEnabled))
+			{
+				if (CheckAwgIntParam(TxtAmneziaWGJc.StringValue, "Jc", 0, 128) == false)
+					return false;
+				if (CheckAwgIntParam(TxtAmneziaWGJmin.StringValue, "Jmin", 0, 1280) == false)
+					return false;
+				if (CheckAwgIntParam(TxtAmneziaWGJmax.StringValue, "Jmax", 0, 1280) == false)
+					return false;
+				if (CheckAwgIntParam(TxtAmneziaWGS1.StringValue, "S1", 0, 1280) == false)
+					return false;
+				if (CheckAwgIntParam(TxtAmneziaWGS2.StringValue, "S2", 0, 1280) == false)
+					return false;
+				if (CheckAwgIntParam(TxtAmneziaWGS3.StringValue, "S3", 0, 1280) == false)
+					return false;
+				if (CheckAwgIntParam(TxtAmneziaWGS4.StringValue, "S4", 0, 32) == false)
+					return false;
+
+				int jmin = Conversions.ToInt32(TxtAmneziaWGJmin.StringValue);
+				int jmax = Conversions.ToInt32(TxtAmneziaWGJmax.StringValue);
+				if (jmax < jmin)
+				{
+					GuiUtils.MessageBoxError("AmneziaWG: Jmax (" + jmax + ") must be greater than or equal to Jmin (" + jmin + ").");
+					return false;
+				}
+
+				int jc = Conversions.ToInt32(TxtAmneziaWGJc.StringValue);
+				if (jc > 0 && (jmin == 0 || jmax == 0))
+				{
+					GuiUtils.MessageBoxError("AmneziaWG: When Jc is greater than 0, both Jmin and Jmax must also be greater than 0.");
+					return false;
+				}
+
+				// H1-H4: single positive integer or "int-int" range
+				if (CheckAwgHeaderParam(TxtAmneziaWGH1.StringValue, "H1") == false)
+					return false;
+				if (CheckAwgHeaderParam(TxtAmneziaWGH2.StringValue, "H2") == false)
+					return false;
+				if (CheckAwgHeaderParam(TxtAmneziaWGH3.StringValue, "H3") == false)
+					return false;
+				if (CheckAwgHeaderParam(TxtAmneziaWGH4.StringValue, "H4") == false)
+					return false;
+
+				// I1-I5: length check (max 4096 chars)
+				if (CheckAwgCpsLength(TxtAmneziaWGI1.StringValue, "I1") == false)
+					return false;
+				if (CheckAwgCpsLength(TxtAmneziaWGI2.StringValue, "I2") == false)
+					return false;
+				if (CheckAwgCpsLength(TxtAmneziaWGI3.StringValue, "I3") == false)
+					return false;
+				if (CheckAwgCpsLength(TxtAmneziaWGI4.StringValue, "I4") == false)
+					return false;
+				if (CheckAwgCpsLength(TxtAmneziaWGI5.StringValue, "I5") == false)
+					return false;
+			}
+
+			return true;
+		}
+
+		bool CheckAwgIntParam(string value, string name, int min, int max)
+		{
+			int v;
+			if (Int32.TryParse(value, System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out v) == false)
+			{
+				GuiUtils.MessageBoxError("AmneziaWG: " + name + " must be a valid integer.");
+				return false;
+			}
+			if (v < min || v > max)
+			{
+				GuiUtils.MessageBoxError("AmneziaWG: " + name + " must be between " + min + " and " + max + " (got " + v + ").");
+				return false;
+			}
+			return true;
+		}
+
+		bool CheckAwgHeaderParam(string value, string name)
+		{
+			if (string.IsNullOrWhiteSpace(value))
+			{
+				GuiUtils.MessageBoxError("AmneziaWG: " + name + " cannot be empty.");
+				return false;
+			}
+
+			int single;
+			if (Int32.TryParse(value.Trim(), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out single))
+			{
+				if (single <= 0)
+				{
+					GuiUtils.MessageBoxError("AmneziaWG: " + name + " must be a positive integer (got " + single + ").");
+					return false;
+				}
+				return true;
+			}
+
+			string[] parts = value.Trim().Split('-');
+			if (parts.Length == 2)
+			{
+				int rangeMin, rangeMax;
+				if (Int32.TryParse(parts[0], System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out rangeMin) &&
+					Int32.TryParse(parts[1], System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out rangeMax))
+				{
+					if (rangeMin <= 0 || rangeMax <= 0)
+					{
+						GuiUtils.MessageBoxError("AmneziaWG: " + name + " range values must be positive integers.");
+						return false;
+					}
+					if (rangeMin >= rangeMax)
+					{
+						GuiUtils.MessageBoxError("AmneziaWG: " + name + " range minimum (" + rangeMin + ") must be less than maximum (" + rangeMax + ").");
+						return false;
+					}
+					return true;
+				}
+			}
+
+			GuiUtils.MessageBoxError("AmneziaWG: " + name + " must be a positive integer or a range in the format \"MIN-MAX\" (e.g. \"1\" or \"1-5\").");
+			return false;
+		}
+
+		bool CheckAwgCpsLength(string value, string name)
+		{
+			if (value != null && value.Length > 4096)
+			{
+				GuiUtils.MessageBoxError("AmneziaWG: " + name + " exceeds maximum length of 4096 characters.");
+				return false;
+			}
 			return true;
 		}
 
