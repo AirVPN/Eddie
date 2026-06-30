@@ -65,6 +65,14 @@ echo Config: $CONFIG
 mkdir -p "$OUTPATH/Eddie-UI.app/Contents/MacOS/"
 mkdir -p "$OUTPATH/Eddie-UI.app/Contents/MonoBundle/"
 
+echo Copy Deploy files
+cp -R "$BASEPATH/../../deploy/macos_${ARCH}"/* "$OUTPATH/Eddie-UI.app/Contents/MacOS/"
+
+echo Compile and Copy Native
+chmod +x "${BASEPATH}/../Lib.Platform.MacOS.Native/build.sh"
+"${BASEPATH}/../Lib.Platform.MacOS.Native/build.sh" "$CONFIG"
+cp "$BASEPATH/../Lib.Platform.MacOS.Native/bin/libLib.Platform.MacOS.Native.dylib" "$OUTPATH/Eddie-UI.app/Contents/MonoBundle/"    
+
 echo Compile and Copy Elevated
 chmod +x "$BASEPATH/../App.CLI.MacOS.Elevated/build.sh"
 "$BASEPATH/../App.CLI.MacOS.Elevated/build.sh" "$CONFIG"
@@ -72,11 +80,6 @@ cp "$BASEPATH/../App.CLI.MacOS.Elevated/bin/eddie-cli-elevated" "$OUTPATH/Eddie-
 chmod +x "$BASEPATH/../App.CLI.MacOS.Elevated.Service/build.sh"
 "$BASEPATH/../App.CLI.MacOS.Elevated.Service/build.sh" "$CONFIG"
 cp "$BASEPATH/../App.CLI.MacOS.Elevated.Service/bin/eddie-cli-elevated-service" "$OUTPATH/Eddie-UI.app/Contents/MacOS/"    
-
-echo Compile and Copy Native
-chmod +x "${BASEPATH}/../Lib.Platform.MacOS.Native/build.sh"
-"${BASEPATH}/../Lib.Platform.MacOS.Native/build.sh" "$CONFIG"
-cp "$BASEPATH/../Lib.Platform.MacOS.Native/bin/libLib.Platform.MacOS.Native.dylib" "$OUTPATH/Eddie-UI.app/Contents/MonoBundle/"    
 
 echo Copy Info.plist
 cp "$BASEPATH/Info.plist" "$OUTPATH/Eddie-UI.app/Contents/"

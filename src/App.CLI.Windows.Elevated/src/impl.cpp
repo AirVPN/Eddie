@@ -68,12 +68,6 @@ int Impl::Main()
 
 	signal(SIGINT, SIG_IGN); // See comment in Linux implementation
 
-	if ((m_cmdline.find("mode") != m_cmdline.end()) && (m_cmdline["mode"] == "wireguard"))
-	{
-		SetLaunchMode("service"); // Read for check security hashes
-		return WireGuardTunnel(m_cmdline["config"]);
-	}
-
 	WSADATA	WSAData;
 	if (WSAStartup(MAKEWORD(2, 2), &WSAData))
 	{
@@ -97,67 +91,10 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 		std::string schtasksPath = FsLocateExecutable("schtasks.exe", false);
 		if (schtasksPath != "")
 		{
-			ExecEx1(schtasksPath, "/delete /tn AirVPN /f");
-			ExecEx1(schtasksPath, "/delete /tn Eddie /f");
+			ExecEx(schtasksPath, { "/delete", "/tn", "AirVPN", "/f" });
+			ExecEx(schtasksPath, { "/delete", "/tn", "Eddie", "/f" });
 		}
-	}
-	else if (command == "compatibility-profiles")
-	{
-		std::string dataPath = params["path-data"];
-		if (FsDirectoryExists(dataPath) == false)
-		{
-			std::string appPath = params["path-app"];
-
-			std::vector<std::string> filesToMove;
-			filesToMove.push_back("AirVPN.xml");
-			filesToMove.push_back("default.xml");
-			filesToMove.push_back("Recovery.xml");
-			filesToMove.push_back("winfirewall_rules_original.wfw");
-			filesToMove.push_back("winfirewall_rules_backup.wfw");
-			filesToMove.push_back("winfirewallrules.wfw");
-			filesToMove.push_back("winfirewall_rules_original.airvpn");
-
-			FsDirectoryCreate(dataPath);
-
-			if (appPath != dataPath)
-			{
-				// Old Eddie <2.17.3 save data in C:\Program Files\... . Move now.
-				for (std::vector<std::string>::const_iterator i = filesToMove.begin(); i != filesToMove.end(); ++i)
-				{
-					std::string filename = *i;
-					std::string fileOldPath = appPath + FsPathSeparator + filename;
-					std::string fileNewPath = dataPath + FsPathSeparator + filename;
-					if (FsFileExists(fileOldPath))
-					{
-						FsFileMove(fileOldPath, fileNewPath);
-					}
-				}
-			}
-
-			std::size_t posLastSlash = dataPath.find_last_of("\\");
-			if (posLastSlash != std::string::npos)
-			{
-				std::string oldDataPath = dataPath.substr(0, posLastSlash) + FsPathSeparator + "AirVPN";
-
-				if (FsDirectoryExists(oldDataPath))
-				{
-					// Old Eddie <2.17.3 save data in AirVPN folder... . Move now.
-					for (std::vector<std::string>::const_iterator i = filesToMove.begin(); i != filesToMove.end(); ++i)
-					{
-						std::string filename = *i;
-						std::string fileOldPath = oldDataPath + FsPathSeparator + filename;
-						std::string fileNewPath = dataPath + FsPathSeparator + filename;
-						if (FsFileExists(fileOldPath))
-						{
-							FsFileMove(fileOldPath, fileNewPath);
-						}
-					}
-
-					FsDirectoryDelete(oldDataPath, true);
-				}
-			}
-		}
-	}
+	}	
 	else if (command == "wfp")
 	{
 		std::string action = params["action"];
@@ -192,7 +129,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 		{
 			std::string pathTemp = GetTempPath("wfp_rules.xml");
 
-			ExecResult result = ExecEx1(FsLocateExecutable("netsh.exe"), "WFP Show Filters file=\"" + pathTemp + "\"");
+			ExecResult result = ExecEx(FsLocateExecutable("netsh.exe"), { "WFP", "Show", "Filters", "file=" + pathTemp });
 			std::string xml = FsFileReadText(pathTemp);
 			FsFileDelete(pathTemp);
 

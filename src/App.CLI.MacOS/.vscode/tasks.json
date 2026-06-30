@@ -9,7 +9,7 @@
                 "build",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary",
-                "App.CLI.MacOS.net8.csproj"
+                "App.CLI.MacOS.net10.csproj"
             ],
             "group": "build",
             "presentation": {

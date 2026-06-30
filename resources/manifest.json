@@ -17,43 +17,6 @@
 			"ports": "https://eddie.website/docs/ports/"			
 		}
 	},
-	"external-rules-recommended": [
-		{
-			"type":"sign", 
-			"id":"Subject: CN=AIR DI PAOLO BRINI, O=AIR DI PAOLO BRINI, STREET=VIA DEL SAGITTARIO 4, L=PERUGIA PG, S=Italy, PostalCode=06131, C=IT - Issuer: CN=COMODO RSA Code Signing CA, O=COMODO CA Limited, L=Salford, S=Greater Manchester, C=GB",
-			"comment":"Windows, AirVPN Team"
-		},
-		{
-			"type":"sign", 
-			"id":"Subject: CN=Simon Tatham, O=Simon Tatham, L=Cambridge, S=Cambridgeshire, C=GB - Issuer: CN=COMODO SHA-256 Code Signing CA, O=COMODO CA Limited, L=Salford, S=Greater Manchester, C=GB",
-			"comment":"Windows, plink"
-		},
-		{
-			"type":"sign",
-			"id":"Publisher: OpenVPN Technologies, Inc. - Company: n/a",
-			"comment":"Windows, tap-windows.exe signed by OpenVPN"
-		},
-		{
-			"type":"sign", 
-			"id":"Developer ID Application: Paolo Brini (A7P5AKGWFC) - Developer ID Certification Authority - Apple Root CA",
-			"comment":"macOS, AirVPN Developer"
-		},
-		{
-			"type":"sign",
-			"id":"Subject: CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US - Issuer: CN=Microsoft Code Signing PCA, O=Microsoft Corporation, L=Redmond, S=Washington, C=US",
-			"comment":"Windows, system utilities (sigcheck)"
-		},
-		{
-			"type":"sign",
-			"id":"Publisher: Microsoft Windows - Company: Microsoft Corporation",
-			"comment":"Windows, system, catalog, computed with sigcheck"
-		},
-		{
-			"type":"sign",
-			"id":"Software Signing - Apple Code Signing Certification Authority - Apple Root CA",
-			"comment":"Apple, system utilities"
-		}	
-	],
 	"mime_types": {
 		"extension_to_type":
 		{			

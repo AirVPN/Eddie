@@ -11,3 +11,11 @@ eddie-ui: unstripped-binary-or-object
 # 2023-11-30: related to webui
 eddie-ui: embedded-javascript-library
 eddie-ui: truetype-font-prohibits-installable-embedding
+
+# -------------------
+# 2026-04-08: added, .NET self-contained build embeds libraries
+eddie-ui: embedded-library
+
+# -------------------
+# 2026-04-08: added, C++ elevated binaries not compiled as PIE on some arch (notably armv7l)
+eddie-ui: hardening-no-pie

@@ -166,9 +166,6 @@ namespace Eddie.UI.Cocoa.Osx
 		AppKit.NSButton ChkRouteRemoveDefaultGateway { get; set; }
 
 		[Outlet]
-		AppKit.NSButton ChkShellExternalRecommended { get; set; }
-
-		[Outlet]
 		AppKit.NSButton ChkSystemService { get; set; }
 
 		[Outlet]
@@ -205,9 +202,6 @@ namespace Eddie.UI.Cocoa.Osx
 		AppKit.NSButton CmdAdvancedHelp { get; set; }
 
 		[Outlet]
-		AppKit.NSButton CmdAdvancedOpenVpnPath { get; set; }
-
-		[Outlet]
 		AppKit.NSButton CmdCancel { get; set; }
 
 		[Outlet]
@@ -221,9 +215,6 @@ namespace Eddie.UI.Cocoa.Osx
 
 		[Outlet]
 		AppKit.NSButton CmdGeneralTos { get; set; }
-
-		[Outlet]
-		AppKit.NSButton CmdHummingbirdPathBrowse { get; set; }
 
 		[Outlet]
 		AppKit.NSButton CmdLockHelp { get; set; }
@@ -265,12 +256,6 @@ namespace Eddie.UI.Cocoa.Osx
 		AppKit.NSButton CmdSave { get; set; }
 
 		[Outlet]
-		AppKit.NSButton CmdShellExternalClear { get; set; }
-
-		[Outlet]
-		AppKit.NSButton CmdShellExternalView { get; set; }
-
-		[Outlet]
 		AppKit.NSTextField LblAdvancedProviders { get; set; }
 
 		[Outlet]
@@ -304,9 +289,6 @@ namespace Eddie.UI.Cocoa.Osx
 		AppKit.NSTextField LblRoutesOtherwise { get; set; }
 
 		[Outlet]
-		AppKit.NSTextField LblShellExternal { get; set; }
-
-		[Outlet]
 		AppKit.NSTextField LblSystemService { get; set; }
 
 		[Outlet]
@@ -335,12 +317,6 @@ namespace Eddie.UI.Cocoa.Osx
 
 		[Outlet]
 		AppKit.NSTextField TxtAdvancedOpenVpnDirectivesDefault { get; set; }
-
-		[Outlet]
-		AppKit.NSTextField TxtAdvancedOpenVpnPath { get; set; }
-
-		[Outlet]
-		AppKit.NSTextField TxtHummingbirdPath { get; set; }
 
 		[Outlet]
 		AppKit.NSTextField TxtLockAllowlistIncomingIPs { get; set; }
@@ -623,11 +599,6 @@ namespace Eddie.UI.Cocoa.Osx
 				ChkRouteRemoveDefaultGateway = null;
 			}
 
-			if (ChkShellExternalRecommended != null) {
-				ChkShellExternalRecommended.Dispose ();
-				ChkShellExternalRecommended = null;
-			}
-
 			if (ChkSystemService != null) {
 				ChkSystemService.Dispose ();
 				ChkSystemService = null;
@@ -693,11 +664,6 @@ namespace Eddie.UI.Cocoa.Osx
 				CmdAdvancedHelp = null;
 			}
 
-			if (CmdAdvancedOpenVpnPath != null) {
-				CmdAdvancedOpenVpnPath.Dispose ();
-				CmdAdvancedOpenVpnPath = null;
-			}
-
 			if (CmdCancel != null) {
 				CmdCancel.Dispose ();
 				CmdCancel = null;
@@ -721,11 +687,6 @@ namespace Eddie.UI.Cocoa.Osx
 			if (CmdGeneralTos != null) {
 				CmdGeneralTos.Dispose ();
 				CmdGeneralTos = null;
-			}
-
-			if (CmdHummingbirdPathBrowse != null) {
-				CmdHummingbirdPathBrowse.Dispose ();
-				CmdHummingbirdPathBrowse = null;
 			}
 
 			if (CmdLockHelp != null) {
@@ -793,16 +754,6 @@ namespace Eddie.UI.Cocoa.Osx
 				CmdSave = null;
 			}
 
-			if (CmdShellExternalClear != null) {
-				CmdShellExternalClear.Dispose ();
-				CmdShellExternalClear = null;
-			}
-
-			if (CmdShellExternalView != null) {
-				CmdShellExternalView.Dispose ();
-				CmdShellExternalView = null;
-			}
-
 			if (LblAdvancedProviders != null) {
 				LblAdvancedProviders.Dispose ();
 				LblAdvancedProviders = null;
@@ -858,11 +809,6 @@ namespace Eddie.UI.Cocoa.Osx
 				LblRoutesOtherwise = null;
 			}
 
-			if (LblShellExternal != null) {
-				LblShellExternal.Dispose ();
-				LblShellExternal = null;
-			}
-
 			if (LblSystemService != null) {
 				LblSystemService.Dispose ();
 				LblSystemService = null;
@@ -911,16 +857,6 @@ namespace Eddie.UI.Cocoa.Osx
 			if (TxtAdvancedOpenVpnDirectivesDefault != null) {
 				TxtAdvancedOpenVpnDirectivesDefault.Dispose ();
 				TxtAdvancedOpenVpnDirectivesDefault = null;
-			}
-
-			if (TxtAdvancedOpenVpnPath != null) {
-				TxtAdvancedOpenVpnPath.Dispose ();
-				TxtAdvancedOpenVpnPath = null;
-			}
-
-			if (TxtHummingbirdPath != null) {
-				TxtHummingbirdPath.Dispose ();
-				TxtHummingbirdPath = null;
 			}
 
 			if (TxtLockAllowlistIncomingIPs != null) {

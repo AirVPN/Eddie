@@ -27,15 +27,9 @@ fi
 
 echo "Building libLib.Platform.Linux.Native.so - Config: $CONFIG"
 
-# Version 2.21.8
-# without libcurl (C#::Platform::FetchUrlInternal=false) 
-# g++ -shared -fPIC -o "$BASEPATH/bin/libLib.Platform.Linux.Native.so" "$BASEPATH/lib.cpp" -Wall -std=c++11 -O3 -D$CONFIG
-
-# Version libcurl - unresolved deploy compatibility issues libcurl3 vs libcurl4, CURL_OPENSSL_3 issue etc. And remember need AppImage/Portable static edition.
-# When compiled in our Debian8 (that have libcurl4-openssl-dev), result binary throw in recent linux with libcurl4 "version CURL_OPENSSL_3 not found". Dependencies with libcurl3 is excluded, will uninstall other software.
-# Linking libcurl statically maybe a solution, but complex (a lots of .a dependencies) and require lintian override (and generally not recommended).
-# Until solution, Eddie Linux still use curl binary with shell.
-# Version 2.22.x - TOTEST
+# HTTP fetch is performed in-process through libcurl (eddie_curl, guarded by EDDIE_LIBCURL).
+# libcurl is linked dynamically: a static link would pull in many .a dependencies and require a lintian override.
+# Build host must provide the libcurl development headers (Debian: libcurl4-openssl-dev); runtime depends on libcurl4.
 g++ -shared -fPIC -o "$BASEPATH/bin/libLib.Platform.Linux.Native.so" "$BASEPATH/src/lib.cpp" -Wall -std=c++11 -O3 -lcurl -DEDDIE_LIBCURL -D$CONFIG
 
 strip -S --strip-unneeded "$BASEPATH/bin/libLib.Platform.Linux.Native.so"

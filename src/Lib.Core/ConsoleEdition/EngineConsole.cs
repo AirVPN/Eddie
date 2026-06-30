@@ -1,6 +1,6 @@
 // <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2026 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -125,66 +125,6 @@ namespace Eddie.Core.ConsoleEdition
 				else if (answer == "n")
 					return false;
 			}
-		}
-
-		public override Json OnAskExecExternalPermission(Json data)
-		{
-			Json Answer = new Json();
-			Answer["allow"].Value = false;
-
-			for (; ; )
-			{
-				Logs.Log(LogType.Info, LanguageManager.GetText(LanguageItems.WindowsExecExternalPermissionTop, data["path"].Value as string));
-				Logs.Log(LogType.Verbose, "N: " + LanguageManager.GetText(LanguageItems.WindowsExecExternalPermissionNo));
-				Logs.Log(LogType.Verbose, "Y: " + LanguageManager.GetText(LanguageItems.WindowsExecExternalPermissionYes));
-				if ((data["sign-id"].Value as string).StartsWithInv("No: ") == false)
-					Logs.Log(LogType.Verbose, "S: " + LanguageManager.GetText(LanguageItems.WindowsExecExternalPermissionRuleSign, data["sign-id"].Value as string));
-				Logs.Log(LogType.Verbose, "H: " + LanguageManager.GetText(LanguageItems.WindowsExecExternalPermissionRuleHash, data["sha256"].Value as string));
-				Logs.Log(LogType.Verbose, "P: " + LanguageManager.GetText(LanguageItems.WindowsExecExternalPermissionRulePath, data["path"].Value as string));
-				Logs.Log(LogType.Verbose, "A: " + LanguageManager.GetText(LanguageItems.WindowsExecExternalPermissionRuleAll));
-
-				char ch = Char.ToLowerInvariant(Console.ReadKey().KeyChar);
-
-				if (ch == 'n')
-				{
-					Answer["allow"].Value = false;
-					break;
-				}
-				else if (ch == 'y')
-				{
-					Answer["allow"].Value = true;
-					break;
-				}
-				else if ((ch == 's') && ((data["sign-id"].Value as string).StartsWithInv("No: ") == false))
-				{
-					Answer.RemoveKey("allow");
-					Answer["type"].Value = "sign";
-					Answer["id"].Value = data["sign-id"].Value;
-					break;
-				}
-				else if (ch == 'h')
-				{
-					Answer.RemoveKey("allow");
-					Answer["type"].Value = "sha256";
-					Answer["hash"].Value = data["sha256"].Value;
-					break;
-				}
-				else if (ch == 'p')
-				{
-					Answer.RemoveKey("allow");
-					Answer["type"].Value = "path";
-					Answer["path"].Value = data["path"].Value;
-					break;
-				}
-				else if (ch == 'a')
-				{
-					Answer.RemoveKey("allow");
-					Answer["type"].Value = "all";
-					break;
-				}
-			}
-
-			return Answer;
 		}
 
 		private void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e)

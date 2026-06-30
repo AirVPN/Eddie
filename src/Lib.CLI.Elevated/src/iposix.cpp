@@ -33,6 +33,7 @@
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <sys/types.h>
+#include <sys/un.h> // sockaddr_un (AF_UNIX local transport)
 
 #include "../../../dependencies/PStreams/pstream.h"
 using namespace redi; // related to pstream.h
@@ -80,7 +81,7 @@ void IPosix::Do(const std::string& commandId, const std::string& command, std::m
 		}
 		else if (action == "start")
 		{
-			CheckIfExecutableIsAllowed(params["path"], true);
+			std::string path = FsLocateExecutable("openvpn", true, true);
 
 			std::string checkResult = CheckValidOpenVpnConfigFile(params["config"]);
 			if (checkResult != "")
@@ -91,17 +92,22 @@ void IPosix::Do(const std::string& commandId, const std::string& command, std::m
 			{
 				const pstreams::pmode mode = pstreams::pstdout | pstreams::pstderr;
 				pstreams::argv_type argv;
-				argv.push_back(params["path"]);
+				argv.push_back(path);
 
 				argv.push_back("--config");
 				argv.push_back(params["config"]);
 
-				std::string openvpnDirectory = FsFileGetDirectory(params["path"]);
+				std::string openvpnDirectory = FsFileGetDirectory(path);
 				int chdirResult = chdir(openvpnDirectory.c_str()); // AppImage, our openvpn look ./ for .so
 				if (chdirResult != 0)
 					ThrowException("Unable to chdir " + openvpnDirectory);
 
 				pstream child(argv, mode);
+				if (child.rdbuf()->is_open() == false)
+				{
+					int childError = child.rdbuf()->error();
+					ThrowException("Unable to start OpenVPN: " + std::string(std::strerror(childError)));
+				}
 				char buf[1024 * 32];
 				std::streamsize n;
 
@@ -174,7 +180,7 @@ void IPosix::Do(const std::string& commandId, const std::string& command, std::m
 		}
 		else if (action == "start")
 		{
-			CheckIfExecutableIsAllowed(params["path"], true);
+			std::string path = FsLocateExecutable("hummingbird", true, true);
 
 			// Workaround. In any case, hummingbird called from Eddie don't perform any action that need a recovery.
 			if (FsFileExists("/etc/airvpn/hummingbird.lock"))
@@ -189,7 +195,7 @@ void IPosix::Do(const std::string& commandId, const std::string& command, std::m
 			{
 				const pstreams::pmode mode = pstreams::pstdout | pstreams::pstderr;
 				pstreams::argv_type argv;
-				argv.push_back(params["path"]);
+				argv.push_back(path);
 
 				if (params.find("dns-ignore") != params.end())
 				{
@@ -271,49 +277,6 @@ void IPosix::Do(const std::string& commandId, const std::string& command, std::m
 	}
 }
 
-/* // Old exec edition
-int IPosix::GetProcessIdMatchingIPEndPoints(std::string sourceAddr, int sourcePort, std::string destAddr, int destPort)
-{
-	std::vector<std::string> args;
-	args.push_back("-F");
-	args.push_back("pfn");
-	args.push_back("-anPi");
-	args.push_back("4tcp@" + destAddr + ":" + std::to_string(destPort));
-
-	std::string lsofPath = LocateExecutable("lsof");
-	if(lsofPath != "")
-	{
-		ExecResult lsResult = ExecEx("lsof", args);
-		if(lsResult.exit == 0)
-		{
-			std::vector<std::string> lines = StringToVector(lsResult.out, '\n');
-			int lastPid = 0;
-			std::string needle = sourceAddr + ":" + std::to_string(sourcePort) + "->" + destAddr + ":" + std::to_string(destPort);
-			for (std::vector<std::string>::const_iterator i = lines.begin(); i != lines.end(); ++i)
-			{
-				std::string line = StringTrim(StringToLower(*i));
-
-				if(line.length()==0)
-					continue;
-
-				char ch = line.at(0);
-				if(ch == 'p')
-				{
-					lastPid = strtol(line.c_str()+1,NULL,10);
-				}
-				else if(ch == 'n')
-				{
-					if(StringContain(line, needle))
-						return lastPid;
-				}
-			}
-		}
-	}
-
-	return 0;
-}
-*/
-
 void IPosix::AddTorCookiePaths(const std::string& torPath, const std::string& username, std::vector<std::string>& result)
 {
 	if (torPath != "") // TorBrowser
@@ -374,7 +337,7 @@ pid_t IPosix::GetParentProcessId(pid_t pid)
 pid_t IPosix::GetProcessIdOfName(const std::string& name)
 {
 	// TOFIX - Find a method without exec
-	ExecResult pidofResult = ExecEx1("pidof", name);
+	ExecResult pidofResult = ExecEx(FsLocateExecutable("pidof"), { name });
 	if (pidofResult.exit == 0)
 		return atoi(pidofResult.out.c_str());
 	else
@@ -560,9 +523,48 @@ bool IPosix::FsFileDelete(const std::string& path)
 
 bool IPosix::FsDirectoryDelete(const std::string& path, bool recursive)
 {
-	// Not implemented, never used.
-	ThrowException("FsDirectoryCreate - Not implemented");
-	return false;
+	if (FsDirectoryExists(path) == false)
+		return true;
+
+	if (recursive)
+	{
+		DIR* dirp = opendir(path.c_str());
+		if (dirp == NULL)
+			return false;
+
+		struct dirent* entry;
+		while ((entry = readdir(dirp)) != NULL)
+		{
+			std::string name = entry->d_name;
+			if (name == "." || name == "..")
+				continue;
+
+			std::string child = path + "/" + name;
+
+			struct stat st;
+			if (lstat(child.c_str(), &st) != 0) // lstat: never follow symlinks
+			{
+				closedir(dirp);
+				return false;
+			}
+
+			bool ok;
+			if (S_ISDIR(st.st_mode))
+				ok = FsDirectoryDelete(child, true);
+			else
+				ok = (unlink(child.c_str()) == 0); // removes the link itself, not its target
+
+			if (ok == false)
+			{
+				closedir(dirp);
+				return false;
+			}
+		}
+
+		closedir(dirp);
+	}
+
+	return (rmdir(path.c_str()) == 0);
 }
 
 bool IPosix::FsFileMove(const std::string& source, const std::string& destination)
@@ -709,6 +711,15 @@ bool IPosix::FsFileEnsureRootOnly(std::string path)
 	return true;
 }
 
+bool IPosix::FsFileMakeRunnable(const std::string& path)
+{
+	if (chown(path.c_str(), 0, 0) == -1)
+		return false;
+	if (chmod(path.c_str(), 0700) == -1)
+		return false;
+	return true;
+}
+
 bool IPosix::FsFileIsRootOnly(std::string path)
 {
 	struct stat st;
@@ -735,6 +746,47 @@ bool IPosix::FsFileIsRootOnly(std::string path)
 				return false;; // Writable by other
 			}
 		}
+	}
+
+	return true;
+}
+
+bool IPosix::FsDirectoryEnsureRootOnly(std::string path)
+{
+	if (chown(path.c_str(), 0, 0) == -1)
+		return false;
+	if (chmod(path.c_str(), 0700) == -1)
+		return false;
+	return true;
+}
+
+bool IPosix::FsDirectoryIsRootOnly(std::string path)
+{
+	struct stat st;
+	memset(&st, 0, sizeof(struct stat));
+	if (stat(path.c_str(), &st) != 0)
+	{
+		return false; // Not found
+	}
+
+	if (S_ISDIR(st.st_mode) == 0)
+	{
+		return false; // Not a directory
+	}
+
+	if (st.st_uid != 0)
+	{
+		return false; // Not owned by root
+	}
+
+	if ((st.st_mode & S_IWGRP) != 0)
+	{
+		return false; // Writable by group
+	}
+
+	if ((st.st_mode & S_IWOTH) != 0)
+	{
+		return false; // Writable by other
 	}
 
 	return true;
@@ -772,6 +824,191 @@ void IPosix::SocketClose(HSOCKET s)
 int IPosix::SocketGetLastErrorCode()
 {
 	return errno;
+}
+
+// --------------------------
+// Virtual Pure, IPC transport
+// --------------------------
+
+void IPosix::TransportListen(int port)
+{
+#ifdef EDDIE_IPC_UNIXSOCKET
+	// Socket lives in a root-owned runtime directory (created 0755 by root): other users can
+	// traverse it but cannot create files there, which removes the /tmp squatting/race surface.
+	// Mode 0666 lets any local user connect by design (shared service): client authentication is
+	// enforced by the integrity gate in Main(), not by the socket mode or uid.
+	std::string sockDir = GetIpcRuntimeDir();
+	if (FsDirectoryCreate(sockDir) == false)
+		ThrowException("Error on creating IPC directory " + sockDir);
+
+	// Endpoint keyed by launch mode ("spot"/"service"); the port is only used by the TCP fallback below.
+	(void)port;
+	m_ipcSockPath = sockDir + "/eddie-elevated-" + GetLaunchMode() + ".sock";
+	struct sockaddr_un addrServer;
+
+	m_ipcServer = socket(AF_UNIX, SOCK_STREAM, 0);
+
+	if (SocketIsValid(m_ipcServer) == false)
+	{
+		ThrowException("Error on opening socket");
+	}
+
+	std::memset(&addrServer, 0, sizeof(addrServer));
+
+	addrServer.sun_family = AF_UNIX;
+	std::strncpy(addrServer.sun_path, m_ipcSockPath.c_str(), sizeof(addrServer.sun_path) - 1);
+
+	unlink(m_ipcSockPath.c_str()); // remove a stale socket from a previous run
+
+	LogDevDebug("Listening on unix socket " + m_ipcSockPath);
+
+	if (bind(m_ipcServer, (struct sockaddr*)&addrServer, sizeof(addrServer)) != 0) {
+		ThrowException("Error on binding socket (" + std::to_string(SocketGetLastErrorCode()) + ")");
+	}
+
+	chmod(m_ipcSockPath.c_str(), 0666); // any local user may connect (shared service); authenticated by the integrity gate, not the socket mode
+
+	if (listen(m_ipcServer, 1) != 0) {
+		ThrowException("Error on listen socket (" + std::to_string(SocketGetLastErrorCode()) + ")");
+	}
+
+	SocketBlockMode(m_ipcServer, false);
+#else
+	m_ipcServer = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+
+	SocketMarkReuseAddr(m_ipcServer);
+
+	if (SocketIsValid(m_ipcServer) == false)
+	{
+		ThrowException("Error on opening socket");
+	}
+
+	std::memset(&m_ipcAddrServer, 0, sizeof(m_ipcAddrServer));
+
+	m_ipcAddrServer.sin_family = AF_INET;
+	m_ipcAddrServer.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+	m_ipcAddrServer.sin_port = htons(port);
+
+	LogDevDebug("Listening on port " + std::to_string(port));
+
+	if (bind(m_ipcServer, (struct sockaddr*)&m_ipcAddrServer, sizeof(m_ipcAddrServer)) != 0) {
+		ThrowException("Error on binding socket (" + std::to_string(SocketGetLastErrorCode()) + ")");
+	}
+
+	if (listen(m_ipcServer, 1) != 0) {
+		ThrowException("Error on listen socket (" + std::to_string(SocketGetLastErrorCode()) + ")");
+	}
+
+	SocketBlockMode(m_ipcServer, false);
+#endif
+}
+
+bool IPosix::TransportAccept()
+{
+	struct sockaddr_in addrClient;
+	socklen_t addrClientLen = sizeof(addrClient);
+
+	// Spot mode is a one-shot elevation: if the authorized client never connects (it gave up on a stale
+	// socket, crashed, or the prompt was dismissed), do not wait forever. Giving up lets Main() close and
+	// unlink the endpoint, so no elevated process is left orphaned and no stale socket file remains.
+	unsigned long acceptStartTime = GetTimestampUnix();
+	const unsigned long spotAcceptTimeoutSeconds = 5;
+
+	for (;;)
+	{
+		m_ipcClient = accept(m_ipcServer, (struct sockaddr*)&addrClient, &addrClientLen);
+
+		// TOFIX. Under Linux, errno==EWOULDBLOCK. Under Windows, i expect WSAEWOULDBLOCK but there are something not understanding.
+		if (SocketIsValid(m_ipcClient) == false)
+		{
+			if (IsStopRequested())
+				break;
+
+			if ((GetLaunchMode() == "spot") && (GetTimestampUnix() - acceptStartTime >= spotAcceptTimeoutSeconds))
+			{
+				LogDebug("Spot mode: no client connected within timeout, giving up");
+				break;
+			}
+
+			Idle();
+
+			Sleep(1000);
+		}
+		else
+		{
+			break;
+		}
+	}
+
+	if (SocketIsValid(m_ipcClient) == false)
+		return false;
+
+#ifndef EDDIE_IPC_UNIXSOCKET
+	m_ipcAddrClient = addrClient; // kept for TCP peer-pid resolution
+#endif
+
+	// Remove if nonblock is inherit
+	SocketBlockMode(m_ipcClient, true);
+
+	return true;
+}
+
+int IPosix::TransportGetClientProcessId()
+{
+#ifdef EDDIE_IPC_UNIXSOCKET
+	// Peer pid from kernel-attested socket credentials (race-free, replaces the /proc scan).
+	return GetSocketPeerPid(m_ipcClient);
+#else
+	return GetProcessIdMatchingIPEndPoints(m_ipcAddrClient, m_ipcAddrServer);
+#endif
+}
+
+int IPosix::TransportRead(char* buffer, int maxLen)
+{
+	return recv(m_ipcClient, buffer, maxLen, 0);
+}
+
+int IPosix::TransportWrite(const char* buffer, int len)
+{
+	return send(m_ipcClient, buffer, len, 0);
+}
+
+void IPosix::TransportClientClose()
+{
+	SocketClose(m_ipcClient);
+	m_ipcClient = 0;
+}
+
+void IPosix::TransportServerClose()
+{
+	SocketClose(m_ipcServer);
+#ifdef EDDIE_IPC_UNIXSOCKET
+	unlink(m_ipcSockPath.c_str());
+#endif
+}
+
+#ifdef EDDIE_IPC_UNIXSOCKET
+std::string IPosix::GetIpcRuntimeDir()
+{
+	return "/run/eddie-vpn";
+}
+#endif
+
+std::string IPosix::GetDevLogPath()
+{
+	return "/tmp/eddie-elevated.log";
+}
+
+std::string IPosix::GetStagingDir()
+{
+	return "/run/eddie-vpn/stage";
+}
+
+std::string IPosix::StringEnsureInterfaceName(const std::string& str)
+{
+	std::string r = StringPruneCharsNotIn(str, "._-0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+	if (r.length() > 15) r = r.substr(0, 15);
+	return r;
 }
 
 bool IPosix::SystemWideDataSet(const std::string& key, const std::string& value)
@@ -928,12 +1165,9 @@ bool IPosix::SystemWideDataClean()
 	return FsFileDelete(SystemWideDataPath());
 }
 
-bool IPosix::CheckIfExecutableIsAllowed(const std::string& path, const bool& throwException, const bool ignoreKnown)
+std::string IPosix::CheckExecutablePathPermissions(const std::string& path)
 {
 	std::string issues = "";
-
-	if ((ignoreKnown == false) && (IntegrityCheckFileKnown(path))) // If true, skip other checks.
-		return true;
 
 	if (FsFileExists(path) == false)
 		issues += "Not found;";
@@ -950,32 +1184,6 @@ bool IPosix::CheckIfExecutableIsAllowed(const std::string& path, const bool& thr
 			if (st.st_uid != 0)
 			{
 				issues += "Not owned by root;";
-				/*
-				{
-					if(ignoreKnown) 
-						issues += "IK:Y;";
-					else
-						issues += "IK:N;";
-
-					if (FsFileGetDirectory(path) != FsFileGetDirectory(GetProcessPathCurrent()))
-						issues += "DP:Y;";
-					else
-					{
-						issues += "DP:N;";
-						std::string integrityKnown = IntegrityCheckRead(GetLaunchMode());
-						issues += "IK:" + integrityKnown + ";";
-
-						// Seem excessive to check/compute-sha all files every time, but read comment in IntegrityCheckBuild.
-						std::string integrityComputed = IntegrityCheckBuild();
-						issues += "IC:" + integrityComputed + ";";
-
-						if(integrityKnown != integrityKnown)
-							issues += "ID;Y";
-						else
-							issues += "ID:N";
-					}
-				}
-				*/
 			}
 			else if ((st.st_mode & S_ISUID) == 0)
 			{
@@ -997,17 +1205,10 @@ bool IPosix::CheckIfExecutableIsAllowed(const std::string& path, const bool& thr
 		}
 	}
 
-	if (issues != "")
-	{
-		if (throwException)
-			ThrowException("Executable '" + path + "' not allowed: " + issues);
-		else
-			return false;
-	}
-
-	return true;
+	return issues;
 }
 
+#ifndef EDDIE_IPC_LOCAL
 int IPosix::GetProcessIdMatchingIPEndPoints(struct sockaddr_in& addrClient, struct sockaddr_in& addrServer)
 {
 	if (FsFileExists("/proc") == false)
@@ -1091,3 +1292,4 @@ int IPosix::GetProcessIdMatchingIPEndPoints(struct sockaddr_in& addrClient, stru
 
 	return pidFound;
 }
+#endif // !EDDIE_IPC_LOCAL

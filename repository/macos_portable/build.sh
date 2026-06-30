@@ -16,7 +16,7 @@ if [ "$1" == "" ]; then
 fi
 
 if [ "$2" == "" ]; then
-	echo Second arg must be Arch: x86_64, arm64
+	echo Second arg must be Arch: x64, arm64
 	exit 1
 fi
 
@@ -26,17 +26,32 @@ if [ "$3" == "" ]; then
 fi
 
 if [ "$4" == "" ]; then
-	echo Fourth arg must be framework: net4, net8
+	echo Fourth arg must be line: l, u
 	exit 1
 fi
 
 PROJECT=$1
 ARCH=$2
 VAROS=$3
-FRAMEWORK=$4
+LINE=$4
 RID="osx-$ARCH"
 CONFIG=Release
 VERSION=$($SCRIPTDIR/../macos_common/get-version.sh)
+
+if [ "${LINE}" != "l" ] && [ "${LINE}" != "u" ]; then
+    echo Fourth arg must be line: l, u
+    exit 1
+fi
+
+PACKAGEPROJECT="${PROJECT}"
+if [ "${LINE}" = "u" ]; then
+    PACKAGEPROJECT="${PROJECT}-u"
+fi
+
+DEPPACKAGEPROJECT="cli"
+if [ "${LINE}" = "u" ]; then
+    DEPPACKAGEPROJECT="cli-u"
+fi
 
 # We compile native on each MacOS architecture, cross-compiling not supported.
 ARCHOS=$($SCRIPTDIR/../macos_common/get-arch.sh)
@@ -45,9 +60,9 @@ if [ ${ARCH} != ${ARCHOS} ]; then
     exit 0;
 fi
 
-TARGETDIR=/tmp/eddie_deploy/eddie-${PROJECT}_${VERSION}_${VAROS}_${ARCH}_portable
-FINALPATH=/tmp/eddie_deploy/eddie-${PROJECT}_${VERSION}_${VAROS}_${ARCH}_portable.zip
-DEPLOYPATH=${SCRIPTDIR}/../files/eddie-${PROJECT}_${VERSION}_${VAROS}_${ARCH}_portable.zip     
+TARGETDIR=/tmp/eddie_deploy/eddie-${PACKAGEPROJECT}_${VERSION}_${VAROS}_${ARCH}_portable
+FINALPATH=/tmp/eddie_deploy/eddie-${PACKAGEPROJECT}_${VERSION}_${VAROS}_${ARCH}_portable.zip
+DEPLOYPATH=${SCRIPTDIR}/../files/eddie-${PACKAGEPROJECT}_${VERSION}_${VAROS}_${ARCH}_portable.zip
 
 # Check env
 
@@ -56,12 +71,14 @@ if ! [ -x "$(command -v tar)" ]; then
   exit 1
 fi
 
-if [ $FRAMEWORK = "net8" ]; then
+if [ "${PROJECT}" = "cli" ] || [ "${LINE}" = "u" ]; then
     if ! [ -x "$(command -v dotnet)" ]; then
         echo 'Error: dotnet is not installed.' >&2
         exit 1  
     fi
-else
+fi
+
+if [ "${PROJECT}" = "ui" ] && [ "${LINE}" = "l" ]; then
     if ! [ -x "$(command -v /Library/Frameworks/Mono.framework/Versions/Current/Commands/msbuild)" ]; then
         echo 'Error: msbuild is not installed. Install Mono, Xamarin, VisualStudioForMac.' >&2
         exit 1  
@@ -93,18 +110,18 @@ if [ $PROJECT = "cli" ]; then
     mkdir "${TARGETBINDIR}"        
 
     cd "${SCRIPTDIR}/../../src/App.CLI.MacOS/"
-    dotnet publish App.CLI.MacOS.net8.csproj --configuration Release --runtime ${RID} --self-contained true -p:PublishTrimmed=true -p:EnableCompressionInSingleFile=true
-    cp "${SCRIPTDIR}/../../src/App.CLI.MacOS/bin/${CONFIG}/net8.0/${RID}/publish"/* "${TARGETBINDIR}"
-    cp "${SCRIPTDIR}/../../src/App.CLI.MacOS/bin/${CONFIG}/net8.0/${RID}/eddie-cli-elevated" "${TARGETBINDIR}"
-    cp "${SCRIPTDIR}/../../src/App.CLI.MacOS/bin/${CONFIG}/net8.0/${RID}/eddie-cli-elevated-service" "${TARGETBINDIR}"
-    cp "${SCRIPTDIR}/../../src/App.CLI.MacOS/bin/${CONFIG}/net8.0/${RID}/libLib.Platform.MacOS.Native.dylib" "${TARGETBINDIR}"
+    dotnet publish App.CLI.MacOS.net10.csproj --configuration Release --runtime ${RID} --self-contained true -p:PublishTrimmed=true -p:EnableCompressionInSingleFile=true
+    cp "${SCRIPTDIR}/../../src/App.CLI.MacOS/bin/${CONFIG}/net10.0/${RID}/publish"/* "${TARGETBINDIR}"
+    cp "${SCRIPTDIR}/../../src/App.CLI.MacOS/bin/${CONFIG}/net10.0/${RID}/eddie-cli-elevated" "${TARGETBINDIR}"
+    cp "${SCRIPTDIR}/../../src/App.CLI.MacOS/bin/${CONFIG}/net10.0/${RID}/eddie-cli-elevated-service" "${TARGETBINDIR}"
+    cp "${SCRIPTDIR}/../../src/App.CLI.MacOS/bin/${CONFIG}/net10.0/${RID}/libLib.Platform.MacOS.Native.dylib" "${TARGETBINDIR}"
     rm "${TARGETBINDIR}/Eddie-CLI.xml"
 
     # Resources
     echo Step: Resources
     cp "${SCRIPTDIR}/../../deploy/macos_${ARCH}"/* "${TARGETBINDIR}"
     cp -r "${SCRIPTDIR}/../../resources" "${TARGETBINDIR}/Resources"
-    if [[ ${VERSION} =~ ^2 ]]; then
+    if [ "${LINE}" = "l" ]; then
         rm -rf "${TARGETBINDIR}/Resources/webui"
     fi
 
@@ -113,21 +130,22 @@ elif [ $PROJECT = "ui" ]; then
     TARGETBINDIR="${TARGETDIR}/Eddie.app/Contents/MacOS"
 
     echo Step: Dependencies        
-    "${SCRIPTDIR}/../macos_portable/build.sh" cli ${ARCH} ${VAROS} net8
-    DEPPACKAGEPATH=${SCRIPTDIR}/../files/eddie-cli_${VERSION}_${VAROS}_${ARCH}_portable.zip
+    "${SCRIPTDIR}/../macos_portable/build.sh" cli ${ARCH} ${VAROS} ${LINE}
+    DEPPACKAGEPATH=${SCRIPTDIR}/../files/eddie-${DEPPACKAGEPROJECT}_${VERSION}_${VAROS}_${ARCH}_portable.zip
     cp "${DEPPACKAGEPATH}" "${TARGETDIR}"
     cd "${TARGETDIR}"
     unzip *.zip
     rm -rf "${TARGETDIR}/Eddie-CLI/_CodeSignature" # Otherwise issue after "codesign subcomponent error"
 
-    if [ $FRAMEWORK = "net8" ]; then
+    if [ "${LINE}" = "u" ]; then
         echo Step: Compile
         "${SCRIPTDIR}/../../src/App.UI.MacOS/build.sh" ${CONFIG}
     
         cp -r "${SCRIPTDIR}/../../src/App.UI.MacOS/bin/Eddie.app" .        
-    elif [ $FRAMEWORK = "net4" ]; then
+    elif [ "${LINE}" = "l" ]; then
         # Note: libLib.Platform.MacOS.Native.dylib will be in both MacOS (used by Eddie-CLI) and MonoBundle (used by Eddie-UI Xamarin)        
         echo Step: Compile
+        # Mono does not support TargetFrameworkVersion v4.8.1; .csproj stay v4.8.1 for Windows/VS.
         TARGETFRAMEWORK="v4.8";
         RULESETPATH="${SCRIPTDIR}/../../src/ruleset/norules.ruleset"
         SOLUTIONPATH="${SCRIPTDIR}/../../src/App.Cocoa.MacOS/App.Cocoa.MacOS.sln"
@@ -192,10 +210,12 @@ echo "Signing"
 "${SCRIPTDIR}/../macos_common/sign.sh" "${TARGETBINDIR}/eddie-cli-elevated" no $VARHARDENING
 "${SCRIPTDIR}/../macos_common/sign.sh" "${TARGETBINDIR}/eddie-cli-elevated-service" no $VARHARDENING
 
-if [ $FRAMEWORK = "net8" ]; then
-    "${SCRIPTDIR}/../macos_common/sign.sh" "${TARGETBINDIR}/libLib.Platform.macOS.Native.dylib" no $VARHARDENING
+# The CLI is always .NET 10 self-contained (no Mono build): its native dylib lives next to the binary,
+# never in a MonoBundle. The MonoBundle layout only exists for the UI built with Mono (legacy line).
+if [ "${LINE}" = "u" ] || [ "${PROJECT}" = "cli" ]; then
+    "${SCRIPTDIR}/../macos_common/sign.sh" "${TARGETBINDIR}/libLib.Platform.MacOS.Native.dylib" no $VARHARDENING
 else
-    "${SCRIPTDIR}/../macos_common/sign.sh" "${TARGETBINDIR}/../MonoBundle/libLib.Platform.macOS.Native.dylib" no $VARHARDENING
+    "${SCRIPTDIR}/../macos_common/sign.sh" "${TARGETBINDIR}/../MonoBundle/libLib.Platform.MacOS.Native.dylib" no $VARHARDENING
     
     # Exception: is already signed by Xamarin, but here force re-signing, otherwise under Catalina with notarization/hardening throw
     # "warning: exception inside UnhandledException handler: (null) assembly:/Users/user/Documents/eddie-air/repository/files/Eddie.app/Contents/MonoBundle/mscorlib.dll type:TypeInitializationException member:(null)

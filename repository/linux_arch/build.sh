@@ -8,15 +8,25 @@ if [ "${1-}" == "" ]; then
 	exit 1
 fi
 
+if [ "${2-}" == "" ]; then
+	echo Second arg must be line: l, u
+	exit 1
+fi
+
+if [ "${3-}" == "" ]; then
+	echo Third arg must be mode: local, git, stable
+	exit 1
+fi
+
 # Check env
 if ! [ -x "$(command -v makepkg)" ]; then
   echo 'Error: makepkg is not installed.' >&2
   exit 1
 fi
 
-MODE=$2
-
 PROJECT=$1
+LINE=$2
+MODE=$3
 CONFIG=Release
 
 SCRIPTDIR=$(dirname $(realpath -s $0))
@@ -24,8 +34,18 @@ ARCH=$($SCRIPTDIR/../linux_common/get-arch.sh)
 VERSION=$($SCRIPTDIR/../linux_common/get-version.sh)
 VERSIONSTABLE=$(curl --silent "https://api.github.com/repos/AirVPN/Eddie/releases/latest" | grep -Po '"tag_name": "\K.*?(?=")')
 
-TARGETDIR=$HOME/Documents/eddie_deploy/eddie-${PROJECT}_${VERSION}_linux_${ARCH}_arch
-DEPLOYPATH=${SCRIPTDIR}/../files/eddie-${PROJECT}_${VERSION}_linux_${ARCH}_arch.tar.zst
+if [ "${LINE}" != "l" ] && [ "${LINE}" != "u" ]; then
+	echo Second arg must be line: l, u
+	exit 1
+fi
+
+PACKAGEPROJECT="${PROJECT}"
+if [ "${LINE}" = "u" ]; then
+	PACKAGEPROJECT="${PROJECT}-u"
+fi
+
+TARGETDIR=$HOME/Documents/eddie_deploy/eddie-${PACKAGEPROJECT}_${VERSION}_linux_${ARCH}_arch
+DEPLOYPATH=${SCRIPTDIR}/../files/eddie-${PACKAGEPROJECT}_${VERSION}_linux_${ARCH}_arch.tar.zst
 
 REPODIR=$(realpath -s $SCRIPTDIR/../../)
 
@@ -42,17 +62,23 @@ function arch_env() {
 	if [ "$1" = "self" ]; then
 		echo "Build local";
 		sed -i "s|{@project}|${PROJECT}|g" PKGBUILD    
+		sed -i "s|{@line}|${LINE}|g" PKGBUILD
 		sed -i "s|{@version}|${VERSION}|g" PKGBUILD
 		sed -i "s|{@pkgname}|eddie-${PROJECT}|g" PKGBUILD    
 		sed -i "s|{@pkgdesc}|Eddie - VPN tunnel|g" PKGBUILD    
 		if [ "${PROJECT}" = "cli" ]; then
 			sed -i "s|{@pkgdesc}|Eddie - VPN tunnel - CLI - prebuilt|g" PKGBUILD    
 			sed -i "s|{@pkgdepends}|(curl openvpn sudo)|g" PKGBUILD
-			sed -i "s|{@pkgmakedepends}|(git cmake patchelf dotnet-sdk)|g" PKGBUILD
+			sed -i "s|{@pkgmakedepends}|(git cmake patchelf 'dotnet-runtime>=10' 'dotnet-sdk>=10')|g" PKGBUILD
 		elif [ "${PROJECT}" = "ui" ]; then
 			sed -i "s|{@pkgdesc}|Eddie - VPN tunnel - UI - prebuilt|g" PKGBUILD    
-			sed -i "s|{@pkgdepends}|(curl openvpn sudo polkit libnotify libayatana-appindicator)|g" PKGBUILD
-			sed -i "s|{@pkgmakedepends}|(git cmake patchelf dotnet-sdk mono-msbuild mono desktop-file-utils)|g" PKGBUILD
+			if [ "${LINE}" = "u" ]; then
+				sed -i "s|{@pkgdepends}|(curl openvpn sudo polkit libnotify gtk3 webkit2gtk-4.1 libayatana-appindicator)|g" PKGBUILD
+				sed -i "s|{@pkgmakedepends}|(git cmake patchelf 'dotnet-runtime>=10' 'dotnet-sdk>=10' gcc pkgconf gtk3 webkit2gtk-4.1 libayatana-appindicator desktop-file-utils)|g" PKGBUILD
+			else
+				sed -i "s|{@pkgdepends}|(curl openvpn sudo polkit libnotify libayatana-appindicator)|g" PKGBUILD
+				sed -i "s|{@pkgmakedepends}|(git cmake patchelf 'dotnet-runtime>=10' 'dotnet-sdk>=10' mono-msbuild mono desktop-file-utils)|g" PKGBUILD
+			fi
 		fi
 		sed -i "s|{@source}|git+file:///$2/|g" PKGBUILD    
 		sed -i "s|cd \"Eddie-\$pkgver\"|cd \"eddie-air\"|g" PKGBUILD
@@ -75,16 +101,22 @@ function arch_env() {
 		if [ "$1" = "git" ]; then
 			echo "Update official repo git edition"
 			sed -i "s|{@project}|${PROJECT}|g" PKGBUILD    
+			sed -i "s|{@line}|${LINE}|g" PKGBUILD
 			sed -i "s|{@version}|${VERSION}|g" PKGBUILD    
 			sed -i "s|{@pkgname}|eddie-${PROJECT}-git|g" PKGBUILD    
 			if [ "${PROJECT}" = "cli" ]; then
 				sed -i "s|{@pkgdesc}|Eddie - VPN tunnel - CLI|g" PKGBUILD    
 				sed -i "s|{@pkgdepends}|(curl openvpn sudo)|g" PKGBUILD
-				sed -i "s|{@pkgmakedepends}|(git cmake patchelf dotnet-sdk)|g" PKGBUILD
+				sed -i "s|{@pkgmakedepends}|(git cmake patchelf 'dotnet-runtime>=10' 'dotnet-sdk>=10')|g" PKGBUILD
 			else
 				sed -i "s|{@pkgdesc}|Eddie - VPN tunnel - UI|g" PKGBUILD    
-				sed -i "s|{@pkgdepends}|(mono curl openvpn sudo polkit libnotify libayatana-appindicator)|g" PKGBUILD
-				sed -i "s|{@pkgmakedepends}|(git cmake patchelf dotnet-sdk mono-msbuild mono desktop-file-utils)|g" PKGBUILD
+				if [ "${LINE}" = "u" ]; then
+					sed -i "s|{@pkgdepends}|(curl openvpn sudo polkit libnotify gtk3 webkit2gtk-4.1 libayatana-appindicator)|g" PKGBUILD
+					sed -i "s|{@pkgmakedepends}|(git cmake patchelf 'dotnet-runtime>=10' 'dotnet-sdk>=10' gcc pkgconf gtk3 webkit2gtk-4.1 libayatana-appindicator desktop-file-utils)|g" PKGBUILD
+				else
+					sed -i "s|{@pkgdepends}|(mono curl openvpn sudo polkit libnotify libayatana-appindicator)|g" PKGBUILD
+					sed -i "s|{@pkgmakedepends}|(git cmake patchelf 'dotnet-runtime>=10' 'dotnet-sdk>=10' mono-msbuild mono desktop-file-utils)|g" PKGBUILD
+				fi
 			fi
 			sed -i "s|{@source}|git+https://github.com/AirVPN/Eddie.git|g" PKGBUILD    
 			sed -i "s|cd \"Eddie-\$pkgver\"|cd \"Eddie\"|g" PKGBUILD
@@ -100,16 +132,22 @@ function arch_env() {
 		elif [ "$1" = "stable" ]; then
 			echo "Update official repo release edition ${VERSIONSTABLE}"
 			sed -i "s|{@project}|${PROJECT}|g" PKGBUILD    
+			sed -i "s|{@line}|${LINE}|g" PKGBUILD
 			sed -i "s|{@version}|${VERSIONSTABLE}|g" PKGBUILD    
 			sed -i "s|{@pkgname}|eddie-${PROJECT}|g" PKGBUILD    
 			if [ "${PROJECT}" = "cli" ]; then
 				sed -i "s|{@pkgdesc}|Eddie - VPN tunnel - CLI|g" PKGBUILD    
 				sed -i "s|{@pkgdepends}|(curl openvpn sudo)|g" PKGBUILD
-				sed -i "s|{@pkgmakedepends}|(git cmake patchelf dotnet-sdk)|g" PKGBUILD
+				sed -i "s|{@pkgmakedepends}|(git cmake patchelf 'dotnet-runtime>=10' 'dotnet-sdk>=10')|g" PKGBUILD
 			else
 				sed -i "s|{@pkgdesc}|Eddie - VPN tunnel - UI|g" PKGBUILD
-				sed -i "s|{@pkgdepends}|(mono curl openvpn sudo polkit libnotify libayatana-appindicator)|g" PKGBUILD
-				sed -i "s|{@pkgmakedepends}|(git cmake patchelf dotnet-sdk mono-msbuild mono desktop-file-utils)|g" PKGBUILD
+				if [ "${LINE}" = "u" ]; then
+					sed -i "s|{@pkgdepends}|(curl openvpn sudo polkit libnotify gtk3 webkit2gtk-4.1 libayatana-appindicator)|g" PKGBUILD
+					sed -i "s|{@pkgmakedepends}|(git cmake patchelf 'dotnet-runtime>=10' 'dotnet-sdk>=10' gcc pkgconf gtk3 webkit2gtk-4.1 libayatana-appindicator desktop-file-utils)|g" PKGBUILD
+				else
+					sed -i "s|{@pkgdepends}|(mono curl openvpn sudo polkit libnotify libayatana-appindicator)|g" PKGBUILD
+					sed -i "s|{@pkgmakedepends}|(git cmake patchelf 'dotnet-runtime>=10' 'dotnet-sdk>=10' mono-msbuild mono desktop-file-utils)|g" PKGBUILD
+				fi
 			fi
 			sed -i "s|{@source}|https://github.com/AirVPN/Eddie/archive/${VERSIONSTABLE}.tar.gz|g" PKGBUILD    
 			if test -f "${EDDIESIGNINGDIR}/aur.key.password.txt"; then # Staff AirVPN

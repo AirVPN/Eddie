@@ -40,14 +40,17 @@ protected:
 protected:
 	virtual std::string GetProcessPathCurrent();
 	virtual std::string GetProcessPathOfId(int pid);
+	virtual std::string GetStagingDir();
+#ifdef EDDIE_IPC_UNIXSOCKET
+	virtual int GetSocketPeerPid(HSOCKET s);
+#endif
 
 private:
 
 	bool m_hasSystemdResolved = false;
 
 	// Private
-	int FileImmutableSet(const std::string& path, const int flag);
-	std::string IptablesExecutable(const std::string& compatibility, const std::string& layer, const std::string& action);
+	std::string IptablesExecutable(const std::string& compatibility, const std::string& layer, const std::string& action, const bool throwException = true);
 	std::string IptablesExec(const std::string& path, const std::vector<std::string>& args, const bool stdinWrite, const std::string stdinBody);
 	std::string NftablesSearchHandle(const std::string& rulesList, const std::string& comment);
 	std::string GetRoutesAsJson();
@@ -55,6 +58,7 @@ private:
 	std::string GetRoutesAsJsonHexAddress2string(const std::string& v);
 	int GetRoutesAsJsonConvertMaskToCidrNetMask(const std::string& v);
 	int GetRoutesAsJsonConvertHexPrefixToCidrNetMask(const std::string& v);
+	void NetworkManagerSetInterfaceUnmanaged(const std::string& interfaceId);
 	unsigned long WireGuardLastHandshake(const std::string& interfaceId);
 	void WireGuardParseAllowedIPs(const char *allowed_ips, wg_peer *peer);
 };

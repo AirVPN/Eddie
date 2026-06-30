@@ -8,12 +8,12 @@ if [ "${1-}" == "" ]; then
 fi
 
 if [ "${2-}" == "" ]; then
-	echo Second arg must be framework: net4, net8
+	echo Second arg must be line: l, u
 	exit 1
 fi
 
 PROJECT=$1
-FRAMEWORK=$2
+LINE=$2
 CONFIG=Release
 
 SCRIPTDIR=$(dirname $(realpath -s $0))
@@ -21,8 +21,23 @@ ARCH=$($SCRIPTDIR/../linux_common/get-arch.sh)
 RID=$($SCRIPTDIR/../linux_common/get-rid.sh)
 VERSION=$($SCRIPTDIR/../linux_common/get-version.sh)
 
-TARGETDIR="/tmp/eddie_deploy/eddie-${PROJECT}_${VERSION}_linux_${ARCH}_portable"
-DEPLOYPATH="${SCRIPTDIR}/../files/eddie-${PROJECT}_${VERSION}_linux_${ARCH}_portable.tar.gz"
+if [ "${LINE}" != "l" ] && [ "${LINE}" != "u" ]; then
+    echo Second arg must be line: l, u
+    exit 1
+fi
+
+PACKAGEPROJECT="${PROJECT}"
+if [ "${LINE}" = "u" ]; then
+    PACKAGEPROJECT="${PROJECT}-u"
+fi
+
+DEPPACKAGEPROJECT="cli"
+if [ "${LINE}" = "u" ]; then
+    DEPPACKAGEPROJECT="cli-u"
+fi
+
+TARGETDIR="/tmp/eddie_deploy/eddie-${PACKAGEPROJECT}_${VERSION}_linux_${ARCH}_portable"
+DEPLOYPATH="${SCRIPTDIR}/../files/eddie-${PACKAGEPROJECT}_${VERSION}_linux_${ARCH}_portable.tar.gz"
 
 # Check env
 
@@ -50,11 +65,11 @@ cp "${SCRIPTDIR}/portable.txt" "${TARGETBINDIR}"
 if [ $PROJECT = "cli" ]; then
 
     cd "${SCRIPTDIR}/../../src/App.CLI.Linux/"
-    dotnet publish App.CLI.Linux.net8.csproj --configuration Release --runtime ${RID} --self-contained true -p:PublishTrimmed=true -p:EnableCompressionInSingleFile=true
-    cp "${SCRIPTDIR}/../../src/App.CLI.Linux/bin/${CONFIG}/net8.0/${RID}/publish"/* "${TARGETBINDIR}"
-    cp "${SCRIPTDIR}/../../src/App.CLI.Linux/bin/${CONFIG}/net8.0/${RID}/eddie-cli-elevated" "${TARGETBINDIR}"
-    cp "${SCRIPTDIR}/../../src/App.CLI.Linux/bin/${CONFIG}/net8.0/${RID}/eddie-cli-elevated-service" "${TARGETBINDIR}"
-    cp "${SCRIPTDIR}/../../src/App.CLI.Linux/bin/${CONFIG}/net8.0/${RID}/libLib.Platform.Linux.Native.so" "${TARGETBINDIR}"
+    dotnet publish App.CLI.Linux.net10.csproj --configuration Release --runtime ${RID} --self-contained true -p:PublishTrimmed=true -p:EnableCompressionInSingleFile=true
+    cp "${SCRIPTDIR}/../../src/App.CLI.Linux/bin/${CONFIG}/net10.0/${RID}/publish"/* "${TARGETBINDIR}"
+    cp "${SCRIPTDIR}/../../src/App.CLI.Linux/bin/${CONFIG}/net10.0/${RID}/eddie-cli-elevated" "${TARGETBINDIR}"
+    cp "${SCRIPTDIR}/../../src/App.CLI.Linux/bin/${CONFIG}/net10.0/${RID}/eddie-cli-elevated-service" "${TARGETBINDIR}"
+    cp "${SCRIPTDIR}/../../src/App.CLI.Linux/bin/${CONFIG}/net10.0/${RID}/libLib.Platform.Linux.Native.so" "${TARGETBINDIR}"
 
     # Strip commented, at 2023-11-29, corrupt.    
     # Even without "--strip-unneeded".
@@ -68,27 +83,28 @@ if [ $PROJECT = "cli" ]; then
     echo Step: Resources
     cp "${SCRIPTDIR}/../../deploy/linux_${ARCH}"/* "${TARGETBINDIR}"
     cp -r "${SCRIPTDIR}/../../resources" "${TARGETBINDIR}/res"
-    if [[ ${VERSION} =~ ^2 ]]; then
+    if [ "${LINE}" = "l" ]; then
         rm -rf "${TARGETBINDIR}/res/webui"
     fi
 
 elif [ $PROJECT = "ui" ]; then 
 
     echo Step: Dependencies        
-    "${SCRIPTDIR}/../linux_portable/build.sh" cli net8
-    DEPPACKAGEPATH=${SCRIPTDIR}/../files/eddie-cli_${VERSION}_linux_${ARCH}_portable.tar.gz
+    "${SCRIPTDIR}/../linux_portable/build.sh" cli ${LINE}
+    DEPPACKAGEPATH=${SCRIPTDIR}/../files/eddie-${DEPPACKAGEPROJECT}_${VERSION}_linux_${ARCH}_portable.tar.gz
     cp "${DEPPACKAGEPATH}" "${TARGETDIR}"
     cd "${TARGETDIR}"
     tar xvf *.tar.gz
 
     mv -f "${TARGETDIR}/eddie-cli"/* "${TARGETBINDIR}"
     
-    if [ $FRAMEWORK = "net8" ]; then
+    if [ "${LINE}" = "u" ]; then
         echo Step: Compile
         "${SCRIPTDIR}/../../src/App.UI.Linux/build.sh" ${CONFIG}    
         cp -r "${SCRIPTDIR}/../../src/App.UI.Linux/bin"/* ${TARGETBINDIR}        
-    elif [ $FRAMEWORK = "net4" ]; then        
+    elif [ "${LINE}" = "l" ]; then
         echo Step: Compile
+        # Mono does not support TargetFrameworkVersion v4.8.1; .csproj stay v4.8.1 for Windows/VS.
         TARGETFRAMEWORK="v4.8";
         RULESETPATH="${SCRIPTDIR}/../../src/ruleset/norules.ruleset"
         SOLUTIONPATH="${SCRIPTDIR}/../../src/App.Forms.Linux//App.Forms.Linux.sln"
@@ -187,7 +203,9 @@ find ${TARGETBINDIR} -type f -exec chmod 644 {} +;
 chmod 755 "${TARGETBINDIR}/eddie-cli"
 if [ $PROJECT = "ui" ]; then
     chmod 755 "${TARGETBINDIR}/eddie-ui"
-    chmod 755 "${TARGETBINDIR}/eddie-tray"
+    if [ "${LINE}" = "l" ]; then
+        chmod 755 "${TARGETBINDIR}/eddie-tray"
+    fi
 fi
 chmod 755 "${TARGETBINDIR}/eddie-cli-elevated"
 chmod 755 "${TARGETBINDIR}/eddie-cli-elevated-service"

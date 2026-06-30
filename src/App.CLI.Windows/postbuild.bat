@@ -25,19 +25,18 @@ echo TargetDir: %targetdir%
 echo Arch: %arch%
 echo Config: %config%
 
+echo Stop Service if running
+powershell -nop -c "$s=get-service EddieElevationService -ea SilentlyContinue;exit [int]($null -eq $s -or $s.Status -ne 'Running')"
+if errorlevel 1 goto :s
+powershell -nop -c "start-process sc.exe -ArgumentList stop,EddieElevationService -Verb RunAs -Wait"&timeout /t 2 /nobreak >nul
+:s
+
 echo Copy Deploy files
 copy %basepath%\..\..\deploy\windows_%arch%\* "%targetdir%\" /Y /V || GOTO error
 
 echo Compile and copy native library
 call %basepath%\..\Lib.Platform.Windows.Native\build.bat Release %arch% || GOTO error
 copy %basepath%\..\Lib.Platform.Windows.Native\bin\%arch%\Release\Lib.Platform.Windows.Native.dll "%targetdir%" /Y /V || GOTO error
-
-rem echo Copy WireGuard library
-rem copy %basepath%\..\..\deploy\windows_%arch%\wgtunnel.dll "%targetdir%\wgtunnel.dll" /Y /V || GOTO error
-rem copy %basepath%\..\..\deploy\windows_%arch%\wireguard.dll "%targetdir%\wireguard.dll" /Y /V || GOTO error
-
-rem echo Copy Wintun library
-rem copy %basepath%\..\..\deploy\windows_%arch%\wintun.dll "%targetdir%\wintun.dll" /Y /V || GOTO error
 
 echo Compile and copy Elevated - CLI Edition
 call %basepath%\..\App.CLI.Windows.Elevated\build.bat %config% %arch% || GOTO error

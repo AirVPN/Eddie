@@ -28,6 +28,35 @@ https://www.wireguard.com/
 License: GNU General Public License (GPL v2+)
 
 ------------------------------------------------------------
+wireguard-windows (userspace tunnel service, Windows)
+v1.0 (2026-04-18)
+
+Source built locally into wgtunnel.dll (renamed from tunnel.dll of the
+embeddable-dll-service target).
+
+https://git.zx2c4.com/wireguard-windows/
+
+Copyright (C) 2018-2026 WireGuard LLC.
+License: MIT (see staff/dependencies/wireguard-windows-1.0/COPYING)
+
+------------------------------------------------------------
+wireguard-nt (kernel driver user-mode loader, Windows)
+v1.0 (zip SHA-256
+d44f53300e47b44c53e77ee4c495cf061d06b5739f28872432ee1596107a302d)
+
+Redistributed as wireguard.dll, used only via the documented API in
+wireguard.h. No source modifications, no reverse engineering.
+
+https://download.wireguard.com/wireguard-nt/
+
+Copyright (C) WireGuard LLC.
+License: WireGuard LLC Prebuilt Binaries License (proprietary).
+Redistribution is permitted by §3.d of that license because Eddie
+distributes wireguard.dll alongside software that uses it only via the
+Permitted API. Full text in
+staff/dependencies/wireguard-windows-1.0/.deps/wireguard-nt/LICENSE.txt.
+
+------------------------------------------------------------
 stunnel
 
 https://www.stunnel.org/
@@ -47,13 +76,6 @@ TUNTAP -- Virtual network interfaces for Mac OS X
 https://tuntaposx.sourceforge.net/
 
 License: BSD License
-
-------------------------------------------------------------
-WinTun -- Wintun is a very simple and minimal TUN driver for the Windows kernel
-
-https://www.wintun.net/
-
-License: GNU General Public License (GPL v2+)
 
 ------------------------------------------------------------
 Boost 

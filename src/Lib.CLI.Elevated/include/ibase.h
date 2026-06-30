@@ -41,6 +41,22 @@ const std::string FsPathSeparator = "/";
 const std::string FsEndLine = "\n";
 #endif
 
+// IPC transport selection.
+// EDDIE_IPC_LOCAL: use the OS local transport with kernel-attested peer credentials
+// (AF_UNIX on POSIX, named pipe on Windows). Comment out to fall back to the legacy
+// TCP loopback transport, where the peer PID is resolved via GetProcessIdMatchingIPEndPoints.
+#define EDDIE_IPC_LOCAL
+
+#ifdef EDDIE_IPC_LOCAL
+	#ifdef EDDIE_PLATFORM_WINDOWS
+		#define EDDIE_IPC_NAMEDPIPE
+	#else
+		#define EDDIE_IPC_UNIXSOCKET
+	#endif
+#endif
+
+#define NETBUFSIZE 256*256*10 // Maximum size of a single IPC command/buffer
+
 #include "ping.h"
 
 class IBase;
@@ -74,19 +90,19 @@ private:
 
 	std::string m_session_key;
 	std::mutex m_mutex_inout;
-	std::mutex m_mutex_cout;
-	HSOCKET m_sockClient = 0;
+	bool m_clientConnected = false;
 	bool m_debug = false;
 	time_t m_lastModified = 0;
 	std::map<pid_t, bool> m_pidManaged;
 	std::string m_launchMode;
+	int m_spotClientPid = 0; // spot mode: PID of the authorized client, bound at launch (spot_client_pid arg)
 	bool m_singleConnMode = false;
 	Pinger m_pinger;
+	std::string m_stagingDir;
 
 protected:
 	std::map<std::string, std::string> m_cmdline;
 	std::map<std::string, std::string> m_keypair;
-	std::vector<std::string> m_binPaths;
 
 	// Engine
 public:
@@ -98,6 +114,7 @@ public:
 protected:
 	std::string GetLaunchMode();
 	void SetLaunchMode(const std::string& mode);
+	int GetSpotClientPid();
 	void LogFatal(const std::string& msg);
 	void LogRemote(const std::string& msg);
 	void LogLocal(const std::string& msg);
@@ -137,6 +154,17 @@ protected:
 	virtual std::string IntegrityCheckBuild();
 	virtual bool IntegrityCheckFileKnown(const std::string& path);
 
+	// Executable security
+	bool IsRunnableExecutable(const std::string& path);
+	bool IsSecureServiceLocation(const std::string& path);
+	bool CanUseDirectPath(const std::string& path);
+
+	// Runtime staging: when the elevated executable lives in a non-root-only directory
+	// (portable layout), privileged tools are copied once into a root-only directory and
+	// run from there, closing the writable-path TOCTOU window. No-op when CanUseDirectPath.
+	bool StagingPrepare();
+	void StagingCleanup();
+
 	virtual std::string GetProcessPathCurrent();
 	virtual std::string GetProcessPathCurrentDir();
 	virtual time_t GetProcessModTimeStart();
@@ -152,6 +180,8 @@ protected:
 	virtual bool IsRoot() = 0;
 	virtual void Sleep(int ms) = 0;
 	virtual uint64_t GetTimestampUnixUsec() = 0;
+	virtual std::string GetDevLogPath() = 0; // Debug-only developer log file path
+
 	virtual pid_t GetCurrentProcessId() = 0;
 	virtual pid_t GetParentProcessId() = 0;
 	virtual pid_t GetParentProcessId(pid_t pid) = 0;
@@ -173,16 +203,31 @@ protected:
 	virtual std::vector<char> FsFileReadBytes(const std::string& path) = 0;
 	virtual std::vector<std::string> FsFilesInPath(const std::string& path) = 0;
 	virtual std::string FsGetTempPath() = 0;
+	virtual std::string GetStagingDir() = 0;
 	virtual std::vector<std::string> FsGetEnvPath() = 0;
 	virtual std::string FsGetRealPath(std::string path) = 0;
 	virtual bool FsFileIsExecutable(std::string path) = 0;
 	virtual bool FsFileEnsureRootOnly(std::string path) = 0;
+	virtual bool FsFileMakeRunnable(const std::string& path) = 0; // root-owned + executable (no-op where not applicable)
 	virtual bool FsFileIsRootOnly(std::string path) = 0;
+	virtual bool FsDirectoryEnsureRootOnly(std::string path) = 0;
+	virtual bool FsDirectoryIsRootOnly(std::string path) = 0;
 	virtual bool SocketIsValid(HSOCKET s) = 0;
 	virtual void SocketMarkReuseAddr(HSOCKET s) = 0;
 	virtual void SocketBlockMode(HSOCKET s, bool block) = 0;
 	virtual void SocketClose(HSOCKET s) = 0;
 	virtual int SocketGetLastErrorCode() = 0;
+
+	// IPC transport (AF_UNIX / named pipe / TCP). Implemented per-OS so Main() stays transport-agnostic.
+	virtual void TransportListen(int port) = 0;                   // create+bind+listen; throws on failure
+	virtual bool TransportAccept() = 0;                           // block until a client connects; false if stop requested
+	virtual int TransportGetClientProcessId() = 0;               // peer PID of the connected client (0 if unknown)
+	virtual int TransportRead(char* buffer, int maxLen) = 0;     // >0 bytes read, 0 peer closed, <0 error
+	virtual int TransportWrite(const char* buffer, int len) = 0; // bytes written, <0 error
+	virtual void TransportClientClose() = 0;                     // drop the current client connection
+	virtual void TransportServerClose() = 0;                     // close the listener and cleanup
+
+	virtual std::string StringEnsureInterfaceName(const std::string& str) = 0;
 
 	// Virtual Pure, Other
 protected:
@@ -191,8 +236,11 @@ protected:
 	virtual bool SystemWideDataDel(const std::string& key) = 0;
 	virtual bool SystemWideDataClean() = 0;
 	virtual std::string CheckIfClientPathIsAllowed(const std::string& path) = 0;
-	virtual bool CheckIfExecutableIsAllowed(const std::string& path, const bool& throwException, const bool ignoreKnown = false) = 0;
+	virtual std::string CheckExecutablePathPermissions(const std::string& path) = 0;
+#ifndef EDDIE_IPC_LOCAL
+	// Legacy TCP transport only: peer PID resolved by scanning the OS socket table.
 	virtual int GetProcessIdMatchingIPEndPoints(struct sockaddr_in& addrClient, struct sockaddr_in& addrServer) = 0;
+#endif
 
 	// Utils filesystem
 protected:
@@ -201,7 +249,7 @@ protected:
 	std::string FsFileGetExtension(const std::string& path);
 	std::string FsFileGetDirectory(const std::string& path);
 	std::string FsFileSHA256Sum(const std::string& path);
-	std::string FsLocateExecutable(const std::string& name, const bool throwException = true, const bool includeTools = false);
+	std::string FsLocateExecutable(const std::string& name, const bool throwException = true, const bool includeElevatedPath = false);
 
 	// Utils string - Maybe in some class, but we prefer to leave code much simply as possible
 protected:
@@ -223,11 +271,11 @@ protected:
 	std::string StringPruneCharsNotIn(const std::string& str, const std::string& allowed);
 	std::string StringDeleteLinesContain(const std::string& str, const std::string& search);
 	std::string StringEnsureAlphaNumeric(const std::string& str);
+	std::string StringEnsureAsciiName(const std::string& str);
 	std::string StringEnsureHex(const std::string& str);
 	std::string StringEnsureCidr(const std::string& str);
 	std::string StringEnsureFileName(const std::string& str);
 	std::string StringEnsureDirectoryName(const std::string& str);
-	std::string StringEnsureInterfaceName(const std::string& str);
 	std::string StringEnsureIpAddress(const std::string& str);
 	std::string StringEnsureNumericInt(const std::string& str);
 	std::string StringEnsureQuote(const std::string& str);
@@ -254,7 +302,7 @@ protected:
 	std::map<std::string, std::string> ParseCommandLine(const std::vector<std::string>& args);
 	std::string CheckValidOpenVpnConfigFile(const std::string& path);
 	std::string CheckValidHummingbirdConfigFile(const std::string& path);
-	std::string CheckValidWireGuardConfig(const std::string& path);
+	std::string CheckValidWireGuardConfig(const std::string& config);
 	void PidAdd(pid_t pid);
 	void PidRemove(pid_t pid);
 	bool PidManaged(pid_t pid);
@@ -265,17 +313,6 @@ protected:
 	ExecResult ExecEx(const std::string& path, const std::vector<std::string>& args, bool log);
 	ExecResult ExecEx(const std::string& path, const std::vector<std::string>& args, const std::string& stdinput);
 	std::string GetExecResultReport(const ExecResult& result);
-
-	// Helper to avoid use of variadic
-	ExecResult ExecEx0(const std::string& path);
-	ExecResult ExecEx1(const std::string& path, const std::string& arg1);
-	ExecResult ExecEx2(const std::string& path, const std::string& arg1, const std::string& arg2);
-	ExecResult ExecEx3(const std::string& path, const std::string& arg1, const std::string& arg2, const std::string& arg3);
-	ExecResult ExecEx4(const std::string& path, const std::string& arg1, const std::string& arg2, const std::string& arg3, const std::string& arg4);
-	ExecResult ExecEx5(const std::string& path, const std::string& arg1, const std::string& arg2, const std::string& arg3, const std::string& arg4, const std::string& arg5);
-	ExecResult ExecEx6(const std::string& path, const std::string& arg1, const std::string& arg2, const std::string& arg3, const std::string& arg4, const std::string& arg5, const std::string& arg6);
-	ExecResult ExecEx7(const std::string& path, const std::string& arg1, const std::string& arg2, const std::string& arg3, const std::string& arg4, const std::string& arg5, const std::string& arg6, const std::string& arg7);
-	ExecResult ExecEx8(const std::string& path, const std::string& arg1, const std::string& arg2, const std::string& arg3, const std::string& arg4, const std::string& arg5, const std::string& arg6, const std::string& arg7, const std::string& arg8);
 };
 
 

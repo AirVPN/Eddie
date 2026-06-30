@@ -1,6 +1,6 @@
 // <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2026 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -45,9 +45,6 @@ namespace Eddie.Core
 			string proxyTorPath = Engine.Instance.ProfileOptions.Get("proxy.tor.path");
 			if (proxyTorPath != "")
 				c.Parameters["path"] = proxyTorPath;
-			string proxyTorControlCookiePath = Engine.Instance.ProfileOptions.Get("proxy.tor.control.cookie.path");
-			if (proxyTorControlCookiePath != "")
-				c.Parameters["cookie_path"] = proxyTorControlCookiePath;
 			c.Parameters["username"] = Environment.UserName;
 
 			string torInfo = Engine.Instance.Elevated.DoCommandSync(c);
@@ -314,8 +311,8 @@ namespace Eddie.Core
 			if (bufSize < 1024)
 				bufSize = 1024;
 			byte[] inStream = new byte[bufSize + 1];
-			s.GetStream().Read(inStream, 0, bufSize);
-			string result = System.Text.Encoding.ASCII.GetString(inStream);
+			int bytesRead = s.GetStream().Read(inStream, 0, bufSize);
+			string result = System.Text.Encoding.ASCII.GetString(inStream, 0, bytesRead);
 			result = result.Trim('\0').Trim(); // 2.10.1
 			return result;
 		}

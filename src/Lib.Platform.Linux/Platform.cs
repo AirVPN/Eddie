@@ -1,6 +1,6 @@
 // <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2026 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -130,17 +130,7 @@ namespace Eddie.Platform.Linux
 			}
 
 			return true;
-		}
-
-		/* // TOCLEAN
-		public override string GetDefaultDataPath()
-		{
-			// Maybe the default can be "home" like macOS. 
-			// Currently it's String.Empty so Eddie try first to use App directory (for portable editions)
-			return String.Empty;
-			//return "home";
-		}
-		*/
+		}		
 
 		public override string GetDefaultResourcesDirName()
 		{
@@ -174,18 +164,6 @@ namespace Eddie.Platform.Linux
 		protected override string GetElevatedHelperPathImpl()
 		{
 			return FileGetPhysicalPath(GetApplicationPath() + "/eddie-cli-elevated");
-		}
-
-		public override bool CheckElevatedSocketAllowed(System.Net.IPEndPoint localEndpoint, System.Net.IPEndPoint remoteEndpoint)
-		{
-			// Security: Don't yet find a method, because in some platform (ex. Arch) Eddie are compiled from sources.
-			return true;
-		}
-
-		public override bool CheckElevatedProcessAllowed(string remotePath)
-		{
-			// Security: Don't yet find a method, because in some platform (ex. Arch) Eddie are compiled from sources.
-			return true;
 		}
 
 		public override bool AllowService()
@@ -240,26 +218,6 @@ namespace Eddie.Platform.Linux
 			{
 				return ":";
 			}
-		}
-
-		public override bool FileImmutableGet(string path)
-		{
-			if ((path == "") || (FileExists(path) == false))
-				return false;
-
-			int result = NativeMethods.GetFileImmutable(path);
-			return (result == 1);
-		}
-
-		public override void FileImmutableSet(string path, bool value)
-		{
-			if ((path == "") || (FileExists(path) == false))
-				return;
-
-			if (FileImmutableGet(path) == value)
-				return;
-
-			Engine.Instance.Elevated.DoCommandSync("file-immutable-set", "path", path, "flag", (value ? "1" : "0"));
 		}
 
 		public override bool FileEnsurePermission(string path, string mode)
@@ -593,10 +551,6 @@ namespace Eddie.Platform.Linux
 			// < 2.11 - Old file name
 			if (Platform.Instance.FileExists("/etc/resolv.conf.airvpn"))
 				Platform.Instance.FileDelete("/etc/resolv.conf.airvpn");
-
-			// A bug in old experimental 2.11 cause the set of immutable flag in rare cases.
-			if (Platform.Instance.FileImmutableGet("/etc/resolv.conf"))
-				Platform.Instance.FileImmutableSet("/etc/resolv.conf", false);
 		}
 
 		public override void AdaptConfigOpenVpn(Core.ConfigBuilder.OpenVPN config)
@@ -913,20 +867,6 @@ namespace Eddie.Platform.Linux
 			exec.Run();
 			int exitCode = exec.ExitCode;
 			return (exitCode == 0);
-		}
-
-		public override List<string> GetTrustedPaths()
-		{
-			List<string> list = base.GetTrustedPaths();
-
-			list.Add("/bin");
-			list.Add("/usr/bin");
-			list.Add("/sbin");
-			list.Add("/usr/sbin");
-			list.Add("/usr/local/sbin");
-			list.Add("/root/bin");
-
-			return list;
 		}
 
 		public override bool GetSupportIPv6()

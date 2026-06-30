@@ -1,6 +1,6 @@
 // <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2026 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -102,13 +102,6 @@ namespace Eddie.Platform.MacOS
 		public static int FileSetMode(string pathname, int mode)
 		{
 			return eddie_file_set_mode(pathname, mode);
-		}
-
-		[DllImport(NativeLibName)]
-		private static extern int eddie_file_get_immutable(string filename);
-		public static int FileGetImmutable(string filename)
-		{
-			return eddie_file_get_immutable(filename);
 		}
 
 		[DllImport(NativeLibName)]

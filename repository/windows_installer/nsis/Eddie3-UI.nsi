@@ -295,7 +295,7 @@ Section "Uninstall"
 		
 	RMDir "$INSTDIR\Resources"
 	Delete "$INSTDIR\VC_redist.{@arch}.exe"
-	Delete "$INSTDIR\ndp48-web.exe"
+	Delete "$INSTDIR\ndp481-web.exe"
 	Delete "$INSTDIR\Uninstall.exe"	
 
 	!insertmacro MUI_STARTMENU_GETFOLDER Application $MUI_TEMP

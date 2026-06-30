@@ -1,6 +1,6 @@
 // <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2026 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -44,6 +44,7 @@ Extensions.Add(".hpp");
 Extensions.Add(".h");
 Extensions.Add(".rc");
 Extensions.Add(".plist");
+Extensions.Add(".csproj");
 
 foreach (FileInfo f in srcFiles)
 {
@@ -75,6 +76,15 @@ foreach (FileInfo f in srcFiles)
 		if (f.Extension == ".cs")
 		{
 			adapted = Regex.Replace(adapted, "^// Copyright \\(C\\)2014-.+ AirVPN", "// Copyright (C)2014-" + year + " AirVPN", RegexOptions.Multiline);
+		}
+
+		if (f.Extension == ".csproj")
+		{
+			// Element form only: PackageReference uses the Version="..." attribute, which is intentionally not matched.
+			adapted = Regex.Replace(adapted, "<FileVersion>.+?</FileVersion>", "<FileVersion>" + version + ".0</FileVersion>");
+			adapted = Regex.Replace(adapted, "<AssemblyVersion>.+?</AssemblyVersion>", "<AssemblyVersion>" + version + ".0</AssemblyVersion>");
+			adapted = Regex.Replace(adapted, "<Version>.+?</Version>", "<Version>" + version + "</Version>");
+			adapted = Regex.Replace(adapted, "<ReleaseVersion>.+?</ReleaseVersion>", "<ReleaseVersion>" + version + "</ReleaseVersion>");
 		}
 
 		if (f.Name == "Info.plist")

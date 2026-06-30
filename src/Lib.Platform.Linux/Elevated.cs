@@ -1,6 +1,6 @@
 // <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2026 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
 // along with Eddie. If not, see <http://www.gnu.org/licenses/>.
 // </eddie_source_header>
 
+#define EDDIE_IPC_UNIXSOCKET // hard-enabled; remove to fall back to the TCP transport
+
 using System;
 using System.Globalization;
 using Eddie.Core;
@@ -30,7 +32,7 @@ namespace Eddie.Platform.Linux
 
 			try
 			{
-				string connectResult = Connect(Engine.Instance.GetElevatedServicePort());
+				string connectResult = Connect(Engine.Instance.GetElevatedServicePort(), "service");
 
 				if (connectResult != "Ok") // Will work if the service is active
 				{
@@ -42,7 +44,13 @@ namespace Eddie.Platform.Linux
 
 					int port = GetPortSpot();
 
-					int pid = (Platform.Instance as Eddie.Platform.Linux.Platform).RunElevated(new string[] { "mode=spot", "spot_port=" + port.ToString(CultureInfo.InvariantCulture), "service_port=" + Engine.Instance.GetElevatedServicePort().ToString(CultureInfo.InvariantCulture) }, false);
+#if EDDIE_DOTNET
+					int currentId = Environment.ProcessId;
+#else
+					int currentId = System.Diagnostics.Process.GetCurrentProcess().Id;
+#endif
+
+					int pid = (Platform.Instance as Eddie.Platform.Linux.Platform).RunElevated(new string[] { "mode=spot", "spot_port=" + port.ToString(CultureInfo.InvariantCulture), "service_port=" + Engine.Instance.GetElevatedServicePort().ToString(CultureInfo.InvariantCulture), "spot_client_pid=" + currentId.ToString(CultureInfo.InvariantCulture) }, false);
 
 					System.Diagnostics.Process process = null;
 					if (pid > 0)
@@ -55,8 +63,13 @@ namespace Eddie.Platform.Linux
 						{
 							System.Threading.Thread.Sleep(100);
 
+#if EDDIE_IPC_UNIXSOCKET
+							if (System.IO.File.Exists(GetUnixSockPath("spot")))
+								break;
+#else
 							if (Platform.Instance.IsPortLocalListening(port))
 								break;
+#endif
 
 							if (process == null)
 								throw new Exception("not started");
@@ -68,7 +81,7 @@ namespace Eddie.Platform.Linux
 								throw new Exception("timeout");
 						}
 
-						connectResult = Connect(port);
+						connectResult = Connect(port, "spot");
 
 						if (connectResult != "Ok")
 							throw new Exception(connectResult);

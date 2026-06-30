@@ -1,6 +1,6 @@
 // <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2026 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -36,6 +36,7 @@ namespace Eddie.Forms.Forms
 		public bool m_modeSslEnabled = true;
 
 		private Dictionary<string, string> m_mapNetworkEntryIFace = new Dictionary<string, string>();
+		private bool m_systemServiceInitial;
 
 		public Settings()
 		{
@@ -70,7 +71,6 @@ namespace Eddie.Forms.Forms
 			SkinUtils.FixHeightVs(txtProxyPassword, lblProxyPassword);
 			SkinUtils.FixHeightVs(txtProxyTorControlPort, lblProxyTorControlPort);
 			SkinUtils.FixHeightVs(txtProxyTorControlPassword, lblProxyTorControlPassword);
-			SkinUtils.FixHeightVs(txtProxyTorControlCookiePath, lblProxyTorControlCookiePath);
 			SkinUtils.FixHeightVs(cboDnsSwitchMode, lblDnsSwitchMode);
 			SkinUtils.FixHeightVs(chkDnsCheck, lblDnsCheck);
 
@@ -102,12 +102,6 @@ namespace Eddie.Forms.Forms
 			SkinUtils.FixHeightVs(lblAdvancedProviders, chkAdvancedProviders);
 			SkinUtils.FixHeightVs(lblHummingbirdPrefer, chkHummingbirdPrefer);
 
-			SkinUtils.FixHeightVs(txtExePath, lblExePath);
-			SkinUtils.FixHeightVs(txtExePath, cmdExeBrowse);
-
-			SkinUtils.FixHeightVs(txtHummingbirdPath, lblHummingbirdPrefer);
-			SkinUtils.FixHeightVs(txtHummingbirdPath, cmdHummingbirdPathBrowse);
-
 			SkinUtils.FixHeightVs(txtLogPath, lblLogPath);
 
 			SkinUtils.FixHeightVs(cboWireGuardMTU, lblWireGuardMTU);
@@ -130,13 +124,8 @@ namespace Eddie.Forms.Forms
 			lblSystemService.Text = Platform.Instance.AllowServiceUserDescription();
 			pnlAdvancedGeneralWindowsOnly.Visible = GuiUtils.IsWindows();
 			pnlDnsWindowsOnly.Visible = GuiUtils.IsWindows();
-			lblWindowsDriver.Visible = GuiUtils.IsWindows();
-			cboWindowsDriver.Visible = GuiUtils.IsWindows();
-			chkWindowsDebugWorkaround.Visible = GuiUtils.IsWindows();
 			lblHummingbirdPrefer.Visible = (GuiUtils.IsWindows() == false);
 			chkHummingbirdPrefer.Visible = (GuiUtils.IsWindows() == false);
-			txtHummingbirdPath.Visible = (GuiUtils.IsWindows() == false);
-			cmdHummingbirdPathBrowse.Visible = (GuiUtils.IsWindows() == false);
 
 			// Disabled
 			lblOsSingleInstance.Visible = false;
@@ -314,14 +303,17 @@ namespace Eddie.Forms.Forms
 
 			if (GuiUtils.IsWindows())
 			{
-				cmdAdvancedUninstallDriverTap.Visible = true;
-				cmdAdvancedUninstallDriverTap.Enabled = (Platform.Instance.OpenVpnCanUninstallDriver("0901"));
-				cmdAdvancedDeleteOldTapAdapter.Visible = true;
+				cmdAdvancedUninstallDriverTapWindows6.Visible = true;
+				cmdAdvancedUninstallDriverTapWindows6.Enabled = Platform.Instance.OpenVpnCanUninstallDriver("tap-windows6");
+				cmdAdvancedUninstallDriverOvpnDco.Visible = true;
+				cmdAdvancedUninstallDriverOvpnDco.Enabled = Platform.Instance.OpenVpnCanUninstallDriver("ovpn-dco");
+				cmdAdvancedDeleteAllOpenVpnAdapters.Visible = true;
 			}
 			else
 			{
-				cmdAdvancedUninstallDriverTap.Visible = false;
-				cmdAdvancedDeleteOldTapAdapter.Visible = false;
+				cmdAdvancedUninstallDriverTapWindows6.Visible = false;
+				cmdAdvancedUninstallDriverOvpnDco.Visible = false;
+				cmdAdvancedDeleteAllOpenVpnAdapters.Visible = false;
 			}
 
 
@@ -340,18 +332,8 @@ namespace Eddie.Forms.Forms
 			cboWireGuardMTU.Items.Add("1280");
 
 			// Advances
-			cboWindowsDriver.Items.Clear();
-			cboWindowsDriver.Items.Add("Automatic");
-			cboWindowsDriver.Items.Add("ovpn-dco");
-			cboWindowsDriver.Items.Add("wintun");
-			cboWindowsDriver.Items.Add("tap-windows6");
-			cboWindowsDriver.Items.Add("None");
-
+			
 			// Disabled in this version
-			lblShellExternal.Visible = false;
-			chkShellExternalRecommended.Visible = false;
-			cmdShellExternalClear.Visible = false;
-			cmdShellExternalView.Visible = false;
 			chkOpenVpnDirectivesAllowScriptSecurity.Visible = false;
 
 			// Init
@@ -391,6 +373,7 @@ namespace Eddie.Forms.Forms
 			// General            
 			chkSystemStart.Checked = o.GetBool("windows.start_os");
 			chkSystemService.Checked = Platform.Instance.GetService();
+			m_systemServiceInitial = chkSystemService.Checked;
 			chkConnect.Checked = o.GetBool("connect");
 			chkNetLock.Checked = o.GetBool("netlock");
 			chkGeneralStartLast.Checked = o.GetBool("servers.startlast");
@@ -500,8 +483,6 @@ namespace Eddie.Forms.Forms
 			txtProxyPassword.Text = o.Get("proxy.password");
 			txtProxyTorControlPort.Text = o.Get("proxy.tor.control.port");
 			txtProxyTorControlPassword.Text = o.Get("proxy.tor.control.password");
-			txtProxyTorControlCookiePath.Text = o.Get("proxy.tor.control.cookie.path");
-
 
 			// Routes
 			string routes = o.Get("routes.custom");
@@ -656,27 +637,9 @@ namespace Eddie.Forms.Forms
 			chkAdvancedSkipAlreadyRun.Checked = o.GetBool("advanced.skip_alreadyrun");
 			chkAdvancedProviders.Checked = o.GetBool("advanced.providers");
 			chkHummingbirdPrefer.Checked = o.GetBool("tools.hummingbird.preferred");
-
-			string windowsDriver = o.Get("windows.driver");
-			if (windowsDriver == "auto")
-				cboWindowsDriver.Text = "Automatic";
-			else if (windowsDriver == "ovpn-dco")
-				cboWindowsDriver.Text = "ovpn-dco";
-			else if (windowsDriver == "wintun")
-				cboWindowsDriver.Text = "wintun";
-			else if (windowsDriver == "tap-windows6")
-				cboWindowsDriver.Text = "tap-windows6";
-			else if (windowsDriver == "none")
-				cboWindowsDriver.Text = "None";
-			else
-				cboWindowsDriver.Text = "Automatic";
+			
 			chkWindowsAdaptersCleanup.Checked = o.GetBool("windows.adapters.cleanup");
-			chkWindowsDisableDriverUpgrade.Checked = o.GetBool("windows.disable_driver_upgrade");
-			chkWindowsDebugWorkaround.Checked = o.GetBool("windows.workarounds");
 			chkWindowsSshPlinkForce.Checked = o.GetBool("windows.ssh.plink.force");
-
-			txtExePath.Text = o.Get("tools.openvpn.path");
-			txtHummingbirdPath.Text = o.Get("tools.hummingbird.path");
 
 			int manifestRefresh = o.GetInt("advanced.manifest.refresh");
 			if (manifestRefresh == 60)
@@ -768,7 +731,6 @@ namespace Eddie.Forms.Forms
 			ReadOptionsEvent("vpn.pre", 4);
 			ReadOptionsEvent("vpn.up", 5);
 			ReadOptionsEvent("vpn.down", 6);
-			chkShellExternalRecommended.Checked = o.GetBool("external.rules.recommended");
 		}
 
 		public void ReadOptionsEvent(string name, int index)
@@ -822,7 +784,8 @@ namespace Eddie.Forms.Forms
 
 			// General            			
 			o.SetBool("windows.start_os", chkSystemStart.Checked);
-			Platform.Instance.SetService(chkSystemService.Checked, false);
+			if (chkSystemService.Checked != m_systemServiceInitial)
+				Platform.Instance.SetService(chkSystemService.Checked, false);
 			o.SetBool("connect", chkConnect.Checked);
 			o.SetBool("netlock", chkNetLock.Checked);
 			o.SetBool("servers.startlast", chkGeneralStartLast.Checked);
@@ -919,8 +882,6 @@ namespace Eddie.Forms.Forms
 			o.Set("proxy.password", txtProxyPassword.Text);
 			o.SetInt("proxy.tor.control.port", Conversions.ToInt32(txtProxyTorControlPort.Text));
 			o.Set("proxy.tor.control.password", txtProxyTorControlPassword.Text);
-			o.Set("proxy.tor.control.cookie.path", txtProxyTorControlCookiePath.Text);
-
 			// Routes
 			String routes = "";
 			foreach (ListViewItem item in lstRoutes.Items)
@@ -1061,27 +1022,9 @@ namespace Eddie.Forms.Forms
 			o.SetBool("advanced.skip_alreadyrun", chkAdvancedSkipAlreadyRun.Checked);
 			o.SetBool("advanced.providers", chkAdvancedProviders.Checked);
 			o.SetBool("tools.hummingbird.preferred", chkHummingbirdPrefer.Checked);
-
-			string windowsDriver = cboWindowsDriver.Text;
-			if (windowsDriver == "Automatic")
-				o.Set("windows.driver", "auto");
-			else if (windowsDriver == "ovpn-dco")
-				o.Set("windows.driver", "ovpn-dco");
-			else if (windowsDriver == "wintun")
-				o.Set("windows.driver", "wintun");
-			else if (windowsDriver == "tap-windows6")
-				o.Set("windows.driver", "tap-windows6");
-			else if (windowsDriver == "None")
-				o.Set("windows.driver", "none");
-			else
-				o.Set("windows.driver", "auto");
+			
 			o.SetBool("windows.adapters.cleanup", chkWindowsAdaptersCleanup.Checked);
-			o.SetBool("windows.disable_driver_upgrade", chkWindowsDisableDriverUpgrade.Checked);
-			o.SetBool("windows.workarounds", chkWindowsDebugWorkaround.Checked);
 			o.SetBool("windows.ssh.plink.force", chkWindowsSshPlinkForce.Checked);
-
-			SetOption("tools.openvpn.path", txtExePath.Text);
-			SetOption("tools.hummingbird.path", txtHummingbirdPath.Text);
 
 			int manifestRefreshIndex = cboAdvancedManifestRefresh.SelectedIndex;
 			if (manifestRefreshIndex == 0) // Auto
@@ -1178,7 +1121,6 @@ namespace Eddie.Forms.Forms
 			SaveOptionsEvent("vpn.pre", 4);
 			SaveOptionsEvent("vpn.up", 5);
 			SaveOptionsEvent("vpn.down", 6);
-			o.SetBool("external.rules.recommended", chkShellExternalRecommended.Checked);
 
 			Engine.Instance.OnSettingsChanged();
 		}
@@ -1291,20 +1233,6 @@ namespace Eddie.Forms.Forms
 				return "out";
 			else
 				return "";
-		}
-
-		private void cmdExeBrowse_Click(object sender, EventArgs e)
-		{
-			string result = GuiUtils.FilePicker();
-			if (result != "")
-				txtExePath.Text = result;
-		}
-
-		private void cmdHummingbirdPathBrowse_Click(object sender, EventArgs e)
-		{
-			string result = GuiUtils.FilePicker();
-			if (result != "")
-				txtHummingbirdPath.Text = result;
 		}
 
 		private void cmdOk_Click(object sender, EventArgs e)
@@ -1492,17 +1420,24 @@ namespace Eddie.Forms.Forms
 			cmdAdvancedEventsEdit_Click(sender, e);
 		}
 
-		private void cmdAdvancedUninstallDriver_Click(object sender, EventArgs e)
+		private void cmdAdvancedUninstallDriverTapWindows6_Click(object sender, EventArgs e)
 		{
-			if (Platform.Instance.OpenVpnUninstallDriver("0901"))
-			{
-				GuiUtils.MessageBoxInfo(this, LanguageManager.GetText(LanguageItems.OsDriverUninstallDone));
-				cmdAdvancedUninstallDriverTap.Enabled = false;
-			}
+			if (TryUninstallBundledOpenVpnDriver("tap-windows6"))
+				cmdAdvancedUninstallDriverTapWindows6.Enabled = false;
 		}
 
-		private void cmdAdvancedUninstallDriverWintun_Click(object sender, EventArgs e)
+		private void cmdAdvancedUninstallDriverOvpnDco_Click(object sender, EventArgs e)
 		{
+			if (TryUninstallBundledOpenVpnDriver("ovpn-dco"))
+				cmdAdvancedUninstallDriverOvpnDco.Enabled = false;
+		}
+
+		private bool TryUninstallBundledOpenVpnDriver(string driver)
+		{
+			if (Platform.Instance.OpenVpnUninstallDriver(driver) == false)
+				return false;
+			GuiUtils.MessageBoxInfo(this, LanguageManager.GetText(LanguageItems.OsDriverUninstallDone));
+			return true;
 		}
 
 		private void TxtLoggingPath_TextChanged(object sender, EventArgs e)
@@ -1741,25 +1676,13 @@ namespace Eddie.Forms.Forms
 			EnableIde();
 		}
 
-		private void cmdShellExternalView_Click(object sender, EventArgs e)
+		private void cmdAdvancedDeleteAllOpenVpnAdapters_Click(object sender, EventArgs e)
 		{
-			Json rules = Engine.Instance.ProfileOptions.GetJson("external.rules");
-			Engine.Instance.OnShowText("Rules", rules.ToJsonPretty());
-		}
-
-		private void cmdShellExternalClear_Click(object sender, EventArgs e)
-		{
-			Engine.Instance.ProfileOptions.Set("external.rules", Engine.Instance.ProfileOptions.Dict["external.rules"].Default);
-			GuiUtils.MessageBoxInfo(this, "Done.");
-		}
-
-		private void cmdAdvancedDeleteOldTapAdapter_Click(object sender, EventArgs e)
-		{
-			int nRemoved = Platform.Instance.OpenVpnDeleteOldTapAdapter();
+			int nRemoved = Platform.Instance.OpenVpnDeleteAllAdapters();
 			if (nRemoved == 0)
-				GuiUtils.MessageBoxError(this, "No old tap6 interfaces found to delete");
+				GuiUtils.MessageBoxInfo(this, "No OpenVPN adapters found to delete.");
 			else
-				GuiUtils.MessageBoxError(this, nRemoved.ToString() + " old tap6 interfaces found deleted");
+				GuiUtils.MessageBoxInfo(this, nRemoved.ToString() + " OpenVPN adapters deleted.");
 		}
 	}
 }

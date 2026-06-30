@@ -1,6 +1,6 @@
 // <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2026 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -297,7 +297,11 @@ namespace Eddie.Core
 
 		public static string BytesToHex(byte[] bytes) // 2.10.1
 		{
+#if NET9_0_OR_GREATER
+			return Convert.ToHexStringLower(bytes);
+#else
 			return BitConverter.ToString(bytes).Replace("-", "").ToLowerInvariant();
+#endif
 		}
 
 		public static byte[] HexToBytes(string str)

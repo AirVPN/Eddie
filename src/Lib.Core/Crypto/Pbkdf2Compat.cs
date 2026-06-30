@@ -1,6 +1,6 @@
 // <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2026 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -33,6 +33,8 @@ namespace Eddie.Core.Crypto
 			byte[] passwordBytes = Encoding.UTF8.GetBytes(password);
 #if EDDIEMONO4LINUX
 			return DeriveKeySha256Manual(passwordBytes, salt, iterations, outputByteCount);
+#elif NET5_0_OR_GREATER
+			return Rfc2898DeriveBytes.Pbkdf2(passwordBytes, salt, iterations, HashAlgorithmName.SHA256, outputByteCount);
 #else
 			using (var generator = new Rfc2898DeriveBytes(passwordBytes, salt, iterations, HashAlgorithmName.SHA256))
 				return generator.GetBytes(outputByteCount);
@@ -85,17 +87,23 @@ namespace Eddie.Core.Crypto
 		}
 #endif
 
-#pragma warning disable CA5379 // SHA-1 only for legacy decrypt
-#pragma warning disable SYSLIB0041 // 3-param constructor obsolete; intentional for legacy blob compatibility
 		internal static void DeriveKeysLegacy(string password, byte[] cryptSalt, byte[] authSalt, int iterations, int keyBytes,
 			out byte[] cryptKey, out byte[] authKey)
 		{
+#if NET5_0_OR_GREATER
+			byte[] passwordBytes = Encoding.UTF8.GetBytes(password);
+			cryptKey = Rfc2898DeriveBytes.Pbkdf2(passwordBytes, cryptSalt, iterations, HashAlgorithmName.SHA1, keyBytes);
+			authKey = Rfc2898DeriveBytes.Pbkdf2(passwordBytes, authSalt, iterations, HashAlgorithmName.SHA1, keyBytes);
+#else
+#pragma warning disable CA5379 // SHA-1 only for legacy decrypt
+#pragma warning disable SYSLIB0041 // 3-param constructor obsolete; intentional for legacy blob compatibility
 			using (var generator = new Rfc2898DeriveBytes(password, cryptSalt, iterations))
 				cryptKey = generator.GetBytes(keyBytes);
 			using (var generator = new Rfc2898DeriveBytes(password, authSalt, iterations))
 				authKey = generator.GetBytes(keyBytes);
-		}
 #pragma warning restore SYSLIB0041
 #pragma warning restore CA5379
+#endif
+		}
 	}
 }

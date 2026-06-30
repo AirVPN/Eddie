@@ -1,6 +1,6 @@
 // <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2026 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -25,21 +25,7 @@ namespace Eddie.Core
 {
 	public class CompatibilityManager
 	{
-		public static void Profiles(string pathApp, string pathData)
-		{
-			if (Engine.Instance.Elevated != null)
-			{
-				string owner = Environment.UserName;
-
-				Elevated.Command command = new Elevated.Command();
-				command.Parameters["command"] = "compatibility-profiles";
-				command.Parameters["path-app"] = pathApp;
-				command.Parameters["path-data"] = pathData;
-				command.Parameters["owner"] = owner;
-				command.DoSync();
-			}
-		}
-
+		
 		public static void WindowsRemoveTask()
 		{
 			Elevated.Command command = new Elevated.Command();
@@ -184,7 +170,15 @@ namespace Eddie.Core
 			}
 			else if (name == "executables.openvpn")
 			{
-				name = "tools.openvpn.path";
+				name = "";
+			}
+			else if (name == "tools.openvpn.path")
+			{
+				name = "";
+			}
+			else if (name == "tools.hummingbird.path")
+			{
+				name = "";
 			}
 			else if (name == "executables.ssh")
 			{
@@ -196,7 +190,7 @@ namespace Eddie.Core
 			}
 			else if (name == "executables.curl")
 			{
-				name = "tools.curl.path";
+				name = "";
 			}
 			else if (name == "gui.windows.notifications")
 			{
@@ -253,6 +247,34 @@ namespace Eddie.Core
 			else if (name == "netlock.whitelist.outgoing.ips")
 			{
 				name = "netlock.allowlist.outgoing.ips";
+			}
+			else if (name == "windows.driver") // Removed in 2.26.0
+			{
+				name = "";
+			}
+			else if (name == "windows.disable_driver_upgrade") // Removed in 2.26.0
+			{
+				name = "";
+			}
+			else if (name == "windows.wfp.enable") // Removed in 2.26.0
+			{
+				name = "";
+			}
+			else if (name == "windows.workarounds") // Removed in 2.26.0
+			{
+				name = "";
+			}
+			else if (name == "windows.adapter_service") // Removed in 2.26.0
+			{
+				name = "";
+			}
+			else if (name == "netlock.mode" && value == "windows_firewall") // Mode removed in 2.26.0; fall back to default
+			{
+				value = "auto";			
+			}
+			else if (name == "proxy.tor.control.cookie.path") // Removed in 2.26.0
+			{
+				name = "";
 			}
 
 #if (EDDIE3)

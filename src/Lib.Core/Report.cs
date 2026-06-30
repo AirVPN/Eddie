@@ -1,6 +1,6 @@
 // <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2026 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -169,6 +169,7 @@ namespace Eddie.Core
 			Add("OS name", Platform.Instance.GetName());
 			Add("OS version", Platform.Instance.GetVersion());
 			Add("OS architecture", Platform.Instance.GetOsArchitecture());
+			Add("OS locale", Platform.Instance.GetUserLocale());
 			Add("Framework", Platform.Instance.GetNetFrameworkVersion());
 
 			Add("OpenVPN", Software.GetTool("openvpn").GetVersionDesc());
@@ -176,8 +177,6 @@ namespace Eddie.Core
 			Add("WireGuard", Platform.Instance.GetWireGuardVersionShow());
 			Add("SSH", Software.GetTool("ssh").GetVersionDesc());
 			Add("SSL", Software.GetTool("ssl").GetVersionDesc());
-			if (Platform.Instance.FetchUrlInternal() == false)
-				Add("curl", Software.GetTool("curl").GetVersionDesc());
 
 			Add("Profile path", Engine.Instance.GetProfilePath());
 			Add("Data path", Engine.Instance.GetDataPath());

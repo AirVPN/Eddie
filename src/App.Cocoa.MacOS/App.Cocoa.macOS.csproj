@@ -9,11 +9,11 @@
     <AssemblyName>Eddie-UI</AssemblyName>
     <MonoMacResourcePrefix>Resources</MonoMacResourcePrefix>
     <ApplicationIcon>icon.ico</ApplicationIcon>
-    <ReleaseVersion>2.19</ReleaseVersion>
+    <ReleaseVersion>2.26.0</ReleaseVersion>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <UseXamMacFullFramework>true</UseXamMacFullFramework>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
     <DebugSymbols>true</DebugSymbols>
@@ -629,14 +629,6 @@
     <Compile Include="WindowUnlockController.designer.cs">
       <DependentUpon>WindowUnlockController.cs</DependentUpon>
     </Compile>
-    <Compile Include="WindowShellExternalPermission.cs" />
-    <Compile Include="WindowShellExternalPermission.designer.cs">
-      <DependentUpon>WindowShellExternalPermission.cs</DependentUpon>
-    </Compile>
-    <Compile Include="WindowShellExternalPermissionController.cs" />
-    <Compile Include="WindowShellExternalPermissionController.designer.cs">
-      <DependentUpon>WindowShellExternalPermissionController.cs</DependentUpon>
-    </Compile>
     <Compile Include="WindowProviderEditWireGuard.cs" />
     <Compile Include="WindowProviderEditWireGuard.designer.cs">
       <DependentUpon>WindowProviderEditWireGuard.cs</DependentUpon>
@@ -666,7 +658,6 @@
     <InterfaceDefinition Include="WindowProviderNoBootstrap.xib" />
     <InterfaceDefinition Include="WindowSplash.xib" />
     <InterfaceDefinition Include="WindowUnlock.xib" />
-    <InterfaceDefinition Include="WindowShellExternalPermission.xib" />
     <InterfaceDefinition Include="WindowProviderEditWireGuard.xib" />
   </ItemGroup>
   <ItemGroup>

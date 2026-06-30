@@ -1,6 +1,6 @@
 // <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2026 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -121,9 +121,6 @@ namespace Eddie.Core
 			Exec(path, args.ToArray(), waitEnd);
 			*/
 
-			if (ExecExternalManager.CheckAllow(filename) == false)
-				return false;
-
 			return Platform.Instance.ExecExecuteCore(filename, arguments, waitEnd);
 		}
 
@@ -162,10 +159,6 @@ namespace Eddie.Core
 
 			if (Path == "")
 				return false;
-
-			if (ExecExternalManager.CheckAllow(Path) == false)
-				return false;
-
 
 			string path = Path;
 			string[] args = Arguments.ToArray();

@@ -1,6 +1,6 @@
 // <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2026 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -110,6 +110,20 @@ namespace Eddie.Core
 #endif
 		}
 
+		// Returns the user-preferred locale as the raw string reported by the OS (e.g. "it_IT.UTF-8", "ja-JP"), or empty if unknown.
+		// Default reads POSIX env vars (LC_ALL / LC_MESSAGES / LANG); platforms with a native API (Windows) override.
+		// Caller is expected to normalize the value (strip codeset/modifier, normalize separators).
+		public virtual string GetUserLocale()
+		{
+			foreach (string envName in new[] { "LC_ALL", "LC_MESSAGES", "LANG" })
+			{
+				string val = Environment.GetEnvironmentVariable(envName);
+				if (string.IsNullOrEmpty(val) == false)
+					return val;
+			}
+			return "";
+		}
+
 		public virtual string GetProcessArchitecture()
 		{
 #if EDDIE_DOTNET
@@ -176,13 +190,6 @@ namespace Eddie.Core
 
 		}
 
-		/* // TOCLEAN
-		public virtual string GetDefaultDataPath()
-		{
-			return "";
-		}
-		*/
-
 		public virtual string GetDefaultResourcesDirName()
 		{
 			return "Resources";
@@ -205,30 +212,12 @@ namespace Eddie.Core
 
 		public virtual string GetElevatedHelperPath()
 		{
-			string path = GetElevatedHelperPathImpl();
-			if (CheckElevatedProcessAllowed(path) == false)
-				throw new Exception("Elevated executable invalid");
-			return path;
+			return GetElevatedHelperPathImpl();
 		}
 
 		protected virtual string GetElevatedHelperPathImpl()
 		{
 			return "";
-		}
-
-		public virtual bool CheckElevatedSocketAllowed(System.Net.IPEndPoint localEndpoint, System.Net.IPEndPoint remoteEndpoint)
-		{
-			return false;
-		}
-
-		public virtual bool CheckElevatedProcessAllowed(System.Diagnostics.Process process)
-		{
-			return false;
-		}
-
-		public virtual bool CheckElevatedProcessAllowed(string remotePath)
-		{
-			return false;
 		}
 
 		public virtual bool GetAutoStart()
@@ -381,23 +370,8 @@ namespace Eddie.Core
 
 		public virtual void FileDelete(string path)
 		{
-			FileDelete(path, false);
-		}
-
-		public virtual void FileDelete(string path, bool skipImmutableCheck)
-		{
 			if (File.Exists(path) == false)
 				return;
-
-			// TOFIX
-			// skipImmutableCheck exists for pending bug: FileImmutableGet lock forever if the file is pipe.
-			if (skipImmutableCheck == false)
-			{
-				if (FileImmutableGet(path))
-				{
-					FileImmutableSet(path, false);
-				}
-			}
 
 			File.Delete(path);
 		}
@@ -407,17 +381,7 @@ namespace Eddie.Core
 			if (FileExists(to))
 				FileDelete(to);
 
-			bool immutable = FileImmutableGet(from);
-
-			if (immutable)
-			{
-				FileImmutableSet(from, false);
-			}
 			File.Move(from, to);
-			if (immutable)
-			{
-				FileImmutableSet(to, true);
-			}
 		}
 
 		public virtual string FileContentsReadText(string path)
@@ -427,34 +391,19 @@ namespace Eddie.Core
 
 		public virtual bool FileContentsWriteText(string path, string contents, Encoding encoding)
 		{
-			bool immutable = false;
 			if (FileExists(path))
 			{
 				string current = FileContentsReadText(path);
 				if (current == contents)
 					return false;
-				immutable = FileImmutableGet(path);
-				if (immutable)
-					FileImmutableSet(path, false);
 			}
 			File.WriteAllText(path, contents, encoding);
-			if (immutable)
-				FileImmutableSet(path, true);
 			return true;
 		}
 
 		public virtual void FileContentsAppendText(string path, string contents, Encoding encoding)
 		{
-			bool immutable = false;
-			if (FileExists(path))
-			{
-				immutable = FileImmutableGet(path);
-				if (immutable)
-					FileImmutableSet(path, false);
-			}
 			File.AppendAllText(path, contents, encoding);
-			if (immutable)
-				FileImmutableSet(path, true);
 		}
 
 		public virtual byte[] FileContentsReadBytes(string path)
@@ -487,15 +436,6 @@ namespace Eddie.Core
 		public virtual string FileGetDirectoryPath(string path)
 		{
 			return new FileInfo(path).DirectoryName;
-		}
-
-		public virtual bool FileImmutableGet(string path)
-		{
-			return false;
-		}
-
-		public virtual void FileImmutableSet(string path, bool value)
-		{
 		}
 
 		public virtual bool FileEnsureExecutablePermission(string path)
@@ -783,11 +723,6 @@ namespace Eddie.Core
 		public virtual int GetOpenVpnRecommendedRcvBufDirective()
 		{
 			return -1;
-		}
-
-		public virtual bool FetchUrlInternal()
-		{
-			return true;
 		}
 
 		public virtual Json FetchUrl(Json request)
@@ -1105,12 +1040,14 @@ namespace Eddie.Core
 		}
 
 		public virtual void AdaptConfigOpenVpn(ConfigBuilder.OpenVPN config)
-		{
-			config.RemoveDirective("windows-driver");
+		{			
 		}
 
 		public virtual void AdaptConfigWireGuard(ConfigBuilder.WireGuard config)
 		{
+			// Need Under Windows
+			// Routing and Network Lock remain entirely owned by Eddie.
+			config.InterfaceTable = "off";
 		}
 
 		public virtual string GetConnectionTunDriver(ConnectionTypes.IConnectionType connection)
@@ -1194,23 +1131,12 @@ namespace Eddie.Core
 			return false;
 		}
 
-		public virtual string FileGetSignedId(string path)
-		{
-			return "No: Unknown";
-		}
-
-		public virtual List<string> GetTrustedPaths()
-		{
-			List<string> result = new List<string>();
-			return result;
-		}
-
 		public virtual Elevated.IElevated StartElevated()
 		{
 			return null;
 		}
 
-		public virtual bool GetRequireNextHop()
+		public virtual bool GetRequireRouteGateway()
 		{
 			return false;
 		}
@@ -1240,9 +1166,9 @@ namespace Eddie.Core
 			return LanguageManager.GetText(LanguageItems.NotImplemented);
 		}
 
-		public virtual void OpenVpnEnsureInterface(string driver, string ifaceName)
+		public virtual string OpenVpnEnsureInterface(string driver, string ifaceName)
 		{
-
+			return "";
 		}
 
 		public virtual bool OpenVpnCanUninstallDriver(string driver)
@@ -1255,7 +1181,7 @@ namespace Eddie.Core
 			return false;
 		}
 
-		public virtual int OpenVpnDeleteOldTapAdapter()
+		public virtual int OpenVpnDeleteAllAdapters()
 		{
 			return 0;
 		}

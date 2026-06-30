@@ -1,6 +1,6 @@
 // <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2026 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
 // along with Eddie. If not, see <http://www.gnu.org/licenses/>.
 // </eddie_source_header>
 
+#define EDDIE_IPC_UNIXSOCKET // hard-enabled; remove to fall back to the TCP transport
+
 using System;
 using System.Globalization;
 using Eddie.Core;
@@ -30,15 +32,24 @@ namespace Eddie.Platform.MacOS
 
 			try
 			{
-				string connectResult = Connect(Engine.Instance.GetElevatedServicePort());
+				string connectResult = Connect(Engine.Instance.GetElevatedServicePort(), "service");
 				if (connectResult != "Ok") // Will work if the service is active
 				{
+					if (connectResult != "No listening")
+						Engine.Instance.Logs.LogVerbose("Elevated in listening, but refuse connection: " + connectResult);
+
 					Engine.Instance.UiManager.Broadcast("init.step", "message", LanguageManager.GetText(LanguageItems.InitStepRaiseSystemPrivileges));
 					Engine.Instance.Logs.LogVerbose(LanguageManager.GetText(LanguageItems.InitStepRaiseSystemPrivileges));
 
 					int port = GetPortSpot();
 
-					int pid = (Platform.Instance as Eddie.Platform.MacOS.Platform).RunElevated(new string[] { "mode=spot", "spot_port=" + port.ToString(CultureInfo.InvariantCulture), "service_port=" + Engine.Instance.GetElevatedServicePort().ToString(CultureInfo.InvariantCulture) }, false);					
+#if EDDIE_DOTNET
+					int currentId = Environment.ProcessId;
+#else
+					int currentId = System.Diagnostics.Process.GetCurrentProcess().Id;
+#endif
+
+					int pid = (Platform.Instance as Eddie.Platform.MacOS.Platform).RunElevated(new string[] { "mode=spot", "spot_port=" + port.ToString(CultureInfo.InvariantCulture), "service_port=" + Engine.Instance.GetElevatedServicePort().ToString(CultureInfo.InvariantCulture), "spot_client_pid=" + currentId.ToString(CultureInfo.InvariantCulture) }, false);					
 					System.Diagnostics.Process process = null;
 					if (pid > 0)
 						process = System.Diagnostics.Process.GetProcessById(pid);
@@ -46,8 +57,13 @@ namespace Eddie.Platform.MacOS
 					long listeningPortStartTime = Utils.UnixTimeStamp();
 					for (; ; )
 					{
+#if EDDIE_IPC_UNIXSOCKET
+						if (System.IO.File.Exists(GetUnixSockPath("spot")))
+							break;
+#else
 						if (Platform.Instance.IsPortLocalListening(port))
 							break;
+#endif
 
 						if (pid == 0)
 							throw new Exception("Unable to start (null)");
@@ -61,7 +77,7 @@ namespace Eddie.Platform.MacOS
 						System.Threading.Thread.Sleep(100);
 					}
 
-					connectResult = Connect(port);
+					connectResult = Connect(port, "spot");
 					if (connectResult != "Ok")
 						throw new Exception("Unable to start (" + connectResult + ")");
 				}

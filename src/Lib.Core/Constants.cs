@@ -1,6 +1,6 @@
 // <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2026 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -29,8 +29,8 @@ namespace Eddie.Core
 		public static byte[] NotSecretPayload = Encoding.UTF8.GetBytes("4af85e84255b077ad890dba297e811b7d016add1");
 		public static string PasswordIfEmpty = "e6552ddf3ac5c8755a82870d91273a63eab0da1e";
 		public static string Thanks = "Clodo, PJ, reiandrea, ProMIND, Berserker, OpenSourcerer, zhang888, LZ1, giganerd, Uncle Hunto, go558a83nk, sheivoko, NaDre, pfSense_fan, x0wllaar, cmaves";
-		public static int VersionInt = 298;
-		public static string VersionDesc = "2.25.1"; // Used by deploy system also to generate filenames
+		public static int VersionInt = 299;
+		public static string VersionDesc = "2.26.0"; // Used by deploy system also to generate filenames
 		public static bool VersionBeta = false;
 		public static string Domain = "eddie.website";
 		public static string WebSite = "https://eddie.website";

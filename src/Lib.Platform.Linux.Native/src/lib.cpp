@@ -22,7 +22,6 @@
 #include <fstream>
 #include <iostream>
 #include <iomanip>
-#include <linux/fs.h>
 #include <memory>
 #include <mutex>
 #include <netinet/ip_icmp.h>
@@ -32,7 +31,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <time.h>
@@ -78,35 +76,6 @@ extern "C" {
 	int eddie_file_set_mode_str(const char* filename, const char* mode)
 	{
 		return eddie_file_set_mode(filename, (int)strtol(mode, NULL, 8));
-	}
-
-	int eddie_file_get_immutable(const char* filename)
-	{
-        struct stat fileStat;
-        if (stat(filename, &fileStat) == -1)
-        {
-            return -1;
-        }
-        
-        if(S_ISFIFO(fileStat.st_mode))
-        {
-            // Otherwise will lock on fopen
-            return -1;
-        }
-    
-        FILE* fp;
-		if ((fp = fopen(filename, "r")) == NULL)
-			return -1;
-        
-		int result = -1;
-
-		int attr = 0;
-		if (ioctl(fileno(fp), FS_IOC_GETFLAGS, &attr) != -1)
-			result = (attr & FS_IMMUTABLE_FL) == FS_IMMUTABLE_FL;
-        
-		fclose(fp);
-        
-		return result;
 	}
 
 	bool eddie_file_get_runasroot(const char* filename)

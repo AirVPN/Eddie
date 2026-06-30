@@ -16,7 +16,7 @@ if [ "$1" == "" ]; then
 fi
 
 if [ "$2" == "" ]; then
-	echo Second arg must be Arch: x86_64, arm64
+	echo Second arg must be Arch: x64, arm64
 	exit 1
 fi
 
@@ -26,14 +26,14 @@ if [ "$3" == "" ]; then
 fi
 
 if [ "$4" == "" ]; then
-	echo Fourth arg must be framework: net4,net6
+	echo Fourth arg must be line: l, u
 	exit 1
 fi
 
 PROJECT=$1
 ARCH=$2
 VAROS=$3
-FRAMEWORK=$4
+LINE=$4
 CONFIG=Release
 VERSION=$($SCRIPTDIR/../macos_common/get-version.sh)
 STAFF="no"
@@ -47,9 +47,19 @@ if [ ${ARCH} != ${ARCHOS} ]; then
     exit 0;
 fi
 
-TARGETDIR=/tmp/eddie_deploy/eddie-${PROJECT}_${VERSION}_${VAROS}_${ARCH}_installer_temp.pkg
-FINALPATH=/tmp/eddie_deploy/eddie-${PROJECT}_${VERSION}_${VAROS}_${ARCH}_installer.pkg
-DEPLOYPATH=${SCRIPTDIR}/../files/eddie-${PROJECT}_${VERSION}_${VAROS}_${ARCH}_installer.pkg
+if [ "${LINE}" != "l" ] && [ "${LINE}" != "u" ]; then
+    echo Fourth arg must be line: l, u
+    exit 1
+fi
+
+PACKAGEPROJECT="${PROJECT}"
+if [ "${LINE}" = "u" ]; then
+    PACKAGEPROJECT="${PROJECT}-u"
+fi
+
+TARGETDIR=/tmp/eddie_deploy/eddie-${PACKAGEPROJECT}_${VERSION}_${VAROS}_${ARCH}_installer_temp.pkg
+FINALPATH=/tmp/eddie_deploy/eddie-${PACKAGEPROJECT}_${VERSION}_${VAROS}_${ARCH}_installer.pkg
+DEPLOYPATH=${SCRIPTDIR}/../files/eddie-${PACKAGEPROJECT}_${VERSION}_${VAROS}_${ARCH}_installer.pkg
 
 mkdir -p ${SCRIPTDIR}/../files
 
@@ -63,9 +73,9 @@ rm -rf "$TARGETDIR"
 
 # Package dependencies
 echo Step: Package dependencies - Build Portable
-"${SCRIPTDIR}/../macos_portable/build.sh" ${PROJECT} ${ARCH} ${VAROS} ${FRAMEWORK}
+"${SCRIPTDIR}/../macos_portable/build.sh" ${PROJECT} ${ARCH} ${VAROS} ${LINE}
 mkdir -p "${TARGETDIR}"
-DEPPACKAGEPATH="${SCRIPTDIR}/../files/eddie-${PROJECT}_${VERSION}_${VAROS}_${ARCH}_portable.zip"
+DEPPACKAGEPATH="${SCRIPTDIR}/../files/eddie-${PACKAGEPROJECT}_${VERSION}_${VAROS}_${ARCH}_portable.zip"
 
 mkdir -p "${TARGETDIR}"
 #tar -jxvf "${DEPPACKAGEPATH}" -C "${TARGETDIR}/"

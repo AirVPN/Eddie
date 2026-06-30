@@ -27,7 +27,16 @@
 # 2023-11-29: not need anymore
 
 # -------------------
-# 2023-11-29: added, strip corrupt a net8 single-file publish
+# 2026-04-01: added, .NET single-file self-contained build; Lintian flags embedded zlib in eddie-cli.
+# 2026-04-08: broadened, path-specific override mismatches on armv7l/Debian 12
+eddie-cli: embedded-library
+
+# -------------------
+# 2023-11-29: added, strip corrupt a net10 single-file publish
 eddie-cli: unstripped-binary-or-object
+
+# -------------------
+# 2026-04-08: added, C++ elevated binaries not compiled as PIE on some arch (notably armv7l)
+eddie-cli: hardening-no-pie
 
 

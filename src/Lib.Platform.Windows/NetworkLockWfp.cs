@@ -1,6 +1,6 @@
 // <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2026 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -259,22 +259,22 @@ namespace Eddie.Platform.Windows
 			m_lastestIpsAllowlistOutgoing = "";
 		}
 
-		public override void AllowProgram(string path)
+		public override void AllowConnectionEndpoint(IpAddress ip)
 		{
-			base.AllowProgram(path);
+			base.AllowConnectionEndpoint(ip);
 
-			string hash = path.HashSHA256();
+			string hash = ip.ToString().HashSHA256();
 
-			AddRule("netlock_allow_program_" + hash, Wfp.CreateItemAllowProgram("NetLock - Program - Allow " + path, path));
+			AddRule("netlock_allow_endpoint_" + hash, Wfp.CreateItemAllowAddress("NetLock - Endpoint - Allow " + ip.ToString(), ip));
 		}
 
-		public override void DeallowProgram(string path)
+		public override void DeallowConnectionEndpoint(IpAddress ip)
 		{
-			base.DeallowProgram(path);
+			base.DeallowConnectionEndpoint(ip);
 
-			string hash = path.HashSHA256();
+			string hash = ip.ToString().HashSHA256();
 
-			RemoveRule("netlock_allow_program_" + hash);
+			RemoveRule("netlock_allow_endpoint_" + hash);
 		}
 
 		public override void AllowInterface(NetworkInterface networkInterface)

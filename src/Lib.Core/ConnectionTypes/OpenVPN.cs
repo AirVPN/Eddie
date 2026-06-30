@@ -1,6 +1,6 @@
 // <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2026 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -46,7 +46,7 @@ namespace Eddie.Core.ConnectionTypes
 		protected TemporaryFile m_fileSshKey;
 		protected TemporaryFile m_fileSslCrt;
 		protected TemporaryFile m_fileSslConfig;
-		protected string m_networkLockSoftwareExceptionPath = "";
+		protected IpAddress m_networkLockEndpointIP = null;
 
 		public string Transport = "";
 		public int TransportSshLocalPort = 0;
@@ -58,7 +58,6 @@ namespace Eddie.Core.ConnectionTypes
 		private StringWriterLine m_stdout = new StringWriterLine();
 		private StringWriterLine m_stderr = new StringWriterLine();
 
-		private string m_openvpnBinary;
 
 		public override string GetTypeName()
 		{
@@ -484,10 +483,11 @@ namespace Eddie.Core.ConnectionTypes
 				m_processTransport = null;
 			}
 
-			if (m_networkLockSoftwareExceptionPath != "")
+			if (m_networkLockEndpointIP != null)
 			{
 				if (Engine.Instance.NetworkLockManager != null)
-					Engine.Instance.NetworkLockManager.DeallowProgram(m_networkLockSoftwareExceptionPath);
+					Engine.Instance.NetworkLockManager.DeallowConnectionEndpoint(m_networkLockEndpointIP);
+				m_networkLockEndpointIP = null;
 			}
 
 			// Closing temporary files
@@ -1037,14 +1037,20 @@ namespace Eddie.Core.ConnectionTypes
 
 		public override void EnsureDriver()
 		{
-			// Remember: WireGuard ALWAYS create and destroy adapter, for this the code below is OpenVPN-specific.
-			if (Engine.Instance.ProfileOptions.Get("windows.driver") != "none")
-			{
-				string driverRequested = Platform.Instance.GetConnectionTunDriver(this);
-				string interfaceName = Core.Engine.Instance.ProfileOptions.Get("network.iface.name");
+			string driverRequested = Platform.Instance.GetConnectionTunDriver(this);
+			string interfaceName = Core.Engine.Instance.ProfileOptions.Get("network.iface.name");
+			if (interfaceName == "")
+				interfaceName = "Eddie";
 
-				Platform.Instance.OpenVpnEnsureInterface(driverRequested, interfaceName);
-			}
+			// Distinct adapter name per driver so dco and tap-windows6 adapters can coexist
+			// without a name clash on creation (relevant when adapter cleanup is disabled).
+			if (driverRequested == "tap-windows6")
+				interfaceName += " (tap-windows6)";
+
+			string adapterId = Platform.Instance.OpenVpnEnsureInterface(driverRequested, interfaceName);
+
+			if (adapterId != "" && Core.Engine.Instance.ProfileOptions.Get("openvpn.dev_node") == "")
+				m_configStartup.AppendDirective("dev-node", adapterId, "Adapter selected by Eddie");
 		}
 
 		public override IpAddresses GetDns()
@@ -1053,6 +1059,11 @@ namespace Eddie.Core.ConnectionTypes
 				return m_configWithPush.ExtractDns();
 			else
 				return m_dns;
+		}
+
+		public override IpAddresses GetGateway()
+		{
+			return m_configWithPush.ExtractGateway();
 		}
 
 		public override IpAddresses GetVpnIPs()
@@ -1119,11 +1130,13 @@ namespace Eddie.Core.ConnectionTypes
 			Engine.Instance.Logs.Log(LogType.Verbose, t);
 		}
 
-		void SetNetworkLockSoftwareExceptionPath(string path)
+		void SetNetworkLockConnectionEndpoint(IpAddress ip)
 		{
-			m_networkLockSoftwareExceptionPath = path;
+			if ((ip == null) || (ip.Valid == false))
+				return;
+			m_networkLockEndpointIP = ip;
 			if (Engine.Instance.NetworkLockManager != null)
-				Engine.Instance.NetworkLockManager.AllowProgram(path);
+				Engine.Instance.NetworkLockManager.AllowConnectionEndpoint(ip);
 		}
 
 		void VpnStartProcess()
@@ -1131,18 +1144,13 @@ namespace Eddie.Core.ConnectionTypes
 			m_fileConfig = new TemporaryFile("ovpn");
 			Platform.Instance.FileContentsWriteText(m_fileConfig.Path, m_configStartup.Build(), Encoding.ASCII); // <2.24.3 was UTF8
 
-			m_openvpnBinary = Engine.Instance.GetOpenVpnTool().Path;
-			m_openvpnBinary = Platform.Instance.FileGetPhysicalPath(m_openvpnBinary);
-			//m_openvpnBinary = Platform.Instance.RootExecutionOutsideBundleAdapt(m_openvpnBinary); // TOCLEAN, see /repository/linux_appimage/readme.txt
-
 			if (m_processTransport == null)
-				SetNetworkLockSoftwareExceptionPath(m_openvpnBinary);
+				SetNetworkLockConnectionEndpoint(EntryIP);
 
 			m_elevatedCommand = new Elevated.Command();
 			m_elevatedCommand.Parameters["command"] = "openvpn";
 			m_elevatedCommand.Parameters["action"] = "start";
 			m_elevatedCommand.Parameters["id"] = Id;
-			m_elevatedCommand.Parameters["path"] = m_openvpnBinary;
 			m_elevatedCommand.Parameters["config"] = Platform.Instance.FileGetPhysicalPath(m_fileConfig.Path);
 			OverrideElevatedCommandParameters();
 
@@ -1163,8 +1171,7 @@ namespace Eddie.Core.ConnectionTypes
 				}
 				else if (data.StartsWithInv("procid:"))
 				{
-					//m_pid = Conversions.ToInt32(data.Substring(7));					
-					//Platform.Instance.RootExecutionOutsideBundleDelete(m_openvpnBinary); // TOCLEAN, see /repository/linux_appimage/readme.txt
+					//m_pid = Conversions.ToInt32(data.Substring(7));
 				}
 				else if (data.StartsWithInv("return:"))
 				{
@@ -1245,7 +1252,7 @@ namespace Eddie.Core.ConnectionTypes
 
 			arguments += " -N -T -v";
 
-			SetNetworkLockSoftwareExceptionPath(sshToolPath);
+			SetNetworkLockConnectionEndpoint(EntryIP);
 
 			m_processTransport = new Process();
 			m_processTransport.StartInfo.FileName = Platform.Instance.FileAdaptProcessExec(sshToolPath);
@@ -1306,7 +1313,7 @@ namespace Eddie.Core.ConnectionTypes
 			string sslConfigPath = m_fileSslConfig.Path;
 			Platform.Instance.FileContentsWriteText(sslConfigPath, sslConfig, Encoding.ASCII); // <2.24.3 was .UTF8
 
-			SetNetworkLockSoftwareExceptionPath(Software.GetTool("ssl").Path);
+			SetNetworkLockConnectionEndpoint(EntryIP);
 
 			m_processTransport = new Process();
 			m_processTransport.StartInfo.FileName = Platform.Instance.FileAdaptProcessExec(Software.GetTool("ssl").Path);

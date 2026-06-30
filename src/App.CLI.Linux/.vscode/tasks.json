@@ -9,7 +9,7 @@
                 "build",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary",
-                "App.CLI.Linux.net8.csproj"
+                "App.CLI.Linux.net10.csproj"
             ],
             "group": "build",
             "presentation": {

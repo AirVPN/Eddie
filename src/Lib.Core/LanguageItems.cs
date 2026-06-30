@@ -1,6 +1,6 @@
 // <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2026 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -140,8 +140,6 @@ namespace Eddie.Core
 		NetworkLockRouteRestored,
 		NetworkLockUnexpectedAlreadyActive,
 		NetworkLockWarning,
-		NetworkLockWindowsFirewallBackupFailed,
-		NetworkLockWindowsFirewallUnableToStartService,
 		NotImplemented,
 		OptionsNotFound,
 		OptionsRead,
@@ -205,8 +203,6 @@ namespace Eddie.Core
 		StatsNotConnected,
 		StatusConnectedSpeed,
 		TcpServerNoBindAddress,
-		ToolsCurlRequired,
-		ToolsCurlVersionNotSupported,
 		TorControlAuth,
 		TorControlException,
 		TorControlGuardIps,
@@ -360,7 +356,6 @@ namespace Eddie.Core
 		ManOptionProxyPassword,
 		ManOptionProxyPort,
 		ManOptionProxyTorControlAuth,
-		ManOptionProxyTorControlCookiePath,
 		ManOptionProxyTorControlPassword,
 		ManOptionProxyTorControlPort,
 		ManOptionProxyTorPath,
@@ -382,10 +377,7 @@ namespace Eddie.Core
 		ManOptionServicesTunnelCheck,
 		ManOptionSshPort,
 		ManOptionSslPort,
-		ManOptionToolsCurlPath,
-		ManOptionToolsHummingbirdPath,
 		ManOptionToolsHummingbirdPreferred,
-		ManOptionToolsOpenVpnPath,
 		ManOptionToolsSshPath,
 		ManOptionToolsSslPath,
 		ManOptionUiIEC,
@@ -397,7 +389,6 @@ namespace Eddie.Core
 		ManOptionWebUiAddress,
 		ManOptionWebUiEnabled,
 		ManOptionWebUiPort,
-		ManOptionWindowsAdapterService,
 		ManOptionWindowsDisableDriverUpgrade,
 		ManOptionWindowsDnsLock,
 		ManOptionWindowsDriver,
@@ -405,7 +396,6 @@ namespace Eddie.Core
 		ManOptionWindowsMetricsTapIPv4,
 		ManOptionWindowsMetricsTapIPv6,
 		ManOptionWindowsTapUp,
-		ManOptionWindowsWfp,
 		ManOptionWindowsWfpDynamic,
 		ManOptionWireGuardPeerPersistentKeepalive,
 		ManSynopsis,
@@ -525,14 +515,6 @@ namespace Eddie.Core
 		WindowsCredentialsRememberNo,
 		WindowsCredentialsRememberPermanent,
 		WindowsCredentialsRememberRun,
-		WindowsExecExternalPermissionNo,
-		WindowsExecExternalPermissionRuleAll,
-		WindowsExecExternalPermissionRuleHash,
-		WindowsExecExternalPermissionRulePath,
-		WindowsExecExternalPermissionRuleSign,
-		WindowsExecExternalPermissionTitle,
-		WindowsExecExternalPermissionTop,
-		WindowsExecExternalPermissionYes,
 		WindowsFrontMessageAccept,
 		WindowsFrontMessageTitle,
 		WindowsLoginTitle,

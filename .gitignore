@@ -10,7 +10,7 @@ TestResults
 
 # User-specific files
 *.suo
-#*.user
+*.user
 *.sln.docstates
 
 # Build results
@@ -110,7 +110,7 @@ UpgradeLog*.XML
 #######################################
 
 # Visual Studio user files
-src/.vs
+.vs/
 
 # Ignored files
 *.db
@@ -142,4 +142,11 @@ tests/**/bin/**/*.xml
 bin
 obj
 repository/files/*
+
+# Publish profiles
+*.pubxml
+*.pubxml.user
+
+# Staff local files
+staff/
 

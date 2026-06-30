@@ -1,6 +1,6 @@
 // <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2026 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -107,18 +107,6 @@ namespace Eddie.Platform.MacOS
 			}
 #endif
 
-			/*
-#if !EDDIE_DOTNET
-			
-			// TOCLEAN, Removed in 2.24.0, read NSPipe code comment
-			// Need remove because otherwise not compilable with .Net7
-			if (Engine.Instance.IsConsole())
-			{
-				NSApplication.Init(); // Requested in CLI edition to call NSPipe, NSTask etc.			
-			}			
-#endif
-			*/
-
 			try
 			{
 				bool result = (NativeMethods.Init() == 0);
@@ -134,13 +122,7 @@ namespace Eddie.Platform.MacOS
 			return true;
 		}
 
-		/* // TOCLEAN
-		public override string GetDefaultDataPath()
-		{
-			// Only in OSX, always save in 'home' path also with portable edition.
-			return "home";
-		}
-		*/
+		
 
 		public override Eddie.Core.Elevated.IElevated StartElevated()
 		{
@@ -164,17 +146,6 @@ namespace Eddie.Platform.MacOS
 		protected override string GetElevatedHelperPathImpl()
 		{
 			return FileGetPhysicalPath(GetApplicationPath() + "/eddie-cli-elevated");
-		}
-
-		public override bool CheckElevatedSocketAllowed(System.Net.IPEndPoint localEndpoint, System.Net.IPEndPoint remoteEndpoint)
-		{
-			return true;
-		}
-
-		public override bool CheckElevatedProcessAllowed(string remotePath)
-		{
-			// TOFIX
-			return true;
 		}
 
 		public override bool GetAutoStart()
@@ -233,26 +204,6 @@ namespace Eddie.Platform.MacOS
 			{
 				return ":";
 			}
-		}
-
-		public override bool FileImmutableGet(string path)
-		{
-			if (string.IsNullOrEmpty(path) || !FileExists(path))
-				return false;
-
-			int result = NativeMethods.FileGetImmutable(path);
-			return (result == 1);
-		}
-
-		public override void FileImmutableSet(string path, bool value)
-		{
-			if (string.IsNullOrEmpty(path) || !FileExists(path))
-				return;
-
-			if (FileImmutableGet(path) == value)
-				return;
-
-			Engine.Instance.Elevated.DoCommandSync("file-immutable-set", "path", path, "flag", (value ? "1" : "0"));
 		}
 
 		public override bool FileEnsurePermission(string path, string mode)
@@ -389,76 +340,7 @@ namespace Eddie.Platform.MacOS
 			base.FlushDNS();
 
 			Engine.Instance.Elevated.DoCommandSync("dns-flush", "services", Engine.Instance.ProfileOptions.Get("linux.dns.services"));
-		}
-
-		// TOCLEAN, NSPipe edition.
-		// We don't honestly know why exists this NSPipe edition, .Net base works.
-		// Disabled in 2.24.0 (2023-11-23), keep here for comparison
-		/*
-		public override void ExecSyncCore(string path, string[] arguments, string autoWriteStdin, out string stdout, out string stderr, out int exitCode)
-		{
-			if (autoWriteStdin != "")
-				throw new Exception("ExecSyncCore::AutoWriteStdin not supported in macOS"); // Never need yet, used only in Linux
-
-			try
-			{
-				var pipeOut = new NSPipe();
-				var pipeErr = new NSPipe();
-
-				var t = new NSTask();
-
-				t.LaunchPath = path;
-				t.Arguments = arguments;
-				t.StandardOutput = pipeOut;
-				t.StandardError = pipeErr;
-
-				t.Launch();
-				t.WaitUntilExit();
-				//t.Release();
-				t.Dispose();
-
-				NSFileHandle fileOut = pipeOut.ReadHandle;
-				stdout = fileOut.ReadDataToEndOfFile().ToString().Trim();
-				fileOut.CloseFile();
-
-				NSFileHandle fileErr = pipeErr.ReadHandle;
-				stderr = fileErr.ReadDataToEndOfFile().ToString().Trim();
-				fileErr.CloseFile();
-
-				exitCode = t.TerminationStatus; // Note 2023-11-23: wrong, it's not exitCode
-			}
-			catch (Exception ex)
-			{
-				stdout = "";
-				stderr = "Error: " + ex.Message;
-				exitCode = -1;
-			}
-					
-			if (false)
-			{
-				// Used to compare output between base edition and NSPipe edition
-				string stdout2;
-				string stderr2;
-				int exitcode2;
-
-				base.ExecSyncCore(path, arguments, autoWriteStdin, out stdout2, out stderr2, out exitcode2);
-
-				if (stdout != stdout2)
-				{
-					Console.WriteLine("stdout diff");
-				}
-				if (stderr != stderr2)
-				{
-					Console.WriteLine("stderr diff");
-				}
-				if (exitCode != exitcode2)
-				{
-					// Occur, but because NSPipe edition is wrong.
-					Console.WriteLine("exitcode diff");
-				}
-			}
-		}
-		*/
+		}		
 
 		public override string LocateResource(string relativePath)
 		{
@@ -907,6 +789,10 @@ namespace Eddie.Platform.MacOS
 				{
 					Engine.Instance.Logs.LogVerbose(msg + " deactivated");
 				}
+				else if (result == "already_deactivated")
+				{
+					Engine.Instance.Logs.LogVerbose(msg + " already deactivated");
+				}
 				else
 				{
 					Engine.Instance.Logs.LogVerbose(msg + " unexpected result");
@@ -1042,57 +928,6 @@ namespace Eddie.Platform.MacOS
 			*/
 		}
 
-		public override List<string> GetTrustedPaths()
-		{
-			List<string> list = base.GetTrustedPaths();
-			list.Add(LocateExecutable("codesign"));
-			list.Add(LocateExecutable("whoami"));
-
-			return list;
-		}
-
-		public override string FileGetSignedId(string path)
-		{
-			string codesignPath = LocateExecutable("codesign");
-			SystemExec cmdV = new SystemExec();
-			cmdV.Path = codesignPath;
-			cmdV.Arguments.Add("-v");
-			cmdV.Arguments.Add(SystemExec.EscapePath(path));
-			cmdV.Run();
-			if (cmdV.Output != "") // ExitCode always 0
-				return "No: Invalid signature (tampered?)";
-
-			SystemExec cmdS = new SystemExec();
-			cmdS.Path = codesignPath;
-			cmdS.Arguments.Clear();
-			cmdS.Arguments.Add("-dv");
-			cmdS.Arguments.Add("--verbose=4");
-			cmdS.Arguments.Add(SystemExec.EscapePath(path));
-			cmdS.Run();
-
-			string codesignResult = cmdS.Output;
-			string o = "";
-			foreach (string line in codesignResult.Split('\n'))
-			{
-				int posE = line.IndexOf("=", StringComparison.InvariantCulture);
-				if (posE != -1)
-				{
-					string k = line.Substring(0, posE);
-					if (k == "Authority")
-					{
-						if (o != "")
-							o += " - ";
-						o += line.Substring(posE + 1);
-					}
-				}
-			}
-
-			if (o != "")
-				return o;
-			else
-				return base.FileGetSignedId(path);
-		}
-
 		public override string GetDriverVersion(string driver)
 		{
 			return "Expected";
@@ -1139,22 +974,26 @@ namespace Eddie.Platform.MacOS
 				process.StartInfo.FileName = "sudo";
 				process.StartInfo.Arguments = "\"" + path + "\" " + string.Join(" ", arguments);
 			}
-			/*
-			else if (elevationMethod == "osascript")
+			else if (elevationMethod == "uiapp")
 			{
-				// Method not really working,
-				// elevated throw "Client not allowed: Connection not from parent process (spot mode)"
-				// because is launched under a top-level process called "/System/Library/Frameworks/Security.framework/authtrampoline"
+				// Launch the elevated through the signed UI binary (sibling of this process) running in a
+				// dedicated mode. The UI binary issues the GUI admin prompt via NSAppleScript in-process, so the
+				// system attributes the authentication dialog to the signed application bundle instead of osascript.
+				// The connecting client stays this process, which passes its own PID via spot_client_pid.
+				string uiPath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(path), "Eddie-UI");
+				string shellCommand = "'" + path + "' " + string.Join(" ", arguments);
+				string prompt = LanguageManager.GetText(LanguageItems.HelperPrivilegesPrompt).Safe();
+
 				process = new System.Diagnostics.Process();
-				process.StartInfo.FileName = "osascript";
+				process.StartInfo.FileName = uiPath;
 #if EDDIE_DOTNET
-				process.StartInfo.ArgumentList.Add("-e");
-				process.StartInfo.ArgumentList.Add("do shell script \"" + path + " " + string.Join(" ", arguments) + "\" with prompt \"" + LanguageManager.GetText(LanguageItems.HelperPrivilegesPrompt).Safe() + "\" with administrator privileges");
+				process.StartInfo.ArgumentList.Add("mode=elevate");
+				process.StartInfo.ArgumentList.Add("elevated_prompt=" + prompt);
+				process.StartInfo.ArgumentList.Add("elevated_cmd=" + shellCommand);
 #else
-				process.StartInfo.Arguments = " -e 'do shell script \"" + path + " " + string.Join(" ", arguments) + "\" with prompt \"" + LanguageManager.GetText(LanguageItems.HelperPrivilegesPrompt).Safe() + "\" with administrator privileges'";
+				process.StartInfo.Arguments = "mode=elevate \"elevated_prompt=" + prompt + "\" \"elevated_cmd=" + shellCommand + "\"";
 #endif
 			}
-			*/
 			else if (elevationMethod == "ui")
 			{
 				Json jArgs = new Json();
@@ -1170,7 +1009,7 @@ namespace Eddie.Platform.MacOS
 				// TOFIX: this work because Broadcast above is sync.
 				// can be removed when return value.
 				System.Threading.Thread.Sleep(500);
-				int pid2 = Conversions.ToInt32(SystemExec.Exec2(LocateExecutable("pgrep"), "-f", path));				
+				int pid2 = Conversions.ToInt32(SystemExec.Exec2(LocateExecutable("pgrep"), "-f", path));
 				if (pid2 > 0)
 					processDirectResult = true;
 			}

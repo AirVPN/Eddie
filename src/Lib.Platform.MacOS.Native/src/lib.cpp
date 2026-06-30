@@ -59,19 +59,6 @@ extern "C" {
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	static int eddie_file_get_flags(const char* filename)
-	{
-		struct stat s;
-		EDDIE_ZEROMEMORY(&s, sizeof(struct stat));
-
-		if (stat(filename, &s) == -1)
-			return -1;
-
-		return (int)s.st_flags;
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 	int eddie_init()
 	{
 		return 0;
@@ -97,33 +84,6 @@ extern "C" {
 	int eddie_file_set_mode_str(const char* filename, const char* mode)
 	{
 		return eddie_file_set_mode(filename, (int)strtol(mode, NULL, 8));
-	}
-	*/
-
-	int eddie_file_get_immutable(const char* filename)
-	{
-		int result = eddie_file_get_flags(filename);
-		if (result == -1)
-			return -1;
-
-		return (result & SF_IMMUTABLE) == SF_IMMUTABLE;
-	}
-
-	/*
-	int eddie_file_set_immutable(const char *filename, int flag)
-	{
-		// sudo chflags schg /path/to/file
-		// sudo chflags noschg /path/to/file
-
-		int result = eddie_file_get_flags(filename);
-		if(result == -1)
-			return -1;
-
-		result = flag ? (result | SF_IMMUTABLE) : (result & ~SF_IMMUTABLE);
-		if(chflags(filename, result) == -1)
-			return -1;
-
-		return 0;
 	}
 	*/
 

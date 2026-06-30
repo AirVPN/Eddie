@@ -242,7 +242,7 @@ Unicode True
 		File "{@resources}\VC_redist.{@arch}.exe"	
 		call CheckAndInstallVCRuntime
 
-		File "{@resources}\ndp48-web.exe"		
+		File "{@resources}\ndp481-web.exe"		
 		call CheckAndInstallDotNet
 		
 		ExecWait '"$INSTDIR\Eddie-CLI-Elevated.exe" service=uninstall'		
@@ -300,7 +300,7 @@ Section "Uninstall"
 	
 	RMDir "$INSTDIR\Resources"
 	Delete "$INSTDIR\VC_redist.{@arch}.exe"
-	Delete "$INSTDIR\ndp48-web.exe"
+	Delete "$INSTDIR\ndp481-web.exe"
 	Delete "$INSTDIR\Uninstall.exe"
 
 	!insertmacro MUI_STARTMENU_GETFOLDER Application $MUI_TEMP
@@ -393,19 +393,19 @@ Function CheckAndInstallDotNet
     IfErrors NotDetected
 
     ${If} $0 >= 528049
-        DetailPrint "Microsoft .NET Framework 4.8 is installed ($0)"
+        DetailPrint "Microsoft .NET Framework 4.8 or later is installed ($0)"
     ${Else}
     NotDetected:
-        DetailPrint "Installing Microsoft .NET Framework 4.8"
+        DetailPrint "Installing Microsoft .NET Framework 4.8.1"
         SetDetailsPrint listonly
-        ExecWait '"$INSTDIR\ndp48-web.exe" /passive /norestart' $0
+        ExecWait '"$INSTDIR\ndp481-web.exe" /passive /norestart' $0
         ${If} $0 == 3010 
         ${OrIf} $0 == 1641
-            DetailPrint "Microsoft .NET Framework 4.8 installer requested reboot"
+            DetailPrint "Microsoft .NET Framework 4.8.1 installer requested reboot"
             SetRebootFlag true
         ${EndIf}
         SetDetailsPrint lastused
-        DetailPrint "Microsoft .NET Framework 4.8 installer returned $0"
+        DetailPrint "Microsoft .NET Framework 4.8.1 installer returned $0"
     ${EndIf}
 
 FunctionEnd

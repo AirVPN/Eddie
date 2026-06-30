@@ -1,6 +1,6 @@
 // <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2026 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -86,22 +86,7 @@ namespace Eddie.Platform.Windows
 
 		[DllImport("kernel32.dll", SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
-		static extern bool CloseHandle(IntPtr hObject);
-
-		/* TOCLEAN, removed in 2.24.0
-		[DllImport("Kernel32")]
-		public static extern bool SetConsoleCtrlHandler(ConsoleCtrlHandlerRoutine Handler, bool Add);
-		public delegate bool ConsoleCtrlHandlerRoutine(CtrlTypes CtrlType);
-		// An enumerated type for the control messages sent to the handler routine.
-		public enum CtrlTypes
-		{
-			CTRL_C_EVENT = 0,
-			CTRL_BREAK_EVENT,
-			CTRL_CLOSE_EVENT,
-			CTRL_LOGOFF_EVENT = 5,
-			CTRL_SHUTDOWN_EVENT
-		}
-		*/
+		static extern bool CloseHandle(IntPtr hObject);	
 
 		[DllImport("kernel32.dll")]
 		internal static extern bool GenerateConsoleCtrlEvent(uint dwCtrlEvent, uint dwProcessGroupId);
@@ -180,6 +165,25 @@ namespace Eddie.Platform.Windows
 			{
 				return false;
 			}
+		}
+
+		[DllImport("kernel32.dll", CharSet = CharSet.Unicode, ExactSpelling = true)]
+		private static extern int GetUserDefaultLocaleName(StringBuilder lpLocaleName, int cchLocaleName);
+
+		public static string GetUserDefaultLocale()
+		{
+			try
+			{
+				StringBuilder buf = new StringBuilder(85); // LOCALE_NAME_MAX_LENGTH
+				int len = GetUserDefaultLocaleName(buf, buf.Capacity);
+				if (len > 0)
+					return buf.ToString();
+			}
+			catch
+			{
+				// Ignore: caller will fall back.
+			}
+			return "";
 		}
 
 		// Enum for different possible states of TCP connection 

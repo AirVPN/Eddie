@@ -1,6 +1,6 @@
 // <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2026 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -58,28 +58,6 @@ namespace Eddie.Forms
 			else
 			{
 				return GuiUtils.MessageBoxAskYesNo(parentForm, message);
-			}
-		}
-
-		private delegate Json OnAskExecExternalPermissionDelegate(Json data);
-		public override Json OnAskExecExternalPermission(Json data)
-		{
-			Form parentForm = UiClient.Instance.MainWindow;
-			if (parentForm == null)
-				parentForm = UiClient.Instance.SplashWindow;
-
-			if (parentForm.InvokeRequired)
-			{
-				OnAskExecExternalPermissionDelegate inv = new OnAskExecExternalPermissionDelegate(this.OnAskExecExternalPermission);
-
-				return (Json)parentForm.Invoke(inv, new object[] { data });
-			}
-			else
-			{
-				Forms.WindowShellExternalPermission dlg = new Forms.WindowShellExternalPermission();
-				dlg.Data = data;
-				dlg.ShowDialog(parentForm);
-				return dlg.Answer;
 			}
 		}
 

@@ -1,6 +1,6 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2026 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -140,8 +140,8 @@ namespace Eddie.Platform.Windows
 			{
 				for (int n = 0; n < count; n++)
 				{
-					IntPtr credential = Marshal.ReadIntPtr(pCredentials, n * Marshal.SizeOf(typeof(IntPtr)));
-					result.Add(ReadCredential((CREDENTIAL)Marshal.PtrToStructure(credential, typeof(CREDENTIAL))));
+					IntPtr credential = Marshal.ReadIntPtr(pCredentials, n * Marshal.SizeOf<IntPtr>());
+					result.Add(ReadCredential(Marshal.PtrToStructure<CREDENTIAL>(credential)));
 				}
 			}
 			else
@@ -205,7 +205,7 @@ namespace Eddie.Platform.Windows
 			{
 				if (!IsInvalid)
 				{
-					CREDENTIAL credential = (CREDENTIAL)Marshal.PtrToStructure(handle, typeof(CREDENTIAL));
+					CREDENTIAL credential = Marshal.PtrToStructure<CREDENTIAL>(handle);
 					return credential;
 				}
 

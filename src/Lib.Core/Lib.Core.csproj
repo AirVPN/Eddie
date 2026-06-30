@@ -8,12 +8,12 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Eddie.Core</RootNamespace>
     <AssemblyName>Lib.Core</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ReleaseVersion>2.19</ReleaseVersion>
+    <ReleaseVersion>2.26.0</ReleaseVersion>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>Resources\icon.ico</ApplicationIcon>
@@ -102,7 +102,6 @@
     <Compile Include="Elevated\ISocket.cs" />
     <Compile Include="EngineCommandLine.cs" />
     <Compile Include="Elevated\IElevated.cs" />
-    <Compile Include="ExecExternalManager.cs" />
     <Compile Include="ExtensionsString.cs" />
     <Compile Include="HttpResponse.cs" />
     <Compile Include="IpAddresses.cs" />
@@ -131,8 +130,6 @@
     <Compile Include="SessionLogEvent.cs" />
     <Compile Include="SystemExec.cs" />
     <Compile Include="Report.cs" />
-    <Compile Include="Tools\Curl.cs" />
-    <Compile Include="Tools\FileDirect.cs" />
     <Compile Include="Tools\Hummingbird.cs" />
     <Compile Include="Tools\SSL.cs" />
     <Compile Include="Tools\SSH.cs" />

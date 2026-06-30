@@ -8,21 +8,31 @@ if [ "${1-}" == "" ]; then
 fi
 
 if [ "${2-}" == "" ]; then
-    echo Second arg must be framework: net4, net8
+    echo Second arg must be line: l, u
     exit 1
 fi
 
 PROJECT=$1
-FRAMEWORK=$2
+LINE=$2
 CONFIG=Release
 
 SCRIPTDIR=$(dirname $(realpath -s $0))
 ARCH=$($SCRIPTDIR/../linux_common/get-arch.sh)
 VERSION=$($SCRIPTDIR/../linux_common/get-version.sh)
 
-TARGETDIR=/tmp/eddie_deploy/eddie-${PROJECT}_${VERSION}_linux_${ARCH}_appimage
-#DEPLOYPATH=${SCRIPTDIR}/../files/eddie-${PROJECT}_${VERSION}_linux_${ARCH}_appimage.AppImage
-DEPLOYPATH=${SCRIPTDIR}/../files/eddie-${PROJECT}_${VERSION}_linux_${ARCH}_appimage.tar.gz
+if [ "${LINE}" != "l" ] && [ "${LINE}" != "u" ]; then
+    echo Second arg must be line: l, u
+    exit 1
+fi
+
+PACKAGEPROJECT="${PROJECT}"
+if [ "${LINE}" = "u" ]; then
+    PACKAGEPROJECT="${PROJECT}-u"
+fi
+
+TARGETDIR=/tmp/eddie_deploy/eddie-${PACKAGEPROJECT}_${VERSION}_linux_${ARCH}_appimage
+#DEPLOYPATH=${SCRIPTDIR}/../files/eddie-${PACKAGEPROJECT}_${VERSION}_linux_${ARCH}_appimage.AppImage
+DEPLOYPATH=${SCRIPTDIR}/../files/eddie-${PACKAGEPROJECT}_${VERSION}_linux_${ARCH}_appimage.tar.gz
 
 if test -f "${DEPLOYPATH}"; then
     echo "Already builded: ${DEPLOYPATH}"
@@ -46,9 +56,9 @@ rm -rf $TARGETDIR
 
 # Package dependencies
 echo Step: Package dependencies - Build Portable
-"${SCRIPTDIR}/../linux_portable/build.sh" ${PROJECT} ${FRAMEWORK}
+"${SCRIPTDIR}/../linux_portable/build.sh" ${PROJECT} ${LINE}
 mkdir -p ${TARGETDIR}
-DEPPACKAGEPATH=${SCRIPTDIR}/../files/eddie-${PROJECT}_${VERSION}_linux_${ARCH}_portable.tar.gz  
+DEPPACKAGEPATH=${SCRIPTDIR}/../files/eddie-${PACKAGEPROJECT}_${VERSION}_linux_${ARCH}_portable.tar.gz
 tar xvfp "${DEPPACKAGEPATH}" -C "${TARGETDIR}"
 rm -rf ${TARGETDIR}/eddie-${PROJECT}/portable.txt
 
@@ -119,7 +129,7 @@ sudo ./appimagetool.AppImage AppDir
 
 FINALNAME="eddie-cli"
 if [ $PROJECT = "ui" ]; then
-    FINALNAME="Eddie"
+    FINALNAME="Eddie-VPN"
 fi
 rm -rf ${FINALNAME}
 mv Eddie*.AppImage ${FINALNAME}

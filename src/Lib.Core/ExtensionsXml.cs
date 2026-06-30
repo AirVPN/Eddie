@@ -1,6 +1,6 @@
 // <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2026 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ namespace Eddie.Core
 	{
 		public static string GetAttributeString(this XmlNode node, string name, string def)
 		{
-			XmlNode nodeAttr = node.Attributes[name];
+			XmlAttribute nodeAttr = node.Attributes[name];
 			if (nodeAttr == null)
 				return def;
 			else
@@ -35,7 +35,7 @@ namespace Eddie.Core
 
 		public static string[] GetAttributeStringArray(this XmlNode node, string name)
 		{
-			XmlNode nodeAttr = node.Attributes[name];
+			XmlAttribute nodeAttr = node.Attributes[name];
 			if (nodeAttr == null)
 				return new string[0];
 			else if (nodeAttr.Value == "") // New in 2.8
@@ -46,7 +46,7 @@ namespace Eddie.Core
 
 		public static bool GetAttributeBool(this XmlNode node, string name, bool def)
 		{
-			XmlNode nodeAttr = node.Attributes[name];
+			XmlAttribute nodeAttr = node.Attributes[name];
 			if (nodeAttr == null)
 				return def;
 			else
@@ -55,7 +55,7 @@ namespace Eddie.Core
 
 		public static int GetAttributeInt(this XmlNode node, string name, int def)
 		{
-			XmlNode nodeAttr = node.Attributes[name];
+			XmlAttribute nodeAttr = node.Attributes[name];
 			if (nodeAttr == null)
 				return def;
 			else
@@ -64,7 +64,7 @@ namespace Eddie.Core
 
 		public static Int64 GetAttributeInt64(this XmlNode node, string name, Int64 def)
 		{
-			XmlNode nodeAttr = node.Attributes[name];
+			XmlAttribute nodeAttr = node.Attributes[name];
 			if (nodeAttr == null)
 				return def;
 			else
@@ -73,7 +73,7 @@ namespace Eddie.Core
 
 		public static float GetAttributeFloat(this XmlNode node, string name, float def)
 		{
-			XmlNode nodeAttr = node.Attributes[name];
+			XmlAttribute nodeAttr = node.Attributes[name];
 			if (nodeAttr == null)
 				return def;
 			else
@@ -120,7 +120,7 @@ namespace Eddie.Core
 
 		public static bool ExistsAttribute(this XmlNode node, string name)
 		{
-			XmlNode nodeAttr = node.Attributes[name];
+			XmlAttribute nodeAttr = node.Attributes[name];
 			if (nodeAttr == null)
 				return false;
 			else

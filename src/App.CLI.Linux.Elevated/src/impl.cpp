@@ -16,12 +16,15 @@
 // along with Eddie. If not, see <http://www.gnu.org/licenses/>.
 // </eddie_source_header>
 
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE // struct ucred / SO_PEERCRED (must precede any system header)
+#endif
+
 #include <cstring>
 
 #include <fcntl.h>
 
-#include <linux/fs.h>
-#include <sys/ioctl.h>
+#include <sys/socket.h> // getsockopt, SO_PEERCRED, struct ucred
 #include <sys/stat.h>
 #include <unistd.h>
 
@@ -61,50 +64,14 @@ int Impl::Main()
 
 	prctl(PR_SET_PDEATHSIG, SIGHUP); // Any child process will be killed if this process died, Linux specific
 
-	m_hasSystemdResolved = ( (ExecEx3("systemctl", "is-active", "--quiet", "systemd-resolved").exit == 0) && (FsFileExists(systemdPath)) );
+	m_hasSystemdResolved = ( (ExecEx(FsLocateExecutable("systemctl"), { "is-active", "--quiet", "systemd-resolved" }).exit == 0) && (FsFileExists(systemdPath)) );
 
 	return IPosix::Main();
 }
 
 void Impl::Do(const std::string& commandId, const std::string& command, std::map<std::string, std::string>& params)
 {
-	if (command == "compatibility-profiles")
-	{
-		const std::string& dataPath = params["path-data"];
-
-		if (FsFileExists(dataPath) == false)
-		{
-			// Rename old .airvpn to .eddie if exists, and change owner (<2.17.3 are root-only)
-			std::string oldPath = dataPath;
-			size_t pos = oldPath.find_last_of("/");
-			if (pos != std::string::npos)
-			{
-				oldPath = oldPath.substr(0, pos) + "/../.airvpn";
-				if (FsFileExists(oldPath))
-				{
-					const std::string& newOwner = params["owner"];
-					FsFileMove(oldPath, dataPath);
-					std::vector<std::string> args;
-					args.push_back("-R");
-					args.push_back(newOwner);
-					args.push_back(dataPath);
-					std::string stdout;
-					std::string stderr;
-					ExecEx(FsLocateExecutable("chown"), args);
-				}
-			}
-		}
-	}
-	else if (command == "file-immutable-set")
-	{
-		std::string path = params["path"];
-		int flag = atoi(params["flag"].c_str());
-
-		int result = FileImmutableSet(path, flag);
-
-		ReplyCommand(commandId, std::to_string(result));
-	}
-	else if (command == "dns-flush")
+	if (command == "dns-flush")
 	{
 		int pidSystemD = GetProcessIdOfName("systemd");
 
@@ -120,18 +87,20 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 			{
 				for (std::vector<std::string>::const_iterator iS = services.begin(); iS != services.end(); ++iS)
 				{
-					std::string service = *iS;
-
-					if (ExecEx3("systemctl", "is-active", "--quiet", StringEnsureFileName(service)).exit == 0)
+					std::string service = StringEnsureAsciiName(*iS);
+					if (!service.empty())
 					{
-						LogRemote("Flush DNS - " + service + " restart via systemctl");
-						ExecEx2(servicePath, StringEnsureFileName(service), "restart");
-						restarted[service] = 1;
-					}	
+						if (ExecEx(FsLocateExecutable("systemctl"), { "is-active", "--quiet", service }).exit == 0)
+						{
+							LogRemote("Flush DNS - " + service + " restart via systemctl");
+							ExecEx(servicePath, { StringEnsureFileName(service), "restart" });
+							restarted[service] = 1;
+						}
+					}
 				}
 
 				/* < 2.23.0
-				ExecResult systemCtlListUnits = ExecEx2(systemctlPath, "list-units", "--no-pager");
+				ExecResult systemCtlListUnits = ExecEx(systemctlPath, { "list-units", "--no-pager" });
 				if (systemCtlListUnits.exit != 0)
 				{
 					std::vector<std::string> lines = StringToVector(systemCtlListUnits.out, '\n');
@@ -149,7 +118,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 								continue;
 
 							LogRemote("Flush DNS - " + service + " via systemd restart");
-							ExecEx2(servicePath, StringEnsureFileName(service), "restart");
+							ExecEx(servicePath, { StringEnsureFileName(service), "restart" });
 							restarted[service] = 1;
 						}
 					}
@@ -164,7 +133,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 				if (resolvectlPath != "")
 				{
 					LogRemote("Flush DNS - systemd-resolved flush-caches");
-					ExecEx1(resolvectlPath, "flush-caches");
+					ExecEx(resolvectlPath, { "flush-caches" });
 				}
 			}
 		}
@@ -173,13 +142,16 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 		{
 			for (std::vector<std::string>::const_iterator i = services.begin(); i != services.end(); ++i)
 			{
-				std::string service = *i;
-				if (restarted.find(service) == restarted.end())
+				std::string service = StringEnsureAsciiName(*i);
+				if (!service.empty())
 				{
-					if (FsFileExists("/etc/init.d/" + service))
+					if (restarted.find(service) == restarted.end())
 					{
-						LogRemote("Flush DNS - " + service + " restart via init.d");
-						ExecEx1("/etc/init.d/" + service, "restart");
+						if (FsFileExists("/etc/init.d/" + service))
+						{
+							LogRemote("Flush DNS - " + service + " restart via init.d");
+							ExecEx("/etc/init.d/" + service, { "restart" });
+						}
 					}
 				}
 			}
@@ -189,19 +161,22 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 		{
 			for (std::vector<std::string>::const_iterator i = services.begin(); i != services.end(); ++i)
 			{
-				std::string service = *i;
-				if (restarted.find(service) == restarted.end())
+				std::string service = StringEnsureAsciiName(*i);
+				if (!service.empty())
 				{
-					if (service == "nscd")
+					if (restarted.find(service) == restarted.end())
 					{
-						// Special case
-						// On some system, for example Fedora, nscd caches are saved to disk,
-						// located in /var/db/nscd, and not flushed with a simple restart. 
-						std::string nscdPath = FsLocateExecutable("nscd", false);
-						if (nscdPath != "")
+						if (service == "nscd")
 						{
-							LogRemote("Flush DNS - nscd");
-							ExecEx1(nscdPath, "--invalidate=hosts");
+							// Special case
+							// On some system, for example Fedora, nscd caches are saved to disk,
+							// located in /var/db/nscd, and not flushed with a simple restart. 
+							std::string nscdPath = FsLocateExecutable("nscd", false);
+							if (nscdPath != "")
+							{
+								LogRemote("Flush DNS - nscd");
+								ExecEx(nscdPath, { "--invalidate=hosts" });
+							}
 						}
 					}
 				}
@@ -363,7 +338,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 						ThrowException("resolv.conf write fail");
 					chmod("/etc/resolv.conf", S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 
-					LogRemote("DNS of the system switched to VPN DNS - via /etc/resolv.conf)");
+					LogRemote("DNS of the system switched to VPN DNS - via /etc/resolv.conf");
 
 					success = true;
 				}			
@@ -381,17 +356,17 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 			if (FsFileExists("/etc/resolv.conf"))
 				FsFileDelete("/etc/resolv.conf");
 			FsFileMove("/etc/resolv.conf.eddievpn", "/etc/resolv.conf");
-			LogRemote("DNS of the system restored - via /etc/resolv.conf)");
+			LogRemote("DNS of the system restored - via /etc/resolv.conf");
 			success = true;			
 		}
 		
-		if (ExecEx3("systemctl", "is-active", "--quiet", "systemd-resolved").exit == 0) // systemd-resolved active
+		if (ExecEx(FsLocateExecutable("systemctl"), { "is-active", "--quiet", "systemd-resolved" }).exit == 0) // systemd-resolved active
 		{
 			// First, restart, otherwise don't see the resolv.conf switch
 			std::string servicePath = FsLocateExecutable("service");
 			if(servicePath != "")
 			{
-				ExecEx2(servicePath, StringEnsureFileName("systemd-resolved"), "restart");
+				ExecEx(servicePath, { StringEnsureFileName("systemd-resolved"), "restart" });
 				LogRemote("Service systemd-resolved restarted");
 			}
 
@@ -489,7 +464,15 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 			if (interfaceName == "lo0")
 				continue;
 
-			std::string curVal = StringTrim(FsFileReadText("/proc/sys/net/ipv6/conf/" + interfaceName + "/disable_ipv6"));
+			interfaceName = StringEnsureInterfaceName(interfaceName);
+			if (interfaceName.empty() || interfaceName.find("..") != std::string::npos)
+				continue;
+
+			std::string path = "/proc/sys/net/ipv6/conf/" + interfaceName + "/disable_ipv6";
+			if (FsFileExists(path) == false)
+				continue;
+
+			std::string curVal = StringTrim(FsFileReadText(path));
 
 			if (curVal == "1")
 			{
@@ -497,15 +480,10 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 			}
 			else if (curVal == "0")
 			{
-				ExecResult switchResult = ExecEx2(FsLocateExecutable("sysctl"), "-w", "net.ipv6.conf." + interfaceName + ".disable_ipv6=1");
-				if (switchResult.exit == 0)
-				{
+				if (FsFileWriteText(path, "1"))
 					ReplyCommand(commandId, interfaceName);
-				}
 				else
-				{
 					ThrowException("Unexpected error when disable IPv6 on interface " + interfaceName);
-				}
 			}
 			else
 			{
@@ -516,15 +494,16 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 	}
 	else if (command == "ipv6-restore")
 	{
-		std::string interfaceName = params["interface"];
-		ExecResult switchResult = ExecEx2(FsLocateExecutable("sysctl"), "-w", "net.ipv6.conf." + interfaceName + ".disable_ipv6=0");
-		if (switchResult.exit == 0)
-		{
-		}
-		else
-		{
-			// Ignore
-		}
+		std::string interfaceName = StringEnsureInterfaceName(params["interface"]);
+		if (interfaceName.empty() || interfaceName.find("..") != std::string::npos)
+			ThrowException("Invalid interface name");
+
+		std::string path = "/proc/sys/net/ipv6/conf/" + interfaceName + "/disable_ipv6";
+		if (FsFileExists(path) == false)
+			ThrowException("Interface not found: " + interfaceName);
+
+		if (FsFileWriteText(path, "0") == false)
+			ThrowException("Failed to enable IPv6 on interface " + interfaceName);
 	}
 	else if (command == "netlock-nftables-available")
 	{
@@ -541,10 +520,10 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 #else
 			*/
 			// Exec version, used under Linux Arch, for issue with link LZMA
-			std::string modprobePath = FsLocateExecutable("modprobe");
+			std::string modprobePath = FsLocateExecutable("modprobe", false);
 			if (modprobePath != "")
 			{
-				ExecResult modprobeResult = ExecEx1(modprobePath, "nf_tables");
+				ExecResult modprobeResult = ExecEx(modprobePath, { "nf_tables" });
 				if (modprobeResult.exit != 0)
 				{
 					// An user report that if module is embedded in kernel, the above modprobe fail.
@@ -567,7 +546,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 		if (available)
 		{
 			// Test
-			ExecResult result = ExecEx2(path, "list", "ruleset");
+			ExecResult result = ExecEx(path, { "list", "ruleset" });
 			if (result.exit != 0)
 				available = false;
 
@@ -579,6 +558,15 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 	}
 	else if (command == "netlock-nftables-activate")
 	{
+		// nft 'include' is the only ruleset directive that reads a file from disk; Eddie's
+		// generated rules never use it. Reject it so a caller cannot exfiltrate file contents
+		// through nft error output. The verbose reason stays in the local log only.
+		if (StringContain(StringToLower(params["rules"]), "include"))
+		{
+			LogLocal("Rejected netlock-nftables-activate: rules contain an 'include' directive");
+			ThrowException("Invalid netlock rules");
+		}
+
 		std::string nft = FsLocateExecutable("nft");
 
 		std::string pathBackup = GetTempPath("netlock_nftables_backup.nft");
@@ -594,7 +582,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 			// Backup of current
 			std::vector<std::string> args;
 
-			ExecResult execResultBackup = ExecEx2(nft, "list", "ruleset");
+			ExecResult execResultBackup = ExecEx(nft, { "list", "ruleset" });
 			if (execResultBackup.exit != 0)
 				ThrowException("nft issue: " + GetExecResultReport(execResultBackup));
 
@@ -603,7 +591,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 			// Apply new
 			std::string path = GetTempPath("netlock_nftables_apply.nft");
 			FsFileWriteText(path, params["rules"]);
-			ExecResult execResultApply = ExecEx2(nft, "-f", path);
+			ExecResult execResultApply = ExecEx(nft, { "-f", path });
 			FsFileDelete(path);
 			if (execResultApply.exit != 0)
 				ThrowException("nft issue: " + GetExecResultReport(execResultApply));
@@ -618,7 +606,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 
 		if (FsFileExists(path))
 		{
-			ExecResult execResultFlush = ExecEx2(nft, "flush", "ruleset");
+			ExecResult execResultFlush = ExecEx(nft, { "flush", "ruleset" });
 			if (execResultFlush.exit != 0)
 				ThrowException("nft issue: " + GetExecResultReport(execResultFlush));
 
@@ -636,7 +624,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 					FsFileWriteText(path, body);
 			}
 
-			ExecResult execResultRestore = ExecEx2(nft, "-f", path);
+			ExecResult execResultRestore = ExecEx(nft, { "-f", path });
 			FsFileDelete(path);
 
 			if (execResultRestore.exit != 0)
@@ -663,7 +651,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 		else
 			ThrowException("Unknown direction");
 
-		ExecResult execRulesList = ExecEx4(nft, "-n", "-a", "list", "ruleset"); // To obtain handles for insert/delete
+		ExecResult execRulesList = ExecEx(nft, { "-n", "-a", "list", "ruleset" }); // To obtain handles for insert/delete
 		if (execRulesList.exit != 0)
 			ThrowException("nft issue: " + GetExecResultReport(execRulesList));
 
@@ -803,7 +791,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 	{
 		std::string nft = FsLocateExecutable("nft");
 
-		ExecResult execRulesList = ExecEx4(nft, "-n", "-a", "list", "ruleset"); // To obtain handles for insert/delete
+		ExecResult execRulesList = ExecEx(nft, { "-n", "-a", "list", "ruleset" }); // To obtain handles for insert/delete
 		if (execRulesList.exit != 0)
 			ThrowException("nft issue: " + GetExecResultReport(execRulesList));
 		
@@ -905,10 +893,10 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 #else
 			*/
 			// Exec version, used under Linux Arch, for issue with link LZMA
-			std::string modprobePath = FsLocateExecutable("modprobe");
+			std::string modprobePath = FsLocateExecutable("modprobe", false);
 			if (modprobePath != "")
 			{
-				ExecResult modprobeIptable4FilterResult = ExecEx1(modprobePath, "iptable_filter");
+				ExecResult modprobeIptable4FilterResult = ExecEx(modprobePath, { "iptable_filter" });
 				if (modprobeIptable4FilterResult.exit != 0)
 				{
 					// An user report that if module is embedded in kernel, the above modprobe fail.
@@ -931,10 +919,10 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 #else
 			*/
 			// Exec version, used under Linux Arch, for issue with link LZMA
-			std::string modprobePath = FsLocateExecutable("modprobe");
+			std::string modprobePath = FsLocateExecutable("modprobe", false);
 			if (modprobePath != "")
 			{
-				ExecResult modprobeIptable6FilterResult = ExecEx1(modprobePath, "ip6table_filter");
+				ExecResult modprobeIptable6FilterResult = ExecEx(modprobePath, { "ip6table_filter" });
 				if (modprobeIptable6FilterResult.exit != 0)
 				{
 					// An user report that if module is embedded in kernel, the above modprobe fail.
@@ -956,7 +944,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 			{
 				std::string action = *a;
 				
-				std::string path = IptablesExecutable(compatibility, layer, action);
+				std::string path = IptablesExecutable(compatibility, layer, action, false);
 				if (path == "")
 					available = false;
 			}
@@ -993,7 +981,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 				}
 				
 				// Test save
-				ExecResult result = ExecEx0(IptablesExecutable(compatibility, layer, "save"));
+				ExecResult result = ExecEx(IptablesExecutable(compatibility, layer, "save"), {});
 				if (result.exit != 0)
 					available = false;
 
@@ -1293,7 +1281,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 			std::string modprobePath = FsLocateExecutable("modprobe");
 			if (modprobePath != "")
 			{
-				ExecResult modprobeResult = ExecEx1(modprobePath, "wireguard");
+				ExecResult modprobeResult = ExecEx(modprobePath, { "wireguard" });
 				if (modprobeResult.exit != 0)
 				{
 					// An user report that if module is embedded in kernel, the above modprobe fail.
@@ -1312,7 +1300,9 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 	{
 		std::string id = params["id"];
 		std::string action = params["action"];
-		std::string interfaceId = params["interface"].substr(0, 12);
+		std::string interfaceId = StringEnsureInterfaceName(params["interface"]);
+		if (interfaceId.empty())
+			ThrowException("Invalid interface name");
 
 		std::string keypairStopRequest = "wireguard_stop_" + id;
 
@@ -1323,226 +1313,236 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 		else if (action == "start")
 		{
 			std::string config = params["config"];
-			unsigned long handshakeTimeoutFirst = StringToULong(params["handshake_timeout_first"]);
-			unsigned long handshakeTimeoutConnected = StringToULong(params["handshake_timeout_connected"]);
-
-			try
+			std::string checkResult = CheckValidWireGuardConfig(config);
+			if (checkResult != "")
 			{
-				std::map<std::string, std::string> configmap = IniConfigToMap(config);
+				ThrowException("Not supported WireGuard config: " + checkResult);
+			}
+			else
+			{
+				unsigned long handshakeTimeoutFirst = StringToULong(params["handshake_timeout_first"]);
+				unsigned long handshakeTimeoutConnected = StringToULong(params["handshake_timeout_connected"]);
 
-				std::string ipPath = FsLocateExecutable("ip");
-
-				ReplyCommand(commandId, "log:setup-start");
-
-				// Try to delete interface if already exists
-				if (FsDirectoryExists("/proc/sys/net/ipv4/conf/" + interfaceId))
-					ExecEx4(ipPath, "link", "delete", "dev", interfaceId);
-
-				// Configure WireGuard Peer
-				/*
-				// Prefer old syntax for more compiler support
-				wg_peer wgPeer = {
-					.flags = wg_peer_flags(0)
-				};
-				*/
-				wg_peer wgPeer;
-				memset(&wgPeer, 0, sizeof wgPeer);
-				wgPeer.flags = wg_peer_flags(0);
-				
-				if (configmap.find("peer.publickey") != configmap.end())
+				try
 				{
-					wgPeer.flags = wg_peer_flags(wgPeer.flags | WGPEER_HAS_PUBLIC_KEY);
-					wg_key_from_base64(wgPeer.public_key, configmap["peer.publickey"].c_str());
-				}
-				if (configmap.find("peer.presharedkey") != configmap.end())
-				{
-					wgPeer.flags = wg_peer_flags(wgPeer.flags | WGPEER_HAS_PRESHARED_KEY);
-					wg_key_from_base64(wgPeer.preshared_key, configmap["peer.presharedkey"].c_str());
-				}
-				if (configmap.find("peer.persistentkeepalive") != configmap.end())
-				{
-					wgPeer.flags = wg_peer_flags(wgPeer.flags | WGPEER_HAS_PERSISTENT_KEEPALIVE_INTERVAL);
-					wgPeer.persistent_keepalive_interval = StringToInt(configmap["peer.persistentkeepalive"]);
-				}
-				if (configmap.find("peer.allowedips") != configmap.end())
-				{
-					wgPeer.flags = wg_peer_flags(wgPeer.flags | WGPEER_REPLACE_ALLOWEDIPS);
-					WireGuardParseAllowedIPs(configmap["peer.allowedips"].c_str(), &wgPeer);
-				}
+					std::map<std::string, std::string> configmap = IniConfigToMap(config);
 
-				if (configmap.find("peer.endpoint") != configmap.end())
-				{
-					std::size_t posPort = configmap["peer.endpoint"].find_last_of(":");
-					if (posPort == std::string::npos)
-						ThrowException("Port not found");
-					std::string configEndpointIp = configmap["peer.endpoint"].substr(0, posPort);
-					int configEndpointPort = StringToInt(configmap["peer.endpoint"].substr(posPort + 1));
+					std::string ipPath = FsLocateExecutable("ip");
 
-					int err = inet_pton(AF_INET, configEndpointIp.c_str(), &wgPeer.endpoint.addr4.sin_addr);
-					if (err == 1)
+					ReplyCommand(commandId, "log:setup-start");
+
+					// Try to delete interface if already exists
+					if (FsDirectoryExists("/proc/sys/net/ipv4/conf/" + interfaceId))
+						ExecEx(ipPath, { "link", "delete", "dev", interfaceId });
+
+					// Configure WireGuard Peer
+					/*
+					// Prefer old syntax for more compiler support
+					wg_peer wgPeer = {
+						.flags = wg_peer_flags(0)
+					};
+					*/
+					wg_peer wgPeer;
+					memset(&wgPeer, 0, sizeof wgPeer);
+					wgPeer.flags = wg_peer_flags(0);
+
+					if (configmap.find("peer.publickey") != configmap.end())
 					{
-						wgPeer.endpoint.addr.sa_family = AF_INET;
-						wgPeer.endpoint.addr4.sin_port = htons(configEndpointPort);
+						wgPeer.flags = wg_peer_flags(wgPeer.flags | WGPEER_HAS_PUBLIC_KEY);
+						wg_key_from_base64(wgPeer.public_key, configmap["peer.publickey"].c_str());
 					}
-					else
+					if (configmap.find("peer.presharedkey") != configmap.end())
 					{
-						if (configEndpointIp.length() > 2)
-							configEndpointIp = configEndpointIp.substr(1, configEndpointIp.length() - 2); // remove []
-						err = inet_pton(AF_INET6, configEndpointIp.c_str(), &wgPeer.endpoint.addr6.sin6_addr);
+						wgPeer.flags = wg_peer_flags(wgPeer.flags | WGPEER_HAS_PRESHARED_KEY);
+						wg_key_from_base64(wgPeer.preshared_key, configmap["peer.presharedkey"].c_str());
+					}
+					if (configmap.find("peer.persistentkeepalive") != configmap.end())
+					{
+						wgPeer.flags = wg_peer_flags(wgPeer.flags | WGPEER_HAS_PERSISTENT_KEEPALIVE_INTERVAL);
+						wgPeer.persistent_keepalive_interval = StringToInt(configmap["peer.persistentkeepalive"]);
+					}
+					if (configmap.find("peer.allowedips") != configmap.end())
+					{
+						wgPeer.flags = wg_peer_flags(wgPeer.flags | WGPEER_REPLACE_ALLOWEDIPS);
+						WireGuardParseAllowedIPs(configmap["peer.allowedips"].c_str(), &wgPeer);
+					}
+
+					if (configmap.find("peer.endpoint") != configmap.end())
+					{
+						std::size_t posPort = configmap["peer.endpoint"].find_last_of(":");
+						if (posPort == std::string::npos)
+							ThrowException("Port not found");
+						std::string configEndpointIp = configmap["peer.endpoint"].substr(0, posPort);
+						int configEndpointPort = StringToInt(configmap["peer.endpoint"].substr(posPort + 1));
+
+						int err = inet_pton(AF_INET, configEndpointIp.c_str(), &wgPeer.endpoint.addr4.sin_addr);
 						if (err == 1)
 						{
-							wgPeer.endpoint.addr.sa_family = AF_INET6;
-							wgPeer.endpoint.addr6.sin6_port = htons(configEndpointPort);
+							wgPeer.endpoint.addr.sa_family = AF_INET;
+							wgPeer.endpoint.addr4.sin_port = htons(configEndpointPort);
 						}
 						else
-							ThrowException("Unknown endpoint");
-					}
-				}
-
-				// Configure WireGuard Device
-				/*
-				// Prefer old syntax for more compiler support
-				wg_device wgDevice = {
-					.flags = wg_device_flags(0)
-				};
-				*/
-				wg_device wgDevice;
-				memset(&wgDevice, 0, sizeof wgDevice);
-				wgDevice.flags = wg_device_flags(0);				
-
-				strcpy(wgDevice.name, interfaceId.c_str());
-				// WGDEVICE_HAS_PUBLIC_KEY ?
-				if (configmap.find("interface.privatekey") != configmap.end())
-				{
-					wgDevice.flags = wg_device_flags(wgDevice.flags | WGDEVICE_HAS_PRIVATE_KEY);
-					wg_key_from_base64(wgDevice.private_key, configmap["interface.privatekey"].c_str());
-				}
-				if (configmap.find("interface.listenport") != configmap.end())
-				{
-					wgDevice.flags = wg_device_flags(wgDevice.flags | WGDEVICE_HAS_LISTEN_PORT);
-					wgDevice.listen_port = StringToInt(configmap["interface.listenport"]);
-				}
-				if (configmap.find("interface.fwmark") != configmap.end())
-				{
-					wgDevice.flags = wg_device_flags(wgDevice.flags | WGDEVICE_HAS_FWMARK);
-					wgDevice.fwmark = StringToInt(configmap["interface.fwmark"]);
-				}
-
-				wgDevice.first_peer = &wgPeer;
-				wgDevice.last_peer = &wgPeer;
-
-				if (wg_add_device(wgDevice.name) < 0)
-					ThrowException("Unable to add device");
-
-				if (wg_set_device(&wgDevice) < 0)
-					ThrowException("Unable to setup device");
-
-				// Add interface addresses
-				if (configmap.find("interface.address") != configmap.end())
-				{
-					std::vector<std::string> interfaceAddresses = StringToVector(configmap["interface.address"], ',');
-					for (std::vector<std::string>::const_iterator i = interfaceAddresses.begin(); i != interfaceAddresses.end(); ++i)
-					{
-						std::string address = *i;
-
-						std::string flagLayer = "";
-						if (StringIsIPv4(address))
-							flagLayer = "-4";
-						else if (StringIsIPv6(address))
-							flagLayer = "-6";
-
-						if (flagLayer == "")
-							ThrowException("Unknown address type '" + address + "'");
-
-						if (ExecEx6(ipPath, flagLayer, "address", "add", address, "dev", interfaceId).exit != 0)
-							ThrowException("Failed to add address '" + address + "'");
-					}
-				}
-
-				if (configmap.find("interface.mtu") != configmap.end())
-				{
-					int mtu = StringToInt(configmap["interface.mtu"]);
-
-					if (ExecEx6(ipPath, "link", "set", "mtu", StringFrom(mtu), "dev", interfaceId).exit != 0)
-						ThrowException("Failed to set mtu '" + StringFrom(mtu) + "'");
-				}
-
-				// Interface up
-				if (ExecEx4(ipPath, "link", "set", interfaceId, "up").exit != 0)
-					ThrowException("Failed to set interface '" + interfaceId + "' up");
-
-				ReplyCommand(commandId, "log:setup-complete");
-
-				ReplyCommand(commandId, "log:setup-interface");
-
-				unsigned long handshakeStart = GetTimestampUnix();
-				unsigned long handshakeLast = 0;
-
-				for (;;)
-				{
-					unsigned long handshakeNow = WireGuardLastHandshake(interfaceId);
-
-					if (handshakeLast != handshakeNow)
-					{
-						if (handshakeLast == 0)
 						{
-							// First							
-							ReplyCommand(commandId, "log:handshake-first");
-						}
-
-						//ReplyCommand(commandId, "log:last-handshake:" + StringFrom(handshakeNow));
-						handshakeLast = handshakeNow;
-					}
-
-					unsigned long timeNow = GetTimestampUnix();
-					if (handshakeLast > 0)
-					{
-						unsigned long handshakeDelta = timeNow - handshakeLast;
-
-						if (handshakeDelta > handshakeTimeoutConnected)
-						{
-							// Too much, suggest disconnect
-							ReplyCommand(commandId, "log:handshake-out");
-						}
-					}
-					else
-					{
-						unsigned long handshakeDelta = timeNow - handshakeStart;
-
-						if (handshakeDelta > handshakeTimeoutFirst)
-						{
-							// Too much, suggest disconnect
-							ReplyCommand(commandId, "log:handshake-out");
+							if (configEndpointIp.length() > 2)
+								configEndpointIp = configEndpointIp.substr(1, configEndpointIp.length() - 2); // remove []
+							err = inet_pton(AF_INET6, configEndpointIp.c_str(), &wgPeer.endpoint.addr6.sin6_addr);
+							if (err == 1)
+							{
+								wgPeer.endpoint.addr.sa_family = AF_INET6;
+								wgPeer.endpoint.addr6.sin6_port = htons(configEndpointPort);
+							}
+							else
+								ThrowException("Unknown endpoint");
 						}
 					}
 
-					// Check stop requested
-					if (m_keypair.find(keypairStopRequest) != m_keypair.end())
+					// Configure WireGuard Device
+					/*
+					// Prefer old syntax for more compiler support
+					wg_device wgDevice = {
+						.flags = wg_device_flags(0)
+					};
+					*/
+					wg_device wgDevice;
+					memset(&wgDevice, 0, sizeof wgDevice);
+					wgDevice.flags = wg_device_flags(0);
+
+					strcpy(wgDevice.name, interfaceId.c_str());
+					// WGDEVICE_HAS_PUBLIC_KEY ?
+					if (configmap.find("interface.privatekey") != configmap.end())
 					{
-						ReplyCommand(commandId, "log:stop-requested");
-						break;
+						wgDevice.flags = wg_device_flags(wgDevice.flags | WGDEVICE_HAS_PRIVATE_KEY);
+						wg_key_from_base64(wgDevice.private_key, configmap["interface.privatekey"].c_str());
+					}
+					if (configmap.find("interface.listenport") != configmap.end())
+					{
+						wgDevice.flags = wg_device_flags(wgDevice.flags | WGDEVICE_HAS_LISTEN_PORT);
+						wgDevice.listen_port = StringToInt(configmap["interface.listenport"]);
+					}
+					if (configmap.find("interface.fwmark") != configmap.end())
+					{
+						wgDevice.flags = wg_device_flags(wgDevice.flags | WGDEVICE_HAS_FWMARK);
+						wgDevice.fwmark = StringToInt(configmap["interface.fwmark"]);
 					}
 
-					Sleep(1000);
+					wgDevice.first_peer = &wgPeer;
+					wgDevice.last_peer = &wgPeer;
+
+					if (wg_add_device(wgDevice.name) < 0)
+						ThrowException("Unable to add device");
+
+					NetworkManagerSetInterfaceUnmanaged(interfaceId);
+
+					if (wg_set_device(&wgDevice) < 0)
+						ThrowException("Unable to setup device");
+
+					// Add interface addresses
+					if (configmap.find("interface.address") != configmap.end())
+					{
+						std::vector<std::string> interfaceAddresses = StringToVector(configmap["interface.address"], ',');
+						for (std::vector<std::string>::const_iterator i = interfaceAddresses.begin(); i != interfaceAddresses.end(); ++i)
+						{
+							std::string address = *i;
+
+							std::string flagLayer = "";
+							if (StringIsIPv4(address))
+								flagLayer = "-4";
+							else if (StringIsIPv6(address))
+								flagLayer = "-6";
+
+							if (flagLayer == "")
+								ThrowException("Unknown address type '" + address + "'");
+
+							if (ExecEx(ipPath, { flagLayer, "address", "add", address, "dev", interfaceId }).exit != 0)
+								ThrowException("Failed to add address '" + address + "'");
+						}
+					}
+
+					if (configmap.find("interface.mtu") != configmap.end())
+					{
+						int mtu = StringToInt(configmap["interface.mtu"]);
+
+						if (ExecEx(ipPath, { "link", "set", "mtu", StringFrom(mtu), "dev", interfaceId }).exit != 0)
+							ThrowException("Failed to set mtu '" + StringFrom(mtu) + "'");
+					}
+
+					// Interface up
+					if (ExecEx(ipPath, { "link", "set", interfaceId, "up" }).exit != 0)
+						ThrowException("Failed to set interface '" + interfaceId + "' up");
+
+					ReplyCommand(commandId, "log:setup-complete");
+
+					ReplyCommand(commandId, "log:setup-interface");
+
+					unsigned long handshakeStart = GetTimestampUnix();
+					unsigned long handshakeLast = 0;
+
+					for (;;)
+					{
+						unsigned long handshakeNow = WireGuardLastHandshake(interfaceId);
+
+						if (handshakeLast != handshakeNow)
+						{
+							if (handshakeLast == 0)
+							{
+								// First							
+								ReplyCommand(commandId, "log:handshake-first");
+							}
+
+							//ReplyCommand(commandId, "log:last-handshake:" + StringFrom(handshakeNow));
+							handshakeLast = handshakeNow;
+						}
+
+						unsigned long timeNow = GetTimestampUnix();
+						if (handshakeLast > 0)
+						{
+							unsigned long handshakeDelta = timeNow - handshakeLast;
+
+							if (handshakeDelta > handshakeTimeoutConnected)
+							{
+								// Too much, suggest disconnect
+								ReplyCommand(commandId, "log:handshake-out");
+							}
+						}
+						else
+						{
+							unsigned long handshakeDelta = timeNow - handshakeStart;
+
+							if (handshakeDelta > handshakeTimeoutFirst)
+							{
+								// Too much, suggest disconnect
+								ReplyCommand(commandId, "log:handshake-out");
+							}
+						}
+
+						// Check stop requested
+						if (m_keypair.find(keypairStopRequest) != m_keypair.end())
+						{
+							ReplyCommand(commandId, "log:stop-requested");
+							break;
+						}
+
+						Sleep(1000);
+					}
 				}
-			}
-			catch (std::exception& e)
-			{
-				ReplyCommand(commandId, "err:" + std::string(e.what()));
-			}
-			catch (...)
-			{
-				ReplyCommand(commandId, "err:Unknown exception");
-			}
+				catch (std::exception& e)
+				{
+					ReplyCommand(commandId, "err:" + std::string(e.what()));
+				}
+				catch (...)
+				{
+					ReplyCommand(commandId, "err:Unknown exception");
+				}
 
-			ReplyCommand(commandId, "log:stop-interface");
+				ReplyCommand(commandId, "log:stop-interface");
 
-			if (wg_del_device(interfaceId.c_str()) < 0)
-				LogRemote("WireGuard > Unable to delete device");
+				if (wg_del_device(interfaceId.c_str()) < 0)
+					LogRemote("WireGuard > Unable to delete device");
 
-			m_keypair.erase(keypairStopRequest);
+				m_keypair.erase(keypairStopRequest);
 
-			ReplyCommand(commandId, "log:stop");
+				ReplyCommand(commandId, "log:stop");
+			}			
 		}
 	}
 	else
@@ -1570,8 +1570,8 @@ bool Impl::ServiceInstall()
 	{
 		if (FsFileExists(systemdUnitPath)) // Remove if exists
 		{
-			ExecEx2(FsLocateExecutable("systemctl"), "stop", systemdUnitName);
-			ExecEx2(FsLocateExecutable("systemctl"), "disable", systemdUnitName);
+			ExecEx(FsLocateExecutable("systemctl"), { "stop", systemdUnitName });
+			ExecEx(FsLocateExecutable("systemctl"), { "disable", systemdUnitName });
 			FsFileDelete(systemdUnitPath);
 		}
 
@@ -1582,7 +1582,7 @@ bool Impl::ServiceInstall()
 			elevatedArgs += " \"service_port=" + StringEnsureNumericInt(m_cmdline["service_port"]) + "\"";
 		
 		std::string serviceExecStart = "";
-		if (CheckIfExecutableIsAllowed(elevatedPath, false, true))
+		if (IsSecureServiceLocation(elevatedPath))
 		{
 			serviceExecStart = "\"" + elevatedPath + "\" \"mode=service\" " + elevatedArgs;
 		}
@@ -1595,14 +1595,16 @@ bool Impl::ServiceInstall()
 				return false;
 			if (chmod(serviceLauncherPath.c_str(), 0700) == -1)
 				return false;
-			if (CheckIfExecutableIsAllowed(serviceLauncherPath, false, true) == false)
+			if (IsSecureServiceLocation(serviceLauncherPath) == false)
 				return false;
 
-			if (IntegrityCheckUpdate("service") == false)
-				return false;
-			
 			serviceExecStart = "\"" + serviceLauncherPath + "\" \"" + elevatedPath + "\" " + elevatedArgs;
 		}				
+
+		// The runtime client->elevated gate reads integrity_service in both branches, so the
+		// snapshot must be stored regardless of whether a service launcher is used.
+		if (IntegrityCheckUpdate("service") == false)
+			return false;
 
 		std::string unit = "";
 		unit += "[Unit]\n";
@@ -1624,19 +1626,22 @@ bool Impl::ServiceInstall()
 
 		FsFileWriteText(systemdUnitPath, unit);		
 
-		ExecResult enableResult = ExecEx2(FsLocateExecutable("systemctl"), "enable", systemdUnitName);
+		ExecResult enableResult = ExecEx(FsLocateExecutable("systemctl"), { "enable", systemdUnitName });
 		if (enableResult.exit != 0)
 		{
 			LogLocal("Enable " + systemdUnitName + " failed");
 			return false;
 		}
 
-		ExecResult startResult = ExecEx2(FsLocateExecutable("systemctl"), "start", systemdUnitName);
+		ExecResult startResult = ExecEx(FsLocateExecutable("systemctl"), { "start", systemdUnitName });
 		if (startResult.exit != 0)
 		{
 			LogLocal("Start " + systemdUnitName + " failed");
 			return false;
 		}
+
+		LogLocal("Service installed");
+		LogRemote("Service installed");
 
 		return true;
 	}
@@ -1652,8 +1657,8 @@ bool Impl::ServiceUninstall()
 {
 	if (FsFileExists(systemdUnitPath))
 	{
-		ExecEx2(FsLocateExecutable("systemctl"), "stop", systemdUnitName);
-		ExecEx2(FsLocateExecutable("systemctl"), "disable", systemdUnitName);
+		ExecEx(FsLocateExecutable("systemctl"), { "stop", systemdUnitName });
+		ExecEx(FsLocateExecutable("systemctl"), { "disable", systemdUnitName });
 		FsFileDelete(systemdUnitPath);
 	}
 
@@ -1663,6 +1668,9 @@ bool Impl::ServiceUninstall()
 	}
 
 	IntegrityCheckClean("service");
+
+	LogLocal("Service uninstalled");
+	LogRemote("Service uninstalled");
 
 	return true;
 }
@@ -1753,35 +1761,27 @@ std::string Impl::GetProcessPathOfId(int pid)
 	}
 }
 
+std::string Impl::GetStagingDir()
+{
+	return "/var/lib/eddie-vpn/stage";
+}
+
+#ifdef EDDIE_IPC_UNIXSOCKET
+int Impl::GetSocketPeerPid(HSOCKET s)
+{
+	struct ucred peerCred;
+	socklen_t peerCredLen = sizeof(peerCred);
+	if (getsockopt(s, SOL_SOCKET, SO_PEERCRED, &peerCred, &peerCredLen) != 0)
+		return 0;
+	return peerCred.pid;
+}
+#endif
+
 // --------------------------
 // Private
 // --------------------------
 
-int Impl::FileImmutableSet(const std::string& path, const int flag)
-{
-	const char* filename = path.c_str();
-	int result = -1;
-	FILE* fp;
-
-	if ((fp = fopen(filename, "r")) != NULL)
-	{
-		int fd = fileno(fp);
-
-		int attr = 0;
-		if (ioctl(fd, FS_IOC_GETFLAGS, &attr) != -1)
-		{
-			attr = flag ? (attr | FS_IMMUTABLE_FL) : (attr & ~FS_IMMUTABLE_FL);
-
-			if (ioctl(fd, FS_IOC_SETFLAGS, &attr) != -1)
-				result = 0;
-		}
-
-		fclose(fp);
-	}
-	return result;
-}
-
-std::string Impl::IptablesExecutable(const std::string& compatibility, const std::string& layer, const std::string& action)
+std::string Impl::IptablesExecutable(const std::string& compatibility, const std::string& layer, const std::string& action, const bool throwException)
 {
 	std::string name = "";
 
@@ -1798,7 +1798,7 @@ std::string Impl::IptablesExecutable(const std::string& compatibility, const std
 	if (action != "")
 		name += "-" + action;
 	
-	std::string path = FsLocateExecutable(name);
+	std::string path = FsLocateExecutable(name, throwException);
 	return path;
 }
 
@@ -1863,11 +1863,11 @@ std::string Impl::GetRoutesAsJson()
 	std::string json;
 
 	std::string list;
-	ExecResult listIPv4 = ExecEx3(FsLocateExecutable("ip"), "-4", "route", "show");
+	ExecResult listIPv4 = ExecEx(FsLocateExecutable("ip"), { "-4", "route", "show" });
 	if (listIPv4.exit == 0)
 		list += listIPv4.out + "\n";
 
-	ExecResult listIPv6 = ExecEx3(FsLocateExecutable("ip"), "-6", "route", "show");
+	ExecResult listIPv6 = ExecEx(FsLocateExecutable("ip"), { "-6", "route", "show" });
 	if (listIPv6.exit == 0)
 		list += listIPv6.out + "\n";
 
@@ -2096,6 +2096,15 @@ int Impl::GetRoutesAsJsonConvertHexPrefixToCidrNetMask(const std::string& v)
 	ss << std::hex << v;
 	ss >> x;
 	return x;
+}
+
+void Impl::NetworkManagerSetInterfaceUnmanaged(const std::string& interfaceId)
+{
+	std::string nmcliPath = FsLocateExecutable("nmcli", false);
+	if (nmcliPath == "")
+		return;
+
+	ExecEx(nmcliPath, { "device", "set", interfaceId, "managed", "no" });
 }
 
 unsigned long Impl::WireGuardLastHandshake(const std::string& interfaceId)

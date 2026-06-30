@@ -169,6 +169,7 @@
     <ClInclude Include="include\impl.h" />
     <ClInclude Include="include\iwindows.h" />
     <ClInclude Include="include\main.h" />
+    <ClInclude Include="include\wireguard_nt.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
@@ -186,6 +187,9 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="App.CLI.Windows.Elevated.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="app.manifest" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,0 +1,60 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<PackageId>Eddie.App.CLI.Linux</PackageId>
+		<Title>Eddie-CLI-Linux</Title>
+		<Product>Eddie-CLI-Linux</Product>
+		<AssemblyTitle>Eddie-CLI-Linux</AssemblyTitle>
+		<Company>AirVPN</Company>
+		<FileVersion>2.26.0.0</FileVersion>
+		<AssemblyVersion>2.26.0.0</AssemblyVersion>
+		<ReleaseVersion>2.26.0</ReleaseVersion>		
+		<Authors>Eddie Team</Authors>
+		<PackageProjectUrl>https://eddie.website</PackageProjectUrl>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<RootNamespace>Eddie.App.CLI.Linux</RootNamespace>
+		<AssemblyName>eddie-cli</AssemblyName>
+		<OutputType>Exe</OutputType>
+		<OutputPath>bin\$(Configuration)\</OutputPath>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		
+		<PublishSingleFile>true</PublishSingleFile>
+		<PublishReadyToRun>true</PublishReadyToRun>		
+    	<SelfContained>true</SelfContained>
+		<PublishTrimmed>false</PublishTrimmed>
+
+		<InvariantGlobalization>true</InvariantGlobalization>
+
+		<ApplicationManifest>app.manifest</ApplicationManifest>
+		<ApplicationIcon>Resources\icon.ico</ApplicationIcon>
+	</PropertyGroup>
+	
+	<ItemGroup>
+		<Compile Update="Properties\Resources.Designer.cs">
+			<AutoGen>True</AutoGen>
+			<DesignTime>True</DesignTime>
+			<DependentUpon>Resources.resx</DependentUpon>
+		</Compile>
+	</ItemGroup>
+	
+	<ItemGroup>
+		<EmbeddedResource Update="Properties\Resources.resx">
+			<Generator>ResXFileCodeGenerator</Generator>
+			<LastGenOutput>Resources.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Lib.Core\Lib.Core.net10.csproj" />
+		<ProjectReference Include="..\Lib.Platform.Linux\Lib.Platform.Linux.net10.csproj" />
+	</ItemGroup>
+
+	<Target Name="LinuxPostBuild" AfterTargets="PostBuildEvent">		
+		<Exec Command="$(ProjectDir)/postbuild.sh &quot;$(TargetDir)&quot; $(RuntimeIdentifier) $(ConfigurationName)" />
+	</Target>
+
+</Project>

@@ -8,4 +8,9 @@ if [ "${1-}" == "" ]; then
 	exit 1
 fi
 
-./build.sh $1 local
+if [ "${2-}" == "" ]; then
+	echo Second arg must be line: l, u
+	exit 1
+fi
+
+./build.sh $1 $2 local

@@ -1,0 +1,18 @@
+Third-party file: wireguard.c
+
+This file is third-party code, not authored by AirVPN/Eddie.
+
+Origin:   WireGuard embeddable-wg-library (wireguard-tools), by Jason A. Donenfeld.
+License:  LGPL-2.1+ (SPDX-License-Identifier in the file header).
+Copyright: (C) 2015-2020 Jason A. Donenfeld; (C) 2008-2012 Pablo Neira Ayuso.
+
+Upstream URL:
+  https://git.zx2c4.com/wireguard-tools/plain/contrib/embeddable-wg-library/wireguard.c
+Project:
+  https://git.zx2c4.com/wireguard-tools/
+
+Imported into Eddie: 2.21.0 (2021-05-27).
+Last refresh in repo: 2.24.0 (2023-11-11).
+
+Last check against upstream: 2026-06-11 — local file matches current upstream
+(byte-identical at time of check).

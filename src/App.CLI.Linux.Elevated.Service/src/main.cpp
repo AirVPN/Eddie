@@ -40,17 +40,6 @@ std::string systemdPath = "/usr/lib/systemd/system";
 std::string systemdUnitName = serviceName + ".service";
 std::string systemdUnitPath = systemdPath + "/" + systemdUnitName;
 
-void LogDevDebug(const std::string& msg)
-{
-	std::string logPath = "/tmp/eddie-elevated-service2.log";
-	#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)	
-		logPath = "C:\\elevated.log";
-	#endif	
-	FILE* f = fopen(logPath.c_str(), "a");
-	fprintf(f, "%s\n", msg.c_str());
-	fclose(f);
-}
-
 const std::string FsPathSeparator = "/";
 
 std::string StringToLower(const std::string& s)
@@ -276,7 +265,6 @@ void cleanService()
 
 int main(int argc, char* argv[])
 {
-	LogDevDebug("main1");
 	std::string messageNotAllowed = "This application can't be run directly, it's used internally by Eddie.";
 
 	try
@@ -292,20 +280,12 @@ int main(int argc, char* argv[])
 
 		std::string securityHashesStored = IntegrityCheckRead("service");
 		std::string securityHashesComputed = IntegrityCheckBuild(elevatedPath);
-
-		LogDevDebug("main2");
 		
 		if (securityHashesStored != securityHashesComputed)
 		{
-			LogDevDebug("no match");
-			LogDevDebug("stored:" + securityHashesStored);
-			LogDevDebug("comput:" + securityHashesComputed);
-
 			cleanService();
 			throw std::runtime_error(messageNotAllowed + " (check fail)");
 		}
-
-		LogDevDebug("main3");
 
 		std::string argService = "mode=service";
 		std::vector<char*> execArgs;
@@ -335,13 +315,10 @@ int main(int argc, char* argv[])
 			throw std::runtime_error(messageNotAllowed + " (unexpected)");
 		}
 
-		LogDevDebug("mainend");
-
 		return 1;
 	}
 	catch(const std::exception& e)
 	{
-		LogDevDebug(std::string("error") + std::string(e.what()));
 		std::cout << e.what() << std::endl;
 
 		return 1;

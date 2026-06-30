@@ -9,7 +9,7 @@
                 "build",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary",
-                "App.CLI.Windows.net8.csproj"
+                "App.CLI.Windows.net10.csproj"
             ],
             "group": "build",
             "presentation": {

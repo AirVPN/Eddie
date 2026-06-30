@@ -1,6 +1,6 @@
 // <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2026 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -43,8 +43,11 @@ namespace Eddie.Core
 
 		public static string GetHash()
 		{
-			string h = BitConverter.ToString(GetBuffer(32)).Replace("-", "").ToLowerInvariant();
-			return h;
+#if NET9_0_OR_GREATER
+			return Convert.ToHexStringLower(GetBuffer(32));
+#else
+			return BitConverter.ToString(GetBuffer(32)).Replace("-", "").ToLowerInvariant();
+#endif
 		}
 
 		public static string GetRandomPassword()
@@ -55,8 +58,11 @@ namespace Eddie.Core
 		// Used for profile ID, must be always 32 chars for compatibility (v2*)
 		public static string GetRandomId64()
 		{
-			string h = BitConverter.ToString(GetBuffer(32)).Replace("-", "").ToLowerInvariant();
-			return h;
+#if NET9_0_OR_GREATER
+			return Convert.ToHexStringLower(GetBuffer(32));
+#else
+			return BitConverter.ToString(GetBuffer(32)).Replace("-", "").ToLowerInvariant();
+#endif
 		}
 
 		// Used only by compose check-dns hostname. Because a GetHash() it's too long.

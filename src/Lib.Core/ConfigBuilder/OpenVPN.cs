@@ -1,6 +1,6 @@
 // <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2026 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -236,8 +236,7 @@ namespace Eddie.Core.ConfigBuilder
 
 			if (Engine.Instance.GetOpenVpnTool().VersionAboveOrEqual("2.7")) // 2.26.0
 			{
-				RemoveDirective("persist-key");
-				RemoveDirective("windows-driver");
+				RemoveDirective("persist-key");				
 				RemoveDirective("secret");
 				RemoveDirective("opt-verify");
 				RemoveDirective("memstats");

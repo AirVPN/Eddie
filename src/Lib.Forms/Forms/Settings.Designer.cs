@@ -35,8 +35,6 @@ namespace Eddie.Forms.Forms
 			Eddie.Forms.Skin.ColumnHeader columnHeader1;
 			Eddie.Forms.Skin.ColumnHeader columnHeader2;
 			Eddie.Forms.Skin.ColumnHeader columnHeader5;
-			this.cmdHummingbirdPathBrowse = new Eddie.Forms.Skin.Button();
-			this.txtHummingbirdPath = new Eddie.Forms.Skin.TextBox();
 			this.lblHummingbirdPrefer = new Eddie.Forms.Skin.Label();
 			this.chkHummingbirdPrefer = new Eddie.Forms.Skin.CheckBox();
 			this.lblAdvancedUpdaterChannel = new Eddie.Forms.Skin.Label();
@@ -52,17 +50,11 @@ namespace Eddie.Forms.Forms
 			this.lblAdvancedManifestRefresh = new Eddie.Forms.Skin.Label();
 			this.cboAdvancedManifestRefresh = new Eddie.Forms.Skin.ComboBox();
 			this.pnlAdvancedGeneralWindowsOnly = new System.Windows.Forms.GroupBox();
-			this.lblWindowsDriver = new Eddie.Forms.Skin.Label();
-			this.cboWindowsDriver = new Eddie.Forms.Skin.ComboBox();
-			this.cmdAdvancedDeleteOldTapAdapter = new Eddie.Forms.Skin.Button();
+			this.cmdAdvancedDeleteAllOpenVpnAdapters = new Eddie.Forms.Skin.Button();
 			this.chkWindowsSshPlinkForce = new Eddie.Forms.Skin.CheckBox();
-			this.chkWindowsDisableDriverUpgrade = new Eddie.Forms.Skin.CheckBox();
-			this.chkWindowsDebugWorkaround = new Eddie.Forms.Skin.CheckBox();
-			this.cmdAdvancedUninstallDriverTap = new Eddie.Forms.Skin.Button();
+			this.cmdAdvancedUninstallDriverTapWindows6 = new Eddie.Forms.Skin.Button();
+			this.cmdAdvancedUninstallDriverOvpnDco = new Eddie.Forms.Skin.Button();
 			this.chkAdvancedPingerEnabled = new Eddie.Forms.Skin.CheckBox();
-			this.cmdExeBrowse = new Eddie.Forms.Skin.Button();
-			this.txtExePath = new Eddie.Forms.Skin.TextBox();
-			this.lblExePath = new Eddie.Forms.Skin.Label();
 			this.chkAdvancedCheckRoute = new Eddie.Forms.Skin.CheckBox();
 			this.chkExpert = new Eddie.Forms.Skin.CheckBox();
 			this.chkOpenVpnDirectivesDataCiphersChaCha = new Eddie.Forms.Skin.CheckBox();
@@ -76,10 +68,6 @@ namespace Eddie.Forms.Forms
 			this.label2 = new Eddie.Forms.Skin.Label();
 			this.txtOpenVpnDirectivesBase = new Eddie.Forms.Skin.TextBox();
 			this.txtOpenVpnDirectivesCustom = new Eddie.Forms.Skin.TextBox();
-			this.chkShellExternalRecommended = new Eddie.Forms.Skin.CheckBox();
-			this.cmdShellExternalClear = new Eddie.Forms.Skin.Button();
-			this.cmdShellExternalView = new Eddie.Forms.Skin.Button();
-			this.lblShellExternal = new Eddie.Forms.Skin.Label();
 			this.cmdAdvancedEventsEdit = new Eddie.Forms.Skin.Button();
 			this.cmdAdvancedEventsClear = new Eddie.Forms.Skin.Button();
 			this.lstAdvancedEvents = new Eddie.Forms.Skin.ListView();
@@ -178,8 +166,6 @@ namespace Eddie.Forms.Forms
 			this.colProtocolsDescription = ((Eddie.Forms.Skin.ColumnHeader)(new Eddie.Forms.Skin.ColumnHeader()));
 			this.colProtocolsTech = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.tabProxy = new Eddie.Forms.Skin.TabPage();
-			this.txtProxyTorControlCookiePath = new Eddie.Forms.Skin.TextBox();
-			this.lblProxyTorControlCookiePath = new Eddie.Forms.Skin.Label();
 			this.lblProxyWhen = new Eddie.Forms.Skin.Label();
 			this.cboProxyWhen = new Eddie.Forms.Skin.ComboBox();
 			this.lnkProxyTorHelp = new Eddie.Forms.Skin.LinkLabel();
@@ -289,8 +275,6 @@ namespace Eddie.Forms.Forms
 			// tabAdvanced
 			// 
 			tabAdvanced.BackColor = System.Drawing.Color.White;
-			tabAdvanced.Controls.Add(this.cmdHummingbirdPathBrowse);
-			tabAdvanced.Controls.Add(this.txtHummingbirdPath);
 			tabAdvanced.Controls.Add(this.lblHummingbirdPrefer);
 			tabAdvanced.Controls.Add(this.chkHummingbirdPrefer);
 			tabAdvanced.Controls.Add(this.lblAdvancedUpdaterChannel);
@@ -307,9 +291,6 @@ namespace Eddie.Forms.Forms
 			tabAdvanced.Controls.Add(this.cboAdvancedManifestRefresh);
 			tabAdvanced.Controls.Add(this.pnlAdvancedGeneralWindowsOnly);
 			tabAdvanced.Controls.Add(this.chkAdvancedPingerEnabled);
-			tabAdvanced.Controls.Add(this.cmdExeBrowse);
-			tabAdvanced.Controls.Add(this.txtExePath);
-			tabAdvanced.Controls.Add(this.lblExePath);
 			tabAdvanced.Controls.Add(this.chkAdvancedCheckRoute);
 			tabAdvanced.Controls.Add(this.chkExpert);
 			tabAdvanced.Location = new System.Drawing.Point(4, 24);
@@ -319,33 +300,6 @@ namespace Eddie.Forms.Forms
 			tabAdvanced.Size = new System.Drawing.Size(1014, 635);
 			tabAdvanced.TabIndex = 0;
 			tabAdvanced.Text = "Advanced";
-			// 
-			// cmdHummingbirdPathBrowse
-			// 
-			this.cmdHummingbirdPathBrowse.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.cmdHummingbirdPathBrowse.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-			this.cmdHummingbirdPathBrowse.Cursor = System.Windows.Forms.Cursors.Hand;
-			this.cmdHummingbirdPathBrowse.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-			this.cmdHummingbirdPathBrowse.FlatAppearance.BorderSize = 0;
-			this.cmdHummingbirdPathBrowse.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdHummingbirdPathBrowse.Image = global::Eddie.Forms.Properties.Resources.browse;
-			this.cmdHummingbirdPathBrowse.Location = new System.Drawing.Point(942, 523);
-			this.cmdHummingbirdPathBrowse.Margin = new System.Windows.Forms.Padding(4);
-			this.cmdHummingbirdPathBrowse.Name = "cmdHummingbirdPathBrowse";
-			this.cmdHummingbirdPathBrowse.Size = new System.Drawing.Size(50, 30);
-			this.cmdHummingbirdPathBrowse.TabIndex = 97;
-			this.cmdHummingbirdPathBrowse.UseVisualStyleBackColor = true;
-			this.cmdHummingbirdPathBrowse.Click += new System.EventHandler(this.cmdHummingbirdPathBrowse_Click);
-			// 
-			// txtHummingbirdPath
-			// 
-			this.txtHummingbirdPath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.txtHummingbirdPath.Location = new System.Drawing.Point(421, 523);
-			this.txtHummingbirdPath.Margin = new System.Windows.Forms.Padding(4);
-			this.txtHummingbirdPath.Name = "txtHummingbirdPath";
-			this.txtHummingbirdPath.Size = new System.Drawing.Size(513, 26);
-			this.txtHummingbirdPath.TabIndex = 96;
 			// 
 			// lblHummingbirdPrefer
 			// 
@@ -528,13 +482,10 @@ namespace Eddie.Forms.Forms
 			// pnlAdvancedGeneralWindowsOnly
 			// 
 			this.pnlAdvancedGeneralWindowsOnly.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.lblWindowsDriver);
-			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.cboWindowsDriver);
-			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.cmdAdvancedDeleteOldTapAdapter);
+			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.cmdAdvancedDeleteAllOpenVpnAdapters);
 			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsSshPlinkForce);
-			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsDisableDriverUpgrade);
-			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsDebugWorkaround);
-			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.cmdAdvancedUninstallDriverTap);
+			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.cmdAdvancedUninstallDriverOvpnDco);
+			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.cmdAdvancedUninstallDriverTapWindows6);
 			this.pnlAdvancedGeneralWindowsOnly.Location = new System.Drawing.Point(604, 16);
 			this.pnlAdvancedGeneralWindowsOnly.Margin = new System.Windows.Forms.Padding(4);
 			this.pnlAdvancedGeneralWindowsOnly.Name = "pnlAdvancedGeneralWindowsOnly";
@@ -542,45 +493,23 @@ namespace Eddie.Forms.Forms
 			this.pnlAdvancedGeneralWindowsOnly.Size = new System.Drawing.Size(388, 362);
 			this.pnlAdvancedGeneralWindowsOnly.TabIndex = 69;
 			this.pnlAdvancedGeneralWindowsOnly.TabStop = false;
-			this.pnlAdvancedGeneralWindowsOnly.Text = "Microsoft Windows Only";
+			this.pnlAdvancedGeneralWindowsOnly.Text = "Microsoft Windows Only";			
 			// 
-			// lblWindowsDriver
+			// cmdAdvancedDeleteAllOpenVpnAdapters
 			// 
-			this.lblWindowsDriver.BackColor = System.Drawing.Color.Transparent;
-			this.lblWindowsDriver.ForeColor = System.Drawing.Color.Black;
-			this.lblWindowsDriver.Location = new System.Drawing.Point(21, 40);
-			this.lblWindowsDriver.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-			this.lblWindowsDriver.Name = "lblWindowsDriver";
-			this.lblWindowsDriver.Size = new System.Drawing.Size(104, 32);
-			this.lblWindowsDriver.TabIndex = 96;
-			this.lblWindowsDriver.Text = "Driver:";
-			this.lblWindowsDriver.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-			// 
-			// cboWindowsDriver
-			// 
-			this.cboWindowsDriver.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-			this.cboWindowsDriver.FormattingEnabled = true;
-			this.cboWindowsDriver.Location = new System.Drawing.Point(132, 40);
-			this.cboWindowsDriver.Margin = new System.Windows.Forms.Padding(4);
-			this.cboWindowsDriver.Name = "cboWindowsDriver";
-			this.cboWindowsDriver.Size = new System.Drawing.Size(198, 28);
-			this.cboWindowsDriver.TabIndex = 95;
-			// 
-			// cmdAdvancedDeleteOldTapAdapter
-			// 
-			this.cmdAdvancedDeleteOldTapAdapter.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-			this.cmdAdvancedDeleteOldTapAdapter.Cursor = System.Windows.Forms.Cursors.Hand;
-			this.cmdAdvancedDeleteOldTapAdapter.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-			this.cmdAdvancedDeleteOldTapAdapter.FlatAppearance.BorderSize = 0;
-			this.cmdAdvancedDeleteOldTapAdapter.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdAdvancedDeleteOldTapAdapter.Location = new System.Drawing.Point(24, 296);
-			this.cmdAdvancedDeleteOldTapAdapter.Margin = new System.Windows.Forms.Padding(4);
-			this.cmdAdvancedDeleteOldTapAdapter.Name = "cmdAdvancedDeleteOldTapAdapter";
-			this.cmdAdvancedDeleteOldTapAdapter.Size = new System.Drawing.Size(356, 40);
-			this.cmdAdvancedDeleteOldTapAdapter.TabIndex = 91;
-			this.cmdAdvancedDeleteOldTapAdapter.Text = "Delete old Tap adapter";
-			this.cmdAdvancedDeleteOldTapAdapter.UseVisualStyleBackColor = true;
-			this.cmdAdvancedDeleteOldTapAdapter.Click += new System.EventHandler(this.cmdAdvancedDeleteOldTapAdapter_Click);
+			this.cmdAdvancedDeleteAllOpenVpnAdapters.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.cmdAdvancedDeleteAllOpenVpnAdapters.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.cmdAdvancedDeleteAllOpenVpnAdapters.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+			this.cmdAdvancedDeleteAllOpenVpnAdapters.FlatAppearance.BorderSize = 0;
+			this.cmdAdvancedDeleteAllOpenVpnAdapters.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.cmdAdvancedDeleteAllOpenVpnAdapters.Location = new System.Drawing.Point(24, 296);
+			this.cmdAdvancedDeleteAllOpenVpnAdapters.Margin = new System.Windows.Forms.Padding(4);
+			this.cmdAdvancedDeleteAllOpenVpnAdapters.Name = "cmdAdvancedDeleteAllOpenVpnAdapters";
+			this.cmdAdvancedDeleteAllOpenVpnAdapters.Size = new System.Drawing.Size(356, 40);
+			this.cmdAdvancedDeleteAllOpenVpnAdapters.TabIndex = 91;
+			this.cmdAdvancedDeleteAllOpenVpnAdapters.Text = "Delete all OpenVPN adapters";
+			this.cmdAdvancedDeleteAllOpenVpnAdapters.UseVisualStyleBackColor = true;
+			this.cmdAdvancedDeleteAllOpenVpnAdapters.Click += new System.EventHandler(this.cmdAdvancedDeleteAllOpenVpnAdapters_Click);
 			// 
 			// chkWindowsSshPlinkForce
 			// 
@@ -594,45 +523,37 @@ namespace Eddie.Forms.Forms
 			this.chkWindowsSshPlinkForce.Text = "Force usage of bundled plink.exe";
 			this.chkWindowsSshPlinkForce.UseVisualStyleBackColor = false;
 			// 
-			// chkWindowsDisableDriverUpgrade
+			// cmdAdvancedUninstallDriverTapWindows6
 			// 
-			this.chkWindowsDisableDriverUpgrade.BackColor = System.Drawing.Color.Transparent;
-			this.chkWindowsDisableDriverUpgrade.ForeColor = System.Drawing.Color.Black;
-			this.chkWindowsDisableDriverUpgrade.Location = new System.Drawing.Point(24, 203);
-			this.chkWindowsDisableDriverUpgrade.Margin = new System.Windows.Forms.Padding(4);
-			this.chkWindowsDisableDriverUpgrade.Name = "chkWindowsDisableDriverUpgrade";
-			this.chkWindowsDisableDriverUpgrade.Size = new System.Drawing.Size(356, 33);
-			this.chkWindowsDisableDriverUpgrade.TabIndex = 66;
-			this.chkWindowsDisableDriverUpgrade.Text = "Disable driver upgrade";
-			this.chkWindowsDisableDriverUpgrade.UseVisualStyleBackColor = false;
+			this.cmdAdvancedUninstallDriverTapWindows6.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.cmdAdvancedUninstallDriverTapWindows6.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.cmdAdvancedUninstallDriverTapWindows6.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+			this.cmdAdvancedUninstallDriverTapWindows6.FlatAppearance.BorderSize = 0;
+			this.cmdAdvancedUninstallDriverTapWindows6.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.cmdAdvancedUninstallDriverTapWindows6.Location = new System.Drawing.Point(24, 200);
+			this.cmdAdvancedUninstallDriverTapWindows6.Margin = new System.Windows.Forms.Padding(4);
+			this.cmdAdvancedUninstallDriverTapWindows6.Name = "cmdAdvancedUninstallDriverTapWindows6";
+			this.cmdAdvancedUninstallDriverTapWindows6.Size = new System.Drawing.Size(356, 40);
+			this.cmdAdvancedUninstallDriverTapWindows6.TabIndex = 65;
+			this.cmdAdvancedUninstallDriverTapWindows6.Text = "Uninstall TAP-Windows6 driver";
+			this.cmdAdvancedUninstallDriverTapWindows6.UseVisualStyleBackColor = true;
+			this.cmdAdvancedUninstallDriverTapWindows6.Click += new System.EventHandler(this.cmdAdvancedUninstallDriverTapWindows6_Click);
 			// 
-			// chkWindowsDebugWorkaround
+			// cmdAdvancedUninstallDriverOvpnDco
 			// 
-			this.chkWindowsDebugWorkaround.BackColor = System.Drawing.Color.Transparent;
-			this.chkWindowsDebugWorkaround.ForeColor = System.Drawing.Color.Black;
-			this.chkWindowsDebugWorkaround.Location = new System.Drawing.Point(24, 153);
-			this.chkWindowsDebugWorkaround.Margin = new System.Windows.Forms.Padding(4);
-			this.chkWindowsDebugWorkaround.Name = "chkWindowsDebugWorkaround";
-			this.chkWindowsDebugWorkaround.Size = new System.Drawing.Size(248, 28);
-			this.chkWindowsDebugWorkaround.TabIndex = 86;
-			this.chkWindowsDebugWorkaround.Text = "Experimental workarounds";
-			this.chkWindowsDebugWorkaround.UseVisualStyleBackColor = false;
-			// 
-			// cmdAdvancedUninstallDriverTap
-			// 
-			this.cmdAdvancedUninstallDriverTap.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-			this.cmdAdvancedUninstallDriverTap.Cursor = System.Windows.Forms.Cursors.Hand;
-			this.cmdAdvancedUninstallDriverTap.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-			this.cmdAdvancedUninstallDriverTap.FlatAppearance.BorderSize = 0;
-			this.cmdAdvancedUninstallDriverTap.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdAdvancedUninstallDriverTap.Location = new System.Drawing.Point(24, 248);
-			this.cmdAdvancedUninstallDriverTap.Margin = new System.Windows.Forms.Padding(4);
-			this.cmdAdvancedUninstallDriverTap.Name = "cmdAdvancedUninstallDriverTap";
-			this.cmdAdvancedUninstallDriverTap.Size = new System.Drawing.Size(356, 40);
-			this.cmdAdvancedUninstallDriverTap.TabIndex = 65;
-			this.cmdAdvancedUninstallDriverTap.Text = "Uninstall standard driver";
-			this.cmdAdvancedUninstallDriverTap.UseVisualStyleBackColor = true;
-			this.cmdAdvancedUninstallDriverTap.Click += new System.EventHandler(this.cmdAdvancedUninstallDriver_Click);
+			this.cmdAdvancedUninstallDriverOvpnDco.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.cmdAdvancedUninstallDriverOvpnDco.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.cmdAdvancedUninstallDriverOvpnDco.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+			this.cmdAdvancedUninstallDriverOvpnDco.FlatAppearance.BorderSize = 0;
+			this.cmdAdvancedUninstallDriverOvpnDco.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.cmdAdvancedUninstallDriverOvpnDco.Location = new System.Drawing.Point(24, 248);
+			this.cmdAdvancedUninstallDriverOvpnDco.Margin = new System.Windows.Forms.Padding(4);
+			this.cmdAdvancedUninstallDriverOvpnDco.Name = "cmdAdvancedUninstallDriverOvpnDco";
+			this.cmdAdvancedUninstallDriverOvpnDco.Size = new System.Drawing.Size(356, 40);
+			this.cmdAdvancedUninstallDriverOvpnDco.TabIndex = 92;
+			this.cmdAdvancedUninstallDriverOvpnDco.Text = "Uninstall ovpn-dco driver";
+			this.cmdAdvancedUninstallDriverOvpnDco.UseVisualStyleBackColor = true;
+			this.cmdAdvancedUninstallDriverOvpnDco.Click += new System.EventHandler(this.cmdAdvancedUninstallDriverOvpnDco_Click);
 			// 
 			// chkAdvancedPingerEnabled
 			// 
@@ -644,45 +565,6 @@ namespace Eddie.Forms.Forms
 			this.chkAdvancedPingerEnabled.Size = new System.Drawing.Size(201, 38);
 			this.chkAdvancedPingerEnabled.TabIndex = 66;
 			this.chkAdvancedPingerEnabled.UseVisualStyleBackColor = false;
-			// 
-			// cmdExeBrowse
-			// 
-			this.cmdExeBrowse.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.cmdExeBrowse.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-			this.cmdExeBrowse.Cursor = System.Windows.Forms.Cursors.Hand;
-			this.cmdExeBrowse.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-			this.cmdExeBrowse.FlatAppearance.BorderSize = 0;
-			this.cmdExeBrowse.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdExeBrowse.Image = global::Eddie.Forms.Properties.Resources.browse;
-			this.cmdExeBrowse.Location = new System.Drawing.Point(942, 388);
-			this.cmdExeBrowse.Margin = new System.Windows.Forms.Padding(4);
-			this.cmdExeBrowse.Name = "cmdExeBrowse";
-			this.cmdExeBrowse.Size = new System.Drawing.Size(50, 30);
-			this.cmdExeBrowse.TabIndex = 60;
-			this.cmdExeBrowse.UseVisualStyleBackColor = true;
-			this.cmdExeBrowse.Click += new System.EventHandler(this.cmdExeBrowse_Click);
-			// 
-			// txtExePath
-			// 
-			this.txtExePath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.txtExePath.Location = new System.Drawing.Point(369, 388);
-			this.txtExePath.Margin = new System.Windows.Forms.Padding(4);
-			this.txtExePath.Name = "txtExePath";
-			this.txtExePath.Size = new System.Drawing.Size(565, 26);
-			this.txtExePath.TabIndex = 59;
-			// 
-			// lblExePath
-			// 
-			this.lblExePath.BackColor = System.Drawing.Color.Transparent;
-			this.lblExePath.ForeColor = System.Drawing.Color.Black;
-			this.lblExePath.Location = new System.Drawing.Point(21, 388);
-			this.lblExePath.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-			this.lblExePath.Name = "lblExePath";
-			this.lblExePath.Size = new System.Drawing.Size(330, 32);
-			this.lblExePath.TabIndex = 58;
-			this.lblExePath.Text = "OpenVPN Custom Path:";
-			this.lblExePath.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			// 
 			// chkAdvancedCheckRoute
 			// 
@@ -884,10 +766,6 @@ namespace Eddie.Forms.Forms
 			// tabEvents
 			// 
 			tabEvents.BackColor = System.Drawing.Color.White;
-			tabEvents.Controls.Add(this.chkShellExternalRecommended);
-			tabEvents.Controls.Add(this.cmdShellExternalClear);
-			tabEvents.Controls.Add(this.cmdShellExternalView);
-			tabEvents.Controls.Add(this.lblShellExternal);
 			tabEvents.Controls.Add(this.cmdAdvancedEventsEdit);
 			tabEvents.Controls.Add(this.cmdAdvancedEventsClear);
 			tabEvents.Controls.Add(this.lstAdvancedEvents);
@@ -898,66 +776,6 @@ namespace Eddie.Forms.Forms
 			tabEvents.Size = new System.Drawing.Size(1014, 635);
 			tabEvents.TabIndex = 2;
 			tabEvents.Text = "Events";
-			// 
-			// chkShellExternalRecommended
-			// 
-			this.chkShellExternalRecommended.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.chkShellExternalRecommended.BackColor = System.Drawing.Color.Transparent;
-			this.chkShellExternalRecommended.ForeColor = System.Drawing.Color.Black;
-			this.chkShellExternalRecommended.Location = new System.Drawing.Point(15, 566);
-			this.chkShellExternalRecommended.Margin = new System.Windows.Forms.Padding(4);
-			this.chkShellExternalRecommended.Name = "chkShellExternalRecommended";
-			this.chkShellExternalRecommended.Size = new System.Drawing.Size(356, 33);
-			this.chkShellExternalRecommended.TabIndex = 72;
-			this.chkShellExternalRecommended.Text = "Use recommended in bundle";
-			this.chkShellExternalRecommended.UseVisualStyleBackColor = false;
-			// 
-			// cmdShellExternalClear
-			// 
-			this.cmdShellExternalClear.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.cmdShellExternalClear.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-			this.cmdShellExternalClear.Cursor = System.Windows.Forms.Cursors.Hand;
-			this.cmdShellExternalClear.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-			this.cmdShellExternalClear.FlatAppearance.BorderSize = 0;
-			this.cmdShellExternalClear.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdShellExternalClear.Location = new System.Drawing.Point(789, 561);
-			this.cmdShellExternalClear.Margin = new System.Windows.Forms.Padding(4);
-			this.cmdShellExternalClear.Name = "cmdShellExternalClear";
-			this.cmdShellExternalClear.Size = new System.Drawing.Size(150, 40);
-			this.cmdShellExternalClear.TabIndex = 71;
-			this.cmdShellExternalClear.Text = "Clear";
-			this.cmdShellExternalClear.UseVisualStyleBackColor = true;
-			this.cmdShellExternalClear.Click += new System.EventHandler(this.cmdShellExternalClear_Click);
-			// 
-			// cmdShellExternalView
-			// 
-			this.cmdShellExternalView.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.cmdShellExternalView.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-			this.cmdShellExternalView.Cursor = System.Windows.Forms.Cursors.Hand;
-			this.cmdShellExternalView.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-			this.cmdShellExternalView.FlatAppearance.BorderSize = 0;
-			this.cmdShellExternalView.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdShellExternalView.Location = new System.Drawing.Point(379, 561);
-			this.cmdShellExternalView.Margin = new System.Windows.Forms.Padding(4);
-			this.cmdShellExternalView.Name = "cmdShellExternalView";
-			this.cmdShellExternalView.Size = new System.Drawing.Size(402, 40);
-			this.cmdShellExternalView.TabIndex = 70;
-			this.cmdShellExternalView.Text = "View accepted rules";
-			this.cmdShellExternalView.UseVisualStyleBackColor = true;
-			this.cmdShellExternalView.Click += new System.EventHandler(this.cmdShellExternalView_Click);
-			// 
-			// lblShellExternal
-			// 
-			this.lblShellExternal.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.lblShellExternal.BackColor = System.Drawing.Color.Transparent;
-			this.lblShellExternal.ForeColor = System.Drawing.Color.Black;
-			this.lblShellExternal.Location = new System.Drawing.Point(11, 522);
-			this.lblShellExternal.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-			this.lblShellExternal.Name = "lblShellExternal";
-			this.lblShellExternal.Size = new System.Drawing.Size(492, 30);
-			this.lblShellExternal.TabIndex = 68;
-			this.lblShellExternal.Text = "External program Allowlist:";
-			this.lblShellExternal.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
 			// 
 			// cmdAdvancedEventsEdit
 			// 
@@ -1335,7 +1153,7 @@ namespace Eddie.Forms.Forms
 			this.lblNetworkIfaceName.Name = "lblNetworkIfaceName";
 			this.lblNetworkIfaceName.Size = new System.Drawing.Size(422, 96);
 			this.lblNetworkIfaceName.TabIndex = 97;
-			this.lblNetworkIfaceName.Text = "VPN interface name:\r\n(OpenVPN: If empty, it tries to locate an existing adapter. " +
+			this.lblNetworkIfaceName.Text = "VPN interface name:\r\n(OpenVPN: name of the adapter to use (default \"Eddie\" if empty). " +
     "WireGuard always creates/destroys adapter)\r\n";
 			this.lblNetworkIfaceName.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			// 
@@ -2186,8 +2004,6 @@ namespace Eddie.Forms.Forms
 			// tabProxy
 			// 
 			this.tabProxy.BackColor = System.Drawing.Color.White;
-			this.tabProxy.Controls.Add(this.txtProxyTorControlCookiePath);
-			this.tabProxy.Controls.Add(this.lblProxyTorControlCookiePath);
 			this.tabProxy.Controls.Add(this.lblProxyWhen);
 			this.tabProxy.Controls.Add(this.cboProxyWhen);
 			this.tabProxy.Controls.Add(this.lnkProxyTorHelp);
@@ -2217,26 +2033,6 @@ namespace Eddie.Forms.Forms
 			this.tabProxy.Size = new System.Drawing.Size(1014, 635);
 			this.tabProxy.TabIndex = 1;
 			this.tabProxy.Text = "Proxy / Tor";
-			// 
-			// txtProxyTorControlCookiePath
-			// 
-			this.txtProxyTorControlCookiePath.Location = new System.Drawing.Point(300, 448);
-			this.txtProxyTorControlCookiePath.Margin = new System.Windows.Forms.Padding(4);
-			this.txtProxyTorControlCookiePath.Name = "txtProxyTorControlCookiePath";
-			this.txtProxyTorControlCookiePath.Size = new System.Drawing.Size(268, 26);
-			this.txtProxyTorControlCookiePath.TabIndex = 78;
-			// 
-			// lblProxyTorControlCookiePath
-			// 
-			this.lblProxyTorControlCookiePath.BackColor = System.Drawing.Color.Transparent;
-			this.lblProxyTorControlCookiePath.ForeColor = System.Drawing.Color.Black;
-			this.lblProxyTorControlCookiePath.Location = new System.Drawing.Point(21, 448);
-			this.lblProxyTorControlCookiePath.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-			this.lblProxyTorControlCookiePath.Name = "lblProxyTorControlCookiePath";
-			this.lblProxyTorControlCookiePath.Size = new System.Drawing.Size(270, 30);
-			this.lblProxyTorControlCookiePath.TabIndex = 77;
-			this.lblProxyTorControlCookiePath.Text = "Tor Cookie Path:";
-			this.lblProxyTorControlCookiePath.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			// 
 			// lblProxyWhen
 			// 
@@ -3369,9 +3165,6 @@ namespace Eddie.Forms.Forms
 		private Skin.TabPage tabProtocols;
 		private Skin.TabPage tabProxy;
 		private Skin.TabPage tabRoutes;
-		private Skin.Button cmdExeBrowse;
-		private Skin.TextBox txtExePath;
-		private Skin.Label lblExePath;
 		private Skin.CheckBox chkAdvancedCheckRoute;
 		private Skin.CheckBox chkExpert;
 		private Skin.TextBox txtOpenVpnDirectivesBase;
@@ -3384,7 +3177,8 @@ namespace Eddie.Forms.Forms
 		private Skin.Label label2;
 		private Skin.ColumnHeader columnHeader3;
 		private Skin.ColumnHeader columnHeader4;
-		private Skin.Button cmdAdvancedUninstallDriverTap;
+		private Skin.Button cmdAdvancedUninstallDriverTapWindows6;
+		private Skin.Button cmdAdvancedUninstallDriverOvpnDco;
 		private Skin.CheckBox chkAdvancedPingerEnabled;
 		private System.Windows.Forms.GroupBox pnlAdvancedGeneralWindowsOnly;
 		private Skin.TabPage tabLogging;
@@ -3416,7 +3210,6 @@ namespace Eddie.Forms.Forms
 		private Skin.Button cmdDnsAdd;
 		private Skin.ListView lstDnsServers;
 		private Skin.CheckBox chkLogLevelDebug;
-		private Skin.CheckBox chkWindowsDisableDriverUpgrade;
 		private Skin.ListView lstProtocols;
 		private Skin.ColumnHeader colProtocolsDescription;
 		private Skin.ColumnHeader colProtocolsType;
@@ -3426,7 +3219,6 @@ namespace Eddie.Forms.Forms
 		private Skin.LinkLabel lnkProtocolsHelp2;
 		private Skin.LinkLabel lnkProtocolsHelp1;
 		private System.Windows.Forms.CheckBox chkProtocolsAutomatic;
-		private Skin.CheckBox chkWindowsDebugWorkaround;
 		private Skin.TextBox txtProxyTorControlPassword;
 		private Skin.Label lblProxyTorControlPassword;
 		private Skin.Button cmdProxyTorTest;
@@ -3525,10 +3317,6 @@ namespace Eddie.Forms.Forms
 		private Skin.TextBox txtStoragePassword;
 		private Skin.Label lblStorageMode;
 		private Skin.ComboBox cboStorageMode;
-		private Skin.Button cmdShellExternalClear;
-		private Skin.Button cmdShellExternalView;
-		private Skin.Label lblShellExternal;
-		private Skin.CheckBox chkShellExternalRecommended;
 		private Skin.Label lblLockAllowlistOutgoingIPs;
 		private Skin.TextBox txtLockAllowlistOutgoingIPs;
 		private Skin.CheckBox chkSystemService;
@@ -3540,20 +3328,14 @@ namespace Eddie.Forms.Forms
 		private Skin.CheckBox chkUiSkipPromotional;
 		private Skin.Label lblHummingbirdPrefer;
 		private Skin.CheckBox chkHummingbirdPrefer;
-		private Skin.Button cmdHummingbirdPathBrowse;
-		private Skin.TextBox txtHummingbirdPath;
 		private Skin.CheckBox chkOpenVpnDirectivesDataCiphersChaCha;
-		private Skin.TextBox txtProxyTorControlCookiePath;
-		private Skin.Label lblProxyTorControlCookiePath;
 		private Skin.Label lblWindowsAdaptersCleanup;
 		private Skin.CheckBox chkWindowsAdaptersCleanup;
-		private Skin.Button cmdAdvancedDeleteOldTapAdapter;
+		private Skin.Button cmdAdvancedDeleteAllOpenVpnAdapters;
 		private Skin.Label lblUiSkipNetlockConfirm;
 		private Skin.CheckBox chkUiSkipNetlockConfirm;
 		private Skin.Label lblLockConnection;
 		private Skin.CheckBox chkLockConnection;
-		private Skin.Label lblWindowsDriver;
-		private Skin.ComboBox cboWindowsDriver;
 		private Skin.TabPage tabWireGuard;
 		private Skin.Label lblWireGuardMTU;
 		private Skin.ComboBox cboWireGuardMTU;

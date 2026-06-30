@@ -1,6 +1,6 @@
 // <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2026 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -27,13 +27,13 @@ namespace Eddie.Core.ConfigBuilder
 		public int InterfaceListenPort = 0;
 		public string InterfacePrivateKey = "";
 		public IpAddresses InterfaceDns = new IpAddresses();
-		public int InterfaceTable = 0;
 		public int InterfaceMTU = 0;
 		public string InterfaceFwMark = "";
-		public string InterfacePreUp = "";
-		public string InterfacePostUp = "";
-		public string InterfacePreDown = "";
-		public string InterfacePostDown = "";
+		// Table: empty = default (WireGuard manages routes in the main table).
+		// "off" = no route management (used on Windows so the WireGuard layer does
+		// not install OS routes nor restrictive WFP rules; Eddie owns routing/Network Lock).
+		// Any other value (number, "auto") is emitted as-is per wg-quick(8).
+		public string InterfaceTable = "";
 
 		// Section [Peer]
 		public string PeerPublicKey = "";
@@ -73,8 +73,6 @@ namespace Eddie.Core.ConfigBuilder
 			s.Append("PrivateKey = " + InterfacePrivateKey + Platform.Instance.EndOfLineSep);
 			if (InterfaceDns.Count > 0)
 				s.Append("DNS = " + InterfaceDns.ToString() + Platform.Instance.EndOfLineSep);
-			if (InterfaceTable != 0)
-				s.Append("Table = " + InterfaceTable.ToString() + Platform.Instance.EndOfLineSep);
 
 			int buildInterfaceMTU = InterfaceMTU;
 			if (Engine.Instance.ProfileOptions.GetInt("wireguard.interface.mtu") == -1)
@@ -87,17 +85,8 @@ namespace Eddie.Core.ConfigBuilder
 			if (InterfaceFwMark != "")
 				s.Append("FwMark = " + InterfaceFwMark + Platform.Instance.EndOfLineSep);
 
-			if (Engine.Instance.ProfileOptions.GetBool("wireguard.interface.skip_commands") == false)
-			{
-				if (InterfacePreUp != "")
-					s.Append("PreUp = " + InterfacePreUp + Platform.Instance.EndOfLineSep);
-				if (InterfacePostUp != "")
-					s.Append("PreUp = " + InterfacePostUp + Platform.Instance.EndOfLineSep);
-				if (InterfacePreDown != "")
-					s.Append("PreUp = " + InterfacePreDown + Platform.Instance.EndOfLineSep);
-				if (InterfacePostDown != "")
-					s.Append("PreUp = " + InterfacePostDown + Platform.Instance.EndOfLineSep);
-			}
+			if (InterfaceTable != "")
+				s.Append("Table = " + InterfaceTable + Platform.Instance.EndOfLineSep);
 
 			s.Append(Platform.Instance.EndOfLineSep);
 			s.Append("[Peer]" + Platform.Instance.EndOfLineSep);
@@ -173,20 +162,17 @@ namespace Eddie.Core.ConfigBuilder
 								InterfaceDns.Add(value2.Trim());
 							}
 						}
-						else if ((section == "interface") && (key == "table"))
-							InterfaceTable = Conversions.ToInt32(value);
 						else if ((section == "interface") && (key == "mtu"))
 							InterfaceMTU = Conversions.ToInt32(value);
 						else if ((section == "interface") && (key == "fwmark"))
 							InterfaceFwMark = value;
-						else if ((section == "interface") && (key == "preup"))
-							InterfacePreUp = value;
-						else if ((section == "interface") && (key == "postup"))
-							InterfacePostUp = value;
-						else if ((section == "interface") && (key == "predown"))
-							InterfacePreDown = value;
-						else if ((section == "interface") && (key == "postdown"))
-							InterfacePostDown = value;
+						else if ((section == "interface") && (key == "preup")) { }
+						else if ((section == "interface") && (key == "postup")) { }
+						else if ((section == "interface") && (key == "predown")) { }
+						else if ((section == "interface") && (key == "postdown")) { }
+						else if ((section == "interface") && (key == "table"))
+							InterfaceTable = value;
+						else if ((section == "interface") && (key == "saveconfig")) { }
 						else if ((section == "peer") && (key == "publickey"))
 							PeerPublicKey = value;
 						else if ((section == "peer") && (key == "presharedkey"))

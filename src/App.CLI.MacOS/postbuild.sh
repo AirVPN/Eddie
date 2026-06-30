@@ -61,6 +61,14 @@ echo TargetDir: $OUTPATH
 echo Arch: $ARCH
 echo Config: $CONFIG
 
+echo Copy Deploy files
+cp -R "$BASEPATH/../../deploy/macos_${ARCH}"/* "$OUTPATH/"
+
+echo Compile and Copy Native
+chmod +x "${BASEPATH}/../Lib.Platform.MacOS.Native/build.sh"
+"${BASEPATH}/../Lib.Platform.MacOS.Native/build.sh" "$CONFIG"
+cp "$BASEPATH/../Lib.Platform.MacOS.Native/bin/libLib.Platform.MacOS.Native.dylib" "$OUTPATH/"    
+
 echo Compile and Copy Elevated
 chmod +x "$BASEPATH/../App.CLI.MacOS.Elevated/build.sh"
 "$BASEPATH/../App.CLI.MacOS.Elevated/build.sh" "$CONFIG"
@@ -68,10 +76,5 @@ cp "$BASEPATH/../App.CLI.MacOS.Elevated/bin/eddie-cli-elevated" "$OUTPATH/"
 chmod +x "$BASEPATH/../App.CLI.MacOS.Elevated.Service/build.sh"
 "$BASEPATH/../App.CLI.MacOS.Elevated.Service/build.sh" "$CONFIG"
 cp "$BASEPATH/../App.CLI.MacOS.Elevated.Service/bin/eddie-cli-elevated-service" "$OUTPATH/"    
-
-echo Compile and Copy Native
-chmod +x "${BASEPATH}/../Lib.Platform.MacOS.Native/build.sh"
-"${BASEPATH}/../Lib.Platform.MacOS.Native/build.sh" "$CONFIG"
-cp "$BASEPATH/../Lib.Platform.MacOS.Native/bin/libLib.Platform.MacOS.Native.dylib" "$OUTPATH/"    
 
 exit 0

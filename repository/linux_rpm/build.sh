@@ -9,7 +9,7 @@ if [ "${1-}" == "" ]; then
 fi
 
 if [ "${2-}" == "" ]; then
-	echo Second arg must be framework: net4, net8
+	echo Second arg must be line: l, u
 	exit 1
 fi
 
@@ -25,7 +25,7 @@ if ! [ -x "$(command -v rpmbuild)" ]; then
 fi
 
 PROJECT=$1
-FRAMEWORK=$2
+LINE=$2
 DISTRO=$3
 CONFIG=Release
 
@@ -33,9 +33,19 @@ SCRIPTDIR=$(dirname $(realpath -s $0))
 ARCH=$($SCRIPTDIR/../linux_common/get-arch.sh)
 VERSION=$($SCRIPTDIR/../linux_common/get-version.sh)
 
-TARGETDIR=/tmp/eddie_deploy/eddie-${PROJECT}_${VERSION}_linux_${ARCH}_${DISTRO}
-FINALPATH=/tmp/eddie_deploy/eddie-${PROJECT}_${VERSION}_linux_${ARCH}_${DISTRO}.rpm
-DEPLOYPATH=${SCRIPTDIR}/../files/eddie-${PROJECT}_${VERSION}_linux_${ARCH}_${DISTRO}.rpm
+if [ "${LINE}" != "l" ] && [ "${LINE}" != "u" ]; then
+    echo Second arg must be line: l, u
+    exit 1
+fi
+
+PACKAGEPROJECT="${PROJECT}"
+if [ "${LINE}" = "u" ]; then
+    PACKAGEPROJECT="${PROJECT}-u"
+fi
+
+TARGETDIR=/tmp/eddie_deploy/eddie-${PACKAGEPROJECT}_${VERSION}_linux_${ARCH}_${DISTRO}
+FINALPATH=/tmp/eddie_deploy/eddie-${PACKAGEPROJECT}_${VERSION}_linux_${ARCH}_${DISTRO}.rpm
+DEPLOYPATH=${SCRIPTDIR}/../files/eddie-${PACKAGEPROJECT}_${VERSION}_linux_${ARCH}_${DISTRO}.rpm
 
 if test -f "${DEPLOYPATH}"; then
 	echo "Already builded: ${DEPLOYPATH}"
@@ -48,8 +58,8 @@ sudo rm -rf $TARGETDIR
 # Package dependencies
 echo Step: Package dependencies - Build Portable
 mkdir -p ${TARGETDIR}
-DEPPACKAGEPATH=${SCRIPTDIR}/../files/eddie-${PROJECT}_${VERSION}_linux_${ARCH}_portable.tar.gz  
-${SCRIPTDIR}/../linux_portable/build.sh ${PROJECT} ${FRAMEWORK}
+DEPPACKAGEPATH=${SCRIPTDIR}/../files/eddie-${PACKAGEPROJECT}_${VERSION}_linux_${ARCH}_portable.tar.gz
+${SCRIPTDIR}/../linux_portable/build.sh ${PROJECT} ${LINE}
 tar xvfp "${DEPPACKAGEPATH}" -C "${TARGETDIR}"
 rm -rf ${TARGETDIR}/eddie-${PROJECT}/portable.txt
 
@@ -138,9 +148,9 @@ REQUIRES=""
 if [ $PROJECT = "cli" ]; then 
     REQUIRES="${REQUIRES} openvpn stunnel polkit"
 elif [ $PROJECT = "ui" ]; then
-    if [ $PROJECT = "net8" ]; then
+    if [ "${LINE}" = "u" ]; then
         REQUIRES="${REQUIRES} openvpn stunnel polkit libnotify"
-    elif [ $PROJECT = "net4" ]; then 
+    elif [ "${LINE}" = "l" ]; then
         REQUIRES="${REQUIRES} openvpn stunnel polkit libnotify"
     fi
 fi

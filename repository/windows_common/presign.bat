@@ -9,11 +9,11 @@ IF exist "%EDDIESIGNINGDIR%\eddie.win-signing.pfx" (
 	SET /p VARSIGNPASSWORD= < "%EDDIESIGNINGDIR%\eddie.win-signing.pfx.pwd"
 	for /D %%d in (%VARSCRIPTDIR%\..\..\deploy\windows*) do (
 		echo "Scan deploy windows dir %%~fd";
-		for %%f in (%%~d\*.*) do (
+		for %%f in (%%~d\*.exe %%~d\*.dll %%~d\*.sys %%~d\*.cat) do (
 			echo Check signature %%~ff 
 			%VARSCRIPTDIR%\..\windows_common\signtool.exe verify /pa "%%~ff"
 			if ERRORLEVEL 1 (
-				echo Need sign
+				echo Signing %%~ff
 				%VARSCRIPTDIR%\..\windows_common\signtool.exe sign /fd sha256 /p "!VARSIGNPASSWORD!" /f "%EDDIESIGNINGDIR%\eddie.win-signing.pfx" /t http://timestamp.comodoca.com/authenticode /d "Eddie - VPN Tunnel" "%%~ff" || goto :error								
 			) ELSE (
 				rem Already signed
@@ -22,3 +22,12 @@ IF exist "%EDDIESIGNINGDIR%\eddie.win-signing.pfx" (
 	)
 	
 )
+
+goto :done
+
+:error
+echo presign failed with error #%errorlevel%.
+exit /b 1
+
+:done
+exit /b 0

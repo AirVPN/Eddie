@@ -37,10 +37,6 @@ extern "C" {
 	EDDIE_MACOS_NATIVE_EXPORT int eddie_file_set_mode(const char* filename, int mode);
 	EDDIE_MACOS_NATIVE_EXPORT int eddie_file_set_mode_str(const char* filename, const char* mode);
 
-	// Returns -1 in case of error and 0 or 1 for the flag value
-	EDDIE_MACOS_NATIVE_EXPORT int eddie_file_get_immutable(const char* filename);
-	EDDIE_MACOS_NATIVE_EXPORT int eddie_file_set_immutable(const char* filename, int flag);
-
 	EDDIE_MACOS_NATIVE_EXPORT bool eddie_file_get_runasroot(const char* filename);
 
 	typedef void (*eddie_sighandler_t)(int);

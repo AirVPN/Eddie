@@ -33,9 +33,7 @@
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)	
 #pragma warning(disable:4996)
 #else
-#include <unistd.h> // read, write, close (all socket related)
-#include <netdb.h> // htons, listen, sockaddr_in
-
+#include <unistd.h> // read, write, close
 #endif
 
 #include "../include/ibase.h"
@@ -43,7 +41,7 @@
 #include "../../../dependencies/base64/base64.h"
 #include "../../../dependencies/sha256/sha256.h"
 
-#define NETBUFSIZE 256*256*10 // Note: Maximum size of command
+#define IPC_MAX_REPLY_SIZE (4 * 1024 * 1024)
 
 // --------------------------
 // Engine
@@ -91,7 +89,10 @@ void IBase::MainDo(const std::string& commandId, const std::string& command, std
 					clientVersion = params["version"];
 
 				if (clientVersion != m_elevatedVersion)
-					ThrowException("Unexpected version, elevated: " + m_elevatedVersion + ", client: " + clientVersion);
+				{
+					LogLocal("Handshake rejected: version mismatch (elevated " + m_elevatedVersion + ", client " + clientVersion + ")");
+					ThrowException("Version mismatch");
+				}
 
 				if (params.find("path") != params.end()) // 2.24.5
 				{
@@ -100,7 +101,8 @@ void IBase::MainDo(const std::string& commandId, const std::string& command, std
 						// This occur for example if Eddie in installed and service active, but another portable is running.
 						// Basically this is not a problem, if ElevatedVersion above match.
 						// But Security Hashes Checks will fail.
-						ThrowException("Unexpected path mismatch, elevated: " + GetProcessPathCurrentDir() + ", client: " + params["path"]);
+						LogLocal("Handshake rejected: path mismatch (elevated " + GetProcessPathCurrentDir() + ", client " + params["path"] + ")");
+						ThrowException("Path mismatch");
 					}
 				}
 
@@ -150,6 +152,11 @@ void IBase::SetLaunchMode(const std::string& mode)
 	m_launchMode = mode;
 }
 
+int IBase::GetSpotClientPid()
+{
+	return m_spotClientPid;
+}
+
 void IBase::LogFatal(const std::string& msg)
 {
 	LogDebug("Fatal: " + msg);
@@ -176,14 +183,6 @@ void IBase::LogDebug(const std::string& msg)
 {
 	LogDevDebug("Debug:" + msg);
 
-	/*
-#if defined(Debug) || defined(_DEBUG)
-	m_mutex_cout.lock();
-	std::cout << "Elevated Debug: " << msg << std::endl;
-	m_mutex_cout.unlock();
-#endif
-	*/
-
 	if (m_debug)
 	{
 		try
@@ -199,16 +198,18 @@ void IBase::LogDebug(const std::string& msg)
 
 void IBase::LogDevDebug(const std::string& msg)
 {
-	std::string logPath = "/tmp/eddie-elevated.log";
-	#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)	
-		logPath = "C:\\eddie-elevated.log";
-	#endif
+#if defined(Debug) || defined(_DEBUG)
+	std::string logPath = GetDevLogPath();
 	if (FsFileExists(logPath))
 	{
 		FILE* f = fopen(logPath.c_str(), "a");
-		fprintf(f, "%lu - Elevated,PID: %d - %s%s", (unsigned long)GetTimestampUnix(), (int)GetCurrentProcessId(), msg.c_str(), FsEndLine.c_str());
-		fclose(f);
+		if (f != NULL)
+		{
+			fprintf(f, "%lu - Elevated,PID: %d - %s%s", (unsigned long)GetTimestampUnix(), (int)GetCurrentProcessId(), msg.c_str(), FsEndLine.c_str());
+			fclose(f);
+		}
 	}
+#endif
 }
 
 void IBase::ReplyPID(int pid)
@@ -237,15 +238,31 @@ void IBase::EndCommand(const std::string& commandId)
 
 void IBase::SendMessage(const std::string& message)
 {
-	if (m_sockClient == 0)
+	if (m_clientConnected == false)
 		return;
 
 	std::string sendBuffer = message + "\n";
-	m_mutex_inout.lock();
-	int nWrite = send(m_sockClient, sendBuffer.c_str(), (int)sendBuffer.length(), 0);
-	m_mutex_inout.unlock();
 
-	// LogDebug("Write socket " + std::to_string(nWrite) + " bytes.");
+	m_mutex_inout.lock();
+
+	if (m_clientConnected == false)
+	{
+		m_mutex_inout.unlock();
+		return;
+	}
+
+	if (sendBuffer.length() > IPC_MAX_REPLY_SIZE)
+	{
+		TransportClientClose();
+		m_clientConnected = false;
+		m_mutex_inout.unlock();
+		LogLocal("Outgoing IPC message exceeds cap (" + std::to_string(sendBuffer.length()) + " bytes), client connection closed");
+		return;
+	}
+
+	int nWrite = TransportWrite(sendBuffer.c_str(), (int)sendBuffer.length());
+
+	m_mutex_inout.unlock();
 
 	if (nWrite < 0)
 	{
@@ -317,6 +334,10 @@ int IBase::Main()
 		if (m_cmdline.find("spot_port") != m_cmdline.end())
 			port = StringToInt(m_cmdline["spot_port"]);
 
+		// Bind this one-time elevation to the client instance that launched it.
+		if (m_cmdline.find("spot_client_pid") != m_cmdline.end())
+			m_spotClientPid = StringToInt(m_cmdline["spot_client_pid"]);
+
 		m_singleConnMode = true;
 
 		// If launched in SPOT mode, if service was active, they not accept for some reason (generally upgrade and fail integrity check), so reinstall.
@@ -340,35 +361,17 @@ int IBase::Main()
 		return 1;
 	}
 
-	HSOCKET sockServer;
-	struct sockaddr_in addrServer;
-
-	sockServer = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-
-	SocketMarkReuseAddr(sockServer);
-
-	if (SocketIsValid(sockServer) == false)
+	// Stage privileged tools into a root-only directory when running from a writable
+	// location, so every later exec/load resolves to a copy an unprivileged user cannot swap.
+	// Fail-closed: if staging is required (writable layout) but cannot be secured, refuse to
+	// start rather than run tools from a swappable directory (privilege-escalation race).
+	if (StagingPrepare() == false)
 	{
-		ThrowException("Error on opening socket");
+		LogLocal("Elevated startup aborted: privileged-tool staging failed");
+		return 1;
 	}
 
-	std::memset(&addrServer, 0, sizeof(addrServer));
-
-	addrServer.sin_family = AF_INET;
-	addrServer.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-	addrServer.sin_port = htons(port);
-
-	LogDevDebug("Listening on port " + std::to_string(port));
-
-	if (bind(sockServer, (struct sockaddr*)&addrServer, sizeof(addrServer)) != 0) {
-		ThrowException("Error on binding socket (" + std::to_string(SocketGetLastErrorCode()) + ")");
-	}
-
-	if (listen(sockServer, 1) != 0) {
-		ThrowException("Error on listen socket (" + std::to_string(SocketGetLastErrorCode()) + ")");
-	}
-
-	SocketBlockMode(sockServer, false);
+	TransportListen(port);
 
 	for (;;)
 	{
@@ -377,9 +380,7 @@ int IBase::Main()
 
 		m_keypair.clear();
 		m_session_key = "";
-		m_sockClient = 0;
-		struct sockaddr_in addrClient;
-		socklen_t addrClientLen = sizeof(addrClient);
+		m_clientConnected = false;
 		char* buffer = (char*)malloc(NETBUFSIZE);
 		if (buffer == NULL)
 			break;
@@ -388,36 +389,14 @@ int IBase::Main()
 
 		try
 		{
-			for (;;)
+			if (TransportAccept())
 			{
-				m_sockClient = accept(sockServer, (struct sockaddr*)&addrClient, &addrClientLen);
-
-				// TOFIX. Under Linux, errno==EWOULDBLOCK. Under Windows, i expect WSAEWOULDBLOCK but there are something not understanding.
-				if (SocketIsValid(m_sockClient) == false)
-				{
-					if (IsStopRequested())
-						break;
-
-					Idle();
-
-					Sleep(1000);
-				}
-				else
-				{
-					break;
-				}
-			}
-
-
-			if (SocketIsValid(m_sockClient))
-			{
-				// Remove if nonblock is inherit
-				SocketBlockMode(m_sockClient, true);
+				m_clientConnected = true;
 
 				// Check allowed
 				if(true)
-				{					
-					int clientProcessId = GetProcessIdMatchingIPEndPoints(addrClient, addrServer);
+				{
+					int clientProcessId = TransportGetClientProcessId();
 
 					if (clientProcessId == 0)
 						ThrowException("Client not allowed: Cannot detect client process");
@@ -426,39 +405,33 @@ int IBase::Main()
 					if (clientProcessPath == "")
 						ThrowException("Client not allowed: Cannot detect client process path");
 
-					// If spot mode, must be a parent
+					// Spot mode: the one-time elevation is bound to the client instance that launched it.
+					// The expected client PID is passed at launch (spot_client_pid) and compared against the
+					// kernel-attested peer PID of the connecting socket. This replaces the previous parent-chain
+					// walk, which is unreliable when the launcher is not in the elevated process ancestry
+					// (e.g. macOS AuthorizationExecuteWithPrivileges routes through security_authtrampoline).
 					if (GetLaunchMode() == "spot")
 					{
-#if defined(Debug) || defined(_DEBUG)
-						// When UI launch both Eddie-CLI and eddie-cli-elevated (currently only App.UI.MacOS)
-						// Under _DEBUG until tested
-						if(GetParentProcessId() == GetParentProcessId(clientProcessId))
-							break;
-#endif
+						if (GetSpotClientPid() == 0)
+							ThrowException("Client not allowed: Spot mode, missing client PID binding");
 
-						int parentPid = GetParentProcessId();
-						for(;;)
-						{
-							if(parentPid == 0)
-								ThrowException("Client not allowed: Connection not from parent process (spot mode)");
-							
-							if (clientProcessId == parentPid)
-								break;
-							else
-								parentPid = GetParentProcessId(parentPid);
-						}
+						if (clientProcessId != GetSpotClientPid())
+							ThrowException("Client not allowed: Spot mode, client PID mismatch");
 					}
-					
+
 #if defined(Debug) || defined(_DEBUG)
-					// For example, launched with VSCode detect dotnet.exe as client
 #else
-					std::string allowed = CheckIfClientPathIsAllowed(clientProcessPath);
-					if (allowed != "ok")
-						ThrowException("Client not allowed: " + allowed);
+					if (true)
+					{
+						if (IntegrityCheckFileKnown(clientProcessPath) == false)
+							ThrowException("Client not allowed: Integrity check failed ");
+					}
 #endif
 				}
 
 				ReplyPID(GetCurrentProcessId());
+
+				LogRemote("Privileged tools run from: " + (m_stagingDir == "" ? "install directory (secure, no staging)" : "staging directory " + m_stagingDir));
 
 				//char buffer[NETBUFSIZE];
 				std::memset(buffer, 0, NETBUFSIZE);
@@ -478,7 +451,7 @@ int IBase::Main()
 						ThrowException("Unexpected, command too big");
 					}
 
-					int n = recv(m_sockClient, buffer + bufferPos, nMaxRead, 0);
+					int n = TransportRead(buffer + bufferPos, nMaxRead);
 					if (n < 0) {
 						ThrowException("Error reading from socket");
 					}
@@ -516,6 +489,14 @@ int IBase::Main()
 							memcpy(&buffer[0], &buffer[0] + bufferPosEndLine + 1, bufferPos - (bufferPosEndLine + 1));
 							bufferPos -= (bufferPosEndLine + 1);
 							buffer[bufferPos] = 0;
+
+							line = StringTrim(line);
+							if (line.empty() || !StringStartsWith(line, "command:"))
+							{
+								LogLocal("Client protocol rejected");
+								clientStop = true;
+								break;
+							}
 
 							// Process command
 							std::map<std::string, std::string> params;
@@ -605,7 +586,8 @@ int IBase::Main()
 
 		LogDebug("Client soft disconnected");
 
-		SocketClose(m_sockClient);
+		TransportClientClose();
+		m_clientConnected = false;
 
 		free(buffer);
 
@@ -615,13 +597,14 @@ int IBase::Main()
 
 	LogDebug("Closing");
 
-	SocketClose(sockServer);
+	TransportServerClose();
+
+	StagingCleanup();
 
 	if (m_singleConnMode)
 	{
 		if (GetLaunchMode() == "service")
 		{
-			// Windows only, because only on Windows, Elevated is always a service also in "spot" mode.
 			ServiceUninstall();
 		}
 
@@ -674,18 +657,12 @@ void IBase::Do(const std::string& commandId, const std::string& command, std::ma
 
 		m_pinger.Stop();
 	}
-	else if (command == "bin-path-add")
-	{
-		// Add a path of a list of paths used by FsLocateExecutable
-		m_binPaths.push_back(params["path"]);
-	}
 	else if (command == "tor-get-info")
 	{
 		// Eddie need to talk with Tor Control to ask for new circuits or obtain guard IPs.
 		std::string processName;
 		std::string processPath;
 		std::string username;
-		std::string cookieCustomPath;
 		std::string cookieFoundPath;
 		std::string cookiePasswordHex;
 
@@ -694,9 +671,6 @@ void IBase::Do(const std::string& commandId, const std::string& command, std::ma
 
 		if (params.find("path") != params.end())
 			processPath = params["path"];
-
-		if (params.find("cookie_path") != params.end())
-			cookieCustomPath = params["cookie_path"];
 
 		if (params.find("username") != params.end())
 			username = params["username"];
@@ -720,10 +694,7 @@ void IBase::Do(const std::string& commandId, const std::string& command, std::ma
 
 		std::vector<std::string> paths;
 
-		if (cookieCustomPath != "")
-			paths.push_back(cookieCustomPath);
-		else
-			AddTorCookiePaths(processPath, username, paths);
+		AddTorCookiePaths(processPath, username, paths);
 
 		for (std::vector<std::string>::const_iterator i = paths.begin(); i != paths.end(); ++i)
 		{
@@ -870,12 +841,133 @@ bool IBase::IntegrityCheckFileKnown(const std::string& path)
 		return false;
 	}
 
+	// Secure install (root-only file + dir): the co-located client cannot have been planted or
+	// swapped by an unprivileged user, so the full-directory SHA256 recompute adds nothing. Skip it.
+	if (CanUseDirectPath(GetProcessPathCurrent()))
+		return true;
+
 	std::string integrityKnown = IntegrityCheckRead(GetLaunchMode());
 
-	// Seem excessive to check/compute-sha all files every time, but read comment in IntegrityCheckBuild.
+	// Writable layout: recompute and compare the whole-directory hash against the stored snapshot
+	// to detect a swapped client binary or an injected library since startup/install.
 	std::string integrityComputed = IntegrityCheckBuild();
 
 	return (integrityKnown == integrityComputed);
+}
+
+// Executable security
+
+bool IBase::IsRunnableExecutable(const std::string& path)
+{
+	// Safe to execute/load as root iff the file AND its parent directory are root-only, so an
+	// unprivileged user cannot swap it (TOCTOU). Bundled tools are guaranteed this by staging
+	// (or a secure install dir); system tools resolve from root-only $PATH dirs. The integrity
+	// snapshot is not needed here: in a root-only directory only root can change the bytes.
+	return CanUseDirectPath(path);
+}
+
+bool IBase::IsSecureServiceLocation(const std::string& path)
+{
+	// The service repeatedly launches this binary as root: both the file and its directory
+	// must be root-only, otherwise the binary could be swapped between launches.
+	return CanUseDirectPath(path);
+}
+
+bool IBase::CanUseDirectPath(const std::string& path)
+{
+	// True when both the file and its directory are root-only: the executable can be run
+	// in place without staging, with no writable-path TOCTOU window.
+	return FsFileIsRootOnly(path) && FsDirectoryIsRootOnly(FsFileGetDirectory(path));
+}
+
+bool IBase::StagingPrepare()
+{
+	// Per-launch-mode staging dir (.../stage/spot, .../stage/service): spot and service never share
+	// a directory, so installing/uninstalling the service from a connected spot (or vice versa) cannot
+	// purge or delete the other's staged tools. Only one spot per machine at a time is supported.
+	std::string stagingBase = GetStagingDir();
+	std::string stagingDir = stagingBase + FsPathSeparator + GetLaunchMode();
+
+	// Purge only our own leftovers first: covers crashes and persistent backends (e.g. Windows ProgramData).
+	FsDirectoryDelete(stagingDir, true);
+
+	m_stagingDir = "";
+
+	// Secure install (root-only elevated directory): run privileged tools in place, no staging needed.
+	if (CanUseDirectPath(GetProcessPathCurrent()))
+		return true;
+
+	std::string srcDir = GetProcessPathCurrentDir();
+	FsDirectoryCreate(FsFileGetDirectory(stagingBase)); // .../Eddie-VPN | .../eddie-vpn
+	FsDirectoryCreate(stagingBase);                     // .../stage
+	FsDirectoryCreate(stagingDir);                      // .../stage/<mode>
+	if (FsDirectoryEnsureRootOnly(stagingDir) == false)
+	{
+		LogLocal("Staging: unable to secure directory " + stagingDir + ", refusing to start (running tools from a writable directory would re-open a privilege-escalation race)");
+		FsDirectoryDelete(stagingDir, true);
+		return false;
+	}
+
+	std::vector<std::string> files = FsFilesInPath(srcDir);
+	int copied = 0;
+	for (std::vector<std::string>::const_iterator i = files.begin(); i != files.end(); ++i)
+	{
+		const std::string& file = *i;
+
+		// Whitelist of privileged tools and their bundled libraries/drivers, matched by name prefix
+		// (OS-agnostic: covers .exe, extensionless POSIX names, .so/.dylib/.dll and driver files alike).
+		bool needCopy = false;
+		if (StringStartsWith(file, "openvpn")) needCopy = true;
+		if (StringStartsWith(file, "hummingbird")) needCopy = true;
+		if (StringStartsWith(file, "wireguard")) needCopy = true;
+		if (StringStartsWith(file, "wg")) needCopy = true;
+		if (StringStartsWith(file, "amnezia")) needCopy = true;
+		if (StringStartsWith(file, "awg")) needCopy = true;
+		if (StringStartsWith(file, "tapctl")) needCopy = true;
+		if (StringStartsWith(file, "libssl")) needCopy = true;
+		if (StringStartsWith(file, "libpkcs11")) needCopy = true;
+		if (StringStartsWith(file, "liblzo")) needCopy = true;
+		if (StringStartsWith(file, "liblz4")) needCopy = true;
+		if (StringStartsWith(file, "libcrypto")) needCopy = true;
+		if (StringStartsWith(file, "libnl")) needCopy = true;
+		if (StringStartsWith(file, "libssp")) needCopy = true;
+		if (StringStartsWith(file, "libcap")) needCopy = true;
+		if (StringStartsWith(file, "ovpn-dco")) needCopy = true;
+		if (StringStartsWith(file, "tap0901")) needCopy = true;
+		if (needCopy == false)
+			continue;
+
+		std::string src = srcDir + FsPathSeparator + file;
+		std::string dst = stagingDir + FsPathSeparator + file;
+		if (FsFileCopy(src, dst) == false)
+		{
+			LogLocal("Staging: copy failed for " + file + ", refusing to start (running tools from a writable directory would re-open a privilege-escalation race)");
+			FsDirectoryDelete(stagingDir, true);
+			return false;
+		}
+		FsFileMakeRunnable(dst);
+		copied++;
+	}
+
+	m_stagingDir = stagingDir;
+	return true;
+}
+
+void IBase::StagingCleanup()
+{
+	if (m_stagingDir == "")
+		return;
+
+	std::string stagingDir = m_stagingDir;
+	m_stagingDir = "";
+	FsDirectoryDelete(stagingDir, true); // .../stage/<mode>
+
+	// Best-effort removal of the now-possibly-empty parents (non-recursive delete only succeeds when
+	// empty): the staging base (.../stage) is removed once the other mode's subdir is also gone, and
+	// the shared runtime parent (POSIX dir holding the socket) is left untouched while still in use.
+	std::string stagingBase = FsFileGetDirectory(stagingDir);
+	FsDirectoryDelete(stagingBase, false);
+	FsDirectoryDelete(FsFileGetDirectory(stagingBase), false);
 }
 
 std::string IBase::GetProcessPathCurrent()
@@ -885,11 +977,7 @@ std::string IBase::GetProcessPathCurrent()
 
 std::string IBase::GetProcessPathCurrentDir()
 {
-	std::string procPath = GetProcessPathCurrent();
-	size_t pos = procPath.find_last_of(FsPathSeparator);
-	if (pos != std::string::npos)
-		procPath = procPath.substr(0, pos);
-	return procPath;
+	return FsFileGetDirectory(GetProcessPathCurrent());
 }
 
 time_t IBase::GetProcessModTimeStart()
@@ -978,32 +1066,44 @@ std::string IBase::FsFileSHA256Sum(const std::string& path)
 	return SHA256((unsigned char*)buf.data(), (unsigned long)buf.size());
 }
 
-std::string IBase::FsLocateExecutable(const std::string& name, const bool throwException, const bool includeTools)
+std::string IBase::FsLocateExecutable(const std::string& name, const bool throwException, const bool includeElevatedPath)
 {
 	std::vector<std::string> paths;
 
-	if (includeTools)
+	if (includeElevatedPath)
 	{
-		// Used only for 'wireguard-go' and 'wg' in macOS
-		paths.insert(std::end(paths), std::begin(m_binPaths), std::end(m_binPaths));
+		// When staging is active the bundled tools have been copied into a root-only
+		// directory; prefer those secured copies over the original writable bundle.
+		if (m_stagingDir != "")
+			paths.push_back(m_stagingDir);
+
+		// Bundled tools (e.g. tapctl.exe on Windows, wg/wireguard-go on macOS)
+		// live next to the elevated executable in production and dev layouts.
+		paths.push_back(GetProcessPathCurrentDir());
 	}
 
-	if (true)
 	{
 		std::vector<std::string> envPaths = FsGetEnvPath();
 		paths.insert(std::end(paths), std::begin(envPaths), std::end(envPaths));
 	}
 
+	std::string foundButNotAllowed = "";
 	for (std::vector<std::string>::const_iterator i = paths.begin(); i != paths.end(); ++i)
 	{
 		std::string fullPath = *i + FsPathSeparator + name;
-		if (FsFileExists(fullPath))
-		{
-			if (CheckIfExecutableIsAllowed(fullPath, throwException) == false)
-				return "";
-			else
-				return fullPath;
-		}
+		if (FsFileExists(fullPath) == false)
+			continue;
+		if (IsRunnableExecutable(fullPath))
+			return fullPath;
+		foundButNotAllowed = fullPath;
+	}
+
+	if (throwException)
+	{
+		if (foundButNotAllowed != "")
+			ThrowException("Executable '" + name + "' not allowed: " + CheckExecutablePathPermissions(foundButNotAllowed));
+		else
+			ThrowException("Executable '" + name + "' not found");
 	}
 
 	return "";
@@ -1188,6 +1288,11 @@ std::string IBase::StringEnsureAlphaNumeric(const std::string& str)
 	return StringPruneCharsNotIn(str, "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ");
 }
 
+std::string IBase::StringEnsureAsciiName(const std::string& str)
+{
+	return StringPruneCharsNotIn(str, "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-");
+}
+
 std::string IBase::StringEnsureHex(const std::string& str)
 {
 	return StringPruneCharsNotIn(str, "0123456789abcdefABCDEF");
@@ -1201,11 +1306,6 @@ std::string IBase::StringEnsureFileName(const std::string& str)
 std::string IBase::StringEnsureDirectoryName(const std::string& str)
 {
 	return StringPruneCharsNotIn(str, " .;:-_0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ()[]{}");
-}
-
-std::string IBase::StringEnsureInterfaceName(const std::string& str)
-{
-	return str;
 }
 
 std::string IBase::StringEnsureCidr(const std::string& str)
@@ -1477,6 +1577,7 @@ std::string IBase::CheckValidOpenVpnConfigFile(const std::string& path)
 	{
 		std::string lineNormalized = *i;
 		lineNormalized = StringTrim(StringToLower(lineNormalized));
+		lineNormalized = StringReplaceAll(lineNormalized, "\t", " ");
 
 		if (StringStartsWith(lineNormalized, "#"))
 			continue;
@@ -1485,7 +1586,7 @@ std::string IBase::CheckValidOpenVpnConfigFile(const std::string& path)
 
 		// The below list directive can be incompleted with newest OpenVPN version, 
 		// but any new dangerous directive is expected to be blocked by script-security
-		// Note: parser can be better (any <key> lines are treated as directive, but never match for the space)
+		// Note: TABs are collapsed to spaces before prefix matching below.
 		// But this validation is only for additional security, Eddie already parse and prune with a better parser the config
 		if (StringStartsWith(lineNormalized, "script-security ")) lineAllowed = false;
 		if (StringStartsWith(lineNormalized, "plugin ")) lineAllowed = false;
@@ -1500,6 +1601,8 @@ std::string IBase::CheckValidOpenVpnConfigFile(const std::string& path)
 		if (StringStartsWith(lineNormalized, "iproute ")) lineAllowed = false;
 		if (StringStartsWith(lineNormalized, "route-up ")) lineAllowed = false;
 		if (StringStartsWith(lineNormalized, "route-pre-down ")) lineAllowed = false;
+		if (StringStartsWith(lineNormalized, "config ")) lineAllowed = false;
+		if (StringStartsWith(lineNormalized, "include ")) lineAllowed = false;
 
 		if (lineAllowed == false)
 			return "directive '" + lineNormalized + "' not allowed";
@@ -1513,9 +1616,43 @@ std::string IBase::CheckValidHummingbirdConfigFile(const std::string& path)
 	return CheckValidOpenVpnConfigFile(path);
 }
 
-std::string IBase::CheckValidWireGuardConfig(const std::string& path)
+std::string IBase::CheckValidWireGuardConfig(const std::string& config)
 {
-	// Nothing here about security, anyway any PostUp and similar events are ignored in our implementation.
+	std::vector<std::string> lines = StringToVector(config, '\n');
+	for (std::vector<std::string>::const_iterator i = lines.begin(); i != lines.end(); ++i)
+	{
+		std::string lineNormalized = StringTrim(*i);
+
+		size_t posComment = lineNormalized.find("#");
+		if (posComment != std::string::npos)
+			lineNormalized = StringTrim(lineNormalized.substr(0, posComment));
+
+		if (lineNormalized == "")
+			continue;
+
+		if (StringStartsWith(lineNormalized, "["))
+			continue;
+
+		size_t posSep = lineNormalized.find('=');
+		if (posSep == std::string::npos)
+			continue;
+
+		std::string key = StringToLower(StringTrim(lineNormalized.substr(0, posSep)));
+		std::string value = StringTrim(lineNormalized.substr(posSep + 1));
+
+		if (key == "preup" || key == "postup" || key == "predown" || key == "postdown")
+			return "directive '" + key + "' not allowed";
+
+		if (key == "saveconfig")
+			return "directive '" + key + "' not allowed";
+
+		if (key == "table")
+		{
+			if (StringToLower(value) != "off")
+				return "directive 'table' not allowed (only 'off' permitted)";
+		}
+	}
+
 	return "";
 }
 
@@ -1586,96 +1723,6 @@ std::string IBase::GetExecResultReport(const ExecResult& result)
 		report += "; arg:" + StringTrim(*i);
 	}
 	return report;
-}
-
-ExecResult IBase::ExecEx0(const std::string& path)
-{
-	std::vector<std::string> args;
-	return ExecEx(path, args);
-}
-
-ExecResult IBase::ExecEx1(const std::string& path, const std::string& arg1)
-{
-	std::vector<std::string> args;
-	args.push_back(arg1);
-	return ExecEx(path, args);
-}
-
-ExecResult IBase::ExecEx2(const std::string& path, const std::string& arg1, const std::string& arg2)
-{
-	std::vector<std::string> args;
-	args.push_back(arg1);
-	args.push_back(arg2);
-	return ExecEx(path, args);
-}
-
-ExecResult IBase::ExecEx3(const std::string& path, const std::string& arg1, const std::string& arg2, const std::string& arg3)
-{
-	std::vector<std::string> args;
-	args.push_back(arg1);
-	args.push_back(arg2);
-	args.push_back(arg3);
-	return ExecEx(path, args);
-}
-
-ExecResult IBase::ExecEx4(const std::string& path, const std::string& arg1, const std::string& arg2, const std::string& arg3, const std::string& arg4)
-{
-	std::vector<std::string> args;
-	args.push_back(arg1);
-	args.push_back(arg2);
-	args.push_back(arg3);
-	args.push_back(arg4);
-	return ExecEx(path, args);
-}
-
-ExecResult IBase::ExecEx5(const std::string& path, const std::string& arg1, const std::string& arg2, const std::string& arg3, const std::string& arg4, const std::string& arg5)
-{
-	std::vector<std::string> args;
-	args.push_back(arg1);
-	args.push_back(arg2);
-	args.push_back(arg3);
-	args.push_back(arg4);
-	args.push_back(arg5);
-	return ExecEx(path, args);
-}
-
-ExecResult IBase::ExecEx6(const std::string& path, const std::string& arg1, const std::string& arg2, const std::string& arg3, const std::string& arg4, const std::string& arg5, const std::string& arg6)
-{
-	std::vector<std::string> args;
-	args.push_back(arg1);
-	args.push_back(arg2);
-	args.push_back(arg3);
-	args.push_back(arg4);
-	args.push_back(arg5);
-	args.push_back(arg6);
-	return ExecEx(path, args);
-}
-
-ExecResult IBase::ExecEx7(const std::string& path, const std::string& arg1, const std::string& arg2, const std::string& arg3, const std::string& arg4, const std::string& arg5, const std::string& arg6, const std::string& arg7)
-{
-	std::vector<std::string> args;
-	args.push_back(arg1);
-	args.push_back(arg2);
-	args.push_back(arg3);
-	args.push_back(arg4);
-	args.push_back(arg5);
-	args.push_back(arg6);
-	args.push_back(arg7);
-	return ExecEx(path, args);
-}
-
-ExecResult IBase::ExecEx8(const std::string& path, const std::string& arg1, const std::string& arg2, const std::string& arg3, const std::string& arg4, const std::string& arg5, const std::string& arg6, const std::string& arg7, const std::string& arg8)
-{
-	std::vector<std::string> args;
-	args.push_back(arg1);
-	args.push_back(arg2);
-	args.push_back(arg3);
-	args.push_back(arg4);
-	args.push_back(arg5);
-	args.push_back(arg6);
-	args.push_back(arg7);
-	args.push_back(arg8);
-	return ExecEx(path, args);
 }
 
 void Pinger::OnResponse(const uint16_t& id, const int& result)

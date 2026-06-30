@@ -32,7 +32,9 @@ protected:
 
 	virtual std::string SystemWideDataPath();
 	virtual std::string CheckIfClientPathIsAllowed(const std::string& path);	
+#ifndef EDDIE_IPC_LOCAL
 	virtual int GetProcessIdMatchingIPEndPoints(struct sockaddr_in& addrClient, struct sockaddr_in& addrServer);
+#endif
 	void AddTorCookiePaths(const std::string& torPath, const std::string& username, std::vector<std::string>& result);
 
 	// Virtual Pure, OS
@@ -40,12 +42,16 @@ protected:
 	virtual std::string GetProcessPathOfId(int pid);
 	virtual pid_t GetParentProcessId(pid_t pid);
 	virtual pid_t GetProcessIdOfName(const std::string& name);
+	virtual std::string StringEnsureInterfaceName(const std::string& str);
+	virtual std::string GetStagingDir();
+#ifdef EDDIE_IPC_UNIXSOCKET
+	virtual std::string GetIpcRuntimeDir();
+	virtual int GetSocketPeerPid(HSOCKET s);
+#endif
 
 private:
 	// Private
-	int FileImmutableSet(const std::string& path, const int flag);
-	int FileGetFlags(const std::string& path);
-
+	std::string StringEnsureNetworkServiceName(const std::string& str);
 	std::string GetRoutesAsJson();	
 	std::string GetNetworkInterfaceInfoAsJson(const std::string& id);
 	unsigned long WireGuardLastHandshake(const std::string& wgPath, const std::string& interfaceId);

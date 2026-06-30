@@ -37,3 +37,7 @@ eddie-ui binary: depends-on-obsolete-package
 # 2023-08-03: added
 eddie-ui: embedded-library
 eddie-ui: unstripped-binary-or-object
+
+# -------------------
+# 2026-04-08: added, C++ elevated binaries not compiled as PIE on some arch (notably armv7l)
+eddie-ui: hardening-no-pie

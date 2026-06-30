@@ -1,6 +1,6 @@
 // <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2026 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -87,21 +87,7 @@ namespace Eddie.Forms
 			}
 			//Application.Exit(); // Removed in 2.12, otherwise lock Core thread. Still required in Linux edition.
 		}
-
-		/* // TOCLEAN
-		public override Json Command(Json data)
-		{
-			string cmd = data["command"].Value as string;
-			if (cmd == "ui.show.manifest")
-			{
-				MainWindow.OnShowText("Json Data", Data.ToJsonPretty());
-				return null;
-			}
-			else
-				return Engine.UiManager.SendCommand(data, this);
-		}
-		*/
-
+				
 		public override void OnReceive(Json data)
 		{
 			base.OnReceive(data);

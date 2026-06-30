@@ -1,6 +1,6 @@
 // <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2026 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -46,13 +46,6 @@ namespace Eddie.Core
 			AddTool("hummingbird", new Tools.Hummingbird());
 			AddTool("ssh", new Tools.SSH());
 			AddTool("ssl", new Tools.SSL());
-			if (Platform.Instance.FetchUrlInternal() == false)
-				AddTool("curl", new Tools.Curl());
-			if (Platform.Instance.IsWindowsSystem())
-			{
-				AddTool("tap-windows6", new Tools.FileDirect("tap-windows.exe"));
-				AddTool("tapctl", new Tools.FileDirect("tapctl.exe"));
-			}
 
 			foreach (Tools.ITool tool in Tools.Values)
 				tool.UpdatePath();
@@ -66,6 +59,16 @@ namespace Eddie.Core
 
 		public static void Log()
 		{
+			string wireGuardVersion = Platform.Instance.GetWireGuardVersion();
+			if (wireGuardVersion != "")
+			{
+				Engine.Instance.Logs.Log(LogType.Verbose, "WireGuard - Version: " + wireGuardVersion);
+			}
+			else
+			{
+				Engine.Instance.Logs.Log(LogType.Info, "WireGuard - " + LanguageManager.GetText(LanguageItems.NotAvailable));
+			}
+
 			if (Engine.Instance.GetOpenVpnTool().Available())
 			{
 				Engine.Instance.Logs.Log(LogType.Verbose, "OpenVPN - Version: " + Engine.Instance.GetOpenVpnTool().Version + " (" + Engine.Instance.GetOpenVpnTool().Path + ")");
@@ -93,18 +96,6 @@ namespace Eddie.Core
 				Engine.Instance.Logs.Log(LogType.Info, "SSL - " + LanguageManager.GetText(LanguageItems.NotAvailable));
 			}
 
-			if (Platform.Instance.FetchUrlInternal() == false)
-			{
-				if (GetTool("curl").Available())
-				{
-					Engine.Instance.Logs.Log(LogType.Verbose, "curl - Version: " + GetTool("curl").Version + " (" + GetTool("curl").Path + ")");
-				}
-				else
-				{
-					Engine.Instance.Logs.Log(LogType.Warning, "curl - " + LanguageManager.GetText(LanguageItems.NotAvailable));
-				}
-			}
-
 			/*
 			string pathCacert = Engine.Instance.LocateResource("cacert.pem");
 			if (pathCacert != "")
@@ -117,15 +108,6 @@ namespace Eddie.Core
 
 			}
 			*/
-		}
-
-		public static string FindResource(string tool)
-		{
-			Tools.ITool t = GetTool(tool);
-			if (t.Available())
-				return t.Path;
-			else
-				return "";
 		}
 
 	}

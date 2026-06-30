@@ -10,10 +10,10 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Lib.Platform.MacOS</RootNamespace>
     <AssemblyName>Lib.Platform.MacOS</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
     <MonoMacResourcePrefix>Resources</MonoMacResourcePrefix>
     <UseXamMacFullFramework>true</UseXamMacFullFramework>
-    <ReleaseVersion>2.19</ReleaseVersion>
+    <ReleaseVersion>2.26.0</ReleaseVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
     <DebugSymbols>true</DebugSymbols>

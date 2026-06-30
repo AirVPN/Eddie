@@ -26,6 +26,7 @@
 
 #include "..\include\iwindows.h"
 
+#include <cstring> // memset
 #include <fstream>
 #include <sstream>
 
@@ -37,65 +38,50 @@
 #include "accctrl.h" // For GetSecurityInfo
 #include "aclapi.h" // For GetSecurityInfo
 #include <VersionHelpers.h> // For IsWindows8OrGreater
+#pragma comment(lib, "version.lib") // For GetFileVersionInfoSizeW / GetFileVersionInfoW / VerQueryValueW
+
+#include "..\include\wireguard_nt.h" // WireGuardNT adapter API (wireguard.dll)
 
 void IWindows::Do(const std::string& commandId, const std::string& command, std::map<std::string, std::string>& params)
 {
 	if (command == "dns-flush")
 	{
-		std::string mode = params["mode"];
-
-		std::string netPath = FsLocateExecutable("net.exe", false);
 		std::string ipconfigPath = FsLocateExecutable("ipconfig.exe", false);
 
-		if (mode == "max")
-		{
-			if (netPath != "")
-			{
-				ExecEx1(netPath, "stop dnscache");
-				ExecEx1(netPath, "start dnscache");
-			}
-			if (ipconfigPath != "")
-				ExecEx1(ipconfigPath, "/registerdns");
-		}
-
 		if (ipconfigPath != "")
-			ExecEx1(ipconfigPath, "/flushdns");
+			ExecEx(ipconfigPath, { "/flushdns" });
 	}
 	else if (command == "windows-dns")
 	{
 		std::string interfaceName = params["interface"];
 		std::string layer = ((params["layer"] == "ipv4") ? "ipv4" : "ipv6");
 		std::string mode = params["mode"];
+		std::string netsh = FsLocateExecutable("netsh.exe");
 		if (mode == "dhcp")
 		{
-			ExecEx1(FsLocateExecutable("netsh.exe"), "interface " + layer + " set dns name=\"" + StringEnsureQuote(StringEnsureInterfaceName(interfaceName)) + "\" source=dhcp register=primary validate=no");
+			ExecEx(netsh, { "interface", layer, "set", "dns", "name=" + StringEnsureInterfaceName(interfaceName), "source=dhcp", "register=primary", "validate=no" });
 		}
 		else if (mode == "static")
 		{
 			std::string ipaddress = params["ipaddress"];
-			ExecEx1(FsLocateExecutable("netsh.exe"), "interface " + layer + " set dns name=\"" + StringEnsureQuote(StringEnsureInterfaceName(interfaceName)) + "\" source=static address=" + StringEnsureIpAddress(ipaddress) + " register=primary validate=no");
+			ExecEx(netsh, { "interface", layer, "set", "dns", "name=" + StringEnsureInterfaceName(interfaceName), "source=static", "address=" + StringEnsureIpAddress(ipaddress), "register=primary", "validate=no" });
 		}
 		else if (mode == "add")
 		{
 			std::string ipaddress = params["ipaddress"];
-			ExecEx1(FsLocateExecutable("netsh.exe"), "interface " + layer + " add dnsserver name=\"" + StringEnsureQuote(StringEnsureInterfaceName(interfaceName)) + "\" address=" + StringEnsureIpAddress(ipaddress) + " validate=no");
+			ExecEx(netsh, { "interface", layer, "add", "dnsserver", "name=" + StringEnsureInterfaceName(interfaceName), "address=" + StringEnsureIpAddress(ipaddress), "validate=no" });
 		}
-	}
-	else if (command == "windows-firewall")
-	{
-		std::string args = StringTrim(params["args"]);
-		ExecResult result = ExecEx1(FsLocateExecutable("netsh.exe"), "advfirewall " + args);
 	}
 	else if (command == "windows-workaround-25139")
 	{
 		std::string cidr = StringTrim(params["cidr"]);
 		std::string iface = StringTrim(params["iface"]);
-		ExecResult result = ExecEx1(FsLocateExecutable("netsh.exe"), "interface ipv6 del route \"" + StringEnsureCidr(cidr) + "\" interface=\"" + StringEnsureNumericInt(iface) + "\"");
+		ExecResult result = ExecEx(FsLocateExecutable("netsh.exe"), { "interface", "ipv6", "del", "route", StringEnsureCidr(cidr), "interface=" + StringEnsureNumericInt(iface) });
 	}
 	else if (command == "windows-workaround-interface-up")
 	{
 		std::string name = StringTrim(params["name"]);
-		ExecResult result = ExecEx1(FsLocateExecutable("netsh.exe"), "interface set interface \"" + StringEnsureQuote(StringEnsureInterfaceName(name)) + "\" ENABLED");
+		ExecResult result = ExecEx(FsLocateExecutable("netsh.exe"), { "interface", "set", "interface", StringEnsureInterfaceName(name), "ENABLED" });
 	}
 	else if (command == "set-interface-metric")
 	{
@@ -215,35 +201,36 @@ void IWindows::Do(const std::string& commandId, const std::string& command, std:
 	}
 	else if (command == "route")
 	{
-		std::string args = "interface ";
+		std::vector<std::string> args;
+		args.push_back("interface");
 		if (StringIsIPv4(params["destination"]))
-			args += " ipv4";
+			args.push_back("ipv4");
 		else if (StringIsIPv6(params["destination"]))
-			args += " ipv6";
+			args.push_back("ipv6");
 		else
 			ThrowException("Unknown layer");
 		if (params["action"] == "add")
-			args += " add";
+			args.push_back("add");
 		else if (params["action"] == "remove")
-			args += " del";
+			args.push_back("del");
 		else
 			ThrowException("Unknown action");
-		args += " route";
-		args += " prefix=\"" + StringEnsureCidr(params["destination"]) + "\"";
-		args += " interface=\"" + StringEnsureNumericInt(params["iface"]) + "\"";
+		args.push_back("route");
+		args.push_back("prefix=" + StringEnsureCidr(params["destination"]));
+		args.push_back("interface=" + StringEnsureNumericInt(params["iface"]));
 		if (params.find("gateway") != params.end())
 		{
 			// Remember: Win7 need also nexthop, >Win7 no.
-			args += " nexthop=\"" + StringEnsureIpAddress(params["gateway"]) + "\"";
+			args.push_back("nexthop=" + StringEnsureIpAddress(params["gateway"]));
 		}
 		if (params["action"] == "add")
 		{
 			if (params.find("metric") != params.end())
-				args += " metric=" + StringEnsureNumericInt(params["metric"]);
+				args.push_back("metric=" + StringEnsureNumericInt(params["metric"]));
 		}
-		args += " store=active";
+		args.push_back("store=active");
 
-		ExecResult shellResult = ExecEx1(FsLocateExecutable("netsh.exe"), args);
+		ExecResult shellResult = ExecEx(FsLocateExecutable("netsh.exe"), args);
 		if (shellResult.exit != 0)
 			ThrowException(GetExecResultReport(shellResult));
 	}
@@ -268,10 +255,8 @@ void IWindows::Do(const std::string& commandId, const std::string& command, std:
 		}
 		else if (action == "start")
 		{
-			std::string path = params["path"];
+			std::string path = FsLocateExecutable("openvpn.exe", true, true);
 			std::string config = params["config"];
-
-			CheckIfExecutableIsAllowed(path, true);
 
 			std::string checkResult = CheckValidOpenVpnConfigFile(config);
 			if (checkResult != "")
@@ -283,7 +268,7 @@ void IWindows::Do(const std::string& commandId, const std::string& command, std:
 				std::vector<std::string> args;
 
 				args.push_back("--config");
-				args.push_back("\"" + params["config"] + "\"");
+				args.push_back(params["config"]);
 
 				t_shellinfo info = ExecStart(path, args);
 
@@ -349,51 +334,81 @@ void IWindows::Do(const std::string& commandId, const std::string& command, std:
 		// At 2020/02/23, Hummingbird Windows is not public available.
 	}		
 	else if (command == "network-adapter-create")
-	{
-		std::string driver = params["driver"];
-		std::string name = params["name"];
-
-		std::string result = NetworkAdapterCreate(driver, name);
+	{		
+		std::string result = NetworkAdapterCreate(params["driver"], params["name"]);
 
 		ReplyCommand(commandId, result);		
 	}
 	else if (command == "network-adapter-delete")
 	{
-		std::string id = params["id"];
-
-		NetworkAdapterDelete(id);
+		NetworkAdapterDelete(params["id"]);
 	}
 	else if (command == "network-adapter-clear-all")
 	{
 		NetworkAdapterDeleteAll();
 	}
+	else if (command == "driver-install")
+	{
+		std::string result = DriverInstall(params["driver"]);
+		ReplyCommand(commandId, result);
+	}
+	else if (command == "driver-uninstall")
+	{
+		std::string result = DriverUninstall(params["driver"]);
+		ReplyCommand(commandId, result);
+	}
 	else if (command == "wireguard-version")
 	{
+		// Reads the Major.Minor of wireguard.dll (VS_FIXEDFILEINFO::dwFileVersionMS)
+		// directly from the deployed file, so the version cannot drift from the
+		// binary across upgrades. wireguard.dll (driver loader, signed by WireGuard
+		// LLC) carries the canonical "WireGuard for Windows" release tag. Returns ""
+		// when the OS floor is not met or the DLL is missing/unreadable: callers
+		// treat empty as "WireGuard unavailable".
 		std::string version = "";
-		if (IsWindows8OrGreater()) // see WintunEnsureLibrary
-			version = "0.10.1"; // Embedded, wgtunnel.dll
+		if (IsWindows10OrGreater())
+		{
+			std::string dllPath = GetProcessPathCurrentDir() + FsPathSeparator + "wireguard.dll";
+			std::wstring dllPathW = StringUTF8ToWString(dllPath);
+			DWORD handle = 0;
+			DWORD size = GetFileVersionInfoSizeW(dllPathW.c_str(), &handle);
+			if (size > 0)
+			{
+				std::vector<BYTE> buffer(size);
+				if (GetFileVersionInfoW(dllPathW.c_str(), 0, size, buffer.data()))
+				{
+					VS_FIXEDFILEINFO* info = nullptr;
+					UINT infoLen = 0;
+					if (VerQueryValueW(buffer.data(), L"\\", reinterpret_cast<LPVOID*>(&info), &infoLen) && info != nullptr && infoLen >= sizeof(VS_FIXEDFILEINFO))
+					{
+						char buf[32];
+						snprintf(buf, sizeof(buf), "%u.%u",
+							HIWORD(info->dwFileVersionMS),
+							LOWORD(info->dwFileVersionMS));
+						version = buf;
+					}
+				}
+			}
+		}
 		ReplyCommand(commandId, version);
 	}
 	else if (command == "wireguard")
 	{
 		std::string id = params["id"];
 		std::string action = params["action"];
-		std::string interfaceId = params["interface"];
+		std::string interfaceId = StringEnsureAsciiName(params["interface"]);
+		if (interfaceId.empty() || interfaceId.length() > 32)
+			ThrowException("Invalid WireGuard interface id");
 
 		std::string keypairStopRequest = "wireguard_stop_" + id;
 
 		if (action == "stop")
 		{
 			m_keypair[keypairStopRequest] = "stop";
-			//std::string serviceId = "WireGuardTunnel_" + interfaceId;
-			//ServiceGenericDelete(serviceId);
 		}
 		else if (action == "start")
 		{
 			std::string config = params["config"];
-			unsigned long handshakeTimeoutFirst = StringToULong(params["handshake_timeout_first"]);
-			unsigned long handshakeTimeoutConnected = StringToULong(params["handshake_timeout_connected"]);
-
 			std::string checkResult = CheckValidWireGuardConfig(config);
 			if (checkResult != "")
 			{
@@ -401,298 +416,264 @@ void IWindows::Do(const std::string& commandId, const std::string& command, std:
 			}
 			else
 			{
+				unsigned long handshakeTimeoutFirst = StringToULong(params["handshake_timeout_first"]);
+				unsigned long handshakeTimeoutConnected = StringToULong(params["handshake_timeout_connected"]);
+
 				ReplyCommand(commandId, "log:setup-start");
 
-				SC_HANDLE serviceControlManager = 0;
-				SC_HANDLE service = 0;
-				HANDLE hPipe = 0;
+				std::map<std::string, std::string> cfg = IniConfigToMap(config, ".", true);
 
-				std::string serviceId = "WireGuardTunnel_" + interfaceId;
-				std::string tempPath = FsGetTempPath() + "EddieTemp_" + interfaceId;
-				std::string configPath = "";
-				std::string ringPath = "";
+				HMODULE hWireGuard = NULL;
+				WIREGUARD_ADAPTER_HANDLE adapter = NULL;
+				bool adapterOwned = false;
 
 				try
 				{
-					ServiceGenericDelete(serviceId); // Delete if already exists
+					std::string dllPath = FsLocateExecutable("wireguard.dll", true, true);
+					hWireGuard = LoadLibraryExW(StringUTF8ToWString(dllPath).c_str(), NULL, LOAD_WITH_ALTERED_SEARCH_PATH);
+					if (hWireGuard == NULL)
+						ThrowException("Unable to load wireguard.dll (" + GetLastErrorAsString() + ")");
 
-					if (FsDirectoryCreate(tempPath) == false)
-						ThrowException("Unable to create config directory (" + GetLastErrorAsString() + ")");
+					WIREGUARD_CREATE_ADAPTER_FUNC* WgCreateAdapter = (WIREGUARD_CREATE_ADAPTER_FUNC*)GetProcAddress(hWireGuard, "WireGuardCreateAdapter");
+					WIREGUARD_OPEN_ADAPTER_FUNC* WgOpenAdapter = (WIREGUARD_OPEN_ADAPTER_FUNC*)GetProcAddress(hWireGuard, "WireGuardOpenAdapter");
+					WIREGUARD_CLOSE_ADAPTER_FUNC* WgCloseAdapter = (WIREGUARD_CLOSE_ADAPTER_FUNC*)GetProcAddress(hWireGuard, "WireGuardCloseAdapter");
+					WIREGUARD_GET_ADAPTER_LUID_FUNC* WgGetAdapterLuid = (WIREGUARD_GET_ADAPTER_LUID_FUNC*)GetProcAddress(hWireGuard, "WireGuardGetAdapterLUID");
+					WIREGUARD_SET_CONFIGURATION_FUNC* WgSetConfiguration = (WIREGUARD_SET_CONFIGURATION_FUNC*)GetProcAddress(hWireGuard, "WireGuardSetConfiguration");
+					WIREGUARD_GET_CONFIGURATION_FUNC* WgGetConfiguration = (WIREGUARD_GET_CONFIGURATION_FUNC*)GetProcAddress(hWireGuard, "WireGuardGetConfiguration");
+					WIREGUARD_SET_ADAPTER_STATE_FUNC* WgSetAdapterState = (WIREGUARD_SET_ADAPTER_STATE_FUNC*)GetProcAddress(hWireGuard, "WireGuardSetAdapterState");
 
-					configPath = tempPath + FsPathSeparator + interfaceId + ".conf";
+					if (WgCreateAdapter == NULL || WgOpenAdapter == NULL || WgCloseAdapter == NULL || WgGetAdapterLuid == NULL || WgSetConfiguration == NULL || WgGetConfiguration == NULL || WgSetAdapterState == NULL)
+						ThrowException("wireguard.dll is missing the expected WireGuardNT exports");
 
-					if (FsFileWriteText(configPath, config) == false)
-						ThrowException("Unable to write config file (" + GetLastErrorAsString() + ")");
+					std::wstring interfaceIdW = StringUTF8ToWString(interfaceId);
 
-					ringPath = tempPath + FsPathSeparator + "log.bin";
-
-					if (FsFileExists(ringPath))
-						if (FsFileDelete(ringPath) == false)
-							ThrowException("Unable to clean previous ring file (" + GetLastErrorAsString() + ")");
-
-					// Start an ad-hoc service (cannot call wgtunnel.dll directly here), required by current Windows WireGuard code.
-					serviceControlManager = OpenSCManager(0, 0, SC_MANAGER_ALL_ACCESS); // GENERIC_WRITE is not enough
-					if (!serviceControlManager)
-						ThrowException("Services management failed (" + GetLastErrorAsString() + ")");
-					else
+					// Drop any stale adapter from a previous unclean run.
+					adapter = WgOpenAdapter(interfaceIdW.c_str());
+					if (adapter != NULL)
 					{
-						std::string elevatedPath = GetProcessPathCurrent();
-						std::string path = FsFileGetDirectory(GetProcessPathCurrent()) + FsPathSeparator + "Eddie-CLI-Elevated.exe";
-						std::string pathWithArgs = "\"" + path + "\" mode=wireguard config=\"" + configPath + "\"";
+						WgCloseAdapter(adapter);
+						adapter = NULL;
+					}
 
-						std::wstring serviceIdW = StringUTF8ToWString(serviceId);
-						std::wstring serviceNameW = TEXT("WireGuard Eddie - Interface ") + StringUTF8ToWString(interfaceId);
-						std::wstring servicePathW = StringUTF8ToWString(pathWithArgs);
-						LPCWSTR serviceDependsW = TEXT("Nsi\0TcpIp"); // Added in 2.21.0
-						serviceDependsW = NULL; // Removed, cause issue. Anyway Elevated itself have this depends.
-						service = CreateService(serviceControlManager, serviceIdW.c_str(), serviceNameW.c_str(), SC_MANAGER_ALL_ACCESS, SERVICE_WIN32_OWN_PROCESS, SERVICE_DEMAND_START, SERVICE_ERROR_NORMAL, servicePathW.c_str(), NULL, NULL, serviceDependsW, NULL, NULL);
-						if (!service)
-							ThrowException("Service creation failed (" + GetLastErrorAsString() + ")");
+					adapter = WgCreateAdapter(interfaceIdW.c_str(), L"Eddie", NULL);
+					if (adapter == NULL)
+						ThrowException("Unable to create WireGuard adapter (" + GetLastErrorAsString() + ")");
+					adapterOwned = true;
+
+					// Interface keys / listen port
+					BYTE interfacePrivateKey[WIREGUARD_KEY_LENGTH];
+					{
+						std::string rawKey = StringBase64Decode(cfg["interface.privatekey"]);
+						if (rawKey.size() != WIREGUARD_KEY_LENGTH)
+							ThrowException("Invalid interface private key");
+						memcpy(interfacePrivateKey, rawKey.data(), WIREGUARD_KEY_LENGTH);
+					}
+
+					// Peer keys
+					BYTE peerPublicKey[WIREGUARD_KEY_LENGTH];
+					{
+						std::string rawKey = StringBase64Decode(cfg["peer.publickey"]);
+						if (rawKey.size() != WIREGUARD_KEY_LENGTH)
+							ThrowException("Invalid peer public key");
+						memcpy(peerPublicKey, rawKey.data(), WIREGUARD_KEY_LENGTH);
+					}
+
+					bool hasPresharedKey = false;
+					BYTE peerPresharedKey[WIREGUARD_KEY_LENGTH];
+					if (cfg.find("peer.presharedkey") != cfg.end() && cfg["peer.presharedkey"] != "")
+					{
+						std::string rawKey = StringBase64Decode(cfg["peer.presharedkey"]);
+						if (rawKey.size() != WIREGUARD_KEY_LENGTH)
+							ThrowException("Invalid peer preshared key");
+						memcpy(peerPresharedKey, rawKey.data(), WIREGUARD_KEY_LENGTH);
+						hasPresharedKey = true;
+					}
+
+					SOCKADDR_INET peerEndpoint;
+					if (WireGuardParseEndpoint(cfg["peer.endpoint"], peerEndpoint) == false)
+						ThrowException("Invalid peer endpoint");
+
+					std::vector<std::string> allowedIps = StringToVector(cfg["peer.allowedips"], ',', true);
+
+					// Build the contiguous WireGuardNT configuration buffer.
+					size_t configSize = sizeof(WIREGUARD_INTERFACE) + sizeof(WIREGUARD_PEER) + allowedIps.size() * sizeof(WIREGUARD_ALLOWED_IP);
+					std::vector<BYTE> configBuffer(configSize, 0);
+
+					WIREGUARD_INTERFACE* wgInterface = (WIREGUARD_INTERFACE*)configBuffer.data();
+					wgInterface->Flags = (WIREGUARD_INTERFACE_FLAG)(WIREGUARD_INTERFACE_HAS_PRIVATE_KEY | WIREGUARD_INTERFACE_REPLACE_PEERS);
+					memcpy(wgInterface->PrivateKey, interfacePrivateKey, WIREGUARD_KEY_LENGTH);
+					if (cfg.find("interface.listenport") != cfg.end() && cfg["interface.listenport"] != "")
+					{
+						wgInterface->Flags = (WIREGUARD_INTERFACE_FLAG)(wgInterface->Flags | WIREGUARD_INTERFACE_HAS_LISTEN_PORT);
+						wgInterface->ListenPort = (WORD)StringToULong(cfg["interface.listenport"]);
+					}
+					wgInterface->PeersCount = 1;
+
+					WIREGUARD_PEER* wgPeer = (WIREGUARD_PEER*)(configBuffer.data() + sizeof(WIREGUARD_INTERFACE));
+					wgPeer->Flags = (WIREGUARD_PEER_FLAG)(WIREGUARD_PEER_HAS_PUBLIC_KEY | WIREGUARD_PEER_HAS_ENDPOINT | WIREGUARD_PEER_REPLACE_ALLOWED_IPS);
+					memcpy(wgPeer->PublicKey, peerPublicKey, WIREGUARD_KEY_LENGTH);
+					if (hasPresharedKey)
+					{
+						wgPeer->Flags = (WIREGUARD_PEER_FLAG)(wgPeer->Flags | WIREGUARD_PEER_HAS_PRESHARED_KEY);
+						memcpy(wgPeer->PresharedKey, peerPresharedKey, WIREGUARD_KEY_LENGTH);
+					}
+					if (cfg.find("peer.persistentkeepalive") != cfg.end() && cfg["peer.persistentkeepalive"] != "")
+					{
+						wgPeer->Flags = (WIREGUARD_PEER_FLAG)(wgPeer->Flags | WIREGUARD_PEER_HAS_PERSISTENT_KEEPALIVE);
+						wgPeer->PersistentKeepalive = (WORD)StringToULong(cfg["peer.persistentkeepalive"]);
+					}
+					wgPeer->Endpoint = peerEndpoint;
+					wgPeer->AllowedIPsCount = (DWORD)allowedIps.size();
+
+					WIREGUARD_ALLOWED_IP* wgAllowedIp = (WIREGUARD_ALLOWED_IP*)(configBuffer.data() + sizeof(WIREGUARD_INTERFACE) + sizeof(WIREGUARD_PEER));
+					for (size_t i = 0; i < allowedIps.size(); i++)
+					{
+						ADDRESS_FAMILY family = 0;
+						IN_ADDR v4;
+						IN6_ADDR v6;
+						BYTE cidr = 0;
+						if (WireGuardParseInetCidr(allowedIps[i], family, v4, v6, cidr) == false)
+							ThrowException("Invalid allowed IP '" + allowedIps[i] + "'");
+						wgAllowedIp[i].AddressFamily = family;
+						wgAllowedIp[i].Cidr = cidr;
+						if (family == AF_INET)
+							wgAllowedIp[i].Address.V4 = v4;
+						else
+							wgAllowedIp[i].Address.V6 = v6;
+					}
+
+					if (WgSetConfiguration(adapter, wgInterface, (DWORD)configSize) == FALSE)
+						ThrowException("Unable to set WireGuard configuration (" + GetLastErrorAsString() + ")");
+
+					NET_LUID luid;
+					WgGetAdapterLuid(adapter, &luid);
+
+					// Assign interface addresses.
+					std::vector<std::string> interfaceAddresses = StringToVector(cfg["interface.address"], ',', true);
+					bool hasV4 = false;
+					bool hasV6 = false;
+					for (std::vector<std::string>::const_iterator i = interfaceAddresses.begin(); i != interfaceAddresses.end(); ++i)
+					{
+						ADDRESS_FAMILY family = 0;
+						IN_ADDR v4;
+						IN6_ADDR v6;
+						BYTE cidr = 0;
+						if (WireGuardParseInetCidr(*i, family, v4, v6, cidr) == false)
+							ThrowException("Invalid interface address '" + *i + "'");
+
+						MIB_UNICASTIPADDRESS_ROW addressRow;
+						InitializeUnicastIpAddressEntry(&addressRow);
+						addressRow.InterfaceLuid = luid;
+						addressRow.OnLinkPrefixLength = cidr;
+						addressRow.DadState = IpDadStatePreferred;
+						if (family == AF_INET)
+						{
+							addressRow.Address.Ipv4.sin_family = AF_INET;
+							addressRow.Address.Ipv4.sin_addr = v4;
+							hasV4 = true;
+						}
 						else
 						{
-							// Init service
-							SERVICE_SID_INFO svcSidInfo;
-							svcSidInfo.dwServiceSidType = SERVICE_SID_TYPE_UNRESTRICTED;
-							if (!ChangeServiceConfig2(service, SERVICE_CONFIG_SERVICE_SID_INFO, &svcSidInfo))
-								ThrowException("Change type failed (" + GetLastErrorAsString() + ")");
-
-							// Start service
-							if (!StartService(service, 0, NULL))
-							{
-								// If the service fail to start, it write reason in a temporary file.
-								std::string errorPath = configPath + ".fatal";
-								if (FsFileExists(errorPath))
-									ThrowException("Failed to start: " + FsFileReadText(errorPath));
-								else
-									ThrowException("Failed to start: " + GetLastErrorAsString());
-							}
-
-							// Wait running
-							bool waitSuccess = false;
-							SERVICE_STATUS serviceStatusWait;
-							for (int t = 0; t < 100; t++) // 10 seconds timeout
-							{
-								if (QueryServiceStatus(service, &serviceStatusWait))
-								{
-									if (serviceStatusWait.dwCurrentState == SERVICE_RUNNING)
-									{
-										waitSuccess = true;
-										break;
-									}
-									else
-									{
-										::Sleep(100);
-									}
-								}
-								else
-									break;
-							}
-							if (!waitSuccess)
-								ThrowException("Failed to start: not running");
-
-							/*
-							// Data Pipe - Not yet implemented, not need
-							const int BUFSIZE = 512;
-
-							TCHAR  chBuf[BUFSIZE];
-							BOOL   fSuccess = FALSE;
-							DWORD  cbRead, cbToWrite, cbWritten, dwMode;
-							std::wstring pipeCommandW = StringUTF8ToWString("get=1\n\n");
-							std::wstring pipeNameW = StringUTF8ToWString("\\\\.\\pipe\\ProtectedPrefix\\Administrators\\WireGuard\\Eddie_WireGuard");
-							LPCTSTR lpvMessage = pipeCommandW.c_str();
-							while (1)
-							{
-								hPipe = CreateFile(pipeNameW.c_str(), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
-								if (hPipe != INVALID_HANDLE_VALUE)
-									break;
-								if (GetLastError() != ERROR_PIPE_BUSY)
-									ThrowException("Could not open pipe (" + GetLastErrorAsString() + ")");
-								if (!WaitNamedPipe(pipeNameW.c_str(), 10000))
-									ThrowException("Could not open pipe: 20 second wait timed out");
-							}
-
-							dwMode = PIPE_READMODE_MESSAGE;
-							fSuccess = SetNamedPipeHandleState(hPipe, &dwMode, NULL, NULL);
-							if (!fSuccess)
-								ThrowException("SetNamedPipeHandleState failed (" + GetLastErrorAsString() + ")");
-
-							for(;;)
-							{
-								{
-									cbToWrite = (lstrlen(lpvMessage) + 1) * sizeof(TCHAR);
-									fSuccess = WriteFile(hPipe, pipeCommandW.c_str(), cbToWrite, &cbWritten, NULL);
-									if (!fSuccess)
-										ThrowException("WriteFile to pipe failed (" + GetLastErrorAsString() + ")");
-								}
-
-								{
-									do
-									{
-										fSuccess = ReadFile(hPipe, chBuf, BUFSIZE * sizeof(TCHAR), &cbRead, NULL);
-										if (!fSuccess && GetLastError() != ERROR_MORE_DATA)
-											break;
-										ReplyCommand(commandId, "mypipe:" + StringWStringToUTF8(chBuf));
-									} while (!fSuccess);
-								}
-							}
-							*/
-
-							// Ring Log
-							DWORD ringMagicExpected = 0xbadbabe;
-							DWORD ringPositionMagic = 0;
-							DWORD ringPositionNextIndex = 4;
-							DWORD ringMaxLineLength = 512;
-							DWORD ringHeaderBytes = 8;
-							DWORD ringMaxLines = 2048;
-							DWORD ringLineBytes = ringMaxLineLength + ringHeaderBytes;
-							char ringBufLine[512];
-
-							DWORD ringReaded = 0;
-							HANDLE hRingFile = CreateFileA(ringPath.c_str(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-							if (hRingFile == INVALID_HANDLE_VALUE)
-								ThrowException("Unable to open log ring (" + GetLastErrorAsString() + ")");
-
-							// Read Magic
-							DWORD ringMagic = 0;
-							SetFilePointer(hRingFile, ringPositionMagic, NULL, FILE_BEGIN);
-							if (!ReadFile(hRingFile, &ringMagic, 4, &ringReaded, NULL))
-								ThrowException("Unable to read log ring (" + GetLastErrorAsString() + ")");
-							if (ringMagic != ringMagicExpected)
-								ThrowException("Magic not match, " + std::to_string(ringMagicExpected) + " vs " + std::to_string(ringMagic));
-
-							ReplyCommand(commandId, "log:setup-complete");
-
-							std::vector<std::string> logs;
-
-							unsigned long handshakeStart = GetTimestampUnix();
-							unsigned long handshakeLast = 0;
-
-							DWORD ringCursor = 0;
-							DWORD ringCurrent = 0;
-							bool stop = false;
-							for (;;)
-							{
-								if (stop)
-									break;
-
-								// Ring read
-								if (true)
-								{
-									DWORD ringNextIndex = 0;
-									SetFilePointer(hRingFile, ringPositionNextIndex, NULL, FILE_BEGIN);
-									if (!ReadFile(hRingFile, &ringNextIndex, 4, &ringReaded, NULL))
-										ThrowException("Unable to read log ring (" + GetLastErrorAsString() + ")");
-
-									for (;;)
-									{
-										if (ringCurrent == ringNextIndex)
-											break;
-
-										if (ringCurrent > ringNextIndex) // Never occur unless unexpected situation
-											break;
-
-										DWORD ringCursor = ringCurrent % ringMaxLines;
-
-										DWORD readOffset = (ringHeaderBytes + ringCursor * ringLineBytes);
-
-										SetFilePointer(hRingFile, readOffset + 8, NULL, FILE_BEGIN);
-										bool readResult = ReadFile(hRingFile, &ringBufLine[0], ringMaxLineLength, &ringReaded, NULL);
-
-										if (ringBufLine[0] != 0)
-										{
-											std::string line = ringBufLine;
-
-											logs.push_back(line);
-										}
-
-										ringCurrent++;
-									}
-								}
-
-								for (std::vector<std::string>::const_iterator i = logs.begin(); i != logs.end(); ++i)
-								{
-									std::string line = *i;
-
-									// Normalize
-									line = StringReplaceAll(line, "[TUN]", "");
-									line = StringReplaceAll(line, "[" + interfaceId + "]", "");
-									line = StringTrim(line);
-
-									bool skip = false;
-									//if (StringStartsWith(line, "Routine:")) skip = true; // pre WireGuard-NT
-
-									if (StringStartsWith(line, "Receiving handshake response from peer")) skip = true; // Useless, too much
-									if (StringStartsWith(line, "Receiving keepalive packet from peer")) skip = true; // Useless, too much
-									if (StringStartsWith(line, "Sending keepalive packet to peer")) skip = true; // Useless, too much
-									if (StringStartsWith(line, "Sending handshake initiation to peer")) skip = true; // Useless, too much
-									if (StringContain(line, "created for peer")) skip = true; // Useless, too much // 'Keypair 1 created for peer 1'
-									if (StringContain(line, "destroyed for peer")) skip = true; // Useless, too much // 'Keypair 1 destroyed for peer 1'
-
-									//if (StringContain(line, "Bringing peers up")) // pre WireGuard-NT						
-									if (StringStartsWith(line, "Setting interface configuration"))
-										ReplyCommand(commandId, "log:setup-interface");
-
-									//if (StringContain(line, "Shutting down")) stop = true; // pre WireGuard-NT
-									if (StringStartsWith(line, "Completed")) stop = true;
-
-									// Note: the exact handshake can be obtained with pipe (the only info we need), but not implemented to avoid complexity
-									// Note: there is also "Received first handshake" from WireGuard-NT, not used.
-									//if (StringStartsWith(line, "Received handshake response")) // pre WireGuard-NT
-									if (StringStartsWith(line, "Receiving handshake response")) // WireGuard-NT
-									{
-										unsigned long handshakeNow = GetTimestampUnix();
-
-										if (handshakeLast != handshakeNow)
-										{
-											if (handshakeLast == 0)
-												ReplyCommand(commandId, "log:handshake-first");
-
-											//ReplyCommand(commandId, "log:last-handshake:" + StringFrom(handshakeNow));
-											handshakeLast = handshakeNow;
-										}
-									}
-
-									if (skip == false)
-									{
-										ReplyCommand(commandId, "log:" + line);
-									}
-								}
-								logs.clear();
-
-								unsigned long timeNow = GetTimestampUnix();
-								if (handshakeLast > 0)
-								{
-									unsigned long handshakeDelta = timeNow - handshakeLast;
-
-									if (handshakeDelta > handshakeTimeoutConnected)
-									{
-										// Too much, suggest disconnect
-										ReplyCommand(commandId, "log:handshake-out");
-									}
-								}
-								else
-								{
-									unsigned long handshakeDelta = timeNow - handshakeStart;
-
-									if (handshakeDelta > handshakeTimeoutFirst)
-									{
-										// Too much, suggest disconnect
-										ReplyCommand(commandId, "log:handshake-out");
-									}
-								}
-
-								// Check stop requested
-								if (m_keypair.find(keypairStopRequest) != m_keypair.end())
-								{
-									ReplyCommand(commandId, "log:stop-requested");
-									break;
-								}
-
-								Sleep(100);
-							}
-
-							CloseHandle(hRingFile);
+							addressRow.Address.Ipv6.sin6_family = AF_INET6;
+							addressRow.Address.Ipv6.sin6_addr = v6;
+							hasV6 = true;
 						}
+
+						DWORD addressResult = CreateUnicastIpAddressEntry(&addressRow);
+						if (addressResult != NO_ERROR && addressResult != ERROR_OBJECT_ALREADY_EXISTS)
+							ThrowException("Unable to assign interface address '" + *i + "' (" + std::to_string(addressResult) + ")");
+					}
+
+					// Apply MTU on the address families in use.
+					if (cfg.find("interface.mtu") != cfg.end() && cfg["interface.mtu"] != "")
+					{
+						unsigned long mtu = StringToULong(cfg["interface.mtu"]);
+						if (mtu > 0)
+						{
+							for (int pass = 0; pass < 2; pass++)
+							{
+								ADDRESS_FAMILY family = (pass == 0) ? AF_INET : AF_INET6;
+								if (family == AF_INET && hasV4 == false)
+									continue;
+								if (family == AF_INET6 && hasV6 == false)
+									continue;
+
+								MIB_IPINTERFACE_ROW ipInterface;
+								InitializeIpInterfaceEntry(&ipInterface);
+								ipInterface.InterfaceLuid = luid;
+								ipInterface.Family = family;
+								if (GetIpInterfaceEntry(&ipInterface) == NO_ERROR)
+								{
+									ipInterface.NlMtu = (ULONG)mtu;
+									if (family == AF_INET)
+										ipInterface.SitePrefixLength = 0; // required for IPv4 as per MSDN
+									SetIpInterfaceEntry(&ipInterface);
+								}
+							}
+						}
+					}
+
+					if (WgSetAdapterState(adapter, WIREGUARD_ADAPTER_STATE_UP) == FALSE)
+						ThrowException("Unable to bring WireGuard adapter up (" + GetLastErrorAsString() + ")");
+
+					ReplyCommand(commandId, "log:setup-complete");
+
+					// Triggers SearchTunNetworkInterfaceByName() on the C# side.
+					ReplyCommand(commandId, "log:setup-interface");
+
+					unsigned long handshakeStart = GetTimestampUnix();
+					unsigned long handshakeLast = 0;
+					DWORD64 handshakeFiletimePrev = 0;
+
+					std::vector<BYTE> pollBuffer(configSize);
+
+					for (;;)
+					{
+						// Read live configuration to detect handshakes.
+						DWORD bytes = (DWORD)pollBuffer.size();
+						BOOL pollResult = WgGetConfiguration(adapter, (WIREGUARD_INTERFACE*)pollBuffer.data(), &bytes);
+						if (pollResult == FALSE && GetLastError() == ERROR_MORE_DATA)
+						{
+							pollBuffer.resize(bytes);
+							pollResult = WgGetConfiguration(adapter, (WIREGUARD_INTERFACE*)pollBuffer.data(), &bytes);
+						}
+
+						if (pollResult != FALSE)
+						{
+							WIREGUARD_INTERFACE* liveInterface = (WIREGUARD_INTERFACE*)pollBuffer.data();
+							if (liveInterface->PeersCount >= 1)
+							{
+								WIREGUARD_PEER* livePeer = (WIREGUARD_PEER*)(pollBuffer.data() + sizeof(WIREGUARD_INTERFACE));
+								if (livePeer->LastHandshake != 0 && livePeer->LastHandshake != handshakeFiletimePrev)
+								{
+									handshakeFiletimePrev = livePeer->LastHandshake;
+									if (handshakeLast == 0)
+										ReplyCommand(commandId, "log:handshake-first");
+									handshakeLast = GetTimestampUnix();
+								}
+							}
+						}
+
+						unsigned long timeNow = GetTimestampUnix();
+						if (handshakeLast > 0)
+						{
+							if (timeNow - handshakeLast > handshakeTimeoutConnected)
+								ReplyCommand(commandId, "log:handshake-out");
+						}
+						else
+						{
+							if (timeNow - handshakeStart > handshakeTimeoutFirst)
+								ReplyCommand(commandId, "log:handshake-out");
+						}
+
+						// Check stop requested
+						if (m_keypair.find(keypairStopRequest) != m_keypair.end())
+						{
+							ReplyCommand(commandId, "log:stop-requested");
+							break;
+						}
+
+						Sleep(100);
 					}
 				}
 				catch (std::exception& e)
@@ -706,24 +687,26 @@ void IWindows::Do(const std::string& commandId, const std::string& command, std:
 
 				ReplyCommand(commandId, "log:stop-interface");
 
-				// Close Data Pipe
-				if (hPipe != 0)
-					CloseHandle(hPipe);
+				if (adapter != NULL)
+				{
+					if (adapterOwned && hWireGuard != NULL)
+					{
+						WIREGUARD_SET_ADAPTER_STATE_FUNC* WgSetAdapterStateDown = (WIREGUARD_SET_ADAPTER_STATE_FUNC*)GetProcAddress(hWireGuard, "WireGuardSetAdapterState");
+						if (WgSetAdapterStateDown != NULL)
+							WgSetAdapterStateDown(adapter, WIREGUARD_ADAPTER_STATE_DOWN);
+					}
 
-				// Stop and delete service
-				ServiceGenericDelete(serviceId);
+					WIREGUARD_CLOSE_ADAPTER_FUNC* WgCloseAdapterFinal = (hWireGuard != NULL) ? (WIREGUARD_CLOSE_ADAPTER_FUNC*)GetProcAddress(hWireGuard, "WireGuardCloseAdapter") : NULL;
+					if (WgCloseAdapterFinal != NULL)
+						WgCloseAdapterFinal(adapter);
+					adapter = NULL;
+				}
 
-
-				// Stop and delete temp files
-				FsFileDelete(configPath);
-				FsFileDelete(ringPath);
-				FsDirectoryDelete(tempPath, false);
-
-				// Close service handlers
-				if (service != 0)
-					CloseServiceHandle(service);
-				if (serviceControlManager != 0)
-					CloseServiceHandle(serviceControlManager);
+				if (hWireGuard != NULL)
+				{
+					FreeLibrary(hWireGuard);
+					hWireGuard = NULL;
+				}
 
 				ReplyCommand(commandId, "log:stop");
 			}
@@ -774,7 +757,7 @@ bool IWindows::ServiceInstall()
 
 	// Copy in a secure directory the launcher
 	bool securePath = false;
-	if (CheckIfExecutableIsAllowed(servicePath, false, true))
+	if (IsSecureServiceLocation(servicePath))
 	{
 
 	}
@@ -866,6 +849,12 @@ bool IWindows::ServiceInstall()
 		CloseServiceHandle(serviceControlManager);
 	}
 
+	if (success)
+	{
+		LogLocal("Service installed");
+		LogRemote("Service installed");
+	}
+
 	return success;
 }
 
@@ -874,6 +863,9 @@ bool IWindows::ServiceUninstall()
 	if (IsServiceInstalled())
 	{
 		IntegrityCheckClean("service");
+
+		LogLocal("Service uninstalled");
+		LogRemote("Service uninstalled");
 
 		wchar_t systemDirectory[MAX_PATH];
 		UINT size = GetSystemDirectoryW(systemDirectory, MAX_PATH);
@@ -938,6 +930,11 @@ void IWindows::AddTorCookiePaths(const std::string& torPath, const std::string& 
 // --------------------------
 // Virtual Pure, OS
 // --------------------------
+
+std::string IWindows::GetDevLogPath()
+{
+	return "C:\\eddie-elevated.log";
+}
 
 bool IWindows::IsRoot()
 {
@@ -1231,15 +1228,46 @@ bool IWindows::FsDirectoryDelete(const std::string& path, bool recursive)
 	if (FsDirectoryExists(path) == false)
 		return true;
 
-	if (recursive == false)
+	std::wstring pathW = StringUTF8ToWString(path);
+
+	if (recursive)
 	{
-		return ::RemoveDirectoryW(StringUTF8ToWString(path).c_str());
+		WIN32_FIND_DATAW findData;
+		HANDLE hFind = ::FindFirstFileW((pathW + L"\\*").c_str(), &findData);
+		if (hFind == INVALID_HANDLE_VALUE)
+			return false;
+
+		bool ok = true;
+		do
+		{
+			std::wstring name = findData.cFileName;
+			if (name == L"." || name == L"..")
+				continue;
+
+			std::wstring childW = pathW + L"\\" + name;
+
+			if (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+			{
+				if (findData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)
+					ok = (::RemoveDirectoryW(childW.c_str()) != FALSE); // junction/symlink: remove the link, never recurse into target
+				else
+					ok = FsDirectoryDelete(StringWStringToUTF8(childW), true);
+			}
+			else
+			{
+				if (findData.dwFileAttributes & FILE_ATTRIBUTE_READONLY)
+					::SetFileAttributesW(childW.c_str(), FILE_ATTRIBUTE_NORMAL);
+				ok = (::DeleteFileW(childW.c_str()) != FALSE);
+			}
+		} while (ok && (::FindNextFileW(hFind, &findData) != FALSE));
+
+		::FindClose(hFind);
+
+		if (ok == false)
+			return false;
 	}
-	else
-	{
-		// Not need yet
-		return false;
-	}
+
+	return ::RemoveDirectoryW(pathW.c_str());
 }
 
 bool IWindows::FsFileMove(const std::string& source, const std::string& destination)
@@ -1314,6 +1342,14 @@ std::string IWindows::FsGetTempPath()
 	return StringWStringToUTF8(path);
 }
 
+std::string IWindows::GetStagingDir()
+{
+	WCHAR programData[MAX_PATH];
+	DWORD len = ::GetEnvironmentVariableW(L"ProgramData", programData, MAX_PATH);
+	std::string base = (len > 0 && len < MAX_PATH) ? StringWStringToUTF8(programData) : "C:\\ProgramData";
+	return base + "\\Eddie-VPN\\stage";
+}
+
 std::vector<std::string> IWindows::FsGetEnvPath()
 {
 	// In Linux/macOS, we use the path. Anyway, we check if root-owned.
@@ -1356,10 +1392,142 @@ bool IWindows::FsFileEnsureRootOnly(std::string path)
 	return true;
 }
 
+bool IWindows::FsFileMakeRunnable(const std::string& path)
+{
+	// No-op on Windows: staged files inherit the staging directory's protected DACL
+	// (SYSTEM + Administrators only), and there is no POSIX-style executable bit.
+	return true;
+}
+
 bool IWindows::FsFileIsRootOnly(std::string path)
 {
-	// Not used in Windows
-	return true;
+	if (FsFileExists(path) == false)
+		return false;
+	return CheckExecutablePathPermissions(path).empty();
+}
+
+bool IWindows::FsDirectoryEnsureRootOnly(std::string path)
+{
+	std::wstring pathW = StringUTF8ToWString(path);
+
+	PSID pSidSystem = NULL;
+	PSID pSidAdmins = NULL;
+	if (ConvertStringSidToSidW(L"S-1-5-18", &pSidSystem) == FALSE) // SYSTEM
+		return false;
+	if (ConvertStringSidToSidW(L"S-1-5-32-544", &pSidAdmins) == FALSE) // Administrators
+	{
+		LocalFree(pSidSystem);
+		return false;
+	}
+
+	EXPLICIT_ACCESSW ea[2];
+	ZeroMemory(&ea, sizeof(ea));
+
+	ea[0].grfAccessPermissions = GENERIC_ALL;
+	ea[0].grfAccessMode = SET_ACCESS;
+	ea[0].grfInheritance = SUB_CONTAINERS_AND_OBJECTS_INHERIT;
+	ea[0].Trustee.TrusteeForm = TRUSTEE_IS_SID;
+	ea[0].Trustee.TrusteeType = TRUSTEE_IS_USER;
+	ea[0].Trustee.ptstrName = (LPWSTR)pSidSystem;
+
+	ea[1].grfAccessPermissions = GENERIC_ALL;
+	ea[1].grfAccessMode = SET_ACCESS;
+	ea[1].grfInheritance = SUB_CONTAINERS_AND_OBJECTS_INHERIT;
+	ea[1].Trustee.TrusteeForm = TRUSTEE_IS_SID;
+	ea[1].Trustee.TrusteeType = TRUSTEE_IS_GROUP;
+	ea[1].Trustee.ptstrName = (LPWSTR)pSidAdmins;
+
+	PACL pDacl = NULL;
+	bool ok = (SetEntriesInAclW(2, ea, NULL, &pDacl) == ERROR_SUCCESS);
+
+	if (ok && FsDirectoryExists(path) == false)
+	{
+		if (::CreateDirectoryW(pathW.c_str(), NULL) == FALSE)
+			ok = false;
+	}
+
+	if (ok)
+	{
+		// PROTECTED_DACL_SECURITY_INFORMATION drops inherited ACEs, so a permissive parent cannot loosen this directory.
+		DWORD dwRes = SetNamedSecurityInfoW((LPWSTR)pathW.c_str(), SE_FILE_OBJECT,
+			DACL_SECURITY_INFORMATION | PROTECTED_DACL_SECURITY_INFORMATION,
+			NULL, NULL, pDacl, NULL);
+		if (dwRes != ERROR_SUCCESS)
+			ok = false;
+	}
+
+	if (pDacl != NULL)
+		LocalFree(pDacl);
+	LocalFree(pSidSystem);
+	LocalFree(pSidAdmins);
+
+	return ok;
+}
+
+bool IWindows::FsDirectoryIsRootOnly(std::string path)
+{
+	if (FsDirectoryExists(path) == false)
+		return false;
+
+	std::wstring pathW = StringUTF8ToWString(path);
+
+	PACL pDacl = NULL;
+	PSECURITY_DESCRIPTOR pSD = NULL;
+	if (GetNamedSecurityInfoW(pathW.c_str(), SE_FILE_OBJECT, DACL_SECURITY_INFORMATION, NULL, NULL, &pDacl, NULL, &pSD) != ERROR_SUCCESS)
+		return false;
+
+	bool rootOnly = true;
+
+	PSID pSidSystem = NULL;
+	PSID pSidAdmins = NULL;
+	PSID pSidTrustedInstaller = NULL;
+	ConvertStringSidToSidW(L"S-1-5-18", &pSidSystem); // SYSTEM
+	ConvertStringSidToSidW(L"S-1-5-32-544", &pSidAdmins); // Administrators
+	ConvertStringSidToSidW(L"S-1-5-80-956008885-3418522649-1831038044-1853292631-2271478464", &pSidTrustedInstaller); // TrustedInstaller
+
+	if (pDacl == NULL)
+	{
+		rootOnly = false; // NULL DACL means unrestricted access
+	}
+	else
+	{
+		for (DWORD i = 0; (i < pDacl->AceCount) && rootOnly; i++)
+		{
+			LPVOID pAce;
+			if (GetAce(pDacl, i, &pAce))
+			{
+				ACE_HEADER* aceHeader = (ACE_HEADER*)pAce;
+				if (aceHeader->AceType == ACCESS_ALLOWED_ACE_TYPE)
+				{
+					ACCESS_ALLOWED_ACE* allowedAce = (ACCESS_ALLOWED_ACE*)pAce;
+					if ((allowedAce->Mask & FILE_ADD_FILE) == FILE_ADD_FILE)
+					{
+						PSID pAceSid = (PSID)&allowedAce->SidStart;
+
+						if ((pSidSystem != NULL) && (EqualSid(pAceSid, pSidSystem)))
+							continue;
+						if ((pSidAdmins != NULL) && (EqualSid(pAceSid, pSidAdmins)))
+							continue;
+						if ((pSidTrustedInstaller != NULL) && (EqualSid(pAceSid, pSidTrustedInstaller)))
+							continue;
+
+						rootOnly = false; // A non-privileged trustee can create entries
+					}
+				}
+			}
+		}
+	}
+
+	if (pSidSystem != NULL)
+		FreeSid(pSidSystem);
+	if (pSidAdmins != NULL)
+		FreeSid(pSidAdmins);
+	if (pSidTrustedInstaller != NULL)
+		FreeSid(pSidTrustedInstaller);
+	if (pSD != NULL)
+		LocalFree(pSD);
+
+	return rootOnly;
 }
 
 bool IWindows::SocketIsValid(HSOCKET s)
@@ -1393,6 +1561,283 @@ void IWindows::SocketClose(HSOCKET s)
 int IWindows::SocketGetLastErrorCode()
 {
 	return WSAGetLastError();
+}
+
+// --------------------------
+// Virtual Pure, IPC transport
+// --------------------------
+
+void IWindows::TransportListen(int port)
+{
+#ifdef EDDIE_IPC_NAMEDPIPE
+	// Named pipe transport. The NULL DACL lets any local user reach the SYSTEM-created pipe;
+	// connecting clients are authenticated by the integrity gate in Main(), not by the pipe ACL.
+	// TODO: restrict pipe-instance creation (FILE_FLAG_FIRST_PIPE_INSTANCE / create-instance ACE
+	// for SYSTEM+Administrators) to prevent pipe-name squatting by another local user.
+	// Pipe keyed by launch mode ("spot"/"service"); the port is only used by the TCP fallback below.
+	(void)port;
+	std::string pipeName = "\\\\.\\pipe\\eddie-elevated-" + GetLaunchMode();
+
+	SECURITY_DESCRIPTOR pipeSd;
+	InitializeSecurityDescriptor(&pipeSd, SECURITY_DESCRIPTOR_REVISION);
+	SetSecurityDescriptorDacl(&pipeSd, TRUE, NULL, FALSE); // NULL DACL = any local user may connect
+	SECURITY_ATTRIBUTES pipeSa;
+	pipeSa.nLength = sizeof(pipeSa);
+	pipeSa.lpSecurityDescriptor = &pipeSd;
+	pipeSa.bInheritHandle = FALSE;
+
+	m_ipcPipe = CreateNamedPipeA(
+		pipeName.c_str(),
+		PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED, // overlapped: read and write must not serialize on the same handle
+		PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT,
+		PIPE_UNLIMITED_INSTANCES,
+		NETBUFSIZE, NETBUFSIZE, 0, &pipeSa);
+
+	if (m_ipcPipe == INVALID_HANDLE_VALUE)
+		ThrowException("Error on creating named pipe (" + std::to_string(GetLastError()) + ")");
+
+	LogDevDebug("Listening on named pipe " + pipeName);
+#else
+	m_ipcServer = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+
+	SocketMarkReuseAddr(m_ipcServer);
+
+	if (SocketIsValid(m_ipcServer) == false)
+	{
+		ThrowException("Error on opening socket");
+	}
+
+	std::memset(&m_ipcAddrServer, 0, sizeof(m_ipcAddrServer));
+
+	m_ipcAddrServer.sin_family = AF_INET;
+	m_ipcAddrServer.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+	m_ipcAddrServer.sin_port = htons(port);
+
+	LogDevDebug("Listening on port " + std::to_string(port));
+
+	if (bind(m_ipcServer, (struct sockaddr*)&m_ipcAddrServer, sizeof(m_ipcAddrServer)) != 0) {
+		ThrowException("Error on binding socket (" + std::to_string(SocketGetLastErrorCode()) + ")");
+	}
+
+	if (listen(m_ipcServer, 1) != 0) {
+		ThrowException("Error on listen socket (" + std::to_string(SocketGetLastErrorCode()) + ")");
+	}
+
+	SocketBlockMode(m_ipcServer, false);
+#endif
+}
+
+bool IWindows::TransportAccept()
+{
+#ifdef EDDIE_IPC_NAMEDPIPE
+	// Spot mode is a one-shot elevation: if the authorized client never connects, do not wait forever.
+	// Giving up lets Main() close the pipe so no elevated process is left orphaned.
+	unsigned long acceptStartTime = GetTimestampUnix();
+	const unsigned long spotAcceptTimeoutSeconds = 5;
+
+	for (;;)
+	{
+		if (IsStopRequested())
+			return false;
+
+		if ((GetLaunchMode() == "spot") && (GetTimestampUnix() - acceptStartTime >= spotAcceptTimeoutSeconds))
+		{
+			LogDebug("Spot mode: no client connected within timeout, giving up");
+			return false;
+		}
+
+		OVERLAPPED ovConnect;
+		memset(&ovConnect, 0, sizeof(ovConnect));
+		ovConnect.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+
+		BOOL pipeConnected = ConnectNamedPipe(m_ipcPipe, &ovConnect);
+		DWORD connectErr = GetLastError();
+
+		if ((pipeConnected == FALSE) && (connectErr == ERROR_PIPE_CONNECTED))
+			pipeConnected = TRUE;
+		else if ((pipeConnected == FALSE) && (connectErr == ERROR_IO_PENDING))
+		{
+			for (;;)
+			{
+				DWORD waitResult = WaitForSingleObject(ovConnect.hEvent, 1000);
+				if (waitResult == WAIT_OBJECT_0)
+				{
+					DWORD dummy = 0;
+					pipeConnected = GetOverlappedResult(m_ipcPipe, &ovConnect, &dummy, FALSE);
+					break;
+				}
+				if (IsStopRequested())
+				{
+					CancelIo(m_ipcPipe);
+					pipeConnected = FALSE;
+					break;
+				}
+				if ((GetLaunchMode() == "spot") && (GetTimestampUnix() - acceptStartTime >= spotAcceptTimeoutSeconds))
+				{
+					CancelIo(m_ipcPipe);
+					CloseHandle(ovConnect.hEvent);
+					LogDebug("Spot mode: no client connected within timeout, giving up");
+					return false;
+				}
+				Idle();
+			}
+		}
+
+		CloseHandle(ovConnect.hEvent);
+
+		if (pipeConnected)
+			return true;
+
+		if (IsStopRequested())
+			return false;
+
+		Idle();
+
+		Sleep(1000);
+	}
+#else
+	struct sockaddr_in addrClient;
+	socklen_t addrClientLen = sizeof(addrClient);
+
+	// Spot mode is a one-shot elevation: if the authorized client never connects, do not wait forever.
+	unsigned long acceptStartTime = GetTimestampUnix();
+	const unsigned long spotAcceptTimeoutSeconds = 5;
+
+	for (;;)
+	{
+		m_ipcClient = accept(m_ipcServer, (struct sockaddr*)&addrClient, &addrClientLen);
+
+		// TOFIX. Under Linux, errno==EWOULDBLOCK. Under Windows, i expect WSAEWOULDBLOCK but there are something not understanding.
+		if (SocketIsValid(m_ipcClient) == false)
+		{
+			if (IsStopRequested())
+				break;
+
+			if ((GetLaunchMode() == "spot") && (GetTimestampUnix() - acceptStartTime >= spotAcceptTimeoutSeconds))
+			{
+				LogDebug("Spot mode: no client connected within timeout, giving up");
+				break;
+			}
+
+			Idle();
+
+			Sleep(1000);
+		}
+		else
+		{
+			break;
+		}
+	}
+
+	if (SocketIsValid(m_ipcClient) == false)
+		return false;
+
+	m_ipcAddrClient = addrClient; // kept for TCP peer-pid resolution
+
+	// Remove if nonblock is inherit
+	SocketBlockMode(m_ipcClient, true);
+
+	return true;
+#endif
+}
+
+int IWindows::TransportGetClientProcessId()
+{
+#ifdef EDDIE_IPC_NAMEDPIPE
+	// Peer pid from the kernel-attested named pipe (race-free, replaces GetExtendedTcpTable).
+	int clientProcessId = 0;
+	DWORD clientPidDword = 0;
+	if (GetNamedPipeClientProcessId(m_ipcPipe, &clientPidDword))
+		clientProcessId = (int)clientPidDword;
+	return clientProcessId;
+#else
+	return GetProcessIdMatchingIPEndPoints(m_ipcAddrClient, m_ipcAddrServer);
+#endif
+}
+
+int IWindows::TransportRead(char* buffer, int maxLen)
+{
+#ifdef EDDIE_IPC_NAMEDPIPE
+	OVERLAPPED ovRead;
+	memset(&ovRead, 0, sizeof(ovRead));
+	ovRead.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+
+	DWORD pipeRead = 0;
+	BOOL pipeReadOk = ReadFile(m_ipcPipe, buffer, maxLen, NULL, &ovRead);
+	if ((pipeReadOk == FALSE) && (GetLastError() == ERROR_IO_PENDING))
+		pipeReadOk = GetOverlappedResult(m_ipcPipe, &ovRead, &pipeRead, TRUE);
+	else if (pipeReadOk)
+		GetOverlappedResult(m_ipcPipe, &ovRead, &pipeRead, TRUE);
+
+	DWORD pipeReadErr = GetLastError();
+	CloseHandle(ovRead.hEvent);
+
+	if (pipeReadOk)
+		return (int)pipeRead;
+	else if ((pipeReadErr == ERROR_BROKEN_PIPE) || (pipeReadErr == ERROR_PIPE_NOT_CONNECTED))
+		return 0; // client disconnected
+	else
+		return -1;
+#else
+	return recv(m_ipcClient, buffer, maxLen, 0);
+#endif
+}
+
+int IWindows::TransportWrite(const char* buffer, int len)
+{
+#ifdef EDDIE_IPC_NAMEDPIPE
+	OVERLAPPED ovWrite;
+	memset(&ovWrite, 0, sizeof(ovWrite));
+	ovWrite.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+
+	DWORD pipeWritten = 0;
+	BOOL pipeWriteOk = WriteFile(m_ipcPipe, buffer, (DWORD)len, NULL, &ovWrite);
+	if ((pipeWriteOk == FALSE) && (GetLastError() == ERROR_IO_PENDING))
+		pipeWriteOk = GetOverlappedResult(m_ipcPipe, &ovWrite, &pipeWritten, TRUE);
+	else if (pipeWriteOk)
+		GetOverlappedResult(m_ipcPipe, &ovWrite, &pipeWritten, TRUE);
+
+	CloseHandle(ovWrite.hEvent);
+
+	return pipeWriteOk ? (int)pipeWritten : -1;
+#else
+	return send(m_ipcClient, buffer, len, 0);
+#endif
+}
+
+void IWindows::TransportClientClose()
+{
+#ifdef EDDIE_IPC_NAMEDPIPE
+	// Keep the pipe instance for the next client; just drop the current connection.
+	DisconnectNamedPipe(m_ipcPipe);
+#else
+	SocketClose(m_ipcClient);
+	m_ipcClient = 0;
+#endif
+}
+
+void IWindows::TransportServerClose()
+{
+#ifdef EDDIE_IPC_NAMEDPIPE
+	CloseHandle(m_ipcPipe);
+#else
+	SocketClose(m_ipcServer);
+#endif
+}
+
+std::string IWindows::StringEnsureInterfaceName(const std::string& str)
+{
+	std::string r;
+	r.reserve(str.size());
+	for (size_t i = 0; i < str.size(); ++i)
+	{
+		unsigned char c = static_cast<unsigned char>(str[i]);
+		if (c < 0x20 || c == 0x7F) continue;
+		if (c == '"') continue;
+		r.push_back(static_cast<char>(c));
+	}
+	if (r.length() > 256) r = r.substr(0, 256);
+	return r;
 }
 
 bool IWindows::SystemWideDataSet(const std::string& key, const std::string& value)
@@ -1492,19 +1937,16 @@ std::string IWindows::CheckIfClientPathIsAllowed(const std::string& path)
 	return "ok";
 }
 
-bool IWindows::CheckIfExecutableIsAllowed(const std::string& path, const bool& throwException, const bool ignoreKnown)
+std::string IWindows::CheckExecutablePathPermissions(const std::string& path)
 {
 	std::string issues = "";
-
-	if ( (ignoreKnown == false) && (IntegrityCheckFileKnown(path)) ) // If true, skip other checks.
-		return true;
 
 	if (FsFileExists(path) == false)
 	{
 		issues += "not found;";
 	}
 	else
-	{	
+	{
 		std::wstring pathW = StringUTF8ToWString(path);
 
 		DWORD dwRes;
@@ -1525,7 +1967,6 @@ bool IWindows::CheckIfExecutableIsAllowed(const std::string& path, const bool& t
 			ConvertStringSidToSidW(L"S-1-5-32-544", &pSidAdmins); // SID Administrators
 			ConvertStringSidToSidW(L"S-1-5-80-956008885-3418522649-1831038044-1853292631-2271478464", &pSidTrustedInstaller); // SID TrustedInstaller
 
-			bool hasOtherWritePermissions = false;
 			for (DWORD i = 0; i < pDacl->AceCount; i++)
 			{
 				LPVOID pAce;
@@ -1568,27 +2009,17 @@ bool IWindows::CheckIfExecutableIsAllowed(const std::string& path, const bool& t
 			if (pSidAdmins != NULL)
 				FreeSid(pSidAdmins);
 			if (pSidTrustedInstaller != NULL)
-				FreeSid(pSidTrustedInstaller);			
+				FreeSid(pSidTrustedInstaller);
 		}
-		
+
 		if (pSD != NULL)
 			LocalFree(pSD);
-	}	
-
-	if (issues != "")
-	{
-		if (throwException)
-		{
-			ThrowException("Executable '" + path + "' not allowed: " + issues);
-			return false;
-		}
-		else
-			return false;
 	}
-	else
-		return true;
+
+	return issues;
 }
 
+#ifndef EDDIE_IPC_LOCAL
 int IWindows::GetProcessIdMatchingIPEndPoints(struct sockaddr_in& addrClient, struct sockaddr_in& addrServer)
 {
 	std::vector<unsigned char> buffer;
@@ -1618,6 +2049,7 @@ int IWindows::GetProcessIdMatchingIPEndPoints(struct sockaddr_in& addrClient, st
 
 	return 0;
 }
+#endif // !EDDIE_IPC_LOCAL
 
 
 // --------------------------
@@ -1637,6 +2069,43 @@ std::string IWindows::GetLastErrorAsString()
 	return StringTrim(message);
 }
 
+void IWindows::ExecArg(const std::wstring& arg, std::wstring& cmdline)
+{
+	if (!arg.empty() && arg.find_first_of(L" \t\n\v\"") == std::wstring::npos)
+	{
+		cmdline.append(arg);
+		return;
+	}
+
+	cmdline.push_back(L'"');
+	for (std::wstring::const_iterator it = arg.begin(); ; ++it)
+	{
+		unsigned backslashes = 0;
+		while (it != arg.end() && *it == L'\\')
+		{
+			++it;
+			++backslashes;
+		}
+
+		if (it == arg.end())
+		{
+			cmdline.append(backslashes * 2, L'\\');
+			break;
+		}
+		else if (*it == L'"')
+		{
+			cmdline.append(backslashes * 2 + 1, L'\\');
+			cmdline.push_back(*it);
+		}
+		else
+		{
+			cmdline.append(backslashes, L'\\');
+			cmdline.push_back(*it);
+		}
+	}
+	cmdline.push_back(L'"');
+}
+
 IWindows::t_shellinfo IWindows::ExecStart(const std::string& path, const std::vector<std::string>& args)
 {
 	t_shellinfo info;
@@ -1649,12 +2118,14 @@ IWindows::t_shellinfo IWindows::ExecStart(const std::string& path, const std::ve
 
 	std::wstring cmdline = L"\"" + pathW + L"\"";
 	for (std::vector<std::string>::const_iterator i = args.begin(); i != args.end(); ++i)
-		cmdline += L" " + StringUTF8ToWString(*i);
+	{
+		cmdline += L" ";
+		ExecArg(StringUTF8ToWString(*i), cmdline);
+	}
 
-	const int lMaxCmdLine = 1024;
-	TCHAR pcmdline[lMaxCmdLine + 1];
-
-	wcscpy_s(pcmdline, lMaxCmdLine, cmdline.c_str());
+	// CreateProcessW may modify lpCommandLine in place, so it requires a writable buffer.
+	std::vector<wchar_t> pcmdline(cmdline.begin(), cmdline.end());
+	pcmdline.push_back(L'\0');
 
 	memset(&saAttr, 0, sizeof(saAttr));
 	saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
@@ -1706,7 +2177,7 @@ IWindows::t_shellinfo IWindows::ExecStart(const std::string& path, const std::ve
 	memset(&info.processInfo, 0, sizeof(info.processInfo));
 
 	// VS2019 raise a C6335 warning, false positive.
-	if (!CreateProcessW(pathW.c_str(), pcmdline, NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, 0, &info.startupInfo, &info.processInfo))
+	if (!CreateProcessW(pathW.c_str(), pcmdline.data(), NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, 0, &info.startupInfo, &info.processInfo))
 	{
 		ExecCleanup(info);
 		info.lastErrorCode = GetLastError();
@@ -1834,240 +2305,93 @@ bool IWindows::ServiceGenericDelete(const std::string& id)
 		return false;
 }
 
-#ifdef WINTUNLIB
-bool IWindows::WintunEnsureLibrary()
+std::string IWindows::GetBundledInfPath(const std::string& driver)
 {
-	if (m_wintunLibrary == 0)
-	{
-		// wintun.dll don't work (LoadLibrary crash) on older Win7 not updated.
-		// Maybe because it's signed with SHA256 (not supported). KB3033929 may resolve, but fail to install on our lab win7 clean (and don't exists x86 version).
-		// Maybe because perform dependencies delay load.
-		// Anyway, with Win7 almost updated, fail to create adapter
-		if (IsWindows8OrGreater())
-		{
-			std::string path = GetProcessPathCurrentDir() + FsPathSeparator + "wintun.dll";
-			CheckIfExecutableIsAllowed(path, true);
-			std::wstring pathW = StringUTF8ToWString(path);
-			m_wintunLibrary = LoadLibraryExW(pathW.c_str(), NULL, LOAD_WITH_ALTERED_SEARCH_PATH);
-		}
-	}
-
-	return (m_wintunLibrary != 0);
-}
-
-DWORD IWindows::WintunVersion()
-{
-	if (WintunEnsureLibrary() == false)
-		return 0;
-
-#ifdef WIP_WINTUN14
-	return WintunLibraryGetRunningDriverVersion();
-#else
-
-	WINTUN_GET_RUNNING_DRIVER_VERSION_FUNC funcWintunGetRunningDriverVersion = (WINTUN_GET_RUNNING_DRIVER_VERSION_FUNC)GetProcAddress(m_wintunLibrary, "WintunGetRunningDriverVersion");
-	if (funcWintunGetRunningDriverVersion == 0)
-		ThrowException("wintun.dll WintunGetRunningDriverVersion not found: " + GetLastErrorAsString());
+	std::string infName;
+	if (driver == "ovpn-dco")
+		infName = "ovpn-dco.inf";
+	else if (driver == "tap-windows6")
+		infName = "tap0901.inf";
 	else
-		return funcWintunGetRunningDriverVersion();
-#endif
-
-	return 0;
-}
-
-std::string IWindows::WintunAdapterAdd(const std::wstring& name)
-{
-	if (WintunEnsureLibrary() == false)
-		return "";
-#ifdef WIP_WINTUN14
-	WINTUN_ADAPTER_HANDLE hAdapter = WintunLibraryCreateAdapter(pool.c_str(), name.c_str(), NULL);
-
-	if (hAdapter == 0)
-	{
-		ThrowException("wintun.dll WintunCreateAdapter fail, pool:'" + StringWStringToUTF8(pool) + "', name:'" + StringWStringToUTF8(name) + "', error : '" + GetLastErrorAsString() + "'");
-	}
-	else
-		WintunAdapterClose(hAdapter);
-#else
-	WINTUN_CREATE_ADAPTER_FUNC funcWintunCreateAdapter = (WINTUN_CREATE_ADAPTER_FUNC)GetProcAddress(m_wintunLibrary, "WintunCreateAdapter");
-	if (funcWintunCreateAdapter == 0)
-	{
-		ThrowException("wintun.dll WintunCreateAdapter not found");
-		return "";
-	}
-	else
-	{
-		BOOL needReboot = false;
-
-		std::wstring pool = L"Eddie";
-		WINTUN_ADAPTER_HANDLE hAdapter = funcWintunCreateAdapter(pool.c_str(), name.c_str(), NULL, &needReboot);
-		
-		if (hAdapter == 0)
-		{
-			ThrowException("wintun.dll WintunCreateAdapter fail, pool:'" + StringWStringToUTF8(pool) +"', name:'" + StringWStringToUTF8(name) + "', nr:" + (needReboot ? "Y":"N") + ", error : '" + GetLastErrorAsString() + "'");
-			return "";
-		}
-		else
-		{
-			std::string guid = WintunAdapterGetGuid(hAdapter);
-			WintunAdapterClose(hAdapter);
-			return guid;
-		}
-	}
-#endif
-}
-
-std::string IWindows::WintunAdapterEnsure(const std::wstring& name)
-{
-	if (WintunEnsureLibrary() == false)
 		return "";
 
-	WINTUN_ADAPTER_HANDLE hAdapter = WintunAdapterOpen(name);
-	if (hAdapter == 0)
-	{
-		return WintunAdapterAdd(name);
-	}
-	else
-	{
-		std::string guid = WintunAdapterGetGuid(hAdapter);
-		WintunAdapterClose(hAdapter);
-		return guid;
-	}
-}
-
-void IWindows::WintunAdapterRemove(const std::wstring& name)
-{
-	if (WintunEnsureLibrary() == false)
-		return;
-
-	WINTUN_ADAPTER_HANDLE hAdapter = WintunAdapterOpen(name);
-	if (hAdapter != 0)
-	{
-		WintunAdapterRemove(hAdapter);
-
-		WintunAdapterClose(hAdapter);
-	}
-}
-
-WINTUN_ADAPTER_HANDLE IWindows::WintunAdapterOpen(const std::wstring& name)
-{
-#ifdef WIP_WINTUN14
-	WINTUN_ADAPTER_HANDLE hAdapter = WintunLibraryOpenAdapter(pool.c_str(), name.c_str());
-	return hAdapter;
-#else
-	WINTUN_OPEN_ADAPTER_FUNC funcWintunOpenAdapter = (WINTUN_OPEN_ADAPTER_FUNC)GetProcAddress(m_wintunLibrary, "WintunOpenAdapter");
-	if (funcWintunOpenAdapter == 0)
-	{
-		ThrowException("wintun.dll WintunOpenAdapter not found");
-		return 0;
-	}
-	else
-	{
-		std::wstring pool = L"Eddie";
-		WINTUN_ADAPTER_HANDLE hAdapter = funcWintunOpenAdapter(pool.c_str(), name.c_str());
-		return hAdapter;
-	}
-#endif
-}
-
-void IWindows::WintunAdapterClose(WINTUN_ADAPTER_HANDLE hAdapter)
-{
-#ifdef WIP_WINTUN14
-	WintunLibraryCloseAdapter(hAdapter);
-#else
-	WINTUN_FREE_ADAPTER_FUNC funcWintunFreeAdapter = (WINTUN_FREE_ADAPTER_FUNC)GetProcAddress(m_wintunLibrary, "WintunFreeAdapter");
-	if (funcWintunFreeAdapter == 0)
-		ThrowException("wintun.dll WintunFreeAdapter not found");
-	else
-		funcWintunFreeAdapter(hAdapter);
-#endif
-}
-
-void IWindows::WintunAdapterRemove(WINTUN_ADAPTER_HANDLE hAdapter)
-{
-#ifdef WIP_WINTUN14
-	#error WIP
-#else
-	WINTUN_DELETE_ADAPTER_FUNC funcWintunDeleteAdapter = (WINTUN_DELETE_ADAPTER_FUNC)GetProcAddress(m_wintunLibrary, "WintunDeleteAdapter");
-	if (funcWintunDeleteAdapter == 0)
-		ThrowException("wintun.dll WintunDeleteAdapter not found");
-	else
-	{
-		BOOL needReboot = false;
-		funcWintunDeleteAdapter(hAdapter, true, &needReboot);
-	}
-#endif
-}
-
-/*
-BOOL WintunAdapterRemovePoolCallback(WINTUN_ADAPTER_HANDLE hAdapter, LPARAM param) // TOFIX: convert to member function
-{
-	IWindows* pImpl = (IWindows*)param;
-	pImpl->WintunAdapterRemove(hAdapter);
-	return TRUE;
-}
-*/
-
-/*
-void IWindows::WintunAdapterRemovePool()
-{
-	if (WintunEnsureLibrary() == false)
-		return;
-
-#if _WIN64
-	WINTUN_ENUM_ADAPTERS_FUNC funcWintunEnumAdapters = (WINTUN_ENUM_ADAPTERS_FUNC)GetProcAddress(m_wintunLibrary, "WintunEnumAdapters");
-	if (funcWintunEnumAdapters == 0)
-	{
-		ThrowException("wintun.dll WintunEnumAdapters not found");
-	}
-	else
-	{
-		std::wstring pool = L"Eddie";
-		funcWintunEnumAdapters(pool.c_str(), &WintunAdapterRemovePoolCallback, (LPARAM)this);
-	}
-#else
-	// TOFIX, the code above don't compile on x86
-	WintunAdapterRemove(pool, StringUTF8ToWString("Eddie OpenVPN"));
-#endif
-}
-*/
-#endif // WINTUNLIB
-
-std::string IWindows::WintunAdapterGetGuid(WINTUN_ADAPTER_HANDLE hAdapter)
-{
-#ifdef WIP_WINTUN14
-#error WIP
-#else
-	WINTUN_GET_ADAPTER_LUID_FUNC funcWintunGetAdapterLUID = (WINTUN_GET_ADAPTER_LUID_FUNC)GetProcAddress(m_wintunLibrary, "WintunGetAdapterLUID");
-	if (funcWintunGetAdapterLUID == 0)
-	{
-		ThrowException("wintun.dll WintunGetAdapterLUID not found");
+	std::string tapctl = FsLocateExecutable("tapctl.exe", false, true);
+	if (tapctl == "")
 		return "";
-	}
-	else
+
+	std::string path = FsFileGetDirectory(tapctl) + FsPathSeparator + infName;
+	if (FsFileExists(path))
+		return path;
+
+	return "";
+}
+
+std::string IWindows::DriverInstall(const std::string& driver)
+{
+	if (driver != "ovpn-dco" && driver != "tap-windows6")
+		ThrowException("Unknown driver: " + driver);
+
+	std::string infPath = GetBundledInfPath(driver);
+	if (infPath == "")
+		ThrowException("Driver INF not found for: " + driver);
+
+	std::string pnputil = FsLocateExecutable("pnputil.exe");
+
+	ExecResult result = ExecEx(pnputil, { "/add-driver", infPath, "/install" });
+
+	// exit 0 = new install, exit 259 = already up-to-date, exit 5 = already exists in store
+	if (result.exit != 0 && result.exit != 259 && result.exit != 5)
 	{
-		NET_LUID luid;
-		funcWintunGetAdapterLUID(hAdapter, &luid);
-
-		GUID guid;
-		if (ConvertInterfaceLuidToGuid(&luid, &guid) == NO_ERROR)
-		{
-			wchar_t guidString[39];
-			StringFromGUID2(guid, guidString, 39);
-
-			return StringWStringToUTF8(guidString);
-		}
-		else
-		{
-			ThrowException("wintun.dll WintunGetAdapterLUID fail");
-			return "";
-		}
+		ThrowException("pnputil /add-driver failed for " + driver +
+			": exit=" + std::to_string(result.exit) +
+			" out=" + result.out +
+			" err=" + result.err);
 	}
-#endif
+
+	// Extract "Published Name:" from output and store for future uninstall
+	std::string publishedName = StringTrim(StringExtractBetween(result.out, "Published Name:", "\n"));
+	if (publishedName != "")
+		SystemWideDataSet("driver_oem_" + driver, publishedName);
+
+	if (result.exit == 259 || result.exit == 5)
+		return "already-installed";
+
+	return "installed";
+}
+
+std::string IWindows::DriverUninstall(const std::string& driver)
+{
+	if (driver != "ovpn-dco" && driver != "tap-windows6")
+		ThrowException("Unknown driver: " + driver);
+
+	std::string oemInf = SystemWideDataGet("driver_oem_" + driver, "");
+	if (oemInf == "")
+		return "not-found";
+
+	std::string pnputil = FsLocateExecutable("pnputil.exe");
+
+	ExecResult result = ExecEx(pnputil, { "/delete-driver", oemInf, "/uninstall" });
+
+	// exit 0 = uninstalled, exit -536870340 = already gone
+	if (result.exit != 0 && result.exit != -536870340)
+	{
+		ThrowException("pnputil /delete-driver failed for " + driver +
+			" (" + oemInf + "): exit=" + std::to_string(result.exit) +
+			" out=" + result.out +
+			" err=" + result.err);
+	}
+
+	SystemWideDataDel("driver_oem_" + driver);
+
+	return "uninstalled";
 }
 
 std::string IWindows::NetworkAdapterCreate(const std::string& driver, const std::string& name)
 {
-	// We keep a list of network adapter created by Eddie	
+	if (driver != "ovpn-dco" && driver != "tap-windows6")
+		ThrowException("Unknown driver: " + driver);
+
+	std::string nameSafe = StringEnsureInterfaceName(name);
 
 	std::string guid = "";
 
@@ -2076,36 +2400,26 @@ std::string IWindows::NetworkAdapterCreate(const std::string& driver, const std:
 		std::string tapctl = FsLocateExecutable("tapctl.exe", false, true);
 		if (tapctl != "")
 		{
-			ExecResult result = ExecEx3(tapctl, "create", "--hwid \"ovpn-dco\"", "--name \"" + name + "\"");
+			ExecResult result = ExecEx(tapctl, { "create", "--hwid", "ovpn-dco", "--name", nameSafe });
 			if (result.exit == 0)
 				guid = StringTrim(result.out);
 		}
-	}
-	else if (driver == "wintun")
-	{
-#ifdef WINTUNLIB
-		guid = WintunAdapterEnsure(StringUTF8ToWString(name));
-#else
-		// Note 2.24.3: tapctl don't create wintun if driver is not installed, so we absolutely need to use wintun.h (12.0 or 14.1, for now 12.0)
-		std::string tapctl = FsLocateExecutable("tapctl.exe", false, true);
-		if (tapctl != "")
-		{
-			ExecResult result = ExecEx3(tapctl, "create", "--hwid \"wintun\"", "--name \"" + name + "\"");
-			if (result.exit == 0)
-				guid = StringTrim(result.out);
-		}
-#endif
 	}
 	else if (driver == "tap-windows6")
 	{
 		std::string tapctl = FsLocateExecutable("tapctl.exe", false, true);
 		if (tapctl != "")
 		{
-			ExecResult result = ExecEx3(tapctl, "create", "--hwid \"root\\tap0901\"", "--name \"" + name + "\"");
+			ExecResult result = ExecEx(tapctl, { "create", "--hwid", "root\\tap0901", "--name", nameSafe });
 			if (result.exit == 0)
 				guid = StringTrim(result.out);
 		}
 	}
+
+	// tapctl prints "{GUID}\t<name>\t<hwid>"; keep only the GUID
+	size_t tab = guid.find('\t');
+	if (tab != std::string::npos)
+		guid = StringTrim(guid.substr(0, tab));
 
 	if (guid != "")
 	{
@@ -2121,14 +2435,16 @@ std::string IWindows::NetworkAdapterCreate(const std::string& driver, const std:
 
 bool IWindows::NetworkAdapterDelete(const std::string& id)
 {
+	std::string idSafe = StringPruneCharsNotIn(id, "0123456789abcdefABCDEF-{}");
+
 	std::string tapctl = FsLocateExecutable("tapctl.exe", false, true);
 	if (tapctl != "")
 	{
-		ExecResult result = ExecEx2(tapctl, "delete", id);
+		ExecResult result = ExecEx(tapctl, { "delete", idSafe });
 		if (result.exit == 0)
 		{
 			std::string eddieList = SystemWideDataGet("network_adapters", "");
-			eddieList = StringReplaceAll(eddieList, id + ";", "");
+			eddieList = StringReplaceAll(eddieList, idSafe + ";", "");
 			SystemWideDataSet("network_adapters", eddieList);
 			return true;
 		}
@@ -2139,164 +2455,87 @@ bool IWindows::NetworkAdapterDelete(const std::string& id)
 
 void IWindows::NetworkAdapterDeleteAll()
 {
-/*
-#ifdef WINTUNLIB
-	// Only wintun for now
-	WintunAdapterRemovePool();
-#else
-*/
 	std::vector<std::string> list = StringToVector(SystemWideDataGet("network_adapters", ""), ';', true);
 	for (std::vector<std::string>::const_iterator i = list.begin(); i != list.end(); ++i)
 	{
 		std::string id = *i;
 		NetworkAdapterDelete(id);
 	}
-//#endif
 }
-	
-/* TOCLEAN
-void EnumerateNetworkAdapters()
+
+// Parse an "address/cidr" token (IPv4 or IPv6) into family, raw address and prefix length.
+bool IWindows::WireGuardParseInetCidr(const std::string& token, ADDRESS_FAMILY& family, IN_ADDR& v4, IN6_ADDR& v6, BYTE& cidr)
 {
-	ULONG flags = GAA_FLAG_INCLUDE_ALL_INTERFACES;
-	ULONG family = AF_UNSPEC;
-	PIP_ADAPTER_ADDRESSES pAddresses = nullptr;
-	ULONG outBufLen = 0;
-
-	ULONG ret = GetAdaptersAddresses(family, flags, nullptr, pAddresses, &outBufLen);
-	if (ret == ERROR_BUFFER_OVERFLOW)
+	std::string value = token;
+	std::string prefix = "";
+	size_t posSlash = value.find('/');
+	if (posSlash != std::string::npos)
 	{
-		pAddresses = (IP_ADAPTER_ADDRESSES*)malloc(outBufLen);
-		if (pAddresses == nullptr)
-		{
-			return;
-		}
-	}
-	else if (ret != ERROR_BUFFER_OVERFLOW)
-	{
-		return;
+		prefix = value.substr(posSlash + 1);
+		value = value.substr(0, posSlash);
 	}
 
-	ret = GetAdaptersAddresses(family, flags, nullptr, pAddresses, &outBufLen);
-	if (ret == NO_ERROR)
+	if (inet_pton(AF_INET, value.c_str(), &v4) == 1)
 	{
-		PIP_ADAPTER_ADDRESSES pCurrAddresses = pAddresses;
-		while (pCurrAddresses) {
-
-			std::string id(pCurrAddresses->AdapterName);
-			std::wstring name(pCurrAddresses->FriendlyName);
-			std::wstring desc(pCurrAddresses->Description);
-			
-			pCurrAddresses = pCurrAddresses->Next;
-		}
+		family = AF_INET;
+		cidr = (BYTE)(prefix.empty() ? 32 : atoi(prefix.c_str()));
+		return true;
 	}
 
-	if (pAddresses)
+	if (inet_pton(AF_INET6, value.c_str(), &v6) == 1)
 	{
-		free(pAddresses);
+		family = AF_INET6;
+		cidr = (BYTE)(prefix.empty() ? 128 : atoi(prefix.c_str()));
+		return true;
 	}
+
+	return false;
 }
-*/
 
-// Note 2021-05-06:
-// It's not possible to call directly the wgtunnel.dll entrypoint, because throw
-// "Service run error: An instance of the service is already running."
-// seem WG code try to manage the service itself.
-// Maybe in future we can submit a patch to WireGuard to establish a tunnel directly from C++ here,
-// in the meantime we use a service ad-hoc.
-int IWindows::WireGuardTunnel(const std::string& configName)
+// Parse a "host:port" / "[ipv6]:port" endpoint into a SOCKADDR_INET, resolving host names.
+bool IWindows::WireGuardParseEndpoint(const std::string& endpoint, SOCKADDR_INET& out)
 {
-	// Write a file for any fatal error
-	std::string error = "";
+	std::string host = endpoint;
+	std::string port = "";
+	size_t posColon = endpoint.rfind(':');
+	if (posColon == std::string::npos)
+		return false;
+	host = endpoint.substr(0, posColon);
+	port = endpoint.substr(posColon + 1);
+	if (host.size() >= 2 && host.front() == '[' && host.back() == ']')
+		host = host.substr(1, host.size() - 2);
 
-	std::string path = GetProcessPathCurrentDir() + FsPathSeparator + "wgtunnel.dll";
-	CheckIfExecutableIsAllowed(path, true);
-	std::wstring pathW = StringUTF8ToWString(path);
-	HINSTANCE hInstanceTunnel = LoadLibraryExW(pathW.c_str(), NULL, LOAD_WITH_ALTERED_SEARCH_PATH);
+	addrinfo hints;
+	memset(&hints, 0, sizeof(hints));
+	hints.ai_family = AF_UNSPEC;
+	hints.ai_socktype = SOCK_DGRAM;
+	hints.ai_protocol = IPPROTO_UDP;
 
-	if (hInstanceTunnel != NULL)
+	addrinfo* result = NULL;
+	if (getaddrinfo(host.c_str(), port.c_str(), &hints, &result) != 0 || result == NULL)
+		return false;
+
+	bool found = false;
+	for (addrinfo* it = result; it != NULL; it = it->ai_next)
 	{
-		typedef int(__cdecl* WGTUNNELPROC)(LPWSTR);
-		WGTUNNELPROC procWgTunnel = (WGTUNNELPROC)GetProcAddress(hInstanceTunnel, "WireGuardTunnelService");
-		if (procWgTunnel != NULL)
+		if (it->ai_family == AF_INET && it->ai_addrlen >= sizeof(sockaddr_in))
 		{
-			// The entrypoint "WireGuardTunnelService" of "tunnel.dll" from WireGuard dump directly errors in stderr (not a best practice..).
-			// We need to override standard output handle to catch it.
-			DWORD pipeMode = PIPE_READMODE_BYTE | PIPE_NOWAIT;
-			DWORD pipeMaxCollectionCount = 0;
-			DWORD pipeCollectDataTimeout = 0;
-			HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
-			HANDLE hErr = GetStdHandle(STD_ERROR_HANDLE);
-
-			HANDLE hPipeOutRead, hPipeOutWrite;
-			CreatePipe(&hPipeOutRead, &hPipeOutWrite, 0, 0);
-			SetNamedPipeHandleState(hPipeOutRead, &pipeMode, &pipeMaxCollectionCount, &pipeCollectDataTimeout);
-			SetNamedPipeHandleState(hPipeOutWrite, &pipeMode, &pipeMaxCollectionCount, &pipeCollectDataTimeout);
-			SetStdHandle(STD_OUTPUT_HANDLE, hPipeOutWrite);
-
-
-			HANDLE hPipeErrRead, hPipeErrWrite;
-			CreatePipe(&hPipeErrRead, &hPipeErrWrite, 0, 0);
-			SetNamedPipeHandleState(hPipeErrRead, &pipeMode, &pipeMaxCollectionCount, &pipeCollectDataTimeout);
-			SetNamedPipeHandleState(hPipeErrWrite, &pipeMode, &pipeMaxCollectionCount, &pipeCollectDataTimeout);
-			SetStdHandle(STD_ERROR_HANDLE, hPipeErrWrite);
-						
-			std::wstring configNameW = StringUTF8ToWString(configName);			
-			int result = procWgTunnel(&configNameW[0]);
-
-			// Revert previous handlers
-			SetStdHandle(STD_OUTPUT_HANDLE, hOut);
-			SetStdHandle(STD_ERROR_HANDLE, hErr);
-
-			// Get output
-			std::string outputOut = "";
-			std::string outputErr = "";
-			const DWORD BUFFER_SIZE = 2000;
-			char buffer[BUFFER_SIZE];
-			DWORD nRead = 0;
-
-			nRead = 0;
-			if (ReadFile(hPipeOutRead, buffer, BUFFER_SIZE - 1, &nRead, 0))
-			{
-				buffer[nRead] = 0;
-				outputOut = buffer;
-			}
-			CloseHandle(hPipeOutRead);
-			CloseHandle(hPipeOutWrite);
-
-			nRead = 0;
-			if (ReadFile(hPipeErrRead, buffer, BUFFER_SIZE - 1, &nRead, 0))
-			{
-				buffer[nRead] = 0;
-				outputErr = buffer;
-			}
-			CloseHandle(hPipeErrRead);
-			CloseHandle(hPipeErrWrite);
-
-			error += "\r\n" + outputOut;
-			error += "\r\n" + outputErr;
+			memset(&out, 0, sizeof(out));
+			memcpy(&out.Ipv4, it->ai_addr, sizeof(sockaddr_in));
+			found = true;
+			break;
 		}
-		else
+		if (it->ai_family == AF_INET6 && it->ai_addrlen >= sizeof(sockaddr_in6))
 		{
-			error += "\r\nentrypoint 'WireGuardTunnelService' not found";
+			memset(&out, 0, sizeof(out));
+			memcpy(&out.Ipv6, it->ai_addr, sizeof(sockaddr_in6));
+			found = true;
+			break;
 		}
-
-		FreeLibrary(hInstanceTunnel);
-	}
-	else
-	{
-		error += "\r\nmodule 'wgtunnel.dll' not found";
 	}
 
-	error = StringTrim(error);
-	if (error != "")
-	{
-		FsFileWriteText(configName + ".fatal", error);
-		return 1;
-	}
-	else
-	{
-		return 0;
-	}
+	freeaddrinfo(result);
+	return found;
 }
 
 // Public

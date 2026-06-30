@@ -55,7 +55,6 @@
                 <outlet property="ChkOpenVpnDirectivesAllowScriptSecurity" destination="onx-oQ-UCB" id="2yU-qv-dCD"/>
                 <outlet property="ChkOpenVpnDirectivesChaCha" destination="7ng-dw-7gx" id="Fso-PJ-Lnc"/>
                 <outlet property="ChkProtocolsAutomatic" destination="h8Y-x2-Tii" id="8F0-TH-PDH"/>
-                <outlet property="ChkShellExternalRecommended" destination="pIx-L1-ZQq" id="qu2-ui-KEL"/>
                 <outlet property="ChkSystemService" destination="qqg-FO-Mr5" id="zgI-4P-YXa"/>
                 <outlet property="ChkSystemStart" destination="aut-IV-uda" id="ZKC-gy-vSp"/>
                 <outlet property="ChkUiIEC" destination="vu2-Pk-Cd3" id="s6x-xZ-4NA"/>
@@ -68,13 +67,11 @@
                 <outlet property="CmdAdvancedEventsClear" destination="8i0-Uy-Npo" id="sdX-Pd-h2U"/>
                 <outlet property="CmdAdvancedEventsEdit" destination="Ah2-4M-Je5" id="iOM-Yb-ua7"/>
                 <outlet property="CmdAdvancedHelp" destination="42Z-DG-mw5" id="kok-4t-7OH"/>
-                <outlet property="CmdAdvancedOpenVpnPath" destination="gIE-n8-VNO" id="MW9-Y9-naD"/>
                 <outlet property="CmdCancel" destination="MM2-33-pRD" id="toJ-xU-yTP"/>
                 <outlet property="CmdDnsAdd" destination="MZA-G0-FP9" id="aXZ-SQ-YN1"/>
                 <outlet property="CmdDnsEdit" destination="fUw-z7-ejP" id="3Tm-uO-JXY"/>
                 <outlet property="CmdDnsRemove" destination="ugR-wL-aSk" id="5Sh-bx-o0g"/>
                 <outlet property="CmdGeneralTos" destination="umI-pg-cJh" id="yEJ-FP-2qU"/>
-                <outlet property="CmdHummingbirdPathBrowse" destination="rZ6-D6-e2y" id="3mJ-iO-NUd"/>
                 <outlet property="CmdLockHelp" destination="5AI-c0-dFt" id="gSo-Do-D4r"/>
                 <outlet property="CmdLoggingOpen" destination="f0I-KF-UT2" id="vEZ-FH-N6a"/>
                 <outlet property="CmdOpenVpnDirectivesCustomPathBrowse" destination="Rj7-4s-0fb" id="5Ad-xD-aUL"/>
@@ -88,8 +85,6 @@
                 <outlet property="CmdRouteEdit" destination="OjN-Zs-Oif" id="CAh-Ju-Db4"/>
                 <outlet property="CmdRouteRemove" destination="DQi-F5-OlE" id="nsA-g1-heD"/>
                 <outlet property="CmdSave" destination="PFc-X4-gP7" id="WmB-WK-5eF"/>
-                <outlet property="CmdShellExternalClear" destination="tpq-MF-wCS" id="9Iq-eu-24Z"/>
-                <outlet property="CmdShellExternalView" destination="1r8-Gq-GCZ" id="XNB-aq-ZCc"/>
                 <outlet property="LblAdvancedProviders" destination="0Wk-VB-9WI" id="ybQ-9h-RR3"/>
                 <outlet property="LblDnsServers" destination="0g5-hp-4gz" id="kYZ-a6-qOf"/>
                 <outlet property="LblIPv6" destination="UHS-X9-btT" id="poC-eY-G0t"/>
@@ -101,7 +96,6 @@
                 <outlet property="LblOpenVpnSndBuf" destination="a1S-WE-IVy" id="Jxg-9F-Jrd"/>
                 <outlet property="LblRoutesNetworkLockWarning" destination="KPm-dc-mbz" id="XsZ-UC-CEd"/>
                 <outlet property="LblRoutesOtherwise" destination="bYR-hd-ta7" id="Q2l-Lb-1BY"/>
-                <outlet property="LblShellExternal" destination="OnJ-rs-YuT" id="2vu-gZ-jTg"/>
                 <outlet property="LblSystemService" destination="AKs-lN-lNM" id="Ml6-SH-gZA"/>
                 <outlet property="LblSystemStart" destination="D1M-fk-rOs" id="2vW-WI-un4"/>
                 <outlet property="TabMain" destination="aeR-3d-Wrd" id="pZL-sv-fdn"/>
@@ -112,8 +106,6 @@
                 <outlet property="TableTabs" destination="2A1-kQ-1dY" id="3RF-Vt-5mG"/>
                 <outlet property="TxtAdvancedOpenVpnDirectivesCustom" destination="IPZ-8a-lFv" id="em6-kS-36y"/>
                 <outlet property="TxtAdvancedOpenVpnDirectivesDefault" destination="NjY-dC-GsQ" id="ZpL-gt-MiU"/>
-                <outlet property="TxtAdvancedOpenVpnPath" destination="lV7-E2-bG9" id="E6t-Sr-yoU"/>
-                <outlet property="TxtHummingbirdPath" destination="DII-q2-F57" id="lZ2-Pv-wA3"/>
                 <outlet property="TxtLockAllowlistIncomingIPs" destination="DHA-pR-pKS" id="mnq-g3-4Bn"/>
                 <outlet property="TxtLockAllowlistOutgoingIPs" destination="9WX-Ur-g7l" id="8VU-ju-iAB"/>
                 <outlet property="TxtLoggingComputedPath" destination="c9X-34-ftI" id="5cS-z6-JLg"/>
@@ -1581,32 +1573,6 @@
                                                 <font key="font" metaFont="message" size="11"/>
                                             </buttonCell>
                                         </button>
-                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" allowsCharacterPickerTouchBarItem="YES" translatesAutoresizingMaskIntoConstraints="NO" id="oyz-HM-837">
-                                            <rect key="frame" x="15" y="124" width="220" height="17"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="OpenVPN Custom Path:" id="npx-CL-HkG">
-                                                <font key="font" metaFont="message" size="11"/>
-                                                <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                            </textFieldCell>
-                                        </textField>
-                                        <textField verticalHuggingPriority="750" fixedFrame="YES" allowsCharacterPickerTouchBarItem="YES" translatesAutoresizingMaskIntoConstraints="NO" id="lV7-E2-bG9">
-                                            <rect key="frame" x="241" y="121" width="236" height="22"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="VoA-Xq-hK6">
-                                                <font key="font" metaFont="system"/>
-                                                <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                                <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                            </textFieldCell>
-                                        </textField>
-                                        <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="gIE-n8-VNO">
-                                            <rect key="frame" x="479" y="115" width="41" height="32"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                            <buttonCell key="cell" type="push" bezelStyle="rounded" image="browse" imagePosition="only" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="PQ6-OJ-ri2">
-                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                                <font key="font" metaFont="system"/>
-                                            </buttonCell>
-                                        </button>
                                         <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" allowsCharacterPickerTouchBarItem="YES" translatesAutoresizingMaskIntoConstraints="NO" id="H7y-ak-IXZ">
                                             <rect key="frame" x="15" y="260" width="220" height="17"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
@@ -1762,23 +1728,6 @@
                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
                                         </textField>
-                                        <textField verticalHuggingPriority="750" fixedFrame="YES" allowsCharacterPickerTouchBarItem="YES" translatesAutoresizingMaskIntoConstraints="NO" id="DII-q2-F57">
-                                            <rect key="frame" x="262" y="48" width="235" height="22"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="GHJ-du-mqr">
-                                                <font key="font" metaFont="system"/>
-                                                <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                                <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                            </textFieldCell>
-                                        </textField>
-                                        <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="rZ6-D6-e2y">
-                                            <rect key="frame" x="499" y="42" width="41" height="32"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                            <buttonCell key="cell" type="push" bezelStyle="rounded" image="browse" imagePosition="only" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Yfd-T7-L6k">
-                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                                <font key="font" metaFont="system"/>
-                                            </buttonCell>
-                                        </button>
                                         <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="SVl-vc-vov">
                                             <rect key="frame" x="239" y="51" width="30" height="18"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
@@ -2106,39 +2055,6 @@
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </tableHeaderView>
                                         </scrollView>
-                                        <button translatesAutoresizingMaskIntoConstraints="NO" id="pIx-L1-ZQq">
-                                            <rect key="frame" x="15" y="30" width="242" height="18"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES"/>
-                                            <buttonCell key="cell" type="check" title="Use recommended in bundle" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="kIT-GR-Tfy">
-                                                <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                <font key="font" metaFont="system"/>
-                                            </buttonCell>
-                                        </button>
-                                        <button translatesAutoresizingMaskIntoConstraints="NO" id="1r8-Gq-GCZ">
-                                            <rect key="frame" x="229" y="24" width="150" height="30"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxY="YES"/>
-                                            <buttonCell key="cell" type="bevel" title="View accepted rules" bezelStyle="regularSquare" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="tgc-Fv-gc3">
-                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                                <font key="font" metaFont="system"/>
-                                            </buttonCell>
-                                        </button>
-                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="YES" translatesAutoresizingMaskIntoConstraints="NO" id="OnJ-rs-YuT">
-                                            <rect key="frame" x="15" y="54" width="296" height="17"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES"/>
-                                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="External program allowlist:" id="e82-5x-uRG">
-                                                <font key="font" metaFont="system"/>
-                                                <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                            </textFieldCell>
-                                        </textField>
-                                        <button translatesAutoresizingMaskIntoConstraints="NO" id="tpq-MF-wCS">
-                                            <rect key="frame" x="395" y="23" width="104" height="30"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxY="YES"/>
-                                            <buttonCell key="cell" type="bevel" title="Clear" bezelStyle="regularSquare" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="g1v-oe-zW5">
-                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                                <font key="font" metaFont="system"/>
-                                            </buttonCell>
-                                        </button>
                                     </subviews>
                                 </view>
                             </tabViewItem>

@@ -1,6 +1,6 @@
 // <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2026 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -18,127 +18,126 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
+using System.IO;
 
 namespace Eddie.Core
 {
 	public static class LanguageManager
 	{
 		public static string MessageInitialization = "Initialization";
-		public static CultureInfo Culture;
-		public static Dictionary<string, Dictionary<string, string>> Messages = null;
+
+		private sealed class Locale
+		{
+			public string Parent = "";
+			public Dictionary<string, string> Items = new Dictionary<string, string>();
+		}
+
+		private static string m_currentCode = "inv";
+		private static Dictionary<string, Locale> m_locales = new Dictionary<string, Locale>();
 
 		public static bool Init()
 		{
-			bool invFound = false;
+			m_currentCode = "inv";
+			m_locales = new Dictionary<string, Locale>();
 
-			Culture = CultureInfo.InvariantCulture;
+			string localesDir = Engine.Instance.LocateResource("locales");
+			if (string.IsNullOrEmpty(localesDir) || (Directory.Exists(localesDir) == false))
+				return false;
 
-			Messages = new Dictionary<string, Dictionary<string, string>>();
-
-			foreach (CultureInfo currentCulture in CultureInfo.GetCultures(CultureTypes.AllCultures))
+			foreach (string jsonPath in Directory.EnumerateFiles(localesDir, "*.json"))
 			{
-				string code = GetCodeFromCulture(currentCulture);
+				string code = Path.GetFileNameWithoutExtension(jsonPath);
+				if (string.IsNullOrEmpty(code))
+					continue;
 
-				// Load
-				Dictionary<string, string> items = new Dictionary<string, string>();
+				Json jData = null;
+				if (Json.TryParse(Platform.Instance.FileContentsReadText(jsonPath), out jData) == false)
+					continue;
 
-				string jsonPath = Engine.Instance.LocateResource("lang/" + code + ".json");
-				if (jsonPath != "")
+				Locale locale = new Locale();
+				locale.Parent = jData["parent"].ValueString;
+				if (string.IsNullOrEmpty(locale.Parent) && code != "inv")
+					locale.Parent = "inv";
+
+				Json jItems = jData["items"].Json;
+				if (jItems != null)
 				{
-					Json jData = null;
-					if (Json.TryParse(Platform.Instance.FileContentsReadText(jsonPath), out jData))
+					foreach (KeyValuePair<string, object> kp in jItems.GetDictionary())
 					{
-						if (code == "inv")
-							invFound = true;
-						foreach (KeyValuePair<string, object> kp in jData.GetDictionary())
-						{
-							string itemId = kp.Key;
-							string itemText = kp.Value as string;
-
-							items[itemId] = itemText;
-						}
+						string itemText = kp.Value as string;
+						if (itemText != null)
+							locale.Items[kp.Key] = itemText;
 					}
 				}
 
-				Messages[code] = items;
+				m_locales[code] = locale;
 			}
 
-			return invFound;
+			return m_locales.ContainsKey("inv");
 		}
 
 		public static Json GetJson()
 		{
 			Json jData = new Json();
 
-			foreach (CultureInfo currentCulture in CultureInfo.GetCultures(CultureTypes.AllCultures))
+			foreach (KeyValuePair<string, Locale> kp in m_locales)
 			{
-				string code = GetCodeFromCulture(currentCulture);
+				Json jLocale = new Json();
+				jLocale["code"].Value = kp.Key;
+				jLocale["parent"].Value = kp.Value.Parent;
 
-				string parentCulture = "";
-				if (currentCulture.Parent != null)
-					parentCulture = currentCulture.Parent.Name;
-
-				Json jCulture = new Json();
-				jCulture["code"].Value = currentCulture.Name;
-				jCulture["parent"].Value = parentCulture;
-				jCulture["display_name"].Value = currentCulture.DisplayName;
-				jCulture["english_name"].Value = currentCulture.EnglishName;
-				jCulture["neutral"].Value = currentCulture.IsNeutralCulture;
-				if (Messages[code].Count != 0)
+				Json jItems = new Json();
+				foreach (KeyValuePair<string, string> itemPair in kp.Value.Items)
 				{
-					jCulture["items"].Value = new Json();
-					foreach (KeyValuePair<string, string> itemPair in Messages[code])
-					{
-						jCulture["items"][itemPair.Key].Value = itemPair.Value;
-					}
+					jItems[itemPair.Key].Value = itemPair.Value;
 				}
-				jData[code].Value = jCulture;
+				jLocale["items"].Value = jItems;
+
+				jData[kp.Key].Value = jLocale;
 			}
 
 			return jData;
 		}
 
-		public static string GetCodeFromCulture(CultureInfo culture)
-		{
-			if (string.IsNullOrEmpty(culture.Name))
-				return "inv";
-			else
-				return culture.Name;
-		}
-
 		public static void SetIso(string iso)
 		{
-			try
-			{
-				if (iso == "auto")
-					Culture = CultureInfo.InstalledUICulture;
-				else
-					Culture = new CultureInfo(iso);
-			}
-			catch (Exception ex)
-			{
-				Engine.Instance.Logs.Log(ex);
-				Culture = CultureInfo.InvariantCulture;
-			}
+			if (string.IsNullOrEmpty(iso) || iso == "auto")
+				m_currentCode = NormalizeCode(Platform.Instance.GetUserLocale());
+			else
+				m_currentCode = NormalizeCode(iso);
 		}
 
 		public static string GetText(LanguageItems id)
 		{
 			string idStr = id.ToString();
-			CultureInfo currentCulture = Culture;
-			for (; ; )
+			string code = m_currentCode;
+
+			// Bounded walk: explicit parent chain in m_locales, plus BCP47 fallback (xx-YY -> xx) for codes not present in the shipped set.
+			for (int safety = 0; safety < 16; safety++)
 			{
-				string code = GetCodeFromCulture(currentCulture);
+				if (m_locales.TryGetValue(code, out Locale locale))
+				{
+					if (locale.Items.TryGetValue(idStr, out string text))
+						return text;
 
-				if ((Messages.ContainsKey(code)) && (Messages[code].ContainsKey(idStr)))
-					return Messages[code][idStr];
+					if (code == "inv")
+						break;
 
-				if (code == "inv")
-					return "{lang:" + idStr + "}"; // Not Found
-
-				currentCulture = currentCulture.Parent;
+					code = string.IsNullOrEmpty(locale.Parent) ? "inv" : locale.Parent;
+				}
+				else
+				{
+					int dash = code.LastIndexOf('-');
+					if (dash > 0)
+						code = code.Substring(0, dash);
+					else if (code == "inv")
+						break;
+					else
+						code = "inv";
+				}
 			}
+
+			return "{lang:" + idStr + "}";
 		}
 
 		public static string GetText(LanguageItems id, string param1)
@@ -312,7 +311,27 @@ namespace Eddie.Core
 
 		public static string FormatDateShort(DateTime dt)
 		{
-			return dt.ToShortDateString() + " - " + dt.ToShortTimeString();
+			return dt.ToString("yyyy-MM-dd HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture);
 		}
+
+		private static string NormalizeCode(string raw)
+		{
+			if (string.IsNullOrEmpty(raw))
+				return "inv";
+
+			// Strip POSIX codeset (e.g. ".UTF-8") and modifier (e.g. "@euro").
+			int dot = raw.IndexOf('.');
+			if (dot > 0) raw = raw.Substring(0, dot);
+			int at = raw.IndexOf('@');
+			if (at > 0) raw = raw.Substring(0, at);
+
+			raw = raw.Replace('_', '-');
+
+			if (raw.Length == 0 || raw == "C" || raw == "POSIX")
+				return "inv";
+
+			return raw;
+		}
+
 	}
 }

@@ -22,6 +22,7 @@
 
 #include <sys/ioctl.h>
 #include <sys/stat.h>
+#include <sys/un.h> // SOL_LOCAL / LOCAL_PEERPID (AF_UNIX local transport)
 #include <regex>
 #include <unistd.h>
 #include <libproc.h>
@@ -51,34 +52,7 @@ int Impl::Main()
 }
 
 void Impl::Do(const std::string& commandId, const std::string& command, std::map<std::string, std::string>& params)
-{
-	if (command == "compatibility-profiles")
-	{
-		const std::string& dataPath = params["path-data"];
-
-		if (FsFileExists(dataPath) == false)
-		{
-			// Rename old .airvpn to .eddie if exists, and change owner (<2.17.3 are root-only)
-			std::string oldPath = dataPath;
-			size_t pos = oldPath.find_last_of("/");
-			if (pos != std::string::npos)
-			{
-				oldPath = oldPath.substr(0, pos) + "/../.airvpn";
-				if (FsFileExists(oldPath))
-				{
-					const std::string& newOwner = params["owner"];
-					FsFileMove(oldPath, dataPath);
-					std::vector<std::string> args;
-					args.push_back("-R");
-					args.push_back(newOwner);
-					args.push_back(dataPath);
-					std::string stdout;
-					std::string stderr;
-					ExecEx(FsLocateExecutable("chown"), args);
-				}
-			}
-		}
-	}
+{	
 	// Removed, related to CVE-2025-14979
 	/*
 	else if (command == "shortcut-cli")
@@ -99,23 +73,14 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 		}
 	}
 	*/
-	else if (command == "file-immutable-set")
-	{
-		std::string path = params["path"];
-		int flag = atoi(params["flag"].c_str());
-
-		int result = FileImmutableSet(path, flag);
-
-		ReplyCommand(commandId, std::to_string(result));
-	}
-	else if (command == "dns-flush")
+	if (command == "dns-flush")
 	{
 		// 10.5 - 10.6
 		std::string dscacheutilPath = FsLocateExecutable("dscacheutil", false);
 		if (dscacheutilPath != "")
 		{
 			// LogRemote("Flush DNS via dscacheutil");
-			ExecEx1(dscacheutilPath, "-flushcache");
+			ExecEx(dscacheutilPath, { "-flushcache" });
 		}
 
 		// 10.7 - 10.8 - 10.9 - 10.10.4 - 10.11 - Sierra 10.12.0 - 10.14 Mojave
@@ -123,7 +88,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 		if (killallPath != "")
 		{
 			// LogRemote("Flush DNS via nDNSResponder");
-			ExecEx2(killallPath, "-HUP", "mDNSResponder");
+			ExecEx(killallPath, { "-HUP", "mDNSResponder" });
 		}
 
 		// 10.10.0 - 10.10.3
@@ -131,8 +96,8 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 		if (discoveryutilPath != "")
 		{
 			// LogRemote("Flush DNS via discoveryutil");
-			ExecEx1(discoveryutilPath, "udnsflushcaches");
-			ExecEx1(discoveryutilPath, "mdnsflushcache");
+			ExecEx(discoveryutilPath, { "udnsflushcaches" });
+			ExecEx(discoveryutilPath, { "mdnsflushcache" });
 		}
 	}
 	else if (command == "dns-switch-do")
@@ -146,7 +111,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 		{
 			std::string interfaceName = *i;
 
-			ExecResult outputDns = ExecEx2(networksetupPath, "-getdnsservers", interfaceName);
+			ExecResult outputDns = ExecEx(networksetupPath, { "-getdnsservers", interfaceName });
 			if (outputDns.exit == 0)
 			{
 				std::vector<std::string> outputDnsLines = StringToVector(outputDns.out, '\n');
@@ -192,7 +157,9 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 	{
 		std::string networksetupPath = FsLocateExecutable("networksetup");
 
-		std::string interfaceName = params["interface"];
+		std::string interfaceName = StringEnsureNetworkServiceName(params["interface"]);
+		if (interfaceName.empty())
+			ThrowException("Invalid interface name");
 		std::vector<std::string> newDns = StringToVector(params["dns"], ',');
 
 		std::vector<std::string> args;
@@ -218,7 +185,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 		{
 			std::string interfaceName = *i;
 
-			ExecResult infoResult = ExecEx2(networksetupPath, "-getinfo", interfaceName);
+			ExecResult infoResult = ExecEx(networksetupPath, { "-getinfo", interfaceName });
 			if (infoResult.exit == 0)
 			{
 				std::string ipv6Mode = StringTrim(StringExtractBetween(infoResult.out, "IPv6: ", "\n"));
@@ -237,7 +204,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 						ipv6Prefix = StringTrim(StringExtractBetween(infoResult.out, "IPv6 Prefix Length: ", "\n"));
 					}
 
-					ExecResult switchResult = ExecEx2(networksetupPath, "-setv6off", interfaceName);
+					ExecResult switchResult = ExecEx(networksetupPath, { "-setv6off", interfaceName });
 					if (switchResult.exit == 0)
 					{
 						ReplyCommand(commandId, "SwitchIPv6;" + interfaceName + ";" + ipv6Mode + ";" + ipv6Address + ";" + ipv6Router + ";" + ipv6Prefix);
@@ -250,7 +217,9 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 	{
 		std::string networksetupPath = FsLocateExecutable("networksetup");
 
-		std::string interfaceName = params["interface"];
+		std::string interfaceName = StringEnsureNetworkServiceName(params["interface"]);
+		if (interfaceName.empty())
+			ThrowException("Invalid interface name");
 		std::vector<std::string> newDns = StringToVector(params["dns"], ',');
 
 		std::vector<std::string> args;
@@ -434,7 +403,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 	else if (command == "wireguard-version")
 	{
 		std::string wgPath = FsLocateExecutable("wg", false, true); // Expected in macOS .app bundle
-		std::string version = ExecEx1(wgPath, "version").out;
+		std::string version = ExecEx(wgPath, { "version" }).out;
 		version = StringReplaceAll(version, "wireguard-tools", "");
 		version = StringTrim(version, "v ");
 		size_t afterPos = version.find(' ');
@@ -446,7 +415,9 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 	{
 		std::string id = params["id"];
 		std::string action = params["action"];
-		std::string interfaceId = params["interface"].substr(0, 12);
+		std::string interfaceId = StringEnsureInterfaceName(params["interface"]);
+		if (interfaceId.empty())
+			ThrowException("Invalid interface name");
 
 		std::string keypairStopRequest = "wireguard_stop_" + id;
 
@@ -457,178 +428,186 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 		else if (action == "start")
 		{
 			std::string config = params["config"];
-			unsigned long handshakeTimeoutFirst = StringToULong(params["handshake_timeout_first"]);
-			unsigned long handshakeTimeoutConnected = StringToULong(params["handshake_timeout_connected"]);
-
-			FsFileWriteText("/tmp/testwg.conf", config);
-
-			std::string varRunPath = "/var/run/wireguard";
-			std::string interfaceAssigned = "";
-
-			try
+			std::string checkResult = CheckValidWireGuardConfig(config);
+			if (checkResult != "")
 			{
-				std::map<std::string, std::string> configmap = IniConfigToMap(config);
+				ThrowException("Not supported WireGuard config: " + checkResult);
+			}
+			else
+			{
+				unsigned long handshakeTimeoutFirst = StringToULong(params["handshake_timeout_first"]);
+				unsigned long handshakeTimeoutConnected = StringToULong(params["handshake_timeout_connected"]);
 
-				ReplyCommand(commandId, "log:setup-start");
+				FsFileWriteText("/tmp/testwg.conf", config);
 
-				FsDirectoryCreate(varRunPath);
+				std::string varRunPath = "/var/run/wireguard";
+				std::string interfaceAssigned = "";
 
-				std::string ifConfigPath = FsLocateExecutable("ifconfig");
-				std::string wireGuardGoPath = FsLocateExecutable("wireguard-go", true, true);
-				std::string wgPath = FsLocateExecutable("wg", true, true);
-
-				// Add interface
-
-				std::string interfaceNamePath = FsGetTempPath() + FsPathSeparator + "eddie_wg_go_interface.tmp";
-				SetEnv("WG_TUN_NAME_FILE", interfaceNamePath); // Will be filled with interface name
-				FsFileDelete(interfaceNamePath);
-				if (ExecEx1(wireGuardGoPath, "utun").exit != 0)
-					ThrowException("Unable to add interface");
-				interfaceAssigned = StringTrim(FsFileReadText(interfaceNamePath));
-				FsFileDelete(interfaceNamePath);
-				ReplyCommand(commandId, "log:interface-name:" + interfaceAssigned);
-
-				// Set Config
-				if (true)
+				try
 				{
-					std::string configSetConf = "";
-					configSetConf += "[Interface]\n";
-					if (configmap.find("interface.privatekey") != configmap.end())
-						configSetConf += "PrivateKey = " + configmap["interface.privatekey"] + "\n";
-					if (configmap.find("interface.listenport") != configmap.end())
-						configSetConf += "ListenPort = " + configmap["interface.listenport"] + "\n";
-					if (configmap.find("interface.fwmark") != configmap.end())
-						configSetConf += "FwMark = " + configmap["interface.fwmark"] + "\n";
-					configSetConf += "[Peer]\n";
-					if (configmap.find("peer.publickey") != configmap.end())
-						configSetConf += "PublicKey = " + configmap["peer.publickey"] + "\n";
-					if (configmap.find("peer.presharedkey") != configmap.end())
-						configSetConf += "PresharedKey = " + configmap["peer.presharedkey"] + "\n";
-					if (configmap.find("peer.allowedips") != configmap.end())
-						configSetConf += "AllowedIPs = " + configmap["peer.allowedips"] + "\n";
-					if (configmap.find("peer.endpoint") != configmap.end())
-						configSetConf += "Endpoint = " + configmap["peer.endpoint"] + "\n";
-					if (configmap.find("peer.persistentkeepalive") != configmap.end())
-						configSetConf += "PersistentKeepalive = " + configmap["peer.persistentkeepalive"] + "\n";
+					std::map<std::string, std::string> configmap = IniConfigToMap(config);
 
-					std::string configSetConfPath = FsGetTempPath() + FsPathSeparator + "eddie_setconf.tmp.conf";
-					FsFileWriteText(configSetConfPath, configSetConf);
-					ExecResult result = ExecEx3(wgPath, "setconf", interfaceAssigned, configSetConfPath);
-					FsFileDelete(configSetConfPath);
-					if (result.exit != 0)
-						ThrowException("Failed to configure interface '" + interfaceAssigned + "'");
-				}
+					ReplyCommand(commandId, "log:setup-start");
 
-				// Add interface addresses
-				if (configmap.find("interface.address") != configmap.end())
-				{
-					std::vector<std::string> interfaceAddresses = StringToVector(configmap["interface.address"], ',');
-					for (std::vector<std::string>::const_iterator i = interfaceAddresses.begin(); i != interfaceAddresses.end(); ++i)
+					FsDirectoryCreate(varRunPath);
+
+					std::string ifConfigPath = FsLocateExecutable("ifconfig");
+					std::string wireGuardGoPath = FsLocateExecutable("wireguard-go", true, true);
+					std::string wgPath = FsLocateExecutable("wg", true, true);
+
+					// Add interface
+
+					std::string interfaceNamePath = FsGetTempPath() + FsPathSeparator + "eddie_wg_go_interface.tmp";
+					SetEnv("WG_TUN_NAME_FILE", interfaceNamePath); // Will be filled with interface name
+					FsFileDelete(interfaceNamePath);
+					if (ExecEx(wireGuardGoPath, { "utun" }).exit != 0)
+						ThrowException("Unable to add interface");
+					interfaceAssigned = StringTrim(FsFileReadText(interfaceNamePath));
+					FsFileDelete(interfaceNamePath);
+					ReplyCommand(commandId, "log:interface-name:" + interfaceAssigned);
+
+					// Set Config
+					if (true)
 					{
-						std::string address = *i;
+						std::string configSetConf = "";
+						configSetConf += "[Interface]\n";
+						if (configmap.find("interface.privatekey") != configmap.end())
+							configSetConf += "PrivateKey = " + configmap["interface.privatekey"] + "\n";
+						if (configmap.find("interface.listenport") != configmap.end())
+							configSetConf += "ListenPort = " + configmap["interface.listenport"] + "\n";
+						if (configmap.find("interface.fwmark") != configmap.end())
+							configSetConf += "FwMark = " + configmap["interface.fwmark"] + "\n";
+						configSetConf += "[Peer]\n";
+						if (configmap.find("peer.publickey") != configmap.end())
+							configSetConf += "PublicKey = " + configmap["peer.publickey"] + "\n";
+						if (configmap.find("peer.presharedkey") != configmap.end())
+							configSetConf += "PresharedKey = " + configmap["peer.presharedkey"] + "\n";
+						if (configmap.find("peer.allowedips") != configmap.end())
+							configSetConf += "AllowedIPs = " + configmap["peer.allowedips"] + "\n";
+						if (configmap.find("peer.endpoint") != configmap.end())
+							configSetConf += "Endpoint = " + configmap["peer.endpoint"] + "\n";
+						if (configmap.find("peer.persistentkeepalive") != configmap.end())
+							configSetConf += "PersistentKeepalive = " + configmap["peer.persistentkeepalive"] + "\n";
 
-						std::string layerArg = "";
-						if (StringIsIPv4(address))
+						std::string configSetConfPath = FsGetTempPath() + FsPathSeparator + "eddie_setconf.tmp.conf";
+						FsFileWriteText(configSetConfPath, configSetConf);
+						ExecResult result = ExecEx(wgPath, { "setconf", interfaceAssigned, configSetConfPath });
+						FsFileDelete(configSetConfPath);
+						if (result.exit != 0)
+							ThrowException("Failed to configure interface '" + interfaceAssigned + "'");
+					}
+
+					// Add interface addresses
+					if (configmap.find("interface.address") != configmap.end())
+					{
+						std::vector<std::string> interfaceAddresses = StringToVector(configmap["interface.address"], ',');
+						for (std::vector<std::string>::const_iterator i = interfaceAddresses.begin(); i != interfaceAddresses.end(); ++i)
 						{
-							std::string addressWithoutCidr = address;
-							std::vector<std::string> parts = StringToVector(address, '/');
-							if ((parts.size() >= 1) && (ExecEx5(ifConfigPath, interfaceAssigned, "inet", address, parts[0], "alias").exit != 0))
-								ThrowException("Failed to add address '" + address + "'");
+							std::string address = *i;
+
+							std::string layerArg = "";
+							if (StringIsIPv4(address))
+							{
+								std::string addressWithoutCidr = address;
+								std::vector<std::string> parts = StringToVector(address, '/');
+								if ((parts.size() >= 1) && (ExecEx(ifConfigPath, { interfaceAssigned, "inet", address, parts[0], "alias" }).exit != 0))
+									ThrowException("Failed to add address '" + address + "'");
+							}
+							else if (StringIsIPv6(address))
+							{
+								if (ExecEx(ifConfigPath, { interfaceAssigned, "inet6", address, "alias" }).exit != 0)
+									ThrowException("Failed to add address '" + address + "'");
+							}
+							else
+								ThrowException("Unknown address type '" + address + "'");
 						}
-						else if (StringIsIPv6(address))
+					}
+
+					if (configmap.find("interface.mtu") != configmap.end())
+					{
+						int mtu = StringToInt(configmap["interface.mtu"]);
+
+						if (ExecEx(ifConfigPath, { interfaceAssigned, "mtu", StringFrom(mtu) }).exit != 0)
+							ThrowException("Failed to set mtu '" + StringFrom(mtu) + "'");
+					}
+
+					// Interface up
+					if (ExecEx(ifConfigPath, { interfaceAssigned, "up" }).exit != 0)
+						ThrowException("Failed to set interface '" + interfaceAssigned + "' up");
+
+					ReplyCommand(commandId, "log:setup-complete");
+
+					unsigned long handshakeStart = GetTimestampUnix();
+					unsigned long handshakeLast = 0;
+
+					for (;;)
+					{
+						unsigned long handshakeNow = WireGuardLastHandshake(wgPath, interfaceAssigned);
+
+						if (handshakeLast != handshakeNow)
 						{
-							if (ExecEx4(ifConfigPath, interfaceAssigned, "inet6", address, "alias").exit != 0)
-								ThrowException("Failed to add address '" + address + "'");
+							if (handshakeLast == 0)
+							{
+								// First
+								ReplyCommand(commandId, "log:setup-interface");
+								ReplyCommand(commandId, "log:handshake-first");
+							}
+
+							handshakeLast = handshakeNow;
+						}
+
+						unsigned long timeNow = GetTimestampUnix();
+						if (handshakeLast > 0)
+						{
+							unsigned long handshakeDelta = timeNow - handshakeLast;
+
+							if (handshakeDelta > handshakeTimeoutConnected)
+							{
+								ReplyCommand(commandId, "log:handshake-out"); // Too much, suggest disconnect
+							}
 						}
 						else
-							ThrowException("Unknown address type '" + address + "'");
+						{
+							unsigned long handshakeDelta = timeNow - handshakeStart;
+
+							if (handshakeDelta > handshakeTimeoutFirst)
+							{
+								ReplyCommand(commandId, "log:handshake-out"); // Too much, suggest disconnect
+							}
+						}
+
+						// Check stop requested
+						if (m_keypair.find(keypairStopRequest) != m_keypair.end())
+						{
+							ReplyCommand(commandId, "log:stop-requested");
+							break;
+						}
+
+						Sleep(1000);
 					}
 				}
-
-				if (configmap.find("interface.mtu") != configmap.end())
+				catch (std::exception& e)
 				{
-					int mtu = StringToInt(configmap["interface.mtu"]);
-
-					if (ExecEx3(ifConfigPath, interfaceAssigned, "mtu", StringFrom(mtu)).exit != 0)
-						ThrowException("Failed to set mtu '" + StringFrom(mtu) + "'");
+					ReplyCommand(commandId, "err:" + std::string(e.what()));
 				}
-
-				// Interface up
-				if (ExecEx2(ifConfigPath, interfaceAssigned, "up").exit != 0)
-					ThrowException("Failed to set interface '" + interfaceAssigned + "' up");
-
-				ReplyCommand(commandId, "log:setup-complete");
-
-				unsigned long handshakeStart = GetTimestampUnix();
-				unsigned long handshakeLast = 0;
-
-				for (;;)
+				catch (...)
 				{
-					unsigned long handshakeNow = WireGuardLastHandshake(wgPath, interfaceAssigned);
-
-					if (handshakeLast != handshakeNow)
-					{
-						if (handshakeLast == 0)
-						{
-							// First
-							ReplyCommand(commandId, "log:setup-interface");
-							ReplyCommand(commandId, "log:handshake-first");
-						}
-
-						handshakeLast = handshakeNow;
-					}
-
-					unsigned long timeNow = GetTimestampUnix();
-					if (handshakeLast > 0)
-					{
-						unsigned long handshakeDelta = timeNow - handshakeLast;
-
-						if (handshakeDelta > handshakeTimeoutConnected)
-						{
-							ReplyCommand(commandId, "log:handshake-out"); // Too much, suggest disconnect
-						}
-					}
-					else
-					{
-						unsigned long handshakeDelta = timeNow - handshakeStart;
-
-						if (handshakeDelta > handshakeTimeoutFirst)
-						{
-							ReplyCommand(commandId, "log:handshake-out"); // Too much, suggest disconnect
-						}
-					}
-
-					// Check stop requested
-					if (m_keypair.find(keypairStopRequest) != m_keypair.end())
-					{
-						ReplyCommand(commandId, "log:stop-requested");
-						break;
-					}
-
-					Sleep(1000);
+					ReplyCommand(commandId, "err:Unexpected");
 				}
-			}
-			catch (std::exception& e)
-			{
-				ReplyCommand(commandId, "err:" + std::string(e.what()));
-			}
-			catch (...)
-			{
-				ReplyCommand(commandId, "err:Unexpected");
-			}
 
-			ReplyCommand(commandId, "log:stop-interface");
+				ReplyCommand(commandId, "log:stop-interface");
 
-			if (interfaceAssigned != "")
-			{
-				std::string sockPath = varRunPath + "/" + interfaceAssigned + ".sock";
-				if (FsFileExists(sockPath))
-					FsFileDelete(sockPath);
-			}
+				if (interfaceAssigned != "")
+				{
+					std::string sockPath = varRunPath + "/" + interfaceAssigned + ".sock";
+					if (FsFileExists(sockPath))
+						FsFileDelete(sockPath);
+				}
 
-			m_keypair.erase(keypairStopRequest);
+				m_keypair.erase(keypairStopRequest);
 
-			ReplyCommand(commandId, "log:end");
+				ReplyCommand(commandId, "log:end");
+			}			
 		}
 	}
 	else
@@ -648,7 +627,7 @@ bool Impl::ServiceInstall()
 
 	if (FsFileExists(launchdPath))
 	{
-		ExecEx2(FsLocateExecutable("launchctl"), "unload", launchdPath);
+		ExecEx(FsLocateExecutable("launchctl"), { "unload", launchdPath });
 	}
 
 	std::string launchd = "";
@@ -668,7 +647,7 @@ bool Impl::ServiceInstall()
 	launchd += "        <key>ProgramArguments</key>\n";
 	launchd += "        <array>\n";
 
-	if (CheckIfExecutableIsAllowed(elevatedPath, false, true))
+	if (IsSecureServiceLocation(elevatedPath))
 	{
 	}
 	else
@@ -681,14 +660,17 @@ bool Impl::ServiceInstall()
 			return false;			
 		if (chmod(serviceLauncherPath.c_str(), 0700) == -1)
 			return false;			
-		if (CheckIfExecutableIsAllowed(serviceLauncherPath, false, true) == false)
+		if (IsSecureServiceLocation(serviceLauncherPath) == false)
 			return false;		
 
-		if (IntegrityCheckUpdate("service") == false)
-			return false;
-		
 		launchd += "            <string>" + StringXmlEncode(serviceLauncherPath) + "</string>\n";
 	}
+
+	// The runtime client->elevated gate reads integrity_service in both branches, so the
+	// snapshot must be stored regardless of whether a service launcher is used.
+	if (IntegrityCheckUpdate("service") == false)
+		return false;
+
 	launchd += "            <string>" + StringXmlEncode(elevatedPath) + "</string>\n";
 	launchd += "            <string>mode=service</string>\n";
 	if (m_cmdline.find("service_port") != m_cmdline.end())
@@ -704,8 +686,14 @@ bool Impl::ServiceInstall()
 
 	FsFileWriteText(launchdPath, launchd);
 
-	ExecResult launchctlResult = ExecEx2(FsLocateExecutable("launchctl"), "load", launchdPath);	
-	return (launchctlResult.exit == 0);
+	ExecResult launchctlResult = ExecEx(FsLocateExecutable("launchctl"), { "load", launchdPath });	
+	bool installed = (launchctlResult.exit == 0);
+	if (installed)
+	{
+		LogLocal("Service installed");
+		LogRemote("Service installed");
+	}
+	return installed;
 }
 
 bool Impl::ServiceUninstall()
@@ -714,7 +702,7 @@ bool Impl::ServiceUninstall()
 
 	if (FsFileExists(launchdPath))
 	{
-		ExecResult launchctlResult = ExecEx2(FsLocateExecutable("launchctl"), "unload", launchdPath);
+		ExecResult launchctlResult = ExecEx(FsLocateExecutable("launchctl"), { "unload", launchdPath });
 		if (launchctlResult.exit > 0)
 			result = false;
 
@@ -727,13 +715,16 @@ bool Impl::ServiceUninstall()
 	}
 
 	IntegrityCheckClean("service");
-	
+
+	LogLocal("Service uninstalled");
+	LogRemote("Service uninstalled");
+
 	return result;
 }
 
 std::vector<std::string> Impl::GetNetworkInterfacesNames()
 {
-	ExecResult networksetupListResult = ExecEx1(FsLocateExecutable("networksetup"), "-listallnetworkservices");
+	ExecResult networksetupListResult = ExecEx(FsLocateExecutable("networksetup"), { "-listallnetworkservices" });
 	if (networksetupListResult.exit != 0)
 		ThrowException("Unable to obtain network services list");
 
@@ -758,6 +749,21 @@ std::vector<std::string> Impl::GetNetworkInterfacesNames()
 	return output;
 }
 
+std::string Impl::StringEnsureNetworkServiceName(const std::string& str)
+{
+	if (str.empty())
+		return "";
+
+	std::vector<std::string> interfaces = GetNetworkInterfacesNames();
+	for (std::vector<std::string>::const_iterator i = interfaces.begin(); i != interfaces.end(); ++i)
+	{
+		if (*i == str)
+			return str;
+	}
+
+	return "";
+}
+
 std::string Impl::SystemWideDataPath()
 {
 	return "/Library/PrivilegedHelperTools/website.eddie.Helper.dat";
@@ -771,7 +777,7 @@ std::string Impl::CheckIfClientPathIsAllowed(const std::string& path)
 	std::string localPath = GetProcessPathCurrent();
 	std::string remotePath = path;
 
-	std::string codesignPath = "/usr/bin/codesign"; // Note: Absolute path to avoid ENV
+	std::string codesignPath = FsLocateExecutable("codesign");
 
 	// Check remote signature
 	{
@@ -790,7 +796,7 @@ std::string Impl::CheckIfClientPathIsAllowed(const std::string& path)
 
 	// Check if remote signature authority match current
 	{
-		ExecResult infoLocal = ExecEx3(codesignPath, "-dv", "--verbose=4", localPath);
+		ExecResult infoLocal = ExecEx(codesignPath, { "-dv", "--verbose=4", localPath });
 		if (infoLocal.exit != 0)
 		{
 			LogLocal("Unable to obtain signature of local");
@@ -805,7 +811,7 @@ std::string Impl::CheckIfClientPathIsAllowed(const std::string& path)
 				infoLocalFiltered += line + "\n";
 		}
 
-		ExecResult infoRemote = ExecEx3(codesignPath, "-dv", "--verbose=4", remotePath);
+		ExecResult infoRemote = ExecEx(codesignPath, { "-dv", "--verbose=4", remotePath });
 		if (infoRemote.exit != 0)
 		{
 			LogLocal("Unable to obtain signature of remote");
@@ -831,6 +837,7 @@ std::string Impl::CheckIfClientPathIsAllowed(const std::string& path)
 #endif
 }
 
+#ifndef EDDIE_IPC_LOCAL
 int Impl::GetProcessIdMatchingIPEndPoints(struct sockaddr_in& addrClient, struct sockaddr_in& addrServer)
 {
 	char sourceIp[256];
@@ -852,7 +859,7 @@ int Impl::GetProcessIdMatchingIPEndPoints(struct sockaddr_in& addrClient, struct
 	std::string lsofPath = FsLocateExecutable("lsof");
 	if (lsofPath != "")
 	{
-		ExecResult lsResult = ExecEx("lsof", args);
+		ExecResult lsResult = ExecEx(lsofPath, args);
 		if (lsResult.exit == 0)
 		{
 			std::vector<std::string> lines = StringToVector(lsResult.out, '\n');
@@ -881,6 +888,7 @@ int Impl::GetProcessIdMatchingIPEndPoints(struct sockaddr_in& addrClient, struct
 
 	return 0;
 }
+#endif // !EDDIE_IPC_LOCAL
 
 void Impl::AddTorCookiePaths(const std::string& torPath, const std::string& username, std::vector<std::string>& result)
 {
@@ -925,50 +933,51 @@ pid_t Impl::GetParentProcessId(pid_t pid)
 pid_t Impl::GetProcessIdOfName(const std::string& name)
 {
 	// TOFIX - Find a method without exec
-	ExecResult pidofResult = ExecEx2("pgrep", "-x", name);
+	ExecResult pidofResult = ExecEx(FsLocateExecutable("pgrep"), { "-x", name });
 	if (pidofResult.exit == 0)
 		return atoi(pidofResult.out.c_str());
 	else
 		return 0;
 }
 
+std::string Impl::StringEnsureInterfaceName(const std::string& str)
+{
+	std::string r = StringPruneCharsNotIn(str, ".-0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+	if (r.length() > 15) r = r.substr(0, 15);
+	return r;
+}
+
+std::string Impl::GetStagingDir()
+{
+	return "/var/run/eddie-vpn/stage";
+}
+
+#ifdef EDDIE_IPC_UNIXSOCKET
+std::string Impl::GetIpcRuntimeDir()
+{
+	return "/var/run/eddie-vpn";
+}
+
+int Impl::GetSocketPeerPid(HSOCKET s)
+{
+	pid_t peerPid = 0;
+	socklen_t peerPidLen = sizeof(peerPid);
+	if (getsockopt(s, SOL_LOCAL, LOCAL_PEERPID, &peerPid, &peerPidLen) != 0)
+		return 0;
+	return (int)peerPid;
+}
+#endif
+
 // --------------------------
 // Private
 // --------------------------
-
-int Impl::FileImmutableSet(const std::string& path, const int flag)
-{
-	// sudo chflags schg /path/to/file
-	// sudo chflags noschg /path/to/file
-
-	int result = FileGetFlags(path);
-	if (result == -1)
-		return -1;
-
-	result = flag ? (result | SF_IMMUTABLE) : (result & ~SF_IMMUTABLE);
-	if (chflags(path.c_str(), result) == -1)
-		return -1;
-
-	return 0;
-}
-
-int Impl::FileGetFlags(const std::string& path)
-{
-	struct stat s;
-	memset(&s, 0, sizeof(struct stat));
-
-	if (stat(path.c_str(), &s) == -1)
-		return -1;
-
-	return (int)s.st_flags;
-}
 
 std::string Impl::GetRoutesAsJson()
 {
 	int n = 0;
 	std::string json;
 
-	ExecResult netstatResult = ExecEx1(FsLocateExecutable("netstat"), "-rnl");
+	ExecResult netstatResult = ExecEx(FsLocateExecutable("netstat"), { "-rnl" });
 	if (netstatResult.exit == 0)
 	{
 		std::vector<std::string> header;
@@ -1054,7 +1063,7 @@ std::string Impl::GetNetworkInterfaceInfoAsJson(const std::string& id)
 
 	// Step2: Query 'networksetup -listallhardwareports' to obtain a more accurate device friendly names.
 	// TOFIX: Exists a better method?
-	ExecResult listHardwareReportExec = ExecEx1(FsLocateExecutable("networksetup"),"-listallhardwareports");
+	ExecResult listHardwareReportExec = ExecEx(FsLocateExecutable("networksetup"), { "-listallhardwareports" });
 	if(listHardwareReportExec.exit == 0)
 	{
 		std::vector<std::string> listHardwareReport = StringToVector(listHardwareReportExec.out, '\n');
@@ -1072,7 +1081,7 @@ std::string Impl::GetNetworkInterfaceInfoAsJson(const std::string& id)
 					// Found, query other info
 					kp["friendly"] = name;
 
-					ExecResult networkSetupGetInfoExec = ExecEx2(FsLocateExecutable("networksetup"), "-getinfo", name);
+					ExecResult networkSetupGetInfoExec = ExecEx(FsLocateExecutable("networksetup"), { "-getinfo", name });
 					if(networkSetupGetInfoExec.exit == 0)
 					{
 						std::vector<std::string> networkSetupGetInfo = StringToVector(networkSetupGetInfoExec.out, '\n');
@@ -1132,7 +1141,7 @@ std::string Impl::WorkaroundDnsLookupIPv6Enable(const std::string& iface)
 
 
 		// Need? 
-		ExecResult execCheck = ExecEx1(scUtilPath, "--dns");
+		ExecResult execCheck = ExecEx(scUtilPath, { "--dns" });
 		if (execCheck.exit != 0)
 			ThrowException("Unexpected scutil --dns output: " + GetExecResultReport(execCheck));
 		if (StringContain(execCheck.out, "Request AAAA records"))
@@ -1140,7 +1149,7 @@ std::string Impl::WorkaroundDnsLookupIPv6Enable(const std::string& iface)
 				
 		// Fetch data
 		ExecResult ifconfigResult;
-		ifconfigResult = ExecEx1(ifconfigPath, iface);
+		ifconfigResult = ExecEx(ifconfigPath, { iface });
 		if(ifconfigResult.exit != 0)
 			ThrowException("Unexpected ifconfig output: " + GetExecResultReport(ifconfigResult));
 
@@ -1234,6 +1243,8 @@ std::string Impl::WorkaroundDnsLookupIPv6Disable(const std::string& iface)
 		ExecResult resultScutil = ExecEx(scUtilPath, args, sc);
 		if(resultScutil.exit != 0)
 			ThrowException("Unexpected scutil output: " + GetExecResultReport(resultScutil));
+		if(StringContain(resultScutil.out, "No such key"))
+			return "already_deactivated";
 		
 		return "ok";
 	}

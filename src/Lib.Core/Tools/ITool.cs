@@ -1,6 +1,6 @@
 // <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2026 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -139,18 +139,21 @@ namespace Eddie.Core.Tools
 			if (Engine.Instance.ProfileOptions.Exists(customLocationOption))
 				searchLocation = Engine.Instance.ProfileOptions.Get(customLocationOption);
 
-			string customPathOption = "tools." + Code + ".path";
-			if (Engine.Instance.ProfileOptions.Exists(customPathOption))
+			if (Code != "openvpn" && Code != "hummingbird")
 			{
-				string path = Engine.Instance.ProfileOptions.Get(customPathOption).Trim();
-				if (path != "")
+				string customPathOption = "tools." + Code + ".path";
+				if (Engine.Instance.ProfileOptions.Exists(customPathOption))
 				{
-					path = Platform.Instance.NormalizePath(path);
-					if (Platform.Instance.FileExists(path))
+					string path = Engine.Instance.ProfileOptions.Get(customPathOption).Trim();
+					if (path != "")
 					{
-						Path = path;
-						Location = "custom";
-						return;
+						path = Platform.Instance.NormalizePath(path);
+						if (Platform.Instance.FileExists(path))
+						{
+							Path = path;
+							Location = "custom";
+							return;
+						}
 					}
 				}
 			}

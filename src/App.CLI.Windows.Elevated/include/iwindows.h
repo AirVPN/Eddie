@@ -16,35 +16,12 @@
 // along with Eddie. If not, see <http://www.gnu.org/licenses/>.
 // </eddie_source_header>
 
-#include "..\..\Lib.CLI.Elevated\include\ibase.h"
+// SOCKADDR_INET / IN6_ADDR appear in method signatures below.
+// winsock2.h must precede windows.h, so keep these before any other include.
+#include <winsock2.h>
+#include <ws2ipdef.h>
 
-// Note: In Eddie 2.24.3, we try to update from wintun 12.0 to wintun 14.1, but there are a lots of changes, mainly related to pool.
-// Also, in the new 14.1, the "Close" also destroy adapter (by docs), so i cannot understand how to Create permanently.
-// 2.24.3: still use WinTun 12.0.
-// For the future, the connection "openvpn" must create at-fly adapter and destroy when end (like what WireGuard do), removing also the windows.adapters.cleanup option.
-#define WINTUNLIB
-#ifdef WINTUNLIB
-	//#define WIP_WINTUN14
-	#ifdef WIP_WINTUN14
-		#include "..\..\..\dependencies\wintun\wintun.14.1.h"		
-		static WINTUN_CREATE_ADAPTER_FUNC* WintunLibraryCreateAdapter;
-		static WINTUN_CLOSE_ADAPTER_FUNC* WintunLibraryCloseAdapter;
-		static WINTUN_OPEN_ADAPTER_FUNC* WintunLibraryOpenAdapter;
-		static WINTUN_GET_ADAPTER_LUID_FUNC* WintunLibraryGetAdapterLUID;
-		static WINTUN_GET_RUNNING_DRIVER_VERSION_FUNC* WintunLibraryGetRunningDriverVersion;
-		static WINTUN_DELETE_DRIVER_FUNC* WintunLibraryDeleteDriver;
-		static WINTUN_SET_LOGGER_FUNC* WintunLibrarySetLogger;
-		static WINTUN_START_SESSION_FUNC* WintunLibraryStartSession;
-		static WINTUN_END_SESSION_FUNC* WintunLibraryEndSession;
-		static WINTUN_GET_READ_WAIT_EVENT_FUNC* WintunLibraryGetReadWaitEvent;
-		static WINTUN_RECEIVE_PACKET_FUNC* WintunLibraryReceivePacket;
-		static WINTUN_RELEASE_RECEIVE_PACKET_FUNC* WintunLibraryReleaseReceivePacket;
-		static WINTUN_ALLOCATE_SEND_PACKET_FUNC* WintunLibraryAllocateSendPacket;
-		static WINTUN_SEND_PACKET_FUNC* WintunLibrarySendPacket;
-	#else
-		#include "..\..\..\dependencies\wintun\wintun.12.h"
-	#endif
-#endif
+#include "..\..\Lib.CLI.Elevated\include\ibase.h"
 
 class IWindows : public IBase
 {
@@ -58,13 +35,14 @@ protected:
 
 	// Virtual
 protected:
-	virtual void AddTorCookiePaths(const std::string& torPath, const std::string& username, std::vector<std::string>& result);
+	virtual 	void AddTorCookiePaths(const std::string& torPath, const std::string& username, std::vector<std::string>& result);
 
 	// Virtual Pure, OS
 protected:
 	virtual bool IsRoot();
 	virtual void Sleep(int ms);
 	virtual uint64_t GetTimestampUnixUsec();
+	virtual std::string GetDevLogPath();
 	pid_t GetCurrentProcessId();
 	virtual pid_t GetParentProcessId();
 	virtual pid_t GetParentProcessId(pid_t pid);
@@ -86,16 +64,31 @@ protected:
 	virtual std::vector<char> FsFileReadBytes(const std::string& path);
 	virtual std::vector<std::string> FsFilesInPath(const std::string& path);
 	virtual std::string FsGetTempPath();
+	virtual std::string GetStagingDir();
 	virtual std::vector<std::string> FsGetEnvPath();
 	virtual std::string FsGetRealPath(std::string path);
 	virtual bool FsFileIsExecutable(std::string path);
 	virtual bool FsFileEnsureRootOnly(std::string path);
+	virtual bool FsFileMakeRunnable(const std::string& path);
 	virtual bool FsFileIsRootOnly(std::string path);
+	virtual bool FsDirectoryEnsureRootOnly(std::string path);
+	virtual bool FsDirectoryIsRootOnly(std::string path);
 	virtual bool SocketIsValid(HSOCKET s);
 	virtual void SocketMarkReuseAddr(HSOCKET s);
 	virtual void SocketBlockMode(HSOCKET s, bool block);
 	virtual void SocketClose(HSOCKET s);
 	virtual int SocketGetLastErrorCode();
+
+	// IPC transport: named pipe (EDDIE_IPC_LOCAL) or TCP loopback fallback.
+	virtual void TransportListen(int port);
+	virtual bool TransportAccept();
+	virtual int TransportGetClientProcessId();
+	virtual int TransportRead(char* buffer, int maxLen);
+	virtual int TransportWrite(const char* buffer, int len);
+	virtual void TransportClientClose();
+	virtual void TransportServerClose();
+
+	virtual std::string StringEnsureInterfaceName(const std::string& str);
 
 	// Virtual Pure, Other
 protected:
@@ -104,8 +97,21 @@ protected:
 	virtual bool SystemWideDataDel(const std::string& key);
 	virtual bool SystemWideDataClean();
 	virtual std::string CheckIfClientPathIsAllowed(const std::string& path);
-	virtual bool CheckIfExecutableIsAllowed(const std::string& path, const bool& throwException, const bool ignoreKnown = false);
+	virtual std::string CheckExecutablePathPermissions(const std::string& path);
+#ifndef EDDIE_IPC_LOCAL
 	virtual int GetProcessIdMatchingIPEndPoints(struct sockaddr_in& addrClient, struct sockaddr_in& addrServer);
+#endif
+
+	// IPC transport state
+private:
+#ifdef EDDIE_IPC_NAMEDPIPE
+	HANDLE m_ipcPipe = INVALID_HANDLE_VALUE; // single instance: server handle is also the connection
+#else
+	HSOCKET m_ipcServer = 0;
+	HSOCKET m_ipcClient = 0;
+	struct sockaddr_in m_ipcAddrServer;
+	struct sockaddr_in m_ipcAddrClient;
+#endif
 
 	// Protected
 protected:
@@ -121,6 +127,7 @@ protected:
 	} t_shellinfo;
 		
 	std::string GetLastErrorAsString();
+	void ExecArg(const std::wstring& arg, std::wstring& cmdline);
 	t_shellinfo ExecStart(const std::string& path, const std::vector<std::string>& args);
 	DWORD ExecEnd(t_shellinfo info);
 	void ExecCleanup(t_shellinfo info);
@@ -128,29 +135,17 @@ protected:
 
 	bool ServiceGenericDelete(const std::string& id);
 
-#ifdef WINTUNLIB
-	// Wintun	
-	HMODULE m_wintunLibrary = 0;
-	bool WintunEnsureLibrary();
-	DWORD WintunVersion();
-	std::string WintunAdapterAdd(const std::wstring& name);
-	std::string WintunAdapterEnsure(const std::wstring& name);
-	void WintunAdapterRemove(const std::wstring& name);
-	WINTUN_ADAPTER_HANDLE WintunAdapterOpen(const std::wstring& name);
-	void WintunAdapterClose(WINTUN_ADAPTER_HANDLE hAdapter);
-	void WintunAdapterRemove(WINTUN_ADAPTER_HANDLE hAdapter);
-	//void WintunAdapterRemovePool();
-	std::string WintunAdapterGetGuid(WINTUN_ADAPTER_HANDLE hAdapter);
-#endif
-	
+	std::string GetBundledInfPath(const std::string& driver);
+	std::string DriverInstall(const std::string& driver);
+	std::string DriverUninstall(const std::string& driver);
+
 	std::string NetworkAdapterCreate(const std::string& driver, const std::string& name);
 	bool NetworkAdapterDelete(const std::string& id);
 	void NetworkAdapterDeleteAll();
 
-protected:
-
 	// WireGuard
-	int WireGuardTunnel(const std::string& configName);
+	bool WireGuardParseInetCidr(const std::string& token, ADDRESS_FAMILY& family, IN_ADDR& v4, IN6_ADDR& v6, BYTE& cidr);
+	bool WireGuardParseEndpoint(const std::string& endpoint, SOCKADDR_INET& out);
 
 	// Public
 public:	

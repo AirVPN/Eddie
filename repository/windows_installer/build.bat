@@ -17,44 +17,52 @@ if "%~3"=="" (
 )
 
 if "%~4"=="" (
-	echo "Framework missing"
+	echo "Line missing"
 	goto :error
 )
 
 set VARPROJECT=%1
 set VARARCH=%2
 set VAROS=%3
-set VARFRAMEWORK=%4
+set VARLINE=%4
 set VARCONFIG=Release
+
+if not "%VARLINE%"=="l" if not "%VARLINE%"=="u" (
+	echo "Line must be l or u"
+	goto :error
+)
+
+set VARPACKAGEPROJECT=%VARPROJECT%
+if "%VARLINE%"=="u" set VARPACKAGEPROJECT=%VARPROJECT%-u
 
 set VARSCRIPTDIR=%~dp0
 FOR /F "tokens=*" %%g IN ('%VARSCRIPTDIR%\..\windows_common\get-version.exe') do (SET "VARVERSION=%%g")
-set VARTARGETDIR=%TEMP%\eddie_deploy\eddie-%VARPROJECT%_%VARVERSION%_%VAROS%_%VARARCH%_installer
-set VARFINALPATH=%TEMP%\eddie_deploy\eddie-%VARPROJECT%_%VARVERSION%_%VAROS%_%VARARCH%_installer.exe
-set VARDEPLOYPATH=%VARSCRIPTDIR%\..\files\eddie-%VARPROJECT%_%VARVERSION%_%VAROS%_%VARARCH%_installer.exe
+set VARTARGETDIR=%TEMP%\eddie_deploy\eddie-%VARPACKAGEPROJECT%_%VARVERSION%_%VAROS%_%VARARCH%_installer
+set VARFINALPATH=%TEMP%\eddie_deploy\eddie-%VARPACKAGEPROJECT%_%VARVERSION%_%VAROS%_%VARARCH%_installer.exe
+set VARDEPLOYPATH=%VARSCRIPTDIR%\..\files\eddie-%VARPACKAGEPROJECT%_%VARVERSION%_%VAROS%_%VARARCH%_installer.exe
 
 echo Step: Dependencies
-CALL %VARSCRIPTDIR%\..\windows_portable\build.bat %VARPROJECT% %VARARCH% %VAROS% %VARFRAMEWORK% || goto :error
+CALL %VARSCRIPTDIR%\..\windows_portable\build.bat %VARPROJECT% %VARARCH% %VAROS% %VARLINE% || goto :error
 
 echo Step: Cleanup
 IF EXIST "%VARTARGETDIR%" (
 	rmdir /s /q "%VARTARGETDIR%" 
 )
 
-echo Build Windows Installer, Project: %VARPROJECT%, OS: %VAROS%, Arch: %VARARCH%, Framework: %VARFRAMEWORK%
+echo Build Windows Installer, Project: %VARPROJECT%, OS: %VAROS%, Arch: %VARARCH%, Line: %VARLINE%
 
 IF exist %VARDEPLOYPATH% (
 	echo "Already builded: %VARDEPLOYPATH%"
 	exit /b 0;
 ) 
 
-%VARSCRIPTDIR%\..\windows_common\7za.exe -y x "%VARSCRIPTDIR%\..\files\eddie-%VARPROJECT%_%VARVERSION%_%VAROS%_%VARARCH%_portable.zip" -o"%VARTARGETDIR%" || goto :error
-del "%VARTARGETDIR%\eddie-%VARPROJECT%_%VARVERSION%_%VAROS%_%VARARCH%_portable\portable.txt"
-xcopy /s /e /i /Y "%VARTARGETDIR%\eddie-%VARPROJECT%_%VARVERSION%_%VAROS%_%VARARCH%_portable\*" "%VARTARGETDIR%\*" || goto :error
-rmdir /s /q "%VARTARGETDIR%\eddie-%VARPROJECT%_%VARVERSION%_%VAROS%_%VARARCH%_portable" || goto :error
+%VARSCRIPTDIR%\..\windows_common\7za.exe -y x "%VARSCRIPTDIR%\..\files\eddie-%VARPACKAGEPROJECT%_%VARVERSION%_%VAROS%_%VARARCH%_portable.zip" -o"%VARTARGETDIR%" || goto :error
+del "%VARTARGETDIR%\eddie-%VARPACKAGEPROJECT%_%VARVERSION%_%VAROS%_%VARARCH%_portable\portable.txt"
+xcopy /s /e /i /Y "%VARTARGETDIR%\eddie-%VARPACKAGEPROJECT%_%VARVERSION%_%VAROS%_%VARARCH%_portable\*" "%VARTARGETDIR%\*" || goto :error
+rmdir /s /q "%VARTARGETDIR%\eddie-%VARPACKAGEPROJECT%_%VARVERSION%_%VAROS%_%VARARCH%_portable" || goto :error
 
 rem Build NSIS script
-"%VARSCRIPTDIR%\nsis-helper.exe" "%VARARCH%" "%VARTARGETDIR%" "%VARFINALPATH%" || goto :error
+"%VARSCRIPTDIR%\nsis-helper.exe" "%VARARCH%" "%VARTARGETDIR%" "%VARFINALPATH%" "%VARLINE%" || goto :error
 
 rem NSIS
 echo "Shell NSIS"

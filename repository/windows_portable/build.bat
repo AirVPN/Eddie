@@ -17,24 +17,34 @@ if "%~3"=="" (
 )
 
 if "%~4"=="" (
-	echo "Framework missing"
+	echo "Line missing"
 	goto :error
 )
 
 set VARPROJECT=%1
 set VARARCH=%2
 set VAROS=%3
-set VARFRAMEWORK=%4
+set VARLINE=%4
 set VARRID="win-!VARARCH!"
 set VARCONFIG=Release
 
+if not "!VARLINE!"=="l" if not "!VARLINE!"=="u" (
+	echo "Line must be l or u"
+	goto :error
+)
+
+set VARPACKAGEPROJECT=!VARPROJECT!
+if "!VARLINE!"=="u" set VARPACKAGEPROJECT=!VARPROJECT!-u
+set VARDEPPACKAGEPROJECT=cli
+if "!VARLINE!"=="u" set VARDEPPACKAGEPROJECT=cli-u
+
 set VARSCRIPTDIR=%~dp0
 FOR /F "tokens=*" %%g IN ('!VARSCRIPTDIR!\..\windows_common\get-version.exe') do (SET "VARVERSION=%%g")
-set VARTARGETDIR=%TEMP%\eddie_deploy\eddie-!VARPROJECT!_!VARVERSION!_!VAROS!_!VARARCH!_portable
-set VARFINALPATH=%TEMP%\eddie_deploy\eddie-!VARPROJECT!_!VARVERSION!_!VAROS!_!VARARCH!_portable.zip
-set VARDEPLOYPATH=!VARSCRIPTDIR!\..\files\eddie-!VARPROJECT!_!VARVERSION!_!VAROS!_!VARARCH!_portable.zip
+set VARTARGETDIR=%TEMP%\eddie_deploy\eddie-!VARPACKAGEPROJECT!_!VARVERSION!_!VAROS!_!VARARCH!_portable
+set VARFINALPATH=%TEMP%\eddie_deploy\eddie-!VARPACKAGEPROJECT!_!VARVERSION!_!VAROS!_!VARARCH!_portable.zip
+set VARDEPLOYPATH=!VARSCRIPTDIR!\..\files\eddie-!VARPACKAGEPROJECT!_!VARVERSION!_!VAROS!_!VARARCH!_portable.zip
 
-echo Build Windows Portable, Project: !VARPROJECT!, OS: !VAROS!, Arch: !VARARCH!, Framework: !VARFRAMEWORK!
+echo Build Windows Portable, Project: !VARPROJECT!, OS: !VAROS!, Arch: !VARARCH!, Line: !VARLINE!
 
 IF EXIST "!VARDEPLOYPATH!" (
 	echo "Already builded: !VARDEPLOYPATH!"
@@ -54,17 +64,17 @@ copy !VARSCRIPTDIR!\portable.txt !VARTARGETDIR!
 
 IF "!VARPROJECT!"=="cli" (
 	cd /d "!VARSCRIPTDIR!\..\..\src\App.CLI.Windows\"
-	dotnet publish App.CLI.Windows.net8.csproj --configuration Release --runtime !VARRID! --self-contained true -p:PublishTrimmed=true -p:EnableCompressionInSingleFile=true
-	copy !VARSCRIPTDIR!\..\..\src\App.CLI.Windows\bin\!VARCONFIG!\net8.0\!VARRID!\publish\* !VARTARGETDIR! || goto :error		
-	copy !VARSCRIPTDIR!\..\..\src\App.CLI.Windows\bin\!VARCONFIG!\net8.0\!VARRID!\Eddie-CLI-Elevated.exe !VARTARGETDIR! || goto :error		
-	copy !VARSCRIPTDIR!\..\..\src\App.CLI.Windows\bin\!VARCONFIG!\net8.0\!VARRID!\Eddie-CLI-Elevated-Service.exe !VARTARGETDIR! || goto :error		
-	copy !VARSCRIPTDIR!\..\..\src\App.CLI.Windows\bin\!VARCONFIG!\net8.0\!VARRID!\Lib.Platform.Windows.Native.dll !VARTARGETDIR! || goto :error				
+	dotnet publish App.CLI.Windows.net10.csproj --configuration Release --runtime !VARRID! --self-contained true -p:PublishTrimmed=true -p:EnableCompressionInSingleFile=true
+	copy !VARSCRIPTDIR!\..\..\src\App.CLI.Windows\bin\!VARCONFIG!\net10.0\!VARRID!\publish\* !VARTARGETDIR! || goto :error		
+	copy !VARSCRIPTDIR!\..\..\src\App.CLI.Windows\bin\!VARCONFIG!\net10.0\!VARRID!\Eddie-CLI-Elevated.exe !VARTARGETDIR! || goto :error		
+	copy !VARSCRIPTDIR!\..\..\src\App.CLI.Windows\bin\!VARCONFIG!\net10.0\!VARRID!\Eddie-CLI-Elevated-Service.exe !VARTARGETDIR! || goto :error		
+	copy !VARSCRIPTDIR!\..\..\src\App.CLI.Windows\bin\!VARCONFIG!\net10.0\!VARRID!\Lib.Platform.Windows.Native.dll !VARTARGETDIR! || goto :error				
 
 	rem Resources
 	echo Step: Resources
 	copy !VARSCRIPTDIR!\..\..\deploy\!VAROS!_!VARARCH!\* !VARTARGETDIR! || goto :error	
 	robocopy !VARSCRIPTDIR!\..\..\resources !VARTARGETDIR!\Resources /E
-	IF "%VARVERSION:~0,1%"=="2" (		
+	IF "!VARLINE!"=="l" (
 		rmdir "!VARTARGETDIR!\Resources\webui" /S /Q 2>nul
 	)
 	
@@ -72,18 +82,18 @@ IF "!VARPROJECT!"=="cli" (
 
 IF "!VARPROJECT!"=="ui" (
 	echo Step: Dependencies
-	CALL %VARSCRIPTDIR%\..\windows_portable\build.bat cli %VARARCH% %VAROS% %VARFRAMEWORK% || goto :error
-	%VARSCRIPTDIR%\..\windows_common\7za.exe -y x "%VARSCRIPTDIR%\..\files\eddie-cli_%VARVERSION%_%VAROS%_%VARARCH%_portable.zip" -o"%VARTARGETDIR%" || goto :error
-	robocopy "%VARTARGETDIR%\eddie-cli_%VARVERSION%_%VAROS%_%VARARCH%_portable" "%VARTARGETDIR%" *.* /E /MOVE
+	CALL %VARSCRIPTDIR%\..\windows_portable\build.bat cli %VARARCH% %VAROS% %VARLINE% || goto :error
+	%VARSCRIPTDIR%\..\windows_common\7za.exe -y x "%VARSCRIPTDIR%\..\files\eddie-!VARDEPPACKAGEPROJECT!_%VARVERSION%_%VAROS%_%VARARCH%_portable.zip" -o"%VARTARGETDIR%" || goto :error
+	robocopy "%VARTARGETDIR%\eddie-!VARDEPPACKAGEPROJECT!_%VARVERSION%_%VAROS%_%VARARCH%_portable" "%VARTARGETDIR%" *.* /E /MOVE
 
-	IF "!VARFRAMEWORK!"=="net8" (
+	IF "!VARLINE!"=="u" (
 		echo Build UI App
 		call "%VARSCRIPTDIR%\..\..\src\App.UI.Windows\build.bat" %VARCONFIG% %VARARCH% || GOTO error
 		copy "%VARSCRIPTDIR%\..\..\src\App.UI.Windows\bin\*" "%VARTARGETDIR%\" /Y /V || GOTO error	
-	) ELSE IF "!VARFRAMEWORK!"=="net4" (		
+	) ELSE IF "!VARLINE!"=="l" (
 		call "!VARSCRIPTDIR!\..\..\src\win_clean.bat"		
 		call "!VARSCRIPTDIR!\..\windows_common\locate_msbuild.bat" || exit /b 1
-		set VARTARGETFRAMEWORK="v4.8"	
+		set VARTARGETFRAMEWORK="v4.8.1"	
 		set VARRULESETPATH="!VARSCRIPTDIR!\..\..\src\ruleset\norules.ruleset"
 		set VARSOLUTIONPATH="!VARSCRIPTDIR!\..\..\src\App.Forms.Windows\App.Forms.Windows.sln"
 		"!VARMSBUILD!" /verbosity:minimal /property:CodeAnalysisRuleSet=!VARRULESETPATH! /p:Configuration=!VARCONFIG! /p:Platform=!VARARCH! /p:TargetFrameworkVersion=!VARTARGETFRAMEWORK! /t:Rebuild !VARSOLUTIONPATH! /p:DefineConstants="EDDIENET4" || goto :error	
@@ -104,20 +114,18 @@ del !VARTARGETDIR!\*.xml 2>nul
 
 rem Signing
 
-IF exist "%EDDIESIGNINGDIR%\eddie.win-signing.pfx" (
+if defined EDDIESIGNINGDIR (
 	echo Step: Signing		
 	
 	SET /p VARSIGNPASSWORD= < "%EDDIESIGNINGDIR%\eddie.win-signing.pfx.pwd"
 
-	for %%f in (!VARTARGETDIR!\*.*) do (
-		IF NOT "%%~nxf"=="portable.txt" (
-			echo Check signature %%~ff 
-			!VARSCRIPTDIR!\..\windows_common\signtool.exe verify /pa "%%~ff"
-			if ERRORLEVEL 1 (
-				!VARSCRIPTDIR!\..\windows_common\signtool.exe sign /fd sha256 /p "!VARSIGNPASSWORD!" /f "%EDDIESIGNINGDIR%\eddie.win-signing.pfx" /t http://timestamp.comodoca.com/authenticode /d "Eddie - VPN Tunnel" "%%~ff" || goto :error
-			) ELSE (
-				rem Already signed
-			)
+	for %%f in (!VARTARGETDIR!\*.exe !VARTARGETDIR!\*.dll !VARTARGETDIR!\*.sys !VARTARGETDIR!\*.cat) do (
+		echo Check signature %%~ff 
+		!VARSCRIPTDIR!\..\windows_common\signtool.exe verify /pa "%%~ff"
+		if ERRORLEVEL 1 (
+			!VARSCRIPTDIR!\..\windows_common\signtool.exe sign /fd sha256 /p "!VARSIGNPASSWORD!" /f "%EDDIESIGNINGDIR%\eddie.win-signing.pfx" /t http://timestamp.comodoca.com/authenticode /d "Eddie - VPN Tunnel" "%%~ff" || goto :error
+		) ELSE (
+			rem Already signed
 		)
 	)
 )

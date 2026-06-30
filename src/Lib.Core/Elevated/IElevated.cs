@@ -1,6 +1,6 @@
 // <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2026 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -31,6 +31,8 @@ namespace Eddie.Core.Elevated
 	public class IElevated
 	{
 		public Dictionary<UInt32, Command> PendingCommands = new Dictionary<UInt32, Command>();
+
+		private const int IpcMaxReceiveBufferSize = 8 * 1024 * 1024;
 
 		protected string m_sessionKey = "";
 		protected string m_failedReason = "";
@@ -135,8 +137,12 @@ namespace Eddie.Core.Elevated
 			c.Parameters["_token"] = m_sessionKey;
 			c.Parameters["_debug"] = ((Engine.Instance != null) && (Engine.Instance.ProfileOptions != null) && (Engine.Instance.ProfileOptions.GetBool("log.level.debug")) ? "1" : "0");
 			string line = "";
+			if (c.Parameters.ContainsKey("command"))
+				line += "command:" + Conversions.StringToBase64(c.Parameters["command"]) + ";";
 			foreach (KeyValuePair<string, string> kp in c.Parameters)
 			{
+				if (kp.Key == "command")
+					continue;
 				line += kp.Key + ":" + Conversions.StringToBase64(kp.Value) + ";";
 			}
 			line += "\n";
@@ -238,6 +244,13 @@ namespace Eddie.Core.Elevated
 		protected void ReceiveData(string data)
 		{
 			m_bufferReceive += data;
+
+			if (m_bufferReceive.Length > IpcMaxReceiveBufferSize)
+			{
+				m_bufferReceive = "";
+				FatalError("Reply buffer from elevated exceeded " + IpcMaxReceiveBufferSize + " bytes; aborting");
+				return;
+			}
 
 			for (; ; )
 			{

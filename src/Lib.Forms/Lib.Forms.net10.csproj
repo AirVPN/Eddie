@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <RootNamespace>Eddie.Forms</RootNamespace>
+    <AssemblyName>Lib.Forms</AssemblyName>
+    <DefineConstants>EDDIE_DOTNET</DefineConstants>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <ApplicationIcon>res\icon.ico</ApplicationIcon>
+    <CodeAnalysisRuleSet>..\ruleset\eddie.ruleset</CodeAnalysisRuleSet>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Lib.Core\Lib.Core.net10.csproj" />
+    <ProjectReference Include="..\Lib.Forms.Skin\Lib.Forms.Skin.net10.csproj" />
+  </ItemGroup>
+</Project>

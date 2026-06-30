@@ -1,6 +1,6 @@
 // <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org )
+// Copyright (C)2014-2026 AirVPN (support@airvpn.org) / https://airvpn.org )
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -368,16 +368,6 @@ namespace Eddie.UI.Cocoa.Osx
             CboAdvancedUpdaterChannel.AddItem("Beta");
             CboAdvancedUpdaterChannel.AddItem("None");
 
-			CmdAdvancedOpenVpnPath.Activated += (object sender, EventArgs e) =>
-			{
-				GuiUtils.SelectFile(this.Window, TxtAdvancedOpenVpnPath);
-			};
-
-			CmdHummingbirdPathBrowse.Activated += (object sender, EventArgs e) =>
-			{
-				GuiUtils.SelectFile(this.Window, TxtHummingbirdPath);
-			};
-
 			// Logging
 
 			TxtLoggingPath.Changed += (object sender, EventArgs e) =>
@@ -436,25 +426,9 @@ namespace Eddie.UI.Cocoa.Osx
 
 			};
 
-            CmdShellExternalView.Activated += (object sender, EventArgs e) => 
-            {
-                Json rules = Engine.Instance.ProfileOptions.GetJson("external.rules");
-                Engine.Instance.OnShowText("Rules", rules.ToJsonPretty());
-            };
-
-            CmdShellExternalClear.Activated += (object sender, EventArgs e) => 
-            {
-                Engine.Instance.ProfileOptions.Set("external.rules", Engine.Instance.ProfileOptions.Dict["external.rules"].Default);
-                GuiUtils.MessageBoxInfo("Done.");
-            };
-
 			// Disabled in this version
 			GuiUtils.SetHidden(LblSystemStart, true);
 			GuiUtils.SetHidden(ChkSystemStart, true);
-			GuiUtils.SetHidden(LblShellExternal, true);
-			GuiUtils.SetHidden(ChkShellExternalRecommended, true);
-			GuiUtils.SetHidden(CmdShellExternalClear, true);
-			GuiUtils.SetHidden(CmdShellExternalView, true);
 			GuiUtils.SetHidden(ChkOpenVpnDirectivesAllowScriptSecurity, true);
 
 			GuiUtils.SetHidden(ChkCliShortcut, true); // Removed, related to CVE-2025-14979
@@ -953,12 +927,9 @@ namespace Eddie.UI.Cocoa.Osx
 			
 			GuiUtils.SetCheck(ChkAdvancedPingerEnabled, o.GetBool("pinger.enabled"));
 
-
-			TxtAdvancedOpenVpnPath.StringValue = o.Get("tools.openvpn.path");
 			GuiUtils.SetCheck(ChkAdvancedSkipAlreadyRun, o.GetBool("advanced.skip_alreadyrun"));
 			GuiUtils.SetCheck(ChkAdvancedProviders, o.GetBool("advanced.providers"));
 			GuiUtils.SetCheck(ChkHummingbirdPrefer, o.GetBool("tools.hummingbird.preferred"));
-			TxtHummingbirdPath.StringValue = o.Get("tools.hummingbird.path");
 
 			if (Core.Platform.Instance.GetVersion().VersionUnder("10.14")) // Hummingbird require Mojave
 			{
@@ -1027,7 +998,6 @@ namespace Eddie.UI.Cocoa.Osx
 			ReadOptionsEvent("vpn.pre", 4);
 			ReadOptionsEvent("vpn.up", 5);
 			ReadOptionsEvent("vpn.down", 6);
-            GuiUtils.SetCheck(ChkShellExternalRecommended, o.GetBool("external.rules.recommended"));
 
 			TableAdvancedEventsController.RefreshUI();
 		}
@@ -1336,12 +1306,9 @@ namespace Eddie.UI.Cocoa.Osx
 			
 			o.SetBool("pinger.enabled", GuiUtils.GetCheck(ChkAdvancedPingerEnabled));
 
-
-			o.Set("tools.openvpn.path", TxtAdvancedOpenVpnPath.StringValue);
 			o.SetBool("advanced.skip_alreadyrun", GuiUtils.GetCheck(ChkAdvancedSkipAlreadyRun));
 			o.SetBool("advanced.providers", GuiUtils.GetCheck(ChkAdvancedProviders));
 			o.SetBool("tools.hummingbird.preferred", GuiUtils.GetCheck(ChkHummingbirdPrefer));
-			o.Set("tools.hummingbird.path", TxtHummingbirdPath.StringValue);
 
 			string manifestRefresh = GuiUtils.GetSelected(CboAdvancedManifestRefresh);
 			if (manifestRefresh == "Automatic") // Auto
@@ -1403,7 +1370,6 @@ namespace Eddie.UI.Cocoa.Osx
 			SaveOptionsEvent("vpn.pre", 4);
 			SaveOptionsEvent("vpn.up", 5);
 			SaveOptionsEvent("vpn.down", 6);
-            o.SetBool("external.rules.recommended", GuiUtils.GetCheck(ChkShellExternalRecommended));
 
 			Engine.Instance.OnSettingsChanged();
 		}

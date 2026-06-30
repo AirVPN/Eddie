@@ -15,6 +15,9 @@ RMDIR "!VARSCRIPTDIR!\Lib.Core\obj" /S /Q 2>nul
 RMDIR "!VARSCRIPTDIR!\Lib.Platform.Windows\bin" /S /Q 2>nul
 RMDIR "!VARSCRIPTDIR!\Lib.Platform.Windows\obj" /S /Q 2>nul
 
+RMDIR "!VARSCRIPTDIR!\Lib.Platform.Windows.Native\bin" /S /Q 2>nul
+RMDIR "!VARSCRIPTDIR!\Lib.Platform.Windows.Native\obj" /S /Q 2>nul
+
 RMDIR "!VARSCRIPTDIR!\App.CLI.Windows\bin" /S /Q 2>nul
 RMDIR "!VARSCRIPTDIR!\App.CLI.Windows\obj" /S /Q 2>nul
 

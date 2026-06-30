@@ -13,13 +13,14 @@ class Program
 			string arch = args[0];
 			string pathTemp = args[1];
 			string pathDeploy = args[2];
+			string line = args[3];
 
 			string constantsPath = scriptPath + "\\..\\..\\src\\Lib.Core\\Constants.cs";
 			string constantsBody = System.IO.File.ReadAllText(constantsPath);
 			string version = System.Text.RegularExpressions.Regex.Match(constantsBody, "VersionDesc = \"([0-9\\.]+)\"").Groups[1].Value;
 
 			string nsis = "";
-			if(version.StartsWith("3"))
+			if(line == "u")
 				nsis = System.IO.File.ReadAllText(scriptPath + "\\nsis\\Eddie3-UI.nsi");
 			else
 				nsis = System.IO.File.ReadAllText(scriptPath + "\\nsis\\Eddie-UI.nsi");

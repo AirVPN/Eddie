@@ -1,6 +1,6 @@
 // <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2026 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -254,6 +254,10 @@ namespace Eddie.Core
 					try
 					{
 						m_connection = Engine.CurrentServer.BuildConnection(this);
+
+						string tunDriver = Platform.Instance.GetConnectionTunDriver(m_connection);
+						if (string.IsNullOrEmpty(tunDriver) == false && tunDriver != "os")
+							Engine.WaitMessageSet(LanguageManager.GetText(LanguageItems.OsDriverInstall, tunDriver), true);
 
 						m_connection.EnsureDriver();
 
@@ -680,14 +684,22 @@ namespace Eddie.Core
 				if (m_connection.Interface == null) // If don't reach connection
 					return null;
 
-				if (Platform.Instance.GetRequireNextHop())
+				if (Platform.Instance.GetRequireRouteGateway())
 				{
-					// This will works only if Gateway and DNS are the same IP.
-					// Anyway, it's only for Win7.
 					if (route.Destination.IsV4)
-						jRoute["gateway"].Value = m_connection.GetDns().OnlyIPv4.First;
+					{
+						IpAddress gw = m_connection.GetGateway().OnlyIPv4.First;
+						if (gw != null)
+							jRoute["gateway"].Value = gw.Address;
+					}
 					else
-						jRoute["gateway"].Value = m_connection.GetDns().OnlyIPv6.First;
+					{
+						IpAddress gw = FindInterfaceLinkLocalGateway(m_connection.Interface);
+						if (gw == null)
+							gw = m_connection.GetGateway().OnlyIPv6.First;
+						if (gw != null)
+							jRoute["gateway"].Value = gw.Address;
+					}
 				}
 				jRoute["interface"].Value = m_connection.Interface.Id;
 			}
@@ -752,6 +764,33 @@ namespace Eddie.Core
 			jRoute["metric"].Value = 0; // Lowest
 
 			return jRoute;
+		}
+
+		private IpAddress FindInterfaceLinkLocalGateway(System.Net.NetworkInformation.NetworkInterface iface)
+		{
+			if (iface == null)
+				return null;
+
+			Json jRoutes = Engine.Instance.NetworkRouteListBuild();
+			string ifaceId = iface.Id;
+
+			foreach (Json jRoute in jRoutes.GetArray())
+			{
+				if (jRoute.HasKey("interface") == false)
+					continue;
+				if (jRoute["interface"].ValueString != ifaceId)
+					continue;
+
+				string gw = jRoute["gateway"].ValueString;
+				if (gw.StartsWithInv("fe80:"))
+				{
+					IpAddress ip = new IpAddress(gw);
+					if (ip.Valid)
+						return ip;
+				}
+			}
+
+			return null;
 		}
 
 		public void ConnectedStep()

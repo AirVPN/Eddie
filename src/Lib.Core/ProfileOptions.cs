@@ -1,6 +1,6 @@
 // <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2026 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -454,7 +454,6 @@ namespace Eddie.Core
 			SetDefaultInt("proxy.tor.control.port", 9151, LanguageManager.GetText(LanguageItems.ManOptionProxyTorControlPort));
 			SetDefaultBool("proxy.tor.control.auth", true, LanguageManager.GetText(LanguageItems.ManOptionProxyTorControlAuth));
 			SetDefault("proxy.tor.path", "", "", LanguageManager.GetText(LanguageItems.ManOptionProxyTorPath));
-			SetDefault("proxy.tor.control.cookie.path", "", "", LanguageManager.GetText(LanguageItems.ManOptionProxyTorControlCookiePath));
 			SetDefault("proxy.tor.control.password", "password", "", LanguageManager.GetText(LanguageItems.ManOptionProxyTorControlPassword));
 
 			SetDefault("routes.custom", "text", "", LanguageManager.GetText(LanguageItems.ManOptionRoutesCustom));
@@ -490,21 +489,15 @@ namespace Eddie.Core
 			SetDefaultBool("network.ipv6.autoswitch", true, LanguageManager.GetText(LanguageItems.ManOptionNetworkIPv6AutoSwitch));
 			SetDefault("network.iface.name", "text", "", LanguageManager.GetText(LanguageItems.ManOptionNetworkIfaceName));
 
-			SetDefault("tools.openvpn.path", "path_file", "", LanguageManager.GetText(LanguageItems.ManOptionToolsOpenVpnPath));
 			SetDefaultBool("tools.hummingbird.preferred", Platform.Instance.PreferHummingbirdIfAvailable(), LanguageManager.GetText(LanguageItems.ManOptionToolsHummingbirdPreferred));
-			SetDefault("tools.hummingbird.path", "path_file", "", LanguageManager.GetText(LanguageItems.ManOptionToolsHummingbirdPath));
 			SetDefault("tools.ssh.path", "path_file", "", LanguageManager.GetText(LanguageItems.ManOptionToolsSshPath));
 			SetDefault("tools.ssl.path", "path_file", "", LanguageManager.GetText(LanguageItems.ManOptionToolsSslPath));
-			SetDefault("tools.curl.path", "path_file", "", LanguageManager.GetText(LanguageItems.ManOptionToolsCurlPath));
 
 			SetDefaultInt("http.timeout", 10, LanguageManager.GetText(LanguageItems.ManOptionHttpTimeout));
 
 			SetDefaultBool("webui.enabled", true, NotInManYet); // WebUI it's a Eddie 3.* feature not yet committed on GitHub.
 			SetDefault("webui.ip", "text", "localhost", NotInManYet);
 			SetDefaultInt("webui.port", 4649, NotInManYet);
-
-			SetDefaultBool("external.rules.recommended", true, NotInManNever);
-			SetDefault("external.rules", "json", "[]", NotInManNever);
 
 			SetDefault("openvpn.custom", "text", "", LanguageManager.GetText(LanguageItems.ManOptionOpenVpnCustom));
 			SetDefault("openvpn.dev_node", "text", "", LanguageManager.GetText(LanguageItems.ManOptionOpenVpnDevNode));
@@ -517,7 +510,6 @@ namespace Eddie.Core
 			SetDefaultBool("openvpn.directives.chacha20", false, LanguageManager.GetText(LanguageItems.ManOptionOpenVpnDirectivesChacha20)); // Temporary
 			SetDefaultBool("openvpn.skip_defaults", false, LanguageManager.GetText(LanguageItems.ManOptionOpenVpnSkipDefaults));
 
-			SetDefaultBool("wireguard.interface.skip_commands", true, NotInManNever); // Anyway are not implemented in Eddie, keep for future.
 			SetDefaultInt("wireguard.peer.persistentkeepalive", 15, LanguageManager.GetText(LanguageItems.ManOptionWireGuardPeerPersistentKeepalive));
 			SetDefaultInt("wireguard.handshake.timeout.first", 50, NotInManNever);
 			SetDefaultInt("wireguard.handshake.timeout.connected", 180 + 20, NotInManNever); // To maintain the session a client must handshake at least once every 180 seconds.
@@ -559,19 +551,14 @@ namespace Eddie.Core
 
 			// Windows only			
 			SetDefaultBool("windows.start_os", Platform.Instance.GetAutoStart(), NotInManYet);
-			SetDefaultChoice("windows.driver", "auto,ovpn-dco,wintun,tap-windows6,none", "auto", LanguageManager.GetText(LanguageItems.ManOptionWindowsDriver));
 			SetDefaultBool("windows.adapters.cleanup", true, LanguageManager.GetText(LanguageItems.ManOptionWindowsDriverCleanup));
-			SetDefault("windows.adapter_service", "text", "tap0901", LanguageManager.GetText(LanguageItems.ManOptionWindowsAdapterService));
-			SetDefaultBool("windows.disable_driver_upgrade", false, LanguageManager.GetText(LanguageItems.ManOptionWindowsDisableDriverUpgrade));
 			SetDefaultBool("windows.tap_up", true, LanguageManager.GetText(LanguageItems.ManOptionWindowsTapUp));
-			SetDefaultBool("windows.wfp.enable", true, LanguageManager.GetText(LanguageItems.ManOptionWindowsWfp));
 			SetDefaultBool("windows.wfp.dynamic", false, LanguageManager.GetText(LanguageItems.ManOptionWindowsWfpDynamic));
 			SetDefaultBool("windows.dns.lock", true, LanguageManager.GetText(LanguageItems.ManOptionWindowsDnsLock));
 			SetDefaultInt("windows.metrics.tap.ipv4", -2, LanguageManager.GetText(LanguageItems.ManOptionWindowsMetricsTapIPv4)); // 2.13:   0: Windows Automatic, >0 value, -1: Don't change, -2: Automatic
 			SetDefaultInt("windows.metrics.tap.ipv6", -2, LanguageManager.GetText(LanguageItems.ManOptionWindowsMetricsTapIPv6)); // 2.13:   0: Windows Automatic, >0 value, -1: Don't change, -2: Automatic
 			SetDefaultBool("windows.ipv6.bypass_dns", false, NotInManNever); // 2.14: Workaround, skip OpenVPN DNS6. Only with dns.delegate, for this not in MAN. Maybe deprecated in future.
 			SetDefaultBool("windows.ssh.plink.force", false, NotInManNever); // Switch to false when stable/tested. Not in MAN because need to be deprecated.
-			SetDefaultBool("windows.workarounds", false, NotInManNever); // If true, some variants to identify issues. Not in MAN because need to be deprecated.
 
 			// macOS only
 			SetDefaultBool("macos.ipv6.dnslookup", true, LanguageManager.GetText(LanguageItems.ManOptionMacosIPv6DnsLookup));
@@ -589,16 +576,13 @@ namespace Eddie.Core
 			SetDefaultBool("ui.skip.promotional", false, LanguageManager.GetText(LanguageItems.ManOptionUiSkipPromotional));
 			SetDefaultBool("ui.skip.netlock.confirm", false, LanguageManager.GetText(LanguageItems.ManOptionUiSkipNetLockConfirm));
 
-			// UI only
-			SetDefaultBool("gui.start_minimized", false, NotInManNever);
+			// UI only			
 			SetDefaultBool("gui.tray_show", true, NotInManNever);
 			SetDefaultBool("gui.tray_minimized", (Platform.Instance.IsUnixSystem() == false), NotInManNever); // We can't know if the Linux Desktop Environment will support show tray.
 			SetDefaultBool("gui.notifications", true, NotInManNever);
 			SetDefaultBool("gui.exit_confirm", true, NotInManNever);
 			SetDefault("gui.font.normal.name", "text", "", NotInManNever);
 			SetDefaultFloat("gui.font.normal.size", 0, NotInManNever);
-
-			SetDefault("gui.window.main", "text", "", NotInManNever);
 			SetDefault("gui.list.servers", "text", "", NotInManNever);
 			SetDefault("gui.list.areas", "text", "", NotInManNever);
 			SetDefault("gui.list.logs", "text", "", NotInManNever);
@@ -606,9 +590,18 @@ namespace Eddie.Core
 			// UI - macOS Only
 			// SetDefaultBool("gui.osx.dock", false, NotInMan); // See this FAQ: https://airvpn.org/topic/13331-its-possible-to-hide-the-icon-in-dock-bar-under-os-x/
 			SetDefaultBool("gui.osx.visible", false, NotInManNever);
-			SetDefaultBool("gui.osx.sysbar.show_info", false, NotInManNever);
-			SetDefaultBool("gui.osx.sysbar.show_speed", false, NotInManNever); // Menu Status, Window Title, Tray Tooltip
-			SetDefaultBool("gui.osx.sysbar.show_server", false, NotInManNever);
+
+			if (true) 
+			{
+				// // UI v2 only - Common
+				SetDefaultBool("gui.start_minimized", false, NotInManNever);
+				SetDefault("gui.window.main", "text", "", NotInManNever);
+
+				// UI v2 only - macOS Only
+				SetDefaultBool("gui.osx.sysbar.show_info", false, NotInManNever);
+				SetDefaultBool("gui.osx.sysbar.show_speed", false, NotInManNever); // Menu Status, Window Title, Tray Tooltip
+				SetDefaultBool("gui.osx.sysbar.show_server", false, NotInManNever);
+			}
 
 			// Internal only
 			m_options["servers.last"].InternalOnly = true;
@@ -661,11 +654,6 @@ namespace Eddie.Core
 			{
 				Platform.Instance.SetAutoStart(GetBool("windows.start_os"));
 			}
-			else if (name == "tools.openvpn.path")
-			{
-				Software.Checking();
-			}
-
 			Json j = new Json();
 			j["command"].Value = "option.change";
 			j["name"].Value = name;

@@ -1,6 +1,6 @@
 // <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2023 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2026 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -286,8 +286,6 @@ namespace Eddie.Core
 						return false; // Never expected, StartElevated throw exception if something fail.
 					}
 
-					m_elevated.DoCommandSync("bin-path-add", "path", GetPathTools());
-
 					Platform.Instance.OnElevated();
 				}
 
@@ -301,28 +299,7 @@ namespace Eddie.Core
 					string pathApp = Platform.Instance.GetApplicationPath();
 
 					// Compute data path
-					m_pathData = StartCommandLine.Get("path", "");
-
-					/* // TOCLEAN, <2.24.0
-					if (m_pathData == "")
-						m_pathData = Platform.Instance.GetDefaultDataPath();
-
-					if (m_pathData == "home")
-						m_pathData = Platform.Instance.GetUserPath();
-					else if (m_pathData == "program")
-						m_pathData = pathApp;
-					else if (m_pathData == "") // Detect
-					{
-						if (Platform.Instance.DirectoryHasAccessToWrite(pathApp)) // Windows portable edition, for example
-						{
-							m_pathData = pathApp;
-						}
-						else
-						{
-							m_pathData = Platform.Instance.GetUserPath();
-						}
-					}
-					*/
+					m_pathData = StartCommandLine.Get("path", "");					
 
 					if (m_pathData == "")
 					{
@@ -336,9 +313,7 @@ namespace Eddie.Core
 						m_pathData = Platform.Instance.GetUserPath();
 					else if (m_pathData == "program")
 						m_pathData = pathApp;
-
-					CompatibilityManager.Profiles(pathApp, m_pathData);
-
+					
 					Platform.Instance.DirectoryEnsure(m_pathData);
 
 					// Compute profile
@@ -1070,13 +1045,6 @@ namespace Eddie.Core
 			throw new Exception("Not implemented");
 		}
 
-		public virtual Json OnAskExecExternalPermission(Json data)
-		{
-			Json j = new Json();
-			j["allow"].Value = true;
-			return j;
-		}
-
 		public virtual Credentials OnAskCredentials()
 		{
 			return null;
@@ -1582,23 +1550,13 @@ namespace Eddie.Core
 
 		public HttpResponse FetchUrl(HttpRequest request)
 		{
-			if (Platform.Instance.FetchUrlInternal())
-			{
-				Json jRequest = request.ToJson();
-				Json jResponse = Platform.Instance.FetchUrl(jRequest);
-				if (jResponse.HasKey("error"))
-					throw new Exception("Fetch url error:" + jResponse["error"].ValueString);
-				HttpResponse response = new HttpResponse();
-				response.FromJson(jResponse);
-				return response;
-			}
-			else
-			{
-				// TOCLEAN, curl not external anymore
-				// At 2.22.1, no platform reach this. Deprecated, still here for future need.
-				Tools.Curl curl = Software.GetTool("curl") as Tools.Curl;
-				return curl.Fetch(request);
-			}
+			Json jRequest = request.ToJson();
+			Json jResponse = Platform.Instance.FetchUrl(jRequest);
+			if (jResponse.HasKey("error"))
+				throw new Exception("Fetch url error:" + jResponse["error"].ValueString);
+			HttpResponse response = new HttpResponse();
+			response.FromJson(jResponse);
+			return response;
 		}
 
 		public int PingerInvalid()
@@ -2060,7 +2018,7 @@ namespace Eddie.Core
 				jVersion["text"].Value = GetVersionShow();
 				jVersion["int"].Value = Constants.VersionInt;
 
-				Manifest["languages"].Value = LanguageManager.GetJson();
+				Manifest["locales"].Value = LanguageManager.GetJson();
 			}
 		}
 
