@@ -40,6 +40,8 @@
 #include <net/if.h> // used by eddie_get_realtime_network_stats
 #include <net/route.h> // used by eddie_get_realtime_network_stats
 
+#include <CoreFoundation/CoreFoundation.h> // used by eddie_get_user_locale
+
 #include <Security/Security.h> // used by credential keyring
 
 #include <curl/curl.h> // Debian: libcurl4-openssl-dev
@@ -143,6 +145,8 @@ extern "C" {
 					if (ifm->ifm_type == RTM_IFINFO2)
 					{
 						struct if_msghdr2* if2m = (struct if_msghdr2*)ifm;
+						if (if2m->ifm_flags & IFF_LOOPBACK)
+							continue;
 						//totalibytes += if2m->ifm_data.ifi_ibytes;
 						//totalobytes += if2m->ifm_data.ifi_obytes;
 
@@ -164,6 +168,46 @@ extern "C" {
 
 		jsonStr += "]";
 		strcpy(buf, jsonStr.c_str());
+	}
+
+	void eddie_get_user_locale(unsigned int outputMax, char* output)
+	{
+		if (outputMax == 0)
+			return;
+
+		output[0] = '\0';
+
+		// AppleLanguages is the ordered list of languages the user selected for the interface,
+		// the first item being the preferred one. It is always available to a GUI process, while
+		// the POSIX environment variables (LANG, LC_ALL) are not.
+		CFPropertyListRef languages = CFPreferencesCopyAppValue(CFSTR("AppleLanguages"), kCFPreferencesAnyApplication);
+		if (languages == NULL)
+			return;
+
+		CFStringRef code = NULL;
+
+		if (CFGetTypeID(languages) == CFArrayGetTypeID())
+		{
+			CFArrayRef list = (CFArrayRef)languages;
+			if (CFArrayGetCount(list) > 0)
+			{
+				CFTypeRef first = CFArrayGetValueAtIndex(list, 0);
+				if ((first != NULL) && (CFGetTypeID(first) == CFStringGetTypeID()))
+					code = (CFStringRef)first;
+			}
+		}
+		else if (CFGetTypeID(languages) == CFStringGetTypeID())
+		{
+			code = (CFStringRef)languages;
+		}
+
+		if (code != NULL)
+		{
+			if (CFStringGetCString(code, output, (CFIndex)outputMax, kCFStringEncodingUTF8) == false)
+				output[0] = '\0';
+		}
+
+		CFRelease(languages);
 	}
 
 	static size_t eddie_curl_headercallback(void* contents, size_t size, size_t nmemb, void* userp)

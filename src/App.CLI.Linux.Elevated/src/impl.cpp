@@ -46,6 +46,7 @@ std::string serviceName = "eddie-elevated";
 std::string serviceDesc = "Eddie VPN Elevation";
 std::string serviceLauncherPath = "/sbin/eddie-vpn-service-launcher";
 std::string systemdPath = "/usr/lib/systemd/system";
+std::string systemdRunPath = "/run/systemd/system"; // present only when systemd is the running init
 std::string systemdUnitName = serviceName + ".service";
 std::string systemdUnitPath = systemdPath + "/" + systemdUnitName;
 
@@ -57,9 +58,11 @@ int Impl::Main()
 	prctl(PR_SET_PDEATHSIG, SIGHUP); // Any child process will be killed if this process died, Linux specific
 
 	std::string systemctlPath = FsLocateExecutable("systemctl", false);
-	m_hasSystemdResolved = (systemctlPath != ""
-		&& ExecEx(systemctlPath, { "is-active", "--quiet", "systemd-resolved" }).exit == 0
-		&& FsFileExists(systemdPath));
+	m_hasSystemd = (systemctlPath != ""
+		&& FsDirectoryExists(systemdPath)
+		&& FsDirectoryExists(systemdRunPath));
+	m_hasSystemdResolved = (m_hasSystemd
+		&& ExecEx(systemctlPath, { "is-active", "--quiet", "systemd-resolved" }).exit == 0);
 
 	return IPosix::Main();
 }
@@ -68,12 +71,10 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 {
 	if (command == "dns-flush")
 	{
-		int pidSystemD = GetProcessIdOfName("systemd");
-
 		std::map<std::string, int> restarted;
 		std::vector<std::string> services = StringToVector(params["services"], ';');
 
-		if (pidSystemD != 0)
+		if (m_hasSystemd)
 		{
 			std::string systemctlPath = FsLocateExecutable("systemctl", false);
 
@@ -470,6 +471,20 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 
 		if (FsFileWriteText(path, "0") == false)
 			ThrowException("Failed to enable IPv6 on interface " + interfaceName);
+	}
+	else if (command == "netlock-owned-tables")
+	{
+		std::string result = "";
+
+		std::string path = FsLocateExecutable("nft", false);
+		if (path != "")
+		{
+			ExecResult ruleset = ExecEx(path, { "list", "ruleset" });
+			if (ruleset.exit == 0)
+				result = NftablesOwnedTables(ruleset.out);
+		}
+
+		ReplyCommand(commandId, result);
 	}
 	else if (command == "netlock-nftables-available")
 	{
@@ -1241,7 +1256,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 		if (FsFileExists(versionPath) == false)
 		{
 			// Try to up
-			std::string modprobePath = FsLocateExecutable("modprobe");
+			std::string modprobePath = FsLocateExecutable("modprobe", false);
 			if (modprobePath != "")
 			{
 				ExecResult modprobeResult = ExecEx(modprobePath, { "wireguard" });
@@ -1517,7 +1532,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 
 bool Impl::IsServiceInstalled()
 {
-	if (FsFileExists(systemdPath))
+	if (FsDirectoryExists(systemdPath))
 	{
 		if (FsFileExists(systemdUnitPath))
 		{
@@ -1530,7 +1545,7 @@ bool Impl::IsServiceInstalled()
 
 bool Impl::ServiceInstall()
 {
-	if (m_hasSystemdResolved)
+	if (m_hasSystemd)
 	{
 		std::string systemctlPath = FsLocateExecutable("systemctl", false);
 		if (systemctlPath == "")
@@ -1545,14 +1560,10 @@ bool Impl::ServiceInstall()
 
 		std::string elevatedPath = GetProcessPathCurrent();
 
-		std::string elevatedArgs = "";
-		if (m_cmdline.find("service_port") != m_cmdline.end())
-			elevatedArgs += " \"service_port=" + StringEnsureNumericInt(m_cmdline["service_port"]) + "\"";
-		
 		std::string serviceExecStart = "";
 		if (IsSecureServiceLocation(elevatedPath))
 		{
-			serviceExecStart = "\"" + elevatedPath + "\" \"mode=service\" " + elevatedArgs;
+			serviceExecStart = "\"" + elevatedPath + "\" \"mode=service\"";
 		}
 		else
 		{
@@ -1566,7 +1577,8 @@ bool Impl::ServiceInstall()
 			if (IsSecureServiceLocation(serviceLauncherPath) == false)
 				return false;
 
-			serviceExecStart = "\"" + serviceLauncherPath + "\" \"" + elevatedPath + "\" " + elevatedArgs;
+			// The launcher injects "mode=service" itself and forwards any further argument.
+			serviceExecStart = "\"" + serviceLauncherPath + "\" \"" + elevatedPath + "\"";
 		}				
 
 		// The runtime client->elevated gate reads integrity_service in both branches, so the
@@ -1730,7 +1742,6 @@ std::string Impl::GetPrivilegedDataDir()
 	return "/var/lib/eddie-vpn";
 }
 
-#ifdef EDDIE_IPC_UNIXSOCKET
 int Impl::GetSocketPeerPid(HSOCKET s)
 {
 	struct ucred peerCred;
@@ -1739,7 +1750,6 @@ int Impl::GetSocketPeerPid(HSOCKET s)
 		return 0;
 	return peerCred.pid;
 }
-#endif
 
 // --------------------------
 // Private
@@ -1819,6 +1829,65 @@ std::string Impl::NftablesSearchHandle(const std::string& rulesList, const std::
 		return "";
 
 	return rulesList.substr(handlePos, handleEndPos-handlePos);
+}
+
+std::string Impl::NftablesOwnedTables(const std::string& ruleset)
+{
+	std::string result = "";
+
+	std::string tableId = "";
+	std::string tableOwner = "";
+	bool tablePreamble = false;
+
+	std::vector<std::string> lines = StringToVector(ruleset, '\n', false);
+	for (std::vector<std::string>::const_iterator iL = lines.begin(); iL != lines.end(); ++iL)
+	{
+		std::string line = StringTrim(*iL);
+
+		if (StringStartsWith(line, "table "))
+		{
+			tableId = "";
+			tableOwner = "";
+			tablePreamble = true;
+
+			std::string header = line.substr(6);
+
+			size_t commentPos = header.find('#');
+			if (commentPos != std::string::npos)
+			{
+				std::string comment = StringTrim(header.substr(commentPos + 1));
+				if (StringStartsWith(comment, "progname "))
+					tableOwner = StringTrim(comment.substr(9));
+
+				header = header.substr(0, commentPos);
+			}
+
+			std::vector<std::string> fields = StringToVector(StringTrim(header, "\t\n\v\f\r {"), ' ');
+			if (fields.size() >= 2)
+				tableId = fields[0] + "/" + fields[1];
+		}
+		else if (tablePreamble)
+		{
+			if (StringStartsWith(line, "flags "))
+			{
+				std::vector<std::string> flags = StringToVector(StringTrim(line.substr(6), "\t\n\v\f\r ;"), ',');
+				for (std::vector<std::string>::const_iterator iF = flags.begin(); iF != flags.end(); ++iF)
+				{
+					if (*iF == "owner")
+					{
+						result += "owner:" + tableId + ":" + tableOwner + ";";
+						break;
+					}
+				}
+
+				tablePreamble = false;
+			}
+			else if (StringStartsWith(line, "comment ") == false)
+				tablePreamble = false;
+		}
+	}
+
+	return result;
 }
 
 std::string Impl::GetRoutesAsJson()

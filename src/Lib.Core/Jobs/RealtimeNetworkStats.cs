@@ -62,6 +62,8 @@ namespace Eddie.Core.Jobs
 					string id = jDataInterface["id"].Value as string;
 					string name = jDataInterface.HasKey("name") ? jDataInterface["name"].ValueString : "";
 					string desc = jDataInterface.HasKey("desc") ? jDataInterface["desc"].ValueString : "";
+					if (IsLoopbackInterface(id, name, desc))
+						continue;
 					Int64 totalBytesRcv = jDataInterface["rcv"].ValueInt64;
 					Int64 totalBytesSnd = jDataInterface["snd"].ValueInt64;
 					Int64 delta = 0;
@@ -133,6 +135,33 @@ namespace Eddie.Core.Jobs
 			{
 				return m_data.Clone();
 			}
+		}
+
+		static bool IsLoopbackInterface(string id, string name, string desc)
+		{
+			if (IsUnixLoopbackName(id) || IsUnixLoopbackName(name))
+				return true;
+			if (string.IsNullOrEmpty(desc) == false && desc.IndexOf("Loopback", StringComparison.OrdinalIgnoreCase) >= 0)
+				return true;
+			if (string.IsNullOrEmpty(name) == false && name.IndexOf("Loopback", StringComparison.OrdinalIgnoreCase) >= 0)
+				return true;
+			return false;
+		}
+
+		static bool IsUnixLoopbackName(string s)
+		{
+			if (string.IsNullOrEmpty(s))
+				return false;
+			if (s == "lo")
+				return true;
+			if (s.Length < 3 || s.StartsWithInv("lo") == false)
+				return false;
+			for (int i = 2; i < s.Length; i++)
+			{
+				if (char.IsDigit(s[i]) == false)
+					return false;
+			}
+			return true;
 		}
 	}
 }

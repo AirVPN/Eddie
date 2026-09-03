@@ -55,10 +55,12 @@ namespace Eddie.Core.Jobs
 
 					int compare = m_lastVersionNotification.VersionCompare(latestVersion);
 
-					if (compare == -1)
+					if ((compare == -1) && (j.HasKey("url")))
 					{
 						Json jUpdaterAvailable = new Json();
 						jUpdaterAvailable["command"].Value = "ui.updater.available";
+						jUpdaterAvailable["version"].Value = latestVersion;
+						jUpdaterAvailable["url"].Value = j["url"].ValueString;
 
 						Engine.Instance.UiManager.Broadcast(jUpdaterAvailable);
 					}

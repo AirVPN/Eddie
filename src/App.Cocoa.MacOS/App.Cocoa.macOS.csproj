@@ -74,12 +74,6 @@
     <Folder Include="Resources\" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Resources\ThirdParty.txt" />
-    <EmbeddedResource Include="Resources\License.txt" />
-    <EmbeddedResource Include="Resources\OpenVPN.xml" />
-    <EmbeddedResource Include="Resources\AirVPN.xml" />
-  </ItemGroup>
-  <ItemGroup>
     <BundleResource Include="Resources\icon.icns" />
     <BundleResource Include="Resources\about_logo.png" />
     <BundleResource Include="Resources\about.png" />

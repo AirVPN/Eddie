@@ -32,16 +32,16 @@ namespace Eddie.Platform.Windows
 		private System.Threading.Thread m_readThread = null;
 		private readonly object m_writeLock = new object();
 
-		protected string Connect(int port, string mode)
+		protected string Connect(string mode)
 		{
-			return Connect(port, mode, 1000);
+			return Connect(mode, 1000);
 		}
 
-		protected string Connect(int port, string mode, int connectTimeoutMs)
+		protected string Connect(string mode, int connectTimeoutMs)
 		{
 			try
 			{
-				// Named pipe keyed by launch mode ("spot"/"service"); the port is only for the TCP fallback.
+				// Named pipe keyed by launch mode ("spot"/"service").
 				string pipeName = "eddie-elevated-" + mode;
 
 				m_bufferReceive = "";

@@ -82,7 +82,7 @@ namespace Eddie.Core
 
 			o += GetTypeChar();
 			o += " ";
-			o += Date.ToLocalTime().ToString("yyyy.MM.dd HH:mm:ss");
+			o += LanguageManager.FormatDateShort(Date.ToLocalTime());
 			o += " - ";
 
 			string[] lines = Message.Split('\n');

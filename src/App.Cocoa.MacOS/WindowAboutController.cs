@@ -113,7 +113,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 			CmdSystemReport.Activated += (object sender, EventArgs e) =>
 			{
-                UiClient.Instance.Command("system.report.start");
+                UiClient.Instance.Command("report.start");
 			};
 		}
 	}

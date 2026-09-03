@@ -95,15 +95,9 @@ namespace Eddie.Core
 
 			string cmd = data["command"].Value as string;
 
-			if (cmd == "exit")
-			{
-				Engine.Instance.ExitStart();
-			}
-			else if (cmd == "ui.boot.request")
-			{
-				Engine.Instance.UiBootRaise();
-			}
-			else if (cmd == "mainaction.connect")
+			// Only commands wired by the Legacy UIs (Lib.Forms / App.Cocoa.MacOS) live here.
+			// Modern-only commands are handled by ApiManager (stubbed out for Legacy source publication).
+			if (cmd == "mainaction.connect")
 			{
 				Engine.Instance.Connect();
 			}
@@ -111,122 +105,11 @@ namespace Eddie.Core
 			{
 				Engine.Instance.Disconnect();
 			}
-			else if (cmd == "system.report.start")
+			else if (cmd == "report.start")
 			{
 				Report report = new Report();
 
 				report.Start(sender);
-			}
-			else if (cmd == "tor.test")
-			{
-				Json result = new Json();
-				result["result"].Value = TorControl.Test();
-				return result;
-			}
-			else if (cmd == "tor.control")
-			{
-				string resultC = TorControl.SendCommand(data["command"].Value as string);
-				foreach (string line in resultC.Split('\n'))
-				{
-					string l = line.Trim();
-					if (l != "")
-						Engine.Instance.Logs.Log(LogType.Verbose, l);
-				}
-			}
-			else if (cmd == "options.set")
-			{
-				string name = data["name"].Value as string;
-
-				if ((sender is WebserverClient) && (name != null) && (name.StartsWithInv("webui.")))
-					return null; // WebServer clients cannot reconfigure the WebServer.
-
-				Engine.Instance.ProfileOptions.Set(name, data["value"].Value);
-			}
-			else if (cmd == "webui.status")
-			{
-				Json result = new Json();
-				result["enabled"].Value = Engine.Instance.ProfileOptions.GetBool("webui.enabled");
-				result["port"].Value = Engine.Instance.ProfileOptions.GetInt("webui.port");
-				result["running"].Value = (Engine.Instance.Webserver != null);
-				result["url"].Value = (Engine.Instance.Webserver != null) ? (Engine.Instance.Webserver.ListenUrl + "/") : "";
-
-				// The access key is a secret: expose it only to trusted (embedded) clients, never to the WebServer client.
-				if ((sender is WebserverClient) == false)
-					result["access_key"].Value = Engine.Instance.ProfileOptions.Get("webui.access_key");
-
-				return result;
-			}
-			else if (cmd == "webui.regenerate_key")
-			{
-				if (sender is WebserverClient)
-					return null; // Only trusted clients may rotate the key.
-
-				// Rotating the key changes the HMAC key used to sign session cookies,
-				// which invalidates every previously issued session token.
-				Engine.Instance.ProfileOptions.Set("webui.access_key", RandomGenerator.GetHash());
-				Engine.Instance.SaveSettings();
-
-				Json result = new Json();
-				result["access_key"].Value = Engine.Instance.ProfileOptions.Get("webui.access_key");
-				return result;
-			}
-			else if (cmd == "ui.stats.pathprofile")
-			{
-				Platform.Instance.OpenDirectoryInFileManager(Engine.Instance.Stats.Get("PathProfile").Value);
-			}
-			else if (cmd == "ui.stats.pathdata")
-			{
-				Platform.Instance.OpenDirectoryInFileManager(Engine.Instance.Stats.Get("PathData").Value);
-			}
-			else if (cmd == "ui.stats.pathapp")
-			{
-				Platform.Instance.OpenDirectoryInFileManager(Engine.Instance.Stats.Get("PathApp").Value);
-			}
-			else if (cmd == "man")
-			{
-				string format = "text";
-				if (data.HasKey("format"))
-					format = data["format"].Value as string;
-				Json result = new Json();
-				result["layout"].Value = "text";
-				result["title"].Value = "MAN";
-				result["body"].Value = Engine.Instance.ProfileOptions.GetMan(format);
-				return result;
-			}
-			else if (cmd == "tor.guard")
-			{
-				Engine.Instance.Logs.LogVerbose("Tor Guard IPs:" + TorControl.GetGuardIps(true).ToString());
-			}
-			else if (cmd == "tor.NEWNYM")
-			{
-				TorControl.SendNEWNYM();
-			}
-			else if (cmd == "ip.exit")
-			{
-				Engine.Instance.Logs.LogVerbose(Engine.Instance.DiscoverExit().ToString());
-			}
-			else if (cmd == "directory.open")
-			{
-				Platform.Instance.OpenFolder(data["path"].ValueString);
-			}
-			else if (cmd == "url.open")
-			{
-				Platform.Instance.OpenUrl(data["uri"].ValueString);
-			}
-			else if (cmd == "test.query")
-			{
-				Json result = new Json();
-				result["result"].Value = cmd;
-				result["ts"].Value = DateTime.Now.ToString();
-				return result;
-			}
-			else if (cmd == "test.logs")
-			{
-				//Engine.Instance.Logs.Log(LogType.InfoImportant, "Test log\nInfo");
-				//Engine.Instance.Logs.Log(LogType.InfoImportant, "Test log\nInfo Important");
-				Engine.Instance.Logs.Log(LogType.Warning, "Test log\nWarning\n" + DateTime.Now.ToString());
-				//Engine.Instance.Logs.Log(LogType.Error, "Test log\nError");
-				//Engine.Instance.Logs.Log(LogType.Fatal, "Test log\nFatal");
 			}
 
 			return null;

@@ -308,26 +308,6 @@ namespace Eddie.UI.Cocoa.Osx
 			// Axis line
 			DrawLine(context, m_colorAxis, 0, m_chartStartY, m_chartDX, m_chartStartY);
 
-			// Legend
-			/*
-			{
-				string legend = "";
-				legend += LanguageManager.GetText(LanguageItems.ChartRange") + ": " + Utils.FormatSeconds(m_chart.Resolution * m_chart.TimeStep);
-				legend += "   ";
-				legend += LanguageManager.GetText(LanguageItems.ChartGrid") + ": " + Utils.FormatSeconds(m_chart.Resolution / m_chart.Grid * m_chart.TimeStep);
-				legend += "   ";
-				legend += LanguageManager.GetText(LanguageItems.ChartStep") + ": " + Utils.FormatSeconds(m_chart.TimeStep);
-
-				Point mp = Cursor.Position;
-				mp = PointToClient(mp);
-				if ((mp.X > 0) && (mp.Y < chartDX) && (mp.Y > chartDY) && (mp.Y < DY))
-					legend += " - " + LanguageManager.GetText(LanguageItems.ChartClickToChangeResolution");
-
-				e.Graphics.DrawString(legend, FontLabel, BrushLegendText, ChartRectangle(0, chartStartY, chartDX, m_legendDY), formatTopCenter);
-			}
-			*/
-
-
 			// Graph
 			for (int i = 0; i < m_chart.Resolution; i++)
 			{

@@ -26,7 +26,6 @@
 #include <regex>
 #include <unistd.h>
 #include <libproc.h>
-#include <arpa/inet.h>
 //#include <mach-o/dyld.h>
 
 #include <sys/types.h> // for signal()
@@ -649,8 +648,6 @@ bool Impl::ServiceInstall()
 
 	launchd += "            <string>" + StringXmlEncode(elevatedPath) + "</string>\n";
 	launchd += "            <string>mode=service</string>\n";
-	if (m_cmdline.find("service_port") != m_cmdline.end())
-		launchd += "            <string>service_port=" + StringEnsureNumericInt(m_cmdline["service_port"]) + "</string>\n";
 	launchd += "        </array>\n";
 	launchd += "        <key>RunAtLoad</key>\n";
 	launchd += "        <true/>\n";
@@ -743,59 +740,6 @@ std::string Impl::SystemWideDataPath()
 	return "/Library/PrivilegedHelperTools/website.eddie.Helper.dat";
 }
 
-#ifndef EDDIE_IPC_LOCAL
-int Impl::GetProcessIdMatchingIPEndPoints(struct sockaddr_in& addrClient, struct sockaddr_in& addrServer)
-{
-	char sourceIp[256];
-	char destIp[256];
-
-	inet_ntop(AF_INET, &addrClient.sin_addr, sourceIp, sizeof(sourceIp));
-	inet_ntop(AF_INET, &addrServer.sin_addr, destIp, sizeof(destIp));
-	std::string sourceAddr = sourceIp;
-	int sourcePort = ntohs(addrClient.sin_port);
-	std::string destAddr = destIp;
-	int destPort = ntohs(addrServer.sin_port);
-
-	std::vector<std::string> args;
-	args.push_back("-F");
-	args.push_back("pfn");
-	args.push_back("-anPi");
-	args.push_back("4tcp@" + destAddr + ":" + std::to_string(destPort));
-
-	std::string lsofPath = FsLocateExecutable("lsof");
-	if (lsofPath != "")
-	{
-		ExecResult lsResult = ExecEx(lsofPath, args);
-		if (lsResult.exit == 0)
-		{
-			std::vector<std::string> lines = StringToVector(lsResult.out, '\n');
-			int lastPid = 0;
-			std::string needle = sourceAddr + ":" + std::to_string(sourcePort) + "->" + destAddr + ":" + std::to_string(destPort);
-			for (std::vector<std::string>::const_iterator i = lines.begin(); i != lines.end(); ++i)
-			{
-				std::string line = StringTrim(StringToLower(*i));
-
-				if (line.length() == 0)
-					continue;
-
-				char ch = line.at(0);
-				if (ch == 'p')
-				{
-					lastPid = strtol(line.c_str() + 1, NULL, 10);
-				}
-				else if (ch == 'n')
-				{
-					if (StringContain(line, needle))
-						return lastPid;
-				}
-			}
-		}
-	}
-
-	return 0;
-}
-#endif // !EDDIE_IPC_LOCAL
-
 void Impl::AddTorCookiePaths(const std::string& torPath, const std::string& username, std::vector<std::string>& result)
 {
 	if (username != "")
@@ -858,7 +802,6 @@ std::string Impl::GetPrivilegedDataDir()
 	return "/var/run/eddie-vpn";
 }
 
-#ifdef EDDIE_IPC_UNIXSOCKET
 std::string Impl::GetIpcRuntimeDir()
 {
 	return "/var/run/eddie-vpn";
@@ -872,7 +815,6 @@ int Impl::GetSocketPeerPid(HSOCKET s)
 		return 0;
 	return (int)peerPid;
 }
-#endif
 
 // --------------------------
 // Private

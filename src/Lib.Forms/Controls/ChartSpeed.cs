@@ -191,25 +191,6 @@ namespace Eddie.Forms.Controls
 				// Axis line
 				e.Graphics.DrawLine(Pens.Gray, 0, m_chartStartY, m_chartDX, m_chartStartY);
 
-				// Legend
-				/*
-				{
-					string legend = "";
-					legend += Messages.ChartRange + ": " + Utils.FormatSeconds(m_chart.Resolution * m_chart.TimeStep);
-					legend += "   ";
-					legend += Messages.ChartGrid + ": " + Utils.FormatSeconds(m_chart.Resolution / m_chart.Grid * m_chart.TimeStep);
-					legend += "   ";
-					legend += Messages.ChartStep + ": " + Utils.FormatSeconds(m_chart.TimeStep);
-
-					Point mp = Cursor.Position;
-					mp = PointToClient(mp);
-					if ((mp.X > 0) && (mp.Y < chartDX) && (mp.Y > chartDY) && (mp.Y < DY))
-						legend += " - " + Messages.ChartClickToChangeResolution;
-
-					e.Graphics.DrawString(legend, FontLabel, BrushLegendText, ChartRectangle(0, chartStartY, chartDX, m_legendDY), formatTopCenter);
-				}
-				*/
-
 				// Graph
 				for (int i = 0; i < m_chart.Resolution; i++)
 				{

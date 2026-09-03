@@ -62,7 +62,7 @@ namespace Eddie.Core
 				string proxyWhen = Engine.Instance.ProfileOptions.GetLower("proxy.when");
 				string proxyHost = Engine.Instance.ProfileOptions.Get("proxy.host");
 				int proxyPort = Engine.Instance.ProfileOptions.GetInt("proxy.port");
-				string proxyAuth = Engine.Instance.ProfileOptions.Get("proxy.auth").ToLowerInvariant();
+				string proxyAuth = Engine.Instance.ProfileOptions.GetLower("proxy.auth");
 				string proxyLogin = Engine.Instance.ProfileOptions.Get("proxy.login");
 				string proxyPassword = Engine.Instance.ProfileOptions.Get("proxy.password");
 

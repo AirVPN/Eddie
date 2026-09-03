@@ -344,6 +344,34 @@ namespace Eddie.Core.ConfigBuilder
 					return true;
 			}
 
+			string dcoCiphers = Platform.Instance.GetDataChannelOffloadSupportedCiphers();
+
+			if (ExistsDirective("data-ciphers"))
+			{
+				foreach (string cipher in GetOneDirectiveText("data-ciphers").Split(':'))
+					if (IsCipherSupportedByDco(cipher, dcoCiphers) == false)
+						return true;
+			}
+
+			if (ExistsDirective("data-ciphers-fallback"))
+			{
+				if (IsCipherSupportedByDco(GetOneDirectiveText("data-ciphers-fallback"), dcoCiphers) == false)
+					return true;
+			}
+
+			return false;
+		}
+
+		private static bool IsCipherSupportedByDco(string cipher, string supported)
+		{
+			cipher = cipher.Trim();
+			if (cipher == "")
+				return true;
+
+			foreach (string item in supported.Split(':'))
+				if (String.Equals(item.Trim(), cipher, StringComparison.OrdinalIgnoreCase))
+					return true;
+
 			return false;
 		}
 

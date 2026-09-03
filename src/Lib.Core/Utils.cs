@@ -46,9 +46,10 @@ namespace Eddie.Core
 
 		public static string GenerateFileHeader()
 		{
-			DateTime now = DateTime.UtcNow;
-
-			return LanguageManager.GetText(LanguageItems.GeneratedFileHeader, Engine.Instance.GetVersionShow()) + " - " + now.ToLongDateString() + " " + now.ToLongTimeString() + " UTC";
+			return LanguageManager.GetText(LanguageItems.GeneratedFileHeader, Engine.Instance.GetVersionShow())
+				+ " - "
+				+ LanguageManager.FormatDateShort(DateTime.UtcNow)
+				+ " UTC";
 		}
 
 		public static string NormalizeArchitecture(string a)

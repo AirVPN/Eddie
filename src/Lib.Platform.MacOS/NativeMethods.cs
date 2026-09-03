@@ -129,6 +129,20 @@ namespace Eddie.Platform.MacOS
 		}
 
 		[DllImport(NativeLibName)]
+		private static extern void eddie_get_user_locale(uint outputMax, byte[] output);
+		public static string GetUserLocale()
+		{
+			uint outputMax = 64;
+			byte[] output = new byte[outputMax];
+			eddie_get_user_locale(outputMax, output);
+			string result = System.Text.Encoding.ASCII.GetString(output).Trim();
+			int posTer = result.IndexOf('\0');
+			if (posTer != -1)
+				result = result.Substring(0, posTer);
+			return result;
+		}
+
+		[DllImport(NativeLibName)]
 		private static extern void eddie_curl(string jRequest, uint resultMaxLen, byte[] jResult);
 		public static Json eddie_curl(Json jRequest)
 		{

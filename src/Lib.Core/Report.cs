@@ -75,7 +75,7 @@ namespace Eddie.Core
 		public void Send(UiClient client, string step, int perc)
 		{
 			Json jReport = new Json();
-			jReport["command"].Value = "system.report.progress";
+			jReport["command"].Value = "report.progress";
 			jReport["step"].Value = step;
 			if (Items.Count == 0)
 				jReport["body"].Value = LanguageManager.GetText(LanguageItems.PleaseWait);

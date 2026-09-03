@@ -67,7 +67,8 @@ namespace Eddie.Core
 			for (; CancelRequested == false;)
 			{
 				bool allowed = true;
-				string waitingMessage = "";
+				LanguageItems waitingMessageId = LanguageItems.WaitingRestart;
+				string waitingMessageParam = "";
 				int waitingSecs = 0;
 
 				try
@@ -206,12 +207,14 @@ namespace Eddie.Core
 										else if (userMessageAction == "next")
 										{
 											Engine.CurrentServer.Penality += Engine.ProfileOptions.GetInt("advanced.penality_on_error");
-											waitingMessage = userMessage + ", next in {1} sec.";
+											waitingMessageId = LanguageItems.WaitingServerNext;
+											waitingMessageParam = userMessage;
 											waitingSecs = 5;
 										}
 										else
 										{
-											waitingMessage = userMessage + ", retry in {1} sec.";
+											waitingMessageId = LanguageItems.WaitingServerRetry;
+											waitingMessageParam = userMessage;
 											waitingSecs = 10;
 										}
 									}
@@ -452,8 +455,8 @@ namespace Eddie.Core
 
 						//Platform.Instance.OnRouteDefaultRemoveRestore();
 
-						if (Engine.Instance.ProfileOptions.GetBool("dns.delegate") == false)
-							Platform.Instance.OnDnsSwitchRestore();
+						Platform.Instance.OnDnsLockRestore();
+						Platform.Instance.OnDnsSwitchRestore();
 
 						Platform.Instance.OnInterfaceRestore();
 
@@ -480,12 +483,12 @@ namespace Eddie.Core
 
 				if (m_reset == "AUTH_FAILED")
 				{
-					waitingMessage = "Auth failed, retry in {1} sec.";
+					waitingMessageId = LanguageItems.WaitingAuthFailedRetry;
 					waitingSecs = 3;
 				}
 				else if (m_reset == "ERROR")
 				{
-					waitingMessage = "Restart in {1} sec.";
+					waitingMessageId = LanguageItems.WaitingRestart;
 					waitingSecs = 3;
 				}
 				else if (m_reset == "FATAL")
@@ -498,7 +501,13 @@ namespace Eddie.Core
 				{
 					for (int i = 0; i < waitingSecs; i++)
 					{
-						Engine.WaitMessageSet(LanguageManager.FormatText(waitingMessage, (waitingSecs - i).ToString()), true);
+						string secsLeft = (waitingSecs - i).ToString();
+						string message;
+						if (waitingMessageParam != "")
+							message = LanguageManager.GetText(waitingMessageId, waitingMessageParam, secsLeft);
+						else
+							message = LanguageManager.GetText(waitingMessageId, secsLeft);
+						Engine.WaitMessageSet(message, true);
 						if (CancelRequested)
 							break;
 
@@ -799,6 +808,8 @@ namespace Eddie.Core
 				throw new Exception(LanguageManager.GetText(LanguageItems.UnexpectedInterfaceNotRecognized));
 
 			Platform.Instance.OnInterfaceDo(m_connection);
+
+			Platform.Instance.OnDnsLockDo(m_connection);
 
 			// DNS Switch
 			if (Engine.Instance.ProfileOptions.GetBool("dns.delegate") == false)

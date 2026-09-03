@@ -356,7 +356,10 @@ namespace Eddie.Forms.Forms
 
 			chkShowAll.Checked = false;
 			chkLockLast.Checked = Engine.Instance.ProfileOptions.GetBool("servers.locklast");
-			cboScoreType.Text = Engine.Instance.ProfileOptions.Get("servers.scoretype");
+			string scoreType = Engine.Instance.ProfileOptions.GetLower("servers.scoretype");
+			cboScoreType.Text = "Speed";
+			if (scoreType == "latency")
+				cboScoreType.Text = "Latency";
 
 
 			//ApplySkin();
@@ -1100,7 +1103,10 @@ namespace Eddie.Forms.Forms
 
 		private void cboScoreType_SelectionChangeCommitted(object sender, EventArgs e)
 		{
-			Engine.Instance.ProfileOptions.Set("servers.scoretype", cboScoreType.Text);
+			if (cboScoreType.Text == "Latency")
+				Engine.Instance.ProfileOptions.Set("servers.scoretype", "latency");
+			else
+				Engine.Instance.ProfileOptions.Set("servers.scoretype", "speed");
 
 			OnRefreshUi(Core.Engine.RefreshUiMode.Full);
 		}
@@ -1142,7 +1148,7 @@ namespace Eddie.Forms.Forms
 
 		private void cmdLogsSupport_Click(object sender, EventArgs e)
 		{
-			UiClient.Instance.Command("system.report.start");
+			UiClient.Instance.Command("report.start");
 		}
 
 		private void cmdLogsCommand_Click(object sender, EventArgs e)

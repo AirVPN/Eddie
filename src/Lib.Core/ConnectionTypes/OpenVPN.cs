@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Net.NetworkInformation;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -46,6 +47,10 @@ namespace Eddie.Core.ConnectionTypes
 		protected TemporaryFile m_fileSslCrt;
 		protected TemporaryFile m_fileSslConfig;
 		protected IpAddress m_networkLockEndpointIP = null;
+		private bool m_sshKeyLoadFailed = false;
+
+		// TEMP ticket 317173: once per process — remove with LogSshKeyLoadFailureDiagnostics
+		private static bool s_sshKeyLoadDiagLogged = false;
 
 		public string Transport = "";
 		public int TransportSshLocalPort = 0;
@@ -216,7 +221,7 @@ namespace Eddie.Core.ConnectionTypes
 
 				if ((options.GetLower("proxy.mode") != "none") && (options.GetLower("proxy.mode") != "tor"))
 				{
-					if (options.Get("proxy.auth") != "None")
+					if (options.GetLower("proxy.auth") != "none")
 					{
 						string fileNameAuthOvpn = "";
 						if (IsPreviewMode())
@@ -231,7 +236,7 @@ namespace Eddie.Core.ConnectionTypes
 							Platform.Instance.FileContentsWriteText(m_fileAuthProxy.Path, fileNameData, Encoding.ASCII);
 							Platform.Instance.FileEnsurePermission(m_fileAuthProxy.Path, "600");
 						}
-						proxyDirectiveArgs += " " + m_configStartup.EncodePath(Platform.Instance.FileGetPhysicalPath(fileNameAuthOvpn)) + " " + options.Get("proxy.auth").ToLowerInvariant(); // 2.6 Auth Fix
+						proxyDirectiveArgs += " " + m_configStartup.EncodePath(Platform.Instance.FileGetPhysicalPath(fileNameAuthOvpn)) + " " + options.GetLower("proxy.auth"); // 2.6 Auth Fix
 					}
 				}
 
@@ -1211,8 +1216,9 @@ namespace Eddie.Core.ConnectionTypes
 
 			if ((Platform.Instance.IsWindowsSystem()) && (fileKeyExtension == "key"))
 			{
-				// For Windows10 SSH
-				Platform.Instance.FileEnsureCurrentUserOnly(m_fileSshKey.Path);
+				// OpenSSH refuses a private key with permissions wider than the current user.
+				if (Platform.Instance.FileEnsureCurrentUserOnly(m_fileSshKey.Path) == false)
+					Engine.Instance.Logs.Log(LogType.Error, "Unable to set the required permissions on the SSH key file '" + m_fileSshKey.Path + "'. The connection will probably fail.");
 			}
 
 			if (Platform.Instance.IsUnixSystem())
@@ -1351,7 +1357,93 @@ namespace Eddie.Core.ConnectionTypes
 		{
 			if (e.Data != null)
 			{
-				Session.AddLogEvent("SSH", e.Data.ToString());
+				string line = e.Data.ToString();
+				Session.AddLogEvent("SSH", line);
+
+				// The SSH client cannot use the key file we just wrote: retrying can't fix it,
+				// the cause is local (permissions, security software).
+				if ((line.IndexOf("Load key", StringComparison.OrdinalIgnoreCase) != -1) &&
+					((line.IndexOf("Permission denied", StringComparison.OrdinalIgnoreCase) != -1) ||
+					 (line.IndexOf("bad permissions", StringComparison.OrdinalIgnoreCase) != -1) ||
+					 (line.IndexOf("UNPROTECTED PRIVATE KEY", StringComparison.OrdinalIgnoreCase) != -1)))
+				{
+					// TEMP ticket 317173 — remove after root cause identified
+					if (s_sshKeyLoadDiagLogged == false)
+					{
+						s_sshKeyLoadDiagLogged = true;
+						LogSshKeyLoadFailureDiagnostics(line);
+					}
+
+					if (m_sshKeyLoadFailed == false)
+					{
+						m_sshKeyLoadFailed = true;
+						Engine.Instance.Logs.Log(LogType.Fatal, "The SSH client cannot read the key file. Check the permissions of the Eddie data path and any security software (antivirus, Controlled Folder Access) that may block access to it.");
+						Session.SetReset("FATAL");
+					}
+				}
+			}
+		}
+
+		// TEMP ticket 317173: dump key-file ACL / readability while temp still exists — remove after root cause identified
+		void LogSshKeyLoadFailureDiagnostics(string triggerLine)
+		{
+			try
+			{
+				StringBuilder sb = new StringBuilder();
+				sb.Append("SSH key load failure diagnostics (ticket 317173): ");
+				sb.Append("trigger='").Append(triggerLine.PruneForReport()).Append("'; ");
+
+				string keyPath = (m_fileSshKey != null) ? m_fileSshKey.Path : "";
+				sb.Append("path='").Append(keyPath).Append("'; ");
+				sb.Append("exists=").Append(Platform.Instance.FileExists(keyPath)).Append("; ");
+
+				string material = "";
+				try
+				{
+					if (Info != null && Info.Provider != null)
+						material = Info.Provider.GetTransportSshKey("key");
+				}
+				catch (Exception exMat)
+				{
+					sb.Append("material_err='").Append(exMat.Message.PruneForReport()).Append("'; ");
+				}
+				sb.Append("material_len=").Append(material == null ? -1 : material.Length).Append("; ");
+				sb.Append("material_empty=").Append(string.IsNullOrEmpty(material)).Append("; ");
+				sb.Append("material_begin=").Append((material != null) && material.StartsWith("-----BEGIN", StringComparison.Ordinal)).Append("; ");
+
+				sb.Append("user='").Append(Environment.UserDomainName).Append('\\').Append(Environment.UserName).Append("'; ");
+				sb.Append("elevated=").Append(Platform.Instance.IsElevatedPrivileges()).Append("; ");
+
+				string sshPath = "";
+				try { sshPath = Software.GetTool("ssh").Path; } catch { }
+				sb.Append("ssh='").Append(sshPath).Append("'; ");
+
+				if (string.IsNullOrEmpty(keyPath) == false && Platform.Instance.FileExists(keyPath))
+				{
+					try
+					{
+						using (FileStream fs = File.OpenRead(keyPath))
+						{
+							sb.Append("eddie_read=ok; size=").Append(fs.Length).Append("; ");
+						}
+					}
+					catch (Exception exRead)
+					{
+						sb.Append("eddie_read=fail '").Append(exRead.GetType().Name).Append(": ").Append(exRead.Message.PruneForReport()).Append("'; ");
+					}
+
+					sb.Append("acl='").Append(Platform.Instance.FileGetPermissionsReport(keyPath).PruneForReport()).Append("'; ");
+
+					string parent = Path.GetDirectoryName(keyPath);
+					if (string.IsNullOrEmpty(parent) == false)
+						sb.Append("acl_parent='").Append(Platform.Instance.FileGetPermissionsReport(parent).PruneForReport()).Append("'; ");
+				}
+
+				Engine.Instance.Logs.Log(LogType.Warning, sb.ToString());
+			}
+			catch (Exception ex)
+			{
+				Engine.Instance.Logs.Log(LogType.Warning, "SSH key load failure diagnostics failed: " + ex.Message);
 			}
 		}
 	}

@@ -31,9 +31,6 @@ protected:
 	virtual std::vector<std::string> GetNetworkInterfacesNames();	
 
 	virtual std::string SystemWideDataPath();
-#ifndef EDDIE_IPC_LOCAL
-	virtual int GetProcessIdMatchingIPEndPoints(struct sockaddr_in& addrClient, struct sockaddr_in& addrServer);
-#endif
 	void AddTorCookiePaths(const std::string& torPath, const std::string& username, std::vector<std::string>& result);
 
 	// Virtual Pure, OS
@@ -43,10 +40,8 @@ protected:
 	virtual pid_t GetProcessIdOfName(const std::string& name);
 	virtual std::string StringEnsureInterfaceName(const std::string& str);
 	virtual std::string GetPrivilegedDataDir();
-#ifdef EDDIE_IPC_UNIXSOCKET
 	virtual std::string GetIpcRuntimeDir();
 	virtual int GetSocketPeerPid(HSOCKET s);
-#endif
 
 private:
 	// Private

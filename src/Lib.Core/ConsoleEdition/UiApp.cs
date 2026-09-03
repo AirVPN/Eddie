@@ -60,6 +60,9 @@ namespace Eddie.Core.ConsoleEdition
 				string line = Console.ReadLine();
 				if (line is null)
 				{
+					// Standard input closed: the launcher process is gone, request a clean shutdown.
+					Engine.Instance.Logs.Log(LogType.Verbose, "Standard input closed, shutdown requested.");
+					Engine.Instance.ExitStart();
 					break;
 				}
 				else

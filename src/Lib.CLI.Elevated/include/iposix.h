@@ -18,8 +18,6 @@
 
 #include "ibase.h"
 
-#include <netinet/in.h>
-
 class IPosix : public IBase
 {
 protected:
@@ -66,25 +64,23 @@ protected:
 	virtual bool FsFileIsRootOnly(std::string path);
 	virtual bool FsDirectoryEnsureRootOnly(std::string path);
 	virtual bool FsDirectoryIsRootOnly(std::string path);
-	virtual bool SocketIsValid(HSOCKET s);
-	virtual void SocketMarkReuseAddr(HSOCKET s);
-	virtual void SocketBlockMode(HSOCKET s, bool block);
-	virtual void SocketClose(HSOCKET s);
-	virtual int SocketGetLastErrorCode();
 
-	// IPC transport: AF_UNIX (EDDIE_IPC_LOCAL) or TCP loopback fallback.
-	virtual void TransportListen(int port);
+	// IPC transport: AF_UNIX socket.
+	virtual void TransportListen();
 	virtual bool TransportAccept();
 	virtual int TransportGetClientProcessId();
 	virtual int TransportRead(char* buffer, int maxLen);
 	virtual int TransportWrite(const char* buffer, int len);
 	virtual void TransportClientClose();
 	virtual void TransportServerClose();
-#ifdef EDDIE_IPC_UNIXSOCKET
+	// Socket helpers used by the AF_UNIX transport methods above.
+	bool SocketIsValid(HSOCKET s);
+	void SocketBlockMode(HSOCKET s, bool block);
+	void SocketClose(HSOCKET s);
+	int SocketGetLastErrorCode();
 	// Per-OS bits extracted from the AF_UNIX transport methods.
 	virtual std::string GetIpcRuntimeDir();      // runtime directory hosting the socket
 	virtual int GetSocketPeerPid(HSOCKET s) = 0; // peer pid from kernel socket credentials
-#endif
 
 	virtual std::string StringEnsureInterfaceName(const std::string& str);
 
@@ -95,21 +91,13 @@ protected:
 	virtual bool SystemWideDataDel(const std::string& key);
 	virtual bool SystemWideDataClean();
 	virtual std::string CheckExecutablePathPermissions(const std::string& path);
-#ifndef EDDIE_IPC_LOCAL
-	virtual int GetProcessIdMatchingIPEndPoints(struct sockaddr_in& addrClient, struct sockaddr_in& addrServer);
-#endif
 	virtual std::string SystemWideDataPath() = 0;
 
 	// IPC transport state
 protected:
 	HSOCKET m_ipcServer = 0;
 	HSOCKET m_ipcClient = 0;
-#ifdef EDDIE_IPC_UNIXSOCKET
 	std::string m_ipcSockPath;
-#else
-	struct sockaddr_in m_ipcAddrServer;
-	struct sockaddr_in m_ipcAddrClient;
-#endif
 
 	// Utils filesystem
 protected:

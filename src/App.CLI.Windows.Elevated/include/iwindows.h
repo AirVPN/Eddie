@@ -73,14 +73,9 @@ protected:
 	virtual bool FsFileIsRootOnly(std::string path);
 	virtual bool FsDirectoryEnsureRootOnly(std::string path);
 	virtual bool FsDirectoryIsRootOnly(std::string path);
-	virtual bool SocketIsValid(HSOCKET s);
-	virtual void SocketMarkReuseAddr(HSOCKET s);
-	virtual void SocketBlockMode(HSOCKET s, bool block);
-	virtual void SocketClose(HSOCKET s);
-	virtual int SocketGetLastErrorCode();
 
-	// IPC transport: named pipe (EDDIE_IPC_LOCAL) or TCP loopback fallback.
-	virtual void TransportListen(int port);
+	// IPC transport: named pipe.
+	virtual void TransportListen();
 	virtual bool TransportAccept();
 	virtual int TransportGetClientProcessId();
 	virtual int TransportRead(char* buffer, int maxLen);
@@ -97,20 +92,10 @@ protected:
 	virtual bool SystemWideDataDel(const std::string& key);
 	virtual bool SystemWideDataClean();
 	virtual std::string CheckExecutablePathPermissions(const std::string& path);
-#ifndef EDDIE_IPC_LOCAL
-	virtual int GetProcessIdMatchingIPEndPoints(struct sockaddr_in& addrClient, struct sockaddr_in& addrServer);
-#endif
 
 	// IPC transport state
 private:
-#ifdef EDDIE_IPC_NAMEDPIPE
 	HANDLE m_ipcPipe = INVALID_HANDLE_VALUE; // single instance: server handle is also the connection
-#else
-	HSOCKET m_ipcServer = 0;
-	HSOCKET m_ipcClient = 0;
-	struct sockaddr_in m_ipcAddrServer;
-	struct sockaddr_in m_ipcAddrClient;
-#endif
 
 	// Protected
 protected:

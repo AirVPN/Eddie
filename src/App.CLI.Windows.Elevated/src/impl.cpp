@@ -50,7 +50,7 @@ Some code by ValdikSS
 
 #pragma comment(lib, "wsock32.lib")
 #pragma comment(lib, "Ws2_32.lib")
-#pragma comment(lib, "IPHLPAPI.lib") // GetExtendedTcpTable
+#pragma comment(lib, "IPHLPAPI.lib") // GetIpForwardTable2, GetAdaptersAddresses
 #pragma comment(lib, "fwpuclnt.lib") // FwpmFilterDeleteById0
 #pragma comment(lib, "rpcrt4.lib") // UuidCreate
 

@@ -16,8 +16,6 @@
 // along with Eddie. If not, see <http://www.gnu.org/licenses/>.
 // </eddie_source_header>
 
-#define EDDIE_IPC_UNIXSOCKET // hard-enabled; remove to fall back to the TCP transport
-
 using System;
 using System.Globalization;
 using Eddie.Core;
@@ -32,7 +30,7 @@ namespace Eddie.Platform.Linux
 
 			try
 			{
-				string connectResult = Connect(Engine.Instance.GetElevatedServicePort(), "service");
+				string connectResult = Connect("service");
 
 				if (connectResult != "Ok") // Will work if the service is active
 				{
@@ -42,15 +40,13 @@ namespace Eddie.Platform.Linux
 					Engine.Instance.UiManager.Broadcast("init.step", "message", LanguageManager.GetText(LanguageItems.InitStepRaiseSystemPrivileges));
 					Engine.Instance.Logs.LogVerbose(LanguageManager.GetText(LanguageItems.InitStepRaiseSystemPrivileges));
 
-					int port = GetPortSpot();
-
 #if EDDIE_DOTNET
 					int currentId = Environment.ProcessId;
 #else
 					int currentId = System.Diagnostics.Process.GetCurrentProcess().Id;
 #endif
 
-					int pid = (Platform.Instance as Eddie.Platform.Linux.Platform).RunElevated(new string[] { "mode=spot", "spot_port=" + port.ToString(CultureInfo.InvariantCulture), "service_port=" + Engine.Instance.GetElevatedServicePort().ToString(CultureInfo.InvariantCulture), "spot_client_pid=" + currentId.ToString(CultureInfo.InvariantCulture) }, false);
+					int pid = (Platform.Instance as Eddie.Platform.Linux.Platform).RunElevated(new string[] { "mode=spot", "spot_client_pid=" + currentId.ToString(CultureInfo.InvariantCulture) }, false);
 
 					System.Diagnostics.Process process = null;
 					if (pid > 0)
@@ -63,31 +59,28 @@ namespace Eddie.Platform.Linux
 						{
 							System.Threading.Thread.Sleep(100);
 
-#if EDDIE_IPC_UNIXSOCKET
 							if (System.IO.File.Exists(GetUnixSockPath("spot")))
 								break;
-#else
-							if (Platform.Instance.IsPortLocalListening(port))
-								break;
-#endif
 
 							if (process == null)
 								throw new Exception("not started");
 
 							if (process.HasExited)
-								throw new Exception("already exit");
+								throw new Exception("already exit" + GetExitCodeDescription(process));
 
 							if (Utils.UnixTimeStamp() - listeningPortStartTime > 60)
 								throw new Exception("timeout");
 						}
 
-						connectResult = Connect(port, "spot");
+						connectResult = Connect("spot");
 
 						if (connectResult != "Ok")
 							throw new Exception(connectResult);
 					}
 					catch (Exception ex)
 					{
+						LogHelperReport(process);
+
 						throw new Exception("Unable to start (" + ex.Message + "). Look https://eddie.website/support/elevation/ to address this issue.");
 					}
 				}
@@ -101,6 +94,38 @@ namespace Eddie.Platform.Linux
 				Stop();
 
 				throw new Exception(LanguageManager.GetText(LanguageItems.HelperPrivilegesFailed, ex.Message));
+			}
+		}
+
+		// The exit code is not guaranteed to be available for a process that was not started by
+		// the Process object itself: return an empty description instead of failing.
+		private static string GetExitCodeDescription(System.Diagnostics.Process process)
+		{
+			try
+			{
+				return ", exit code " + process.ExitCode.ToString(CultureInfo.InvariantCulture);
+			}
+			catch (Exception)
+			{
+				return "";
+			}
+		}
+
+		// A helper that dies before listening leaves no other trace, so report its dynamic linking
+		// status: it covers the case of a missing bundled library. Skipped when the helper is still
+		// alive (the failure is then in the handshake, not in the startup). Diagnostics must never
+		// replace the original failure, so any error here is ignored.
+		private static void LogHelperReport(System.Diagnostics.Process process)
+		{
+			try
+			{
+				if ((process != null) && (process.HasExited == false))
+					return;
+
+				Engine.Instance.Logs.LogVerbose("Elevated helper report: " + Platform.Instance.GetExecutableReport(Platform.Instance.GetElevatedHelperPath()));
+			}
+			catch (Exception)
+			{
 			}
 		}
 	}

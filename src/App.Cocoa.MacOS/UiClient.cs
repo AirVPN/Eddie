@@ -184,7 +184,7 @@ namespace Eddie.UI.Cocoa.Osx
                     MainWindow.FrontMessage(data["message"].Value as Json);
                 });
             }
-            else if (cmd == "system.report.progress")
+            else if (cmd == "report.progress")
             {
                 string step = data["step"].Value as string;
                 string text = data["body"].Value as string;

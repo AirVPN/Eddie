@@ -749,18 +749,11 @@ bool IWindows::ServiceInstall()
 {
 	bool success = true;
 
-	int port = 0;
-	if (m_cmdline.find("service_port") != m_cmdline.end())
-		port = atoi(m_cmdline["service_port"].c_str());
-
 	std::string elevatedPath = GetProcessPathCurrent();
 
 	std::string servicePath = FsFileGetDirectory(elevatedPath) + FsPathSeparator + "Eddie-CLI-Elevated-Service.exe";
 
 	std::string elevatedArgs = "mode=service";
-	
-	if (m_cmdline.find("service_port") != m_cmdline.end())
-		elevatedArgs += " service_port=" + std::to_string(port);
 
 	// Can be active but old version that don't accept new client
 	ServiceGenericDelete(GetServiceId());
@@ -1538,52 +1531,17 @@ bool IWindows::FsDirectoryIsRootOnly(std::string path)
 	return rootOnly;
 }
 
-bool IWindows::SocketIsValid(HSOCKET s)
-{
-	return (s != INVALID_SOCKET);
-}
-
-void IWindows::SocketMarkReuseAddr(HSOCKET s)
-{
-	// TOFIX, understand security issues between SO_REUSEADDR and SO_EXCLUSIVEADDRUSE
-	/* throw WSAEACCES */
-	BOOL bOptVal1 = TRUE;
-	int bOptLen1 = sizeof(BOOL);
-	setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (char*)&bOptVal1, bOptLen1);
-}
-
-void IWindows::SocketBlockMode(HSOCKET s, bool block)
-{
-	unsigned long m = (block ? 0 : 1);
-	if (0 != ioctlsocket(s, FIONBIO, &m))
-	{
-		ThrowException("Error on SocketBlockMode");
-	}
-}
-
-void IWindows::SocketClose(HSOCKET s)
-{
-	closesocket(s);
-}
-
-int IWindows::SocketGetLastErrorCode()
-{
-	return WSAGetLastError();
-}
-
 // --------------------------
 // Virtual Pure, IPC transport
 // --------------------------
 
-void IWindows::TransportListen(int port)
+void IWindows::TransportListen()
 {
-#ifdef EDDIE_IPC_NAMEDPIPE
 	// Named pipe transport. NULL DACL: any local user may connect; clients are authenticated
 	// by IntegrityCheckFileKnown in Main(), not by the pipe ACL (shared-service model).
 	// FILE_FLAG_FIRST_PIPE_INSTANCE + nMaxInstances=1: fail closed if the pipe name already
 	// exists (squatting) and allow only one client at a time (service/spot design).
-	// Pipe keyed by launch mode ("spot"/"service"); the port is only used by the TCP fallback below.
-	(void)port;
+	// Pipe keyed by launch mode ("spot"/"service").
 	std::string pipeName = "\\\\.\\pipe\\eddie-elevated-" + GetLaunchMode();
 
 	SECURITY_DESCRIPTOR pipeSd;
@@ -1605,39 +1563,10 @@ void IWindows::TransportListen(int port)
 		ThrowException("Error on creating named pipe (" + std::to_string(GetLastError()) + ")");
 
 	LogDevDebug("Listening on named pipe " + pipeName);
-#else
-	m_ipcServer = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-
-	SocketMarkReuseAddr(m_ipcServer);
-
-	if (SocketIsValid(m_ipcServer) == false)
-	{
-		ThrowException("Error on opening socket");
-	}
-
-	std::memset(&m_ipcAddrServer, 0, sizeof(m_ipcAddrServer));
-
-	m_ipcAddrServer.sin_family = AF_INET;
-	m_ipcAddrServer.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-	m_ipcAddrServer.sin_port = htons(port);
-
-	LogDevDebug("Listening on port " + std::to_string(port));
-
-	if (bind(m_ipcServer, (struct sockaddr*)&m_ipcAddrServer, sizeof(m_ipcAddrServer)) != 0) {
-		ThrowException("Error on binding socket (" + std::to_string(SocketGetLastErrorCode()) + ")");
-	}
-
-	if (listen(m_ipcServer, 1) != 0) {
-		ThrowException("Error on listen socket (" + std::to_string(SocketGetLastErrorCode()) + ")");
-	}
-
-	SocketBlockMode(m_ipcServer, false);
-#endif
 }
 
 bool IWindows::TransportAccept()
 {
-#ifdef EDDIE_IPC_NAMEDPIPE
 	// Spot mode is a one-shot elevation: if the authorized client never connects, do not wait forever.
 	// Giving up lets Main() close the pipe so no elevated process is left orphaned.
 	unsigned long acceptStartTime = GetTimestampUnix();
@@ -1703,69 +1632,20 @@ bool IWindows::TransportAccept()
 
 		Sleep(1000);
 	}
-#else
-	struct sockaddr_in addrClient;
-	socklen_t addrClientLen = sizeof(addrClient);
-
-	// Spot mode is a one-shot elevation: if the authorized client never connects, do not wait forever.
-	unsigned long acceptStartTime = GetTimestampUnix();
-	const unsigned long spotAcceptTimeoutSeconds = 5;
-
-	for (;;)
-	{
-		m_ipcClient = accept(m_ipcServer, (struct sockaddr*)&addrClient, &addrClientLen);
-
-		// TOFIX. Under Linux, errno==EWOULDBLOCK. Under Windows, i expect WSAEWOULDBLOCK but there are something not understanding.
-		if (SocketIsValid(m_ipcClient) == false)
-		{
-			if (IsStopRequested())
-				break;
-
-			if ((GetLaunchMode() == "spot") && (GetTimestampUnix() - acceptStartTime >= spotAcceptTimeoutSeconds))
-			{
-				LogDebug("Spot mode: no client connected within timeout, giving up");
-				break;
-			}
-
-			Idle();
-
-			Sleep(1000);
-		}
-		else
-		{
-			break;
-		}
-	}
-
-	if (SocketIsValid(m_ipcClient) == false)
-		return false;
-
-	m_ipcAddrClient = addrClient; // kept for TCP peer-pid resolution
-
-	// Remove if nonblock is inherit
-	SocketBlockMode(m_ipcClient, true);
-
-	return true;
-#endif
 }
 
 int IWindows::TransportGetClientProcessId()
 {
-#ifdef EDDIE_IPC_NAMEDPIPE
-	// Peer pid from the kernel-attested named pipe (race-free, replaces GetExtendedTcpTable).
+	// Peer pid from the kernel-attested named pipe.
 	int clientProcessId = 0;
 	DWORD clientPidDword = 0;
 	if (GetNamedPipeClientProcessId(m_ipcPipe, &clientPidDword))
 		clientProcessId = (int)clientPidDword;
 	return clientProcessId;
-#else
-	return GetProcessIdMatchingIPEndPoints(m_ipcAddrClient, m_ipcAddrServer);
-#endif
 }
 
 int IWindows::TransportRead(char* buffer, int maxLen)
 {
-#ifdef EDDIE_IPC_NAMEDPIPE
 	OVERLAPPED ovRead;
 	memset(&ovRead, 0, sizeof(ovRead));
 	ovRead.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
@@ -1786,14 +1666,10 @@ int IWindows::TransportRead(char* buffer, int maxLen)
 		return 0; // client disconnected
 	else
 		return -1;
-#else
-	return recv(m_ipcClient, buffer, maxLen, 0);
-#endif
 }
 
 int IWindows::TransportWrite(const char* buffer, int len)
 {
-#ifdef EDDIE_IPC_NAMEDPIPE
 	OVERLAPPED ovWrite;
 	memset(&ovWrite, 0, sizeof(ovWrite));
 	ovWrite.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
@@ -1808,29 +1684,17 @@ int IWindows::TransportWrite(const char* buffer, int len)
 	CloseHandle(ovWrite.hEvent);
 
 	return pipeWriteOk ? (int)pipeWritten : -1;
-#else
-	return send(m_ipcClient, buffer, len, 0);
-#endif
 }
 
 void IWindows::TransportClientClose()
 {
-#ifdef EDDIE_IPC_NAMEDPIPE
 	// Keep the pipe instance for the next client; just drop the current connection.
 	DisconnectNamedPipe(m_ipcPipe);
-#else
-	SocketClose(m_ipcClient);
-	m_ipcClient = 0;
-#endif
 }
 
 void IWindows::TransportServerClose()
 {
-#ifdef EDDIE_IPC_NAMEDPIPE
 	CloseHandle(m_ipcPipe);
-#else
-	SocketClose(m_ipcServer);
-#endif
 }
 
 std::string IWindows::StringEnsureInterfaceName(const std::string& str)
@@ -1978,39 +1842,6 @@ std::string IWindows::CheckExecutablePathPermissions(const std::string& path)
 
 	return issues;
 }
-
-#ifndef EDDIE_IPC_LOCAL
-int IWindows::GetProcessIdMatchingIPEndPoints(struct sockaddr_in& addrClient, struct sockaddr_in& addrServer)
-{
-	std::vector<unsigned char> buffer;
-	DWORD dwSize = sizeof(MIB_TCPTABLE_OWNER_PID);
-	DWORD dwRetValue = 0;
-
-	do {
-		buffer.resize(dwSize, 0);
-		dwRetValue = GetExtendedTcpTable(buffer.data(), &dwSize, TRUE, AF_INET, TCP_TABLE_OWNER_PID_ALL, 0);
-	} while (dwRetValue == ERROR_INSUFFICIENT_BUFFER);
-	if (dwRetValue == ERROR_SUCCESS)
-	{
-		PMIB_TCPTABLE_OWNER_PID ptTable = reinterpret_cast<PMIB_TCPTABLE_OWNER_PID>(buffer.data());
-		for (DWORD i = 0; i < ptTable->dwNumEntries; i++) {
-			DWORD pid = ptTable->table[i].dwOwningPid;
-
-			if ((ptTable->table[i].dwLocalAddr == addrClient.sin_addr.s_addr) &&
-				(ptTable->table[i].dwRemoteAddr == addrServer.sin_addr.s_addr) &&
-				(ptTable->table[i].dwLocalPort == addrClient.sin_port) &&
-				(ptTable->table[i].dwRemotePort == addrServer.sin_port)
-				)
-			{
-				return pid;
-			}
-		}
-	}
-
-	return 0;
-}
-#endif // !EDDIE_IPC_LOCAL
-
 
 // --------------------------
 // Protected
@@ -2352,45 +2183,39 @@ std::string IWindows::NetworkAdapterCreate(const std::string& driver, const std:
 		ThrowException("Unknown driver: " + driver);
 
 	std::string nameSafe = StringEnsureInterfaceName(name);
+	std::string hwid = (driver == "ovpn-dco") ? "ovpn-dco" : "root\\tap0901";
 
-	std::string guid = "";
-
-	if (driver == "ovpn-dco")
+	std::string tapctl = FsLocateExecutable("tapctl.exe", false, true);
+	if (tapctl == "")
 	{
-		std::string tapctl = FsLocateExecutable("tapctl.exe", false, true);
-		if (tapctl != "")
-		{
-			ExecResult result = ExecEx(tapctl, { "create", "--hwid", "ovpn-dco", "--name", nameSafe });
-			if (result.exit == 0)
-				guid = StringTrim(result.out);
-		}
+		LogRemote("Cannot create the " + driver + " network adapter '" + nameSafe + "': tapctl.exe not found.");
+		return "";
 	}
-	else if (driver == "tap-windows6")
+
+	ExecResult result = ExecEx(tapctl, { "create", "--hwid", hwid, "--name", nameSafe });
+	if (result.exit != 0)
 	{
-		std::string tapctl = FsLocateExecutable("tapctl.exe", false, true);
-		if (tapctl != "")
-		{
-			ExecResult result = ExecEx(tapctl, { "create", "--hwid", "root\\tap0901", "--name", nameSafe });
-			if (result.exit == 0)
-				guid = StringTrim(result.out);
-		}
+		LogRemote("Creation of the " + driver + " network adapter '" + nameSafe + "' failed: " + GetExecResultReport(result));
+		return "";
 	}
 
 	// tapctl prints "{GUID}\t<name>\t<hwid>"; keep only the GUID
+	std::string guid = StringTrim(result.out);
 	size_t tab = guid.find('\t');
 	if (tab != std::string::npos)
 		guid = StringTrim(guid.substr(0, tab));
 
-	if (guid != "")
+	if (guid == "")
 	{
-		std::string eddieList = SystemWideDataGet("network_adapters", "");
-		eddieList += guid + ";";
-		SystemWideDataSet("network_adapters", eddieList);
-
-		return guid;
-	}
-	else
+		LogRemote("Creation of the " + driver + " network adapter '" + nameSafe + "' reported success but no adapter id: " + GetExecResultReport(result));
 		return "";
+	}
+
+	std::string eddieList = SystemWideDataGet("network_adapters", "");
+	eddieList += guid + ";";
+	SystemWideDataSet("network_adapters", eddieList);
+
+	return guid;
 }
 
 bool IWindows::NetworkAdapterDelete(const std::string& id)

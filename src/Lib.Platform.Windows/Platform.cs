@@ -22,6 +22,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.NetworkInformation;
+using System.Security.AccessControl;
+using System.Security.Principal;
+using System.Text;
 using System.Xml;
 using System.Threading;
 using Microsoft.Win32;
@@ -72,6 +75,12 @@ namespace Eddie.Platform.Windows
 		{
 			OperatingSystem OS = Environment.OSVersion;
 			return (OS.Platform == PlatformID.Win32NT) && (OS.Version.Major >= 10);
+		}
+
+		public bool IsWin11OrNewer()
+		{
+			OperatingSystem OS = Environment.OSVersion;
+			return (OS.Platform == PlatformID.Win32NT) && ((OS.Version.Major > 10) || ((OS.Version.Major == 10) && (OS.Version.Build >= 22000)));
 		}
 
 		public bool IsWin7()
@@ -384,7 +393,7 @@ namespace Eddie.Platform.Windows
 				processStart.UseShellExecute = true;
 				if (value)
 				{
-					processStart.Arguments = "service=install service_port=" + Engine.Instance.GetElevatedServicePort();
+					processStart.Arguments = "service=install";
 					System.Diagnostics.Process p = System.Diagnostics.Process.Start(processStart);
 					p.WaitForExit();
 					return (GetService(true) == true);
@@ -442,43 +451,103 @@ namespace Eddie.Platform.Windows
 
 		public override bool FileEnsureCurrentUserOnly(string path)
 		{
-			/* <2.25.0
-			// Remove Inheritance
-			SystemExec.Exec1(Platform.Instance.LocateExecutable("icacls.exe"), "\"" + SystemExec.EscapePath(path).EscapeQuote() + "\" /c /t /inheritance:d");
+			if ((path == "") || (FileExists(path) == false))
+				return false;
 
-			// Set Ownership to Owner
-			SystemExec.Exec1(Platform.Instance.LocateExecutable("icacls.exe"), "\"" + SystemExec.EscapePath(path).EscapeQuote() + "\" /c /t /grant \"" + SystemExec.EscapeInsideQuote(Environment.UserName) + "\":F");
+			// Principals are identified by SID and never by display name: well-known names are
+			// localized and domain/Entra names may not resolve, and a failed resolution would
+			// leave the file with a DACL nobody can use.
+			try
+			{
+				SecurityIdentifier currentUser = WindowsIdentity.GetCurrent().User;
+				SecurityIdentifier system = new SecurityIdentifier(WellKnownSidType.LocalSystemSid, null);
+				SecurityIdentifier administrators = new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null);
 
-			// Remove Authenticated Users
-			SystemExec.Exec1(Platform.Instance.LocateExecutable("icacls.exe"), "\"" + SystemExec.EscapePath(path).EscapeQuote() + "\" /c /t /remove:g *S-1-5-11");
+				FileInfo fileInfo = new FileInfo(path);
 
-			// Remove other groups
-			SystemExec.Exec1(Platform.Instance.LocateExecutable("icacls.exe"), "\"" + SystemExec.EscapePath(path).EscapeQuote() + "\" /c /t /remove Administrator \"BUILTIN\\Administrators\" \"NT AUTHORITY\\Authenticated Users\" \"BUILTIN\\Users\" BUILTIN Everyone System Users");
-			*/
+				// A single SetAccessControl call replaces the whole DACL: either the restricted ACL
+				// is applied, or nothing changes. No intermediate state where the file is unreadable.
+				FileSecurity security = new FileSecurity();
+				security.SetAccessRuleProtection(true, false);
+				security.AddAccessRule(new FileSystemAccessRule(currentUser, FileSystemRights.FullControl, AccessControlType.Allow));
+				security.AddAccessRule(new FileSystemAccessRule(system, FileSystemRights.FullControl, AccessControlType.Allow));
+				security.AddAccessRule(new FileSystemAccessRule(administrators, FileSystemRights.FullControl, AccessControlType.Allow));
+				fileInfo.SetAccessControl(security);
 
-			string exe = Platform.Instance.LocateExecutable("icacls.exe");
-			string p = SystemExec.EscapePath(path).EscapeQuote();
-			string qpath = $"\"{p}\"";
+				try
+				{
+					FileSecurity owner = new FileSecurity();
+					owner.SetOwner(currentUser);
+					fileInfo.SetAccessControl(owner);
+				}
+				catch (Exception)
+				{
+					// Taking ownership may require privileges we don't have. Not critical.
+				}
 
-			// Best-effort: reset ACL completely, then re-apply minimal secure ACL.
-			// Key points:
-			// - /reset wipes all explicit ACEs (including orphaned UNKNOWN SIDs)
-			// - /inheritance:r disables inheritance AND removes inherited ACEs
-			// - /grant:r replaces (not adds) the DACL with only the specified entries
-			// - add SYSTEM + Administrators to avoid edge cases (services, elevated contexts)
-			SystemExec.Exec1(exe, $"{qpath} /c /t /reset");
-			SystemExec.Exec1(exe, $"{qpath} /c /t /inheritance:r");
+				// The contract is a readable file: a caller writing a key must know if it became unusable.
+				using (FileStream stream = File.OpenRead(path))
+					stream.ReadByte();
 
-			// Use the actual current identity (domain\user or machine\user), not just Environment.UserName
-			string me = System.Security.Principal.WindowsIdentity.GetCurrent().Name;
+				return true;
+			}
+			catch (Exception ex)
+			{
+				Engine.Instance.Logs.Log(LogType.Warning, "Unable to restrict file permissions of '" + path + "': " + ex.Message);
+				return false;
+			}
+		}
 
-			// Replace ACL with minimal set
-			SystemExec.Exec1(exe, $"{qpath} /c /t /grant:r \"{SystemExec.EscapeInsideQuote(me)}\":F \"SYSTEM\":F \"BUILTIN\\Administrators\":F");
+		public override string FileGetPermissionsReport(string path)
+		{
+			try
+			{
+				FileSystemSecurity security;
+				if (Directory.Exists(path))
+					security = new DirectoryInfo(path).GetAccessControl(AccessControlSections.Access | AccessControlSections.Owner);
+				else
+					security = new FileInfo(path).GetAccessControl(AccessControlSections.Access | AccessControlSections.Owner);
 
-			// Set owner explicitly to current identity (some setups care)
-			SystemExec.Exec1(exe, $"{qpath} /c /t /setowner \"{SystemExec.EscapeInsideQuote(me)}\"");
+				StringBuilder result = new StringBuilder();
+				result.Append("owner=").Append(DescribeSid(security.GetOwner(typeof(SecurityIdentifier)) as SecurityIdentifier));
+				result.Append("; protected=").Append(security.AreAccessRulesProtected);
 
-			return true;
+				AuthorizationRuleCollection rules = security.GetAccessRules(true, true, typeof(SecurityIdentifier));
+				result.Append("; aces=").Append(rules.Count);
+				foreach (FileSystemAccessRule rule in rules)
+				{
+					result.Append("; ace=").Append(DescribeSid(rule.IdentityReference as SecurityIdentifier));
+					result.Append(',').Append(rule.AccessControlType.ToString());
+					result.Append(',').Append(rule.FileSystemRights.ToString().Replace(", ", "+"));
+					result.Append(rule.IsInherited ? ",inherited" : ",explicit");
+				}
+
+				return result.ToString();
+			}
+			catch (Exception ex)
+			{
+				return "error: " + ex.Message;
+			}
+		}
+
+		// SID plus its display name when resolvable: an unresolvable or localized name explains
+		// why name-based ACL tools fail on that system.
+		private static string DescribeSid(SecurityIdentifier sid)
+		{
+			if (sid == null)
+				return "unknown";
+
+			string name;
+			try
+			{
+				name = ((NTAccount)sid.Translate(typeof(NTAccount))).Value;
+			}
+			catch (Exception)
+			{
+				name = "unresolved";
+			}
+
+			return sid.Value + "(" + name + ")";
 		}
 
 		public override string FileAdaptProcessExec(string path)
@@ -800,7 +869,26 @@ namespace Eddie.Platform.Windows
 			else
 				throw new Exception("Unexpected connection type");
 		}
+
+		public override string GetDataChannelOffloadSupportedCiphers()
+		{
+			// ovpn-dco-win offloads Chacha20-Poly1305 only from Windows 11 onwards.
+			if (IsWin11OrNewer())
+				return "AES-128-GCM:AES-256-GCM:AES-192-GCM:CHACHA20-POLY1305";
+			else
+				return "AES-128-GCM:AES-256-GCM:AES-192-GCM";
+		}
 		
+		// Interface types eligible for the DNS switch when 'dns.interfaces.types' is 'auto', as lowercase
+		// NetworkInterfaceType names, plus the 'virtual' remap done by Engine.NetworkInterfaceInfoBuild.
+		// Every type that can hold a resolver assigned by the local network is listed: an omitted type keeps
+		// the resolver of the local network while connected. Unknown, Loopback and Tunnel are excluded; the
+		// VPN interface is always eligible because it is matched by its id.
+		private const string DnsInterfaceTypesAuto = "ethernet, tokenring, fddi, basicisdn, primaryisdn, ppp, ethernet3megabit, " +
+			"slip, atm, genericmodem, fastethernett, isdn, fastethernetfx, wireless80211, asymmetricdsl, rateadaptdsl, " +
+			"symmetricdsl, veryhighspeeddsl, ipoveratm, gigabitethernet, multiratesymmetricdsl, highperformanceserialbus, " +
+			"wman, wwanpp, wwanpp2, virtual";
+
 		private XmlElement CreateDnsResolverRule(string title, string layer)
 		{
 			XmlDocument xmlDocRule = new XmlDocument();
@@ -817,11 +905,11 @@ namespace Eddie.Platform.Windows
 			return xmlRule;
 		}
 
-		public override bool OnDnsSwitchDo(Core.ConnectionTypes.IConnectionType connection, IpAddresses dns)
+		public override bool OnDnsLockDo(Core.ConnectionTypes.IConnectionType connection)
 		{
 			if ((Engine.Instance.ProfileOptions.GetBool("windows.dns.lock")) && (IsVistaOrNewer()))
 			{
-				// Order is important! IPv6 block use weight 3000, DNS-Lock 2000, WFP 1000. All within a parent filter of max priority.
+				// Order is important! IPv6 block use weight 3000, DNS-Lock block 2000 and its permits 2001, WFP 1000. All within a parent filter of max priority.
 				// Otherwise the netlock allow-private rule can allow DNS outside the tunnel in some configuration.
 				{
 					XmlDocument xmlDocRule = new XmlDocument();
@@ -835,13 +923,22 @@ namespace Eddie.Platform.Windows
 					XmlIf1.SetAttribute("field", "ip_remote_port");
 					XmlIf1.SetAttribute("match", "equal");
 					XmlIf1.SetAttribute("port", "53");
+					// Queries toward a resolver on the loopback interface never leave the machine.
+					// The upstream query of such a resolver is subject to this same rule.
+					XmlElement XmlIf2 = xmlDocRule.CreateElement("if");
+					xmlRule.AppendChild(XmlIf2);
+					XmlIf2.SetAttribute("field", "ip_local_interface");
+					XmlIf2.SetAttribute("match", "not_equal");
+					XmlIf2.SetAttribute("interface", "loopback");
 					Wfp.AddItem("dns_block_all", xmlRule);
 				}
 
-				// Allow port 53 only toward the detected system resolvers, so hostname
-				// resolution keeps working while the DNS lock blocks every other port 53
-				// flow. Weight 2001 wins over the block (2000) but stays below the IPv6
-				// block (3000), so resolvers are still blocked when IPv6 is blocked.
+				// Port 53 toward the resolvers detected outside the tunnel is an opt-in: such queries
+				// leave the VPN interface, so allowing them by default would defeat the lock. The option
+				// is the same one that adds those resolvers to the allowlist on the other platforms.
+				// Weight 2001 wins over the block (2000) but stays below the IPv6 block (3000), so
+				// resolvers are still blocked when IPv6 is blocked.
+				if (Engine.Instance.ProfileOptions.GetBool("netlock.allow_dns"))
 				{
 					XmlElement xmlRuleV4 = null;
 					XmlElement xmlRuleV6 = null;
@@ -901,7 +998,7 @@ namespace Eddie.Platform.Windows
 						xmlRule.SetAttribute("name", "Dns - Allow port 53 on TAP");
 						xmlRule.SetAttribute("layer", layer);
 						xmlRule.SetAttribute("action", "permit");
-						xmlRule.SetAttribute("weight", "2000");
+						xmlRule.SetAttribute("weight", "2001");
 						XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
 						xmlRule.AppendChild(XmlIf1);
 						XmlIf1.SetAttribute("field", "ip_remote_port");
@@ -911,7 +1008,7 @@ namespace Eddie.Platform.Windows
 						xmlRule.AppendChild(XmlIf2);
 						XmlIf2.SetAttribute("field", "ip_local_interface");
 						XmlIf2.SetAttribute("match", "equal");
-						XmlIf2.SetAttribute("interface", Engine.Instance.Connection.Interface.Id);
+						XmlIf2.SetAttribute("interface", connection.Interface.Id);
 						Wfp.AddItem("dns_permit_tap", xmlRule);
 					}
 				}
@@ -920,6 +1017,11 @@ namespace Eddie.Platform.Windows
 				Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText(LanguageItems.DnsLockActivatedWpf));
 			}
 
+			return true;
+		}
+
+		public override bool OnDnsSwitchDo(Core.ConnectionTypes.IConnectionType connection, IpAddresses dns)
+		{
 			string mode = Engine.Instance.ProfileOptions.GetLower("dns.mode");
 
 			if (mode == "auto")
@@ -928,7 +1030,7 @@ namespace Eddie.Platform.Windows
 
 				string dnsInterfacesTypes = Engine.Instance.ProfileOptions.Get("dns.interfaces.types").ToLowerInvariant();
 				if (dnsInterfacesTypes == "auto")
-					dnsInterfacesTypes = "ethernet, virtual";
+					dnsInterfacesTypes = DnsInterfaceTypesAuto;
 
 				List<string> dnsInterfacesTypesList = dnsInterfacesTypes.StringToList();
 
@@ -1019,10 +1121,8 @@ namespace Eddie.Platform.Windows
 			return true;
 		}
 
-		public override bool OnDnsSwitchRestore()
+		public override bool OnDnsLockRestore()
 		{
-			DnsForceRestore();
-
 			bool DnsPermitExists = false;
 			DnsPermitExists |= Wfp.RemoveItem("dns_permit_resolver_v4");
 			DnsPermitExists |= Wfp.RemoveItem("dns_permit_resolver_v6");
@@ -1030,6 +1130,14 @@ namespace Eddie.Platform.Windows
 			DnsPermitExists |= Wfp.RemoveItem("dns_block_all");
 			if (DnsPermitExists)
 				Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText(LanguageItems.DnsLockDeactivatedWpf));
+
+			base.OnDnsLockRestore();
+			return true;
+		}
+
+		public override bool OnDnsSwitchRestore()
+		{
+			DnsForceRestore();
 
 			base.OnDnsSwitchRestore();
 			return true;
@@ -1438,10 +1546,22 @@ namespace Eddie.Platform.Windows
 				if (RemoveConflictingDriverInterface(driver, ifaceName, jNetworkInfo))
 					System.Threading.Thread.Sleep(3000);
 
-				Core.Engine.Instance.Elevated.DoCommandSync("network-adapter-create", "driver", driver, "name", ifaceName);
-				Engine.Instance.Logs.LogVerbose("Created new " + driver + " network interface \"" + ifaceName + "\"");
+				string adapterId = Core.Engine.Instance.Elevated.DoCommandSync("network-adapter-create", "driver", driver, "name", ifaceName).Trim();
 
-				jNetworkInterfaceSelected = FindDriverInterface(driver, ifaceName);
+				if (adapterId == "")
+					Engine.Instance.Logs.Log(LogType.Warning, "Creation of the " + driver + " network interface \"" + ifaceName + "\" failed.");
+				else
+					Engine.Instance.Logs.LogVerbose("Created new " + driver + " network interface \"" + ifaceName + "\" (" + adapterId + ")");
+
+				jNetworkInfo = Engine.Instance.NetworkInfoUpdate();
+
+				// The adapter is looked up by id first: Windows does not always apply the requested
+				// connection name to a freshly created adapter, and the id is what OpenVPN needs anyway.
+				if (adapterId != "")
+					jNetworkInterfaceSelected = FindDriverInterfaceById(driver, adapterId, jNetworkInfo);
+
+				if (jNetworkInterfaceSelected == null)
+					jNetworkInterfaceSelected = FindDriverInterface(driver, ifaceName, jNetworkInfo);
 			}
 
 			if (jNetworkInterfaceSelected == null)
@@ -1452,18 +1572,41 @@ namespace Eddie.Platform.Windows
 			return jNetworkInterfaceSelected["id"].ValueString;
 		}
 
-		private Json FindDriverInterface(string driver, string ifaceName)
+		private string GetDriverDeviceId(string driver)
 		{
-			return FindDriverInterface(driver, ifaceName, Engine.Instance.NetworkInfoUpdate());
+			if (driver == "tap-windows6")
+				return "tap0901";
+			else if (driver == "ovpn-dco")
+				return "ovpn-dco";
+			else
+				return "";
+		}
+
+		// Lookup of an adapter by its id (the GUID returned by the creation). Status and name are not
+		// checked: the id already identifies a single adapter, and the name may differ from the requested one.
+		private Json FindDriverInterfaceById(string driver, string id, Json jNetworkInfo)
+		{
+			string expectedDeviceId = GetDriverDeviceId(driver);
+
+			foreach (Json jNetworkInterface in jNetworkInfo["interfaces"].Json.GetArray())
+			{
+				if (string.Equals(jNetworkInterface["id"].ValueString, id, StringComparison.OrdinalIgnoreCase) == false)
+					continue;
+				if (jNetworkInterface.HasKey("device_id"))
+				{
+					if (jNetworkInterface["device_id"].ValueString.ToLowerInvariant().Contains(expectedDeviceId) == false)
+						continue;
+				}
+
+				return jNetworkInterface;
+			}
+
+			return null;
 		}
 
 		private Json FindDriverInterface(string driver, string ifaceName, Json jNetworkInfo)
 		{
-			string expectedDeviceId = "";
-			if (driver == "tap-windows6")
-				expectedDeviceId = "tap0901";
-			else if (driver == "ovpn-dco")
-				expectedDeviceId = "ovpn-dco";
+			string expectedDeviceId = GetDriverDeviceId(driver);
 
 			foreach (Json jNetworkInterface in jNetworkInfo["interfaces"].Json.GetArray())
 			{
@@ -1490,11 +1633,7 @@ namespace Eddie.Platform.Windows
 		// With per-driver adapter names this should not happen anymore, hence the warning log.
 		private bool RemoveConflictingDriverInterface(string driver, string ifaceName, Json jNetworkInfo)
 		{
-			string expectedDeviceId = "";
-			if (driver == "tap-windows6")
-				expectedDeviceId = "tap0901";
-			else if (driver == "ovpn-dco")
-				expectedDeviceId = "ovpn-dco";
+			string expectedDeviceId = GetDriverDeviceId(driver);
 
 			bool removed = false;
 

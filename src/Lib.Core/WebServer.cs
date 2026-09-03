@@ -47,11 +47,24 @@ namespace Eddie.Core
 				return "";
 		}
 
+		public static bool WebUiEnabled()
+		{
+			return (GetPath() != "") && Engine.Instance.ProfileOptions.GetBool("webui.enabled");
+		}
+
+		public static bool McpEnabled()
+		{
+			return Engine.Instance.ProfileOptions.GetBool("mcp.enabled");
+		}
+
 		public void Init(string prefix)
 		{
-			Engine.Instance.UiManager.Add(m_client);
+			// The pull client backs the WebUI (/api/pull); register it only when the WebUI is served,
+			// otherwise its Pendings queue would grow unbounded in MCP-only mode.
+			if (WebUiEnabled())
+				Engine.Instance.UiManager.Add(m_client);
 
-			if (GetPath() == "")
+			if ((WebUiEnabled() == false) && (McpEnabled() == false))
 				return;
 
 			if (!HttpListener.IsSupported)
@@ -153,6 +166,8 @@ namespace Eddie.Core
 
 		public void Stop()
 		{
+			DeleteMcpDiscoveryFile();
+
 			m_listener.Stop();
 			m_listener.Close();
 		}
@@ -163,6 +178,55 @@ namespace Eddie.Core
 			ListenUrl = "http://localhost:" + port.ToString(System.Globalization.CultureInfo.InvariantCulture); // Note: bind to localhost, not 127.0.0.1, otherwise HttpListener throws "Access is denied".
 			Init(ListenUrl + "/");
 			Run();
+
+			if (McpEnabled())
+				WriteMcpDiscoveryFile();
+		}
+
+		private static string GetMcpDiscoveryFilePath()
+		{
+			return Engine.Instance.GetPathInData("webui-mcp.json");
+		}
+
+		// Local, user-only file so an MCP client/bridge can find the endpoint URL and token
+		// without embedding the secret in its own configuration.
+		public void WriteMcpDiscoveryFile()
+		{
+			try
+			{
+				Json j = new Json();
+				j["mcp_url"].Value = ListenUrl + "/mcp";
+				j["access_key"].Value = Engine.Instance.ProfileOptions.Get("mcp.access_key");
+				j["allow_control"].Value = Engine.Instance.ProfileOptions.GetBool("mcp.allow_control");
+#pragma warning disable CA1837 // Environment.ProcessId is unavailable on the legacy .NET Framework target.
+				j["pid"].Value = System.Diagnostics.Process.GetCurrentProcess().Id;
+#pragma warning restore CA1837
+				j["started_at"].Value = DateTime.UtcNow.ToString("o", System.Globalization.CultureInfo.InvariantCulture);
+
+				string path = GetMcpDiscoveryFilePath();
+				Platform.Instance.FileContentsWriteText(path, j.ToJsonPretty(), Encoding.UTF8);
+				Platform.Instance.FileEnsurePermission(path, "600");
+				if ((Platform.Instance.IsWindowsSystem()) && (Platform.Instance.FileEnsureCurrentUserOnly(path) == false))
+					Engine.Instance.Logs.Log(LogType.Warning, "Unable to set the required permissions on '" + path + "'.");
+			}
+			catch (Exception ex)
+			{
+				Engine.Instance.Logs.Log(ex);
+			}
+		}
+
+		private void DeleteMcpDiscoveryFile()
+		{
+			try
+			{
+				string path = GetMcpDiscoveryFilePath();
+				if (Platform.Instance.FileExists(path))
+					Platform.Instance.FileDelete(path);
+			}
+			catch (Exception ex)
+			{
+				Engine.Instance.Logs.Log(ex);
+			}
 		}
 
 		public void SendResponse(HttpListenerContext context)
@@ -215,12 +279,25 @@ namespace Eddie.Core
 
 			string absolutePath = context.Request.Url.AbsolutePath;
 
-			if (absolutePath == "/api/login")
+			if (absolutePath == "/mcp")
 			{
-				bodyResponse = HandleLogin(context);
+				bodyResponse = HandleMcp(context);
 			}
-			else if ((absolutePath == "/api/command/") || (absolutePath == "/api/pull/"))
+			else if ((absolutePath == "/api/login") || (absolutePath == "/api/command/") || (absolutePath == "/api/pull/"))
 			{
+				// WebUI command surface: served only when the WebUI feature is enabled (never in MCP-only mode).
+				if (WebUiEnabled() == false)
+				{
+					context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+					return;
+				}
+
+				if (absolutePath == "/api/login")
+				{
+					bodyResponse = HandleLogin(context);
+				}
+				else
+				{
 				if (IsAuthenticated(context) == false)
 				{
 					context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
@@ -266,6 +343,12 @@ namespace Eddie.Core
 						context.Response.StatusCode = (int)HttpStatusCode.NoContent;
 					}
 				}
+				}
+			}
+			else if (WebUiEnabled() == false)
+			{
+				// MCP-only mode: no static files, no login page.
+				context.Response.StatusCode = (int)HttpStatusCode.NotFound;
 			}
 			else
 			{
@@ -312,6 +395,58 @@ namespace Eddie.Core
 			}
 
 			return m_client.Command(command);
+		}
+
+		// MCP endpoint: stateless, JSON-only Streamable HTTP. Tools-only, so every POST is answered
+		// with a single application/json body (no SSE, no session id, no standalone GET stream).
+		private string HandleMcp(HttpListenerContext context)
+		{
+			if (McpEnabled() == false)
+			{
+				context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+				return "";
+			}
+
+			if (context.Request.HttpMethod.ToUpperInvariant() != "POST")
+			{
+				context.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
+				return "";
+			}
+
+			if (IsMcpAuthenticated(context) == false)
+			{
+				context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+				return "";
+			}
+
+			string body = new StreamReader(context.Request.InputStream, context.Request.ContentEncoding).ReadToEnd();
+
+			int statusCode;
+			string response = Mcp.Handle(body, out statusCode);
+			context.Response.StatusCode = statusCode;
+			if (response == "")
+				return "";
+
+			context.Response.ContentType = "application/json";
+			return response;
+		}
+
+		// /mcp uses its own token (mcp.access_key), independent from the WebUI session/access key.
+		private bool IsMcpAuthenticated(HttpListenerContext context)
+		{
+			string accessKey = Engine.Instance.ProfileOptions.Get("mcp.access_key");
+			if (accessKey == "")
+				return false; // Fail closed if no key is configured.
+
+			string auth = context.Request.Headers["Authorization"];
+			if ((auth != null) && (auth.StartsWithInv("Bearer ")))
+			{
+				string token = auth.Substring("Bearer ".Length).Trim();
+				if (Crypto.Manager.FixedTimeEquals(token, accessKey))
+					return true;
+			}
+
+			return false;
 		}
 
 		private string HandleLogin(HttpListenerContext context)

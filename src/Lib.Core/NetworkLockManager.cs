@@ -114,7 +114,7 @@ namespace Eddie.Core
 
 				if (nextCurrent == null)
 				{
-					Engine.Instance.Logs.Log(LogType.Fatal, LanguageManager.GetText(LanguageItems.NetworkLockNoMode));
+					Engine.Instance.Logs.Log(LogType.Error, LanguageManager.GetText(LanguageItems.NetworkLockNoMode));
 				}
 				else
 				{

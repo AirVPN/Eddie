@@ -72,7 +72,7 @@
 				"X-Content-Type-Options" : "nosniff",
 				"Referrer-Policy" : "strict-origin-when-cross-origin",
 				"Feature-Policy" : "autoplay 'none'; camera 'none'; encrypted-media 'none'; fullscreen 'self'; geolocation 'none'; microphone 'none'; magnetometer 'none'; midi 'none'; payment 'none'; sync-xhr 'self'; ",
-				"Content-Security-Policy" : "default-src 'none'; connect-src 'self'; font-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: eddie.website airvpn.org;"
+				"Content-Security-Policy" : "default-src 'none'; connect-src 'self'; font-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https://eddie.website https://airvpn.org;"
 			}
 		}
 	}

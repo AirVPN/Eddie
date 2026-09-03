@@ -325,14 +325,9 @@ int IBase::Main()
 
 	m_lastModified = GetProcessModTimeCurrent();
 
-	int port = m_elevatedPortDefault;
-
 	if ((m_cmdline.find("mode") != m_cmdline.end()) && (m_cmdline["mode"] == "spot"))
 	{
 		SetLaunchMode("spot");
-
-		if (m_cmdline.find("spot_port") != m_cmdline.end())
-			port = StringToInt(m_cmdline["spot_port"]);
 
 		// Bind this one-time elevation to the client instance that launched it.
 		if (m_cmdline.find("spot_client_pid") != m_cmdline.end())
@@ -349,9 +344,6 @@ int IBase::Main()
 	else if ((m_cmdline.find("mode") != m_cmdline.end()) && (m_cmdline["mode"] == "service"))
 	{
 		SetLaunchMode("service");
-
-		if (m_cmdline.find("service_port") != m_cmdline.end())
-			port = StringToInt(m_cmdline["service_port"]);
 
 		m_singleConnMode = false;
 	}
@@ -380,7 +372,7 @@ int IBase::Main()
 	// network lock consumers enforce availability at point of use.
 	StatePrepare();
 
-	TransportListen(port);
+	TransportListen();
 
 	for (;;)
 	{
@@ -1548,13 +1540,6 @@ std::string IBase::StringHexEncode(const unsigned char* buf, const size_t s)
 std::string IBase::StringHexEncode(const std::vector<char>& bytes)
 {
 	return StringHexEncode((const unsigned char*)bytes.data(), bytes.size());
-}
-
-std::string IBase::StringHexEncode(const int v, const int chars)
-{
-	std::stringstream ss;
-	ss << std::setfill('0') << std::setw(chars) << std::uppercase << std::hex << v;
-	return ss.str();
 }
 
 std::string IBase::StringSHA256(const std::string& str)

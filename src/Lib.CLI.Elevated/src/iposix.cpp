@@ -20,6 +20,7 @@
 
 #include "signal.h"
 
+#include <algorithm>
 #include <cstring>
 #include <dirent.h>
 #include <errno.h>
@@ -700,7 +701,18 @@ std::string IPosix::FsGetTempPath()
 
 std::vector<std::string> IPosix::FsGetEnvPath()
 {
-	return StringToVector(getenv("PATH"), ':', false);
+	const char* envPath = getenv("PATH");
+	std::vector<std::string> paths = StringToVector((envPath != NULL) ? envPath : "", ':', false);
+
+	// Cron and some elevation helpers omit the sbin dirs where tools like modprobe live.
+	const char* fallbackDirs[] = { "/sbin", "/usr/sbin", "/usr/local/sbin", "/root/bin" };
+	for (size_t i = 0; i < sizeof(fallbackDirs) / sizeof(fallbackDirs[0]); ++i)
+	{
+		if (std::find(paths.begin(), paths.end(), fallbackDirs[i]) == paths.end())
+			paths.push_back(fallbackDirs[i]);
+	}
+
+	return paths;
 }
 
 std::string IPosix::FsGetRealPath(std::string path)
@@ -817,12 +829,6 @@ bool IPosix::SocketIsValid(HSOCKET s)
 	return (s > 0);
 }
 
-void IPosix::SocketMarkReuseAddr(HSOCKET s)
-{
-	int option = 1;
-	setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option));
-}
-
 void IPosix::SocketBlockMode(HSOCKET s, bool block)
 {
 	int result = -1;
@@ -850,9 +856,8 @@ int IPosix::SocketGetLastErrorCode()
 // Virtual Pure, IPC transport
 // --------------------------
 
-void IPosix::TransportListen(int port)
+void IPosix::TransportListen()
 {
-#ifdef EDDIE_IPC_UNIXSOCKET
 	// Socket lives in a root-owned runtime directory (created 0755 by root): other users can
 	// traverse it but cannot create files there, which removes the /tmp squatting/race surface.
 	// Mode 0666 lets any local user connect by design (shared service): client authentication is
@@ -861,8 +866,7 @@ void IPosix::TransportListen(int port)
 	if (FsDirectoryCreate(sockDir) == false)
 		ThrowException("Error on creating IPC directory " + sockDir);
 
-	// Endpoint keyed by launch mode ("spot"/"service"); the port is only used by the TCP fallback below.
-	(void)port;
+	// Endpoint keyed by launch mode ("spot"/"service").
 	m_ipcSockPath = sockDir + "/eddie-elevated-" + GetLaunchMode() + ".sock";
 	struct sockaddr_un addrServer;
 
@@ -893,41 +897,10 @@ void IPosix::TransportListen(int port)
 	}
 
 	SocketBlockMode(m_ipcServer, false);
-#else
-	m_ipcServer = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-
-	SocketMarkReuseAddr(m_ipcServer);
-
-	if (SocketIsValid(m_ipcServer) == false)
-	{
-		ThrowException("Error on opening socket");
-	}
-
-	std::memset(&m_ipcAddrServer, 0, sizeof(m_ipcAddrServer));
-
-	m_ipcAddrServer.sin_family = AF_INET;
-	m_ipcAddrServer.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-	m_ipcAddrServer.sin_port = htons(port);
-
-	LogDevDebug("Listening on port " + std::to_string(port));
-
-	if (bind(m_ipcServer, (struct sockaddr*)&m_ipcAddrServer, sizeof(m_ipcAddrServer)) != 0) {
-		ThrowException("Error on binding socket (" + std::to_string(SocketGetLastErrorCode()) + ")");
-	}
-
-	if (listen(m_ipcServer, 1) != 0) {
-		ThrowException("Error on listen socket (" + std::to_string(SocketGetLastErrorCode()) + ")");
-	}
-
-	SocketBlockMode(m_ipcServer, false);
-#endif
 }
 
 bool IPosix::TransportAccept()
 {
-	struct sockaddr_in addrClient;
-	socklen_t addrClientLen = sizeof(addrClient);
-
 	// Spot mode is a one-shot elevation: if the authorized client never connects (it gave up on a stale
 	// socket, crashed, or the prompt was dismissed), do not wait forever. Giving up lets Main() close and
 	// unlink the endpoint, so no elevated process is left orphaned and no stale socket file remains.
@@ -936,7 +909,8 @@ bool IPosix::TransportAccept()
 
 	for (;;)
 	{
-		m_ipcClient = accept(m_ipcServer, (struct sockaddr*)&addrClient, &addrClientLen);
+		// Peer address not requested: the client is identified by kernel credentials, not by address.
+		m_ipcClient = accept(m_ipcServer, NULL, NULL);
 
 		// TOFIX. Under Linux, errno==EWOULDBLOCK. Under Windows, i expect WSAEWOULDBLOCK but there are something not understanding.
 		if (SocketIsValid(m_ipcClient) == false)
@@ -963,10 +937,6 @@ bool IPosix::TransportAccept()
 	if (SocketIsValid(m_ipcClient) == false)
 		return false;
 
-#ifndef EDDIE_IPC_UNIXSOCKET
-	m_ipcAddrClient = addrClient; // kept for TCP peer-pid resolution
-#endif
-
 	// Remove if nonblock is inherit
 	SocketBlockMode(m_ipcClient, true);
 
@@ -975,12 +945,8 @@ bool IPosix::TransportAccept()
 
 int IPosix::TransportGetClientProcessId()
 {
-#ifdef EDDIE_IPC_UNIXSOCKET
-	// Peer pid from kernel-attested socket credentials (race-free, replaces the /proc scan).
+	// Peer pid from kernel-attested socket credentials.
 	return GetSocketPeerPid(m_ipcClient);
-#else
-	return GetProcessIdMatchingIPEndPoints(m_ipcAddrClient, m_ipcAddrServer);
-#endif
 }
 
 int IPosix::TransportRead(char* buffer, int maxLen)
@@ -1002,17 +968,13 @@ void IPosix::TransportClientClose()
 void IPosix::TransportServerClose()
 {
 	SocketClose(m_ipcServer);
-#ifdef EDDIE_IPC_UNIXSOCKET
 	unlink(m_ipcSockPath.c_str());
-#endif
 }
 
-#ifdef EDDIE_IPC_UNIXSOCKET
 std::string IPosix::GetIpcRuntimeDir()
 {
 	return "/run/eddie-vpn";
 }
-#endif
 
 std::string IPosix::GetDevLogPath()
 {
@@ -1227,89 +1189,3 @@ std::string IPosix::CheckExecutablePathPermissions(const std::string& path)
 
 	return issues;
 }
-
-#ifndef EDDIE_IPC_LOCAL
-int IPosix::GetProcessIdMatchingIPEndPoints(struct sockaddr_in& addrClient, struct sockaddr_in& addrServer)
-{
-	if (FsFileExists("/proc") == false)
-		return 0;
-
-	// First, locate inode in /proc/net/tcp. After, scan /proc/*/fd/* to search the inode and identify the pid.
-
-	int pidFound = 0;
-
-	std::string procNetTcp = FsFileReadText("/proc/net/tcp");
-
-	std::string sourceAddrHex = StringHexEncode(addrClient.sin_addr.s_addr, 8);
-	std::string sourcePortHex = StringHexEncode(ntohs(addrClient.sin_port), 4);
-	std::string destAddrHex = StringHexEncode(addrServer.sin_addr.s_addr, 8);
-	std::string destPortHex = StringHexEncode(ntohs(addrServer.sin_port), 4);
-
-	std::vector<std::string> procNetTcpLines = StringToVector(procNetTcp, '\n');
-	for (std::vector<std::string>::const_iterator l = procNetTcpLines.begin(); l != procNetTcpLines.end(); ++l)
-	{
-		std::vector<std::string> procNetTcpFields = StringToVector(*l, ' ', true);
-
-		if ((procNetTcpFields.size() > 9) &&
-			(procNetTcpFields[1] == sourceAddrHex + ":" + sourcePortHex) &&
-			(procNetTcpFields[2] == destAddrHex + ":" + destPortHex)
-			)
-		{
-			long unsigned int inodeSearch = strtoul(procNetTcpFields[9].c_str(), NULL, 0);
-
-			DIR* procDir = opendir("/proc");
-			if (procDir != NULL)
-			{
-				for (;;)
-				{
-					struct dirent* procDirFile = readdir(procDir);
-					if (procDirFile == NULL)
-						break;
-
-					std::string procDirFilePath = "/proc/" + std::string(procDirFile->d_name);
-					struct stat procDirFileSt; // Don't trust dirent::d_type
-					memset(&procDirFileSt, 0, sizeof(struct stat));
-					if (stat(procDirFilePath.c_str(), &procDirFileSt) == 0)
-					{
-						if ((S_ISDIR(procDirFileSt.st_mode)) && (procDirFile->d_name[0] != '.'))
-						{
-							std::string procFdDirPath = "/proc/" + std::string(procDirFile->d_name) + "/fd";
-							DIR* procFdDir = opendir(procFdDirPath.c_str());
-							if (procFdDir != NULL)
-							{
-								for (;;)
-								{
-									struct dirent* procFdDirFile = readdir(procFdDir);
-									if (procFdDirFile == NULL)
-										break;
-
-									std::string procFdDirFilePath = "/proc/" + std::string(procDirFile->d_name) + "/fd/" + std::string(procFdDirFile->d_name);
-									struct stat procFdDirFileSt; // Don't trust dirent::d_type
-									memset(&procFdDirFileSt, 0, sizeof(struct stat));
-									if (stat(procFdDirFilePath.c_str(), &procFdDirFileSt) == 0) // Note: lstat
-									{
-										if ((S_ISSOCK(procFdDirFileSt.st_mode)) && (inodeSearch == procFdDirFileSt.st_ino))
-										{
-											if (pidFound == 0)
-												pidFound = atoi(procDirFile->d_name);
-											else
-											{
-												return 0; // Unexpected
-											}
-										}
-									}
-								}
-								closedir(procFdDir);
-							}
-						}
-					}
-				}
-				closedir(procDir);
-			}
-		}
-
-	}
-
-	return pidFound;
-}
-#endif // !EDDIE_IPC_LOCAL

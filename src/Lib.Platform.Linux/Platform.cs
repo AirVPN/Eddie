@@ -45,6 +45,7 @@ namespace Eddie.Platform.Linux
 
 		private string m_systemdUnitsPath = "/usr/lib/systemd/system";
 		private string m_systemdUnitPath = "/usr/lib/systemd/system/eddie-elevated.service";
+		private string m_systemdRunPath = "/run/systemd/system"; // present only when systemd is the running init
 
 		private IpAddresses m_dnsSwitch = new IpAddresses();
 
@@ -52,6 +53,7 @@ namespace Eddie.Platform.Linux
 		private NetworkLockIptablesLegacy m_netlockPluginIptablesLegacy;
 		private NetworkLockIptablesNFT m_netlockPluginIptablesNFT;
 		private NetworkLockIptables m_netlockPluginIptables;
+		private string m_netlockOwnedTables = "";
 
 		// Override
 		public Platform()
@@ -168,7 +170,8 @@ namespace Eddie.Platform.Linux
 
 		public override bool AllowService()
 		{
-			if (DirectoryExists(m_systemdUnitsPath))
+			// Must match the conditions the elevated helper requires to create the unit.
+			if ((DirectoryExists(m_systemdUnitsPath)) && (DirectoryExists(m_systemdRunPath)) && (LocateExecutable("systemctl") != ""))
 				return true;
 
 			return false;
@@ -176,7 +179,7 @@ namespace Eddie.Platform.Linux
 
 		public override string AllowServiceUserDescription()
 		{
-			if (DirectoryExists(m_systemdUnitsPath))
+			if (AllowService())
 				return "If checked, install a systemd service";
 
 			return "";
@@ -194,7 +197,7 @@ namespace Eddie.Platform.Linux
 
 			if (value)
 			{
-				RunElevated(new string[] { "service=install", "service_port=" + Engine.Instance.GetElevatedServicePort() }, true);
+				RunElevated(new string[] { "service=install" }, true);
 				return (GetService() == true);
 			}
 			else
@@ -676,6 +679,13 @@ namespace Eddie.Platform.Linux
 		{
 			base.OnNetworkLockManagerInit();
 
+			m_netlockOwnedTables = NetworkLockOwnedTablesDetect();
+			if (m_netlockOwnedTables != "")
+			{
+				Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText(LanguageItems.NetworkLockLinuxTableOwner, m_netlockOwnedTables));
+				return;
+			}
+
 			m_netlockPluginNftables = new NetworkLockNftables();
 			m_netlockPluginIptablesLegacy = new NetworkLockIptablesLegacy();
 			m_netlockPluginIptablesNFT = new NetworkLockIptablesNFT();
@@ -685,6 +695,38 @@ namespace Eddie.Platform.Linux
 			Engine.Instance.NetworkLockManager.AddPlugin(m_netlockPluginIptablesLegacy);
 			Engine.Instance.NetworkLockManager.AddPlugin(m_netlockPluginIptablesNFT);
 			Engine.Instance.NetworkLockManager.AddPlugin(m_netlockPluginIptables);
+		}
+
+		// Returns a human readable list of the nftables tables owned by another process, empty if none.
+		private string NetworkLockOwnedTablesDetect()
+		{
+			string reply = "";
+
+			try
+			{
+				reply = Engine.Instance.Elevated.DoCommandSync("netlock-owned-tables");
+			}
+			catch (Exception)
+			{
+				// Elevated helper older than this command.
+				return "";
+			}
+
+			List<string> tables = new List<string>();
+			foreach (string token in reply.Split(';'))
+			{
+				if (token.StartsWithInv("owner:") == false)
+					continue;
+
+				string[] fields = token.Substring(6).Split(':');
+				string table = fields[0];
+				if ((fields.Length > 1) && (fields[1] != ""))
+					table += " (" + fields[1] + ")";
+
+				tables.Add(table);
+			}
+
+			return String.Join(", ", tables.ToArray());
 		}
 
 		public override bool OnIPv6Block()
@@ -1030,6 +1072,8 @@ namespace Eddie.Platform.Linux
 				process.StartInfo.UseShellExecute = false;
 				if (redirectStdOut)
 					process.StartInfo.RedirectStandardOutput = true;
+
+				Engine.Instance.Logs.LogVerbose("Elevated launch with method '" + elevationMethod + "': " + m_elevatedRunPath);
 
 				process.Start();
 

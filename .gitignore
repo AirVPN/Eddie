@@ -147,6 +147,13 @@ repository/files/*
 *.pubxml
 *.pubxml.user
 
-# Staff local files
-staff/
+# Staff local files (keep selected spikes tracked)
+staff/*
+!staff/test-geoip/
+!staff/test-geoip/**
+!staff/json-migration-test/
+!staff/json-migration-test/**
+!staff/test-map/
+!staff/test-map/**
+staff/test-map/*/bin/
 

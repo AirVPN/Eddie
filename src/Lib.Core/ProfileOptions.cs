@@ -106,9 +106,9 @@ namespace Eddie.Core
 			o += "\n\n[sh]DESCRIPTION[/sh]\n";
 			o += "\t" + LanguageManager.GetText(LanguageItems.ManDescription).Replace("\n", "[br]");
 			o += "\n\n[sh]OPTIONS[/sh]\n";
-			o += "\t" + LanguageManager.GetText(LanguageItems.ManHeaderOption1).Replace("\n", "[br]");
-			o += "\t" + LanguageManager.GetText(LanguageItems.ManHeaderOption2).Replace("\n", "[br]");
-			o += "\t" + LanguageManager.GetText(LanguageItems.ManHeaderOption3).Replace("\n", "[br]");
+			o += "\t" + LanguageManager.GetText(LanguageItems.ManHeaderOption1).Replace("\n", "[br]") + "[br]";
+			o += "\t" + LanguageManager.GetText(LanguageItems.ManHeaderOption2).Replace("\n", "[br]") + "[br]";
+			o += "\t" + LanguageManager.GetText(LanguageItems.ManHeaderOption3).Replace("\n", "[br]") + "[br]";
 			o += "\t" + LanguageManager.GetText(LanguageItems.ManHeaderOption4).Replace("\n", "[br]");
 			o += "\n\n";
 			o += "\t[options_list]" + body.Replace("\n", "\n\t") + "[/options_list]";
@@ -419,12 +419,12 @@ namespace Eddie.Core
 			SetDefault("servers.denylist", "text", "", LanguageManager.GetText(LanguageItems.ManOptionServersDenylist));
 			SetDefaultBool("servers.startlast", false, LanguageManager.GetText(LanguageItems.ManOptionServersStartLast));
 			SetDefaultBool("servers.locklast", false, LanguageManager.GetText(LanguageItems.ManOptionServersLockLast));
-			SetDefaultChoice("servers.scoretype", "Speed,Latency", "Speed", LanguageManager.GetText(LanguageItems.ManOptionServersScoreType));
+			SetDefaultChoice("servers.scoretype", "speed,latency", "speed", LanguageManager.GetText(LanguageItems.ManOptionServersScoreType));
 
 			SetDefault("areas.allowlist", "text", "", LanguageManager.GetText(LanguageItems.ManOptionAreasAllowlist));
 			SetDefault("areas.denylist", "text", "", LanguageManager.GetText(LanguageItems.ManOptionAreasDenylist));
 
-			SetDefault("discover.ip_webservice.list", "text", "https://eddie.website/ipinfo/{@ip};https://ipleak.net/json/{@ip};http://ip-api.com/json/{@ip}", LanguageManager.GetText(LanguageItems.ManOptionDiscoverIpWebserviceList));
+			SetDefault("discover.ip_webservice.list", "text", "https://eddie.website/ipinfo/{@ip};https://ipleak.net/json/{@ip};https://ipwho.is/{@ip};https://ifconfig.co/json?ip={@ip};https://api.ip.sb/geoip/{@ip};https://freeipapi.com/api/json/{@ip}", LanguageManager.GetText(LanguageItems.ManOptionDiscoverIpWebserviceList));
 			SetDefaultInt("discover.interval", 60 * 60 * 24, LanguageManager.GetText(LanguageItems.ManOptionDiscoverInterval));
 			SetDefaultBool("discover.exit", true, LanguageManager.GetText(LanguageItems.ManOptionDiscoverExit));
 
@@ -437,18 +437,16 @@ namespace Eddie.Core
 
 			SetDefaultInt("checking.ntry", 5, LanguageManager.GetText(LanguageItems.ManOptionCheckingNTry));
 
-			SetDefault("language.iso", "text", "auto", LanguageManager.GetText(LanguageItems.ManOptionLanguageIso));
-
 			SetDefault("mode.type", "text", "auto", LanguageManager.GetText(LanguageItems.ManOptionModeType));
 			SetDefault("mode.protocol", "text", "udp", LanguageManager.GetText(LanguageItems.ManOptionModeProtocol));
 			SetDefaultInt("mode.port", 443, LanguageManager.GetText(LanguageItems.ManOptionModePort));
 			SetDefaultInt("mode.alt", 0, LanguageManager.GetText(LanguageItems.ManOptionModeAlt));
 
-			SetDefault("proxy.mode", "text", "None", LanguageManager.GetText(LanguageItems.ManOptionProxyMode));
+			SetDefault("proxy.mode", "text", "none", LanguageManager.GetText(LanguageItems.ManOptionProxyMode));
 			SetDefaultChoice("proxy.when", "always/web/openvpn/none", "always", LanguageManager.GetText(LanguageItems.ManOptionProxyWhen));
 			SetDefault("proxy.host", "ip", "127.0.0.1", LanguageManager.GetText(LanguageItems.ManOptionProxyHost));
 			SetDefaultInt("proxy.port", 8080, LanguageManager.GetText(LanguageItems.ManOptionProxyPort));
-			SetDefault("proxy.auth", "text", "None", LanguageManager.GetText(LanguageItems.ManOptionProxyAuth));
+			SetDefault("proxy.auth", "text", "none", LanguageManager.GetText(LanguageItems.ManOptionProxyAuth));
 			SetDefault("proxy.login", "text", "", LanguageManager.GetText(LanguageItems.ManOptionProxyLogin));
 			SetDefault("proxy.password", "password", "", LanguageManager.GetText(LanguageItems.ManOptionProxyPassword));
 			SetDefaultInt("proxy.tor.control.port", 9151, LanguageManager.GetText(LanguageItems.ManOptionProxyTorControlPort));
@@ -498,6 +496,10 @@ namespace Eddie.Core
 			SetDefaultBool("webui.enabled", false, NotInManYet); // WebUI it's a Eddie 3.* feature not yet committed on GitHub.
 			SetDefaultInt("webui.port", 4649, NotInManYet);
 			SetDefault("webui.access_key", "password", "", NotInManYet); // Auto-generated on first WebServer start; required to authenticate against /api/*.
+
+			SetDefaultBool("mcp.enabled", false, NotInManYet); // Expose an MCP endpoint (/mcp) for local AI agents. Independent from the WebUI; shares the same loopback listener.
+			SetDefaultBool("mcp.allow_control", false, NotInManYet); // When false, /mcp exposes only read-only tools; state-changing tools are refused.
+			SetDefault("mcp.access_key", "password", "", NotInManYet); // Auto-generated on first start when mcp.enabled; required to authenticate against /mcp. Distinct from webui.access_key.
 
 			SetDefault("openvpn.custom", "text", "", LanguageManager.GetText(LanguageItems.ManOptionOpenVpnCustom));
 			SetDefault("openvpn.dev_node", "text", "", LanguageManager.GetText(LanguageItems.ManOptionOpenVpnDevNode));
@@ -610,15 +612,18 @@ namespace Eddie.Core
 			m_options["gui.list.areas"].InternalOnly = true;
 			m_options["gui.list.logs"].InternalOnly = true;
 			m_options["webui.access_key"].InternalOnly = true;
+			m_options["mcp.access_key"].InternalOnly = true;
 
 			// Secret: value redacted toward untrusted UI clients (see WebserverClient)
 			m_options["password"].Secret = true;
 			m_options["proxy.password"].Secret = true;
 			m_options["proxy.tor.control.password"].Secret = true;
 			m_options["webui.access_key"].Secret = true;
+			m_options["mcp.access_key"].Secret = true;
 
 			// Don't clean with user Reset All (would lock out active WebServer sessions)
 			m_options["webui.access_key"].DontUserReset = true;
+			m_options["mcp.access_key"].DontUserReset = true;
 
 			// Omissis
 			m_options["login"].Omissis = true;

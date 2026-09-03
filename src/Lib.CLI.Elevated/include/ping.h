@@ -20,8 +20,6 @@
 typedef unsigned int uint;
 typedef int socklen_t;
 #else
-typedef int HSOCKET;
-
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <netinet/ip.h>

@@ -105,7 +105,7 @@ namespace Eddie.Forms.Forms
 
 		private void cmdSystemReport_Click(object sender, EventArgs e)
 		{
-			UiClient.Instance.Command("system.report.start");
+			UiClient.Instance.Command("report.start");
 		}
 
 		private void lnkAirVPN_Click(object sender, EventArgs e)

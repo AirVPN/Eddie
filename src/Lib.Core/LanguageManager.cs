@@ -29,6 +29,7 @@ namespace Eddie.Core
 		private sealed class Locale
 		{
 			public string Parent = "";
+			public string Name = ""; // Endonym, shown in language pickers.
 			public Dictionary<string, string> Items = new Dictionary<string, string>();
 		}
 
@@ -59,6 +60,10 @@ namespace Eddie.Core
 				if (string.IsNullOrEmpty(locale.Parent) && code != "inv")
 					locale.Parent = "inv";
 
+				locale.Name = jData["name"].ValueString;
+				if (string.IsNullOrEmpty(locale.Name))
+					locale.Name = code;
+
 				Json jItems = jData["items"].Json;
 				if (jItems != null)
 				{
@@ -76,6 +81,8 @@ namespace Eddie.Core
 			return m_locales.ContainsKey("inv");
 		}
 
+		// Which locales are shipped and how to name them. Items are not included:
+		// a client that needs texts of its own ships and loads them separately.
 		public static Json GetJson()
 		{
 			Json jData = new Json();
@@ -85,18 +92,24 @@ namespace Eddie.Core
 				Json jLocale = new Json();
 				jLocale["code"].Value = kp.Key;
 				jLocale["parent"].Value = kp.Value.Parent;
-
-				Json jItems = new Json();
-				foreach (KeyValuePair<string, string> itemPair in kp.Value.Items)
-				{
-					jItems[itemPair.Key].Value = itemPair.Value;
-				}
-				jLocale["items"].Value = jItems;
+				jLocale["name"].Value = kp.Value.Name;
 
 				jData[kp.Key].Value = jLocale;
 			}
 
 			return jData;
+		}
+
+		// Code actually in use after resolution, never "auto".
+		public static string GetCurrentCode()
+		{
+			return m_currentCode;
+		}
+
+		// Code the OS reports, regardless of the code currently in use.
+		public static string GetSystemCode()
+		{
+			return NormalizeCode(Platform.Instance.GetUserLocale());
 		}
 
 		public static void SetIso(string iso)
@@ -185,14 +198,6 @@ namespace Eddie.Core
 			o = o.Replace("{3}", param3);
 			o = o.Replace("{4}", param4);
 			o = o.Replace("{5}", param5);
-			return o;
-		}
-
-		// TOCLEAN, TOFIX
-		public static string FormatText(string f, string param1)
-		{
-			string o = f;
-			o = o.Replace("{1}", param1);
 			return o;
 		}
 
@@ -311,7 +316,7 @@ namespace Eddie.Core
 
 		public static string FormatDateShort(DateTime dt)
 		{
-			return dt.ToString("yyyy-MM-dd HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture);
+			return dt.ToString("yyyy-MM-dd HH:mm:ss.fff", System.Globalization.CultureInfo.InvariantCulture);
 		}
 
 		private static string NormalizeCode(string raw)

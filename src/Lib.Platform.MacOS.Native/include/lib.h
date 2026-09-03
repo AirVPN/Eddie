@@ -45,6 +45,9 @@ extern "C" {
 
 	EDDIE_MACOS_NATIVE_EXPORT void eddie_get_realtime_network_stats(char* buf, int bufMaxLen);
 
+	// Writes the user-preferred UI language as a BCP47 tag (e.g. "it-IT"), or an empty string if unknown.
+	EDDIE_MACOS_NATIVE_EXPORT void eddie_get_user_locale(unsigned int outputMax, char* output);
+
 	EDDIE_MACOS_NATIVE_EXPORT void eddie_curl(const char* jRequest, unsigned int resultMaxLen, char* jResult);
 
 	EDDIE_MACOS_NATIVE_EXPORT void eddie_credential_system_read(const char* serviceName, const char* accountName, unsigned int outputMax, char* output);

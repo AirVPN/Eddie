@@ -733,7 +733,15 @@ namespace Eddie.UI.Cocoa.Osx
 
 			// Proxy
 
-			GuiUtils.SetSelected(CboProxyType, o.Get("proxy.mode"));
+			string proxyMode = o.GetLower("proxy.mode");
+			if (proxyMode == "http")
+				GuiUtils.SetSelected(CboProxyType, "Http");
+			else if (proxyMode == "socks")
+				GuiUtils.SetSelected(CboProxyType, "Socks");
+			else if (proxyMode == "tor")
+				GuiUtils.SetSelected(CboProxyType, "Tor");
+			else
+				GuiUtils.SetSelected(CboProxyType, "None");
 			if (o.Get("proxy.when") == "always")
 				GuiUtils.SetSelected(CboProxyWhen, LanguageManager.GetText(LanguageItems.WindowsSettingsProxyWhenAlways));
 			else if (o.Get("proxy.when") == "web")
@@ -746,7 +754,13 @@ namespace Eddie.UI.Cocoa.Osx
 				GuiUtils.SetSelected(CboProxyWhen, LanguageManager.GetText(LanguageItems.WindowsSettingsProxyWhenAlways));
 			TxtProxyHost.StringValue = o.Get("proxy.host");
 			TxtProxyPort.StringValue = o.Get("proxy.port");
-			GuiUtils.SetSelected(CboProxyAuthentication, o.Get("proxy.auth"));
+			string proxyAuth = o.GetLower("proxy.auth");
+			if (proxyAuth == "basic")
+				GuiUtils.SetSelected(CboProxyAuthentication, "Basic");
+			else if (proxyAuth == "ntlm")
+				GuiUtils.SetSelected(CboProxyAuthentication, "NTLM");
+			else
+				GuiUtils.SetSelected(CboProxyAuthentication, "None");
 			TxtProxyLogin.StringValue = o.Get("proxy.login");
 			TxtProxyPassword.StringValue = o.Get("proxy.password");
 			TxtProxyTorControlPort.StringValue = o.Get("proxy.tor.control.port");
@@ -1108,7 +1122,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 			// Proxy
 
-			o.Set("proxy.mode", GuiUtils.GetSelected(CboProxyType));
+			o.Set("proxy.mode", GuiUtils.GetSelected(CboProxyType).ToLowerInv());
 
 			if (GuiUtils.GetSelected(CboProxyWhen) == LanguageManager.GetText(LanguageItems.WindowsSettingsProxyWhenAlways))
 				o.Set("proxy.when", "always");
@@ -1123,7 +1137,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 			o.Set("proxy.host", TxtProxyHost.StringValue);
 			o.SetInt("proxy.port", Conversions.ToInt32(TxtProxyPort.StringValue));
-			o.Set("proxy.auth", GuiUtils.GetSelected(CboProxyAuthentication));
+			o.Set("proxy.auth", GuiUtils.GetSelected(CboProxyAuthentication).ToLowerInv());
 			o.Set("proxy.login", TxtProxyLogin.StringValue);
 			o.Set("proxy.password", TxtProxyPassword.StringValue);
 			o.SetInt("proxy.tor.control.port", Conversions.ToInt32(TxtProxyTorControlPort.StringValue));

@@ -114,21 +114,9 @@ del !VARTARGETDIR!\*.xml 2>nul
 
 rem Signing
 
-if defined EDDIESIGNINGDIR (
-	echo Step: Signing		
-	
-	SET /p VARSIGNPASSWORD= < "%EDDIESIGNINGDIR%\eddie.win-signing.pfx.pwd"
+echo Step: Signing
 
-	for %%f in (!VARTARGETDIR!\*.exe !VARTARGETDIR!\*.dll !VARTARGETDIR!\*.sys !VARTARGETDIR!\*.cat) do (
-		echo Check signature %%~ff 
-		!VARSCRIPTDIR!\..\windows_common\signtool.exe verify /pa "%%~ff"
-		if ERRORLEVEL 1 (
-			!VARSCRIPTDIR!\..\windows_common\signtool.exe sign /fd sha256 /p "!VARSIGNPASSWORD!" /f "%EDDIESIGNINGDIR%\eddie.win-signing.pfx" /t http://timestamp.comodoca.com/authenticode /d "Eddie - VPN Tunnel" "%%~ff" || goto :error
-		) ELSE (
-			rem Already signed
-		)
-	)
-)
+call "!VARSCRIPTDIR!\..\windows_common\sign-authenticode.bat" "!VARTARGETDIR!" || goto :error
 
 rem Build archive
 echo Step: Build archive

@@ -1,85 +1,123 @@
-------------------------------------------------------------
-OpenVPN -- A Secure tunneling daemon
+Third-party software and assets distributed with or built into Eddie.
 
-Copyright (C) 2002-2018 OpenVPN Technologies, Inc. 
-This program is free software;
+## Common (all platforms)
 
-you can redistribute it and/or modify
-it under the terms of the GNU General Public License version 2
-as published by the Free Software Foundation.
-
-For the latest version of OpenVPN, 
-go to:
-
-	https://openvpn.net/
-
+### OpenVPN
+A secure tunneling daemon.
 License: GNU General Public License (GPL v2+)
+https://openvpn.net/
 
-------------------------------------------------------------
-Hummingbird - OpenVPN 3 client based on AirVPN OpenVPN 3 library.
-
-License: GNU General Public License (GPL v3) https://airvpn.org/hummingbird/License/
-
-------------------------------------------------------------
-WireGuard - Fast, modern, secure VPN tunnel
-
+### WireGuard
+Fast, modern, secure VPN tunnel (protocol and core).
+Platform-specific components are listed in the sections below.
+License: GNU General Public License (GPL v2)
 https://www.wireguard.com/
 
+### stunnel
+A TLS encryption wrapper.
 License: GNU General Public License (GPL v2+)
-
-------------------------------------------------------------
-wireguard-windows (userspace tunnel service, Windows)
-v1.0 (2026-04-18)
-
-Source built locally into wgtunnel.dll (renamed from tunnel.dll of the
-embeddable-dll-service target).
-
-https://git.zx2c4.com/wireguard-windows/
-
-Copyright (C) 2018-2026 WireGuard LLC.
-License: MIT (see staff/dependencies/wireguard-windows-1.0/COPYING)
-
-------------------------------------------------------------
-wireguard-nt (kernel driver user-mode loader, Windows)
-v1.0 (zip SHA-256
-d44f53300e47b44c53e77ee4c495cf061d06b5739f28872432ee1596107a302d)
-
-Redistributed as wireguard.dll, used only via the documented API in
-wireguard.h. No source modifications, no reverse engineering.
-
-https://download.wireguard.com/wireguard-nt/
-
-Copyright (C) WireGuard LLC.
-License: WireGuard LLC Prebuilt Binaries License (proprietary).
-Redistribution is permitted by §3.d of that license because Eddie
-distributes wireguard.dll alongside software that uses it only via the
-Permitted API. Full text in
-staff/dependencies/wireguard-windows-1.0/.deps/wireguard-nt/LICENSE.txt.
-
-------------------------------------------------------------
-stunnel
-
 https://www.stunnel.org/
 
+### nlohmann/json
+JSON for Modern C++ (bundled source).
+License: MIT
+https://github.com/nlohmann/json
+
+### sha256
+FIPS-180-2 SHA-256 implementation by Christophe Devine (bundled source).
 License: GNU General Public License (GPL v2+)
 
-------------------------------------------------------------
-LZO -- a real-time data compression library
+### base64
+Base64 encoder/decoder by Rene Nyffenegger (bundled source).
+License: zlib-style (see dependencies/base64/base64.h)
 
-https://www.oberhumer.com/opensource/lzo/ 
+### three.js
+3D graphics library, bundled into the WebUI world map globe (map-globe.bundle.js).
+License: MIT
+https://threejs.org/
 
-License: GNU General Public License (GPL v2+)
+### three-globe
+Three.js globe component used by the WebUI world map globe (bundled).
+License: MIT
+https://github.com/vasturiano/three-globe
 
-------------------------------------------------------------
-TUNTAP -- Virtual network interfaces for Mac OS X
+### solar-calculator
+Sun-position math for the globe day/night terminator (bundled).
+License: ISC
+https://github.com/d3/solar-calculator
 
-https://tuntaposx.sourceforge.net/
+---
 
-License: BSD License
+## Linux and macOS
 
-------------------------------------------------------------
-Boost 
+### Hummingbird
+OpenVPN 3 client based on the AirVPN OpenVPN 3 library.
+License: GNU General Public License (GPL v3)
+https://airvpn.org/hummingbird/
 
-License: Boost Software License, Version 1.0. https://www.boost.org/LICENSE_1_0.txt
+### PStreams
+POSIX process I/O for C++ by Jonathan Wakely (bundled source).
+License: Boost Software License, Version 1.0
+https://www.boost.org/LICENSE_1_0.txt
 
-------------------------------------------------------------
+---
+
+## macOS
+
+### wireguard-go
+Userspace implementation of WireGuard.
+License: MIT
+https://git.zx2c4.com/wireguard-go/
+
+### wireguard-tools (wg)
+WireGuard configuration utility.
+License: GNU General Public License (GPL v2)
+https://git.zx2c4.com/wireguard-tools/
+
+---
+
+## Windows
+
+### wireguard-nt (wireguard.dll)
+Kernel driver, redistributed and used only through the documented wireguard.h API,
+with no source modifications. Redistribution is permitted by section 3.d of its
+license because Eddie distributes wireguard.dll alongside software that uses it
+only via the Permitted API.
+License: WireGuard LLC Prebuilt Binaries License (proprietary)
+https://download.wireguard.com/wireguard-nt/
+
+### tap-windows6 (tap0901, tapctl)
+TAP virtual network driver, installed and managed by Eddie.
+License: GNU General Public License (GPL v2)
+https://github.com/OpenVPN/tap-windows6
+
+### ovpn-dco-win (ovpn-dco)
+OpenVPN Data Channel Offload driver, installed and managed by Eddie.
+License: GNU General Public License (GPL v2)
+https://github.com/OpenVPN/ovpn-dco-win
+
+### Plink (PuTTY)
+Command-line SSH client, bundled for SSH tunneling support.
+License: MIT
+https://www.chiark.greenend.org.uk/~sgtatham/putty/
+
+### yxml
+A small XML parser (bundled source), used by the Windows elevated helper.
+License: MIT
+https://dev.yorhel.nl/yxml
+
+---
+
+## Assets (imagery)
+
+### NASA Blue Marble (Blue Marble Next Generation)
+Daytime Earth texture (earth-day.jpg) for the WebUI world map, 2D and globe.
+December composite with bathymetry, 5400x2700.
+License: Public domain (NASA imagery, no endorsement implied)
+https://eoimages.gsfc.nasa.gov/images/imagerecords/73000/73909/world.topo.bathy.200412.3x5400x2700.jpg
+
+### NASA Black Marble 2016
+Night-time city-lights texture (earth-night.jpg) for the WebUI world map, 2D and globe.
+Sourced from the 3 km image and downscaled to 8192x4096.
+License: Public domain (NASA imagery, no endorsement implied)
+https://eoimages.gsfc.nasa.gov/images/imagerecords/144000/144898/BlackMarble_2016_3km.jpg

@@ -161,7 +161,7 @@
                                 <button verticalHuggingPriority="750" misplaced="YES" id="JVM-rA-Qlo">
                                     <rect key="frame" x="150" y="5" width="256" height="31"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                    <buttonCell key="cell" type="push" title="OpenVPN, stunnel, TunTap OS X, LZO" bezelStyle="rounded" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="sFL-cQ-Uwu">
+                                    <buttonCell key="cell" type="push" title="OpenVPN, WireGuard, stunnel and others" bezelStyle="rounded" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="sFL-cQ-Uwu">
                                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                         <font key="font" metaFont="smallSystem"/>
                                     </buttonCell>

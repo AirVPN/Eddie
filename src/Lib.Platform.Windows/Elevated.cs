@@ -16,19 +16,13 @@
 // along with Eddie. If not, see <http://www.gnu.org/licenses/>.
 // </eddie_source_header>
 
-#define EDDIE_IPC_NAMEDPIPE // hard-enabled; remove to fall back to the TCP (ISocket) transport
-
 using Eddie.Core;
 using System;
 using System.Globalization;
 
 namespace Eddie.Platform.Windows
 {
-#if EDDIE_IPC_NAMEDPIPE
 	public class ElevatedImpl : IPipe
-#else
-	public class ElevatedImpl : Eddie.Core.Elevated.ISocket
-#endif
 	{
 		public override void Start()
 		{
@@ -36,7 +30,7 @@ namespace Eddie.Platform.Windows
 
 			try
 			{
-				string connectResult = Connect(Engine.Instance.GetElevatedServicePort(), "service");
+				string connectResult = Connect("service");
 				if (connectResult != "Ok") // Will work if the service is active
 				{
 					if (connectResult != "No listening")
@@ -48,8 +42,6 @@ namespace Eddie.Platform.Windows
 					Engine.Instance.UiManager.Broadcast("init.step", "message", LanguageManager.GetText(LanguageItems.InitStepRaiseSystemPrivileges));
 					Engine.Instance.Logs.LogVerbose(LanguageManager.GetText(LanguageItems.InitStepRaiseSystemPrivileges));
 
-					int spotPort = RandomGenerator.GetInt(2048 + 128, 256 * 256 - 128);
-
 #if EDDIE_DOTNET
 					int currentId = Environment.ProcessId;
 #else
@@ -58,7 +50,7 @@ namespace Eddie.Platform.Windows
 
 					System.Diagnostics.ProcessStartInfo processStart = new System.Diagnostics.ProcessStartInfo();
 					processStart.FileName = "\"" + Platform.Instance.GetElevatedHelperPath() + "\"";
-					processStart.Arguments = "mode=spot spot_port=" + spotPort.ToString(CultureInfo.InvariantCulture) + " service_port=" + Engine.Instance.GetElevatedServicePort().ToString(CultureInfo.InvariantCulture) + " spot_client_pid=" + currentId.ToString(CultureInfo.InvariantCulture);
+					processStart.Arguments = "mode=spot spot_client_pid=" + currentId.ToString(CultureInfo.InvariantCulture);
 					processStart.Verb = "runas";
 					processStart.CreateNoWindow = true;
 					processStart.UseShellExecute = true;
@@ -68,7 +60,7 @@ namespace Eddie.Platform.Windows
 					Int64 listeningStartTime = Utils.UnixTimeStamp();
 					for (; ; )
 					{
-						connectResult = Connect(spotPort, "spot", 500);
+						connectResult = Connect("spot", 500);
 						if (connectResult == "Ok")
 							break;
 

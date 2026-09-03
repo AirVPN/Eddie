@@ -252,6 +252,11 @@ namespace Eddie.Core
 					return false;
 				}
 
+				// Must run here: 'man' texts and boot messages are resolved once, when created,
+				// so the language has to be known before the command line manual, the profile
+				// options defaults and the profile load.
+				LanguageManager.SetIso(StartCommandLine.Get("language", "auto"));
+
 				StartCommandLine.Init();
 
 				if (OnInit() == false)
@@ -391,8 +396,6 @@ namespace Eddie.Core
 					}
 				}
 
-				LanguageManager.SetIso(ProfileOptions.Get("language.iso"));
-
 				m_providersManager.Load();
 
 				Json j = Manifest.Clone();
@@ -463,29 +466,54 @@ namespace Eddie.Core
 				Logs.Log(LogType.Info, LanguageManager.GetText(LanguageItems.Ready));
 				UiManager.Broadcast("engine.ready");
 
-				// Init WebServer
-				if ((Webserver.GetPath() != "") && (ProfileOptions.GetBool("webui.enabled") == true))
+				// Init WebServer / MCP: a single loopback listener, two independent features.
+				bool webuiEnabled = (Webserver.GetPath() != "") && (ProfileOptions.GetBool("webui.enabled") == true);
+				bool mcpEnabled = ProfileOptions.GetBool("mcp.enabled");
+				if (webuiEnabled || mcpEnabled)
 				{
-					if (ProfileOptions.Get("webui.access_key") == "")
+					bool needSave = false;
+
+					if (webuiEnabled && (ProfileOptions.Get("webui.access_key") == ""))
 					{
 						ProfileOptions.Set("webui.access_key", RandomGenerator.GetHash());
-						SaveSettings();
+						needSave = true;
 					}
+
+					if (mcpEnabled && (ProfileOptions.Get("mcp.access_key") == ""))
+					{
+						ProfileOptions.Set("mcp.access_key", RandomGenerator.GetHash());
+						needSave = true;
+					}
+
+					if (needSave)
+						SaveSettings();
 
 					m_webserver = new Webserver();
 					m_webserver.Start();
 
-					UiManager.Broadcast("webui.init", "url", m_webserver.ListenUrl + "/?app=" + Platform.Instance.GetCode());
+					if (webuiEnabled)
+					{
+						UiManager.Broadcast("webui.init", "url", m_webserver.ListenUrl + "/?app=" + Platform.Instance.GetCode());
 
-					UiManager.Broadcast("init.step", "message", LanguageManager.GetText(LanguageItems.InitStepStartingWebserver));
+						UiManager.Broadcast("init.step", "message", LanguageManager.GetText(LanguageItems.InitStepStartingWebserver));
+					}
 
-					// Headless (CLI, non-embedded): print connection info once so the operator can reach the Web UI.
-					// Intentional: headless CLI prints Web UI URL and access key on stdout for the operator.
+					// Headless (CLI, non-embedded): print connection info once so the operator can reach the services.
+					// Intentional: headless CLI prints URL and access key on stdout for the operator.
 					// Not routed through Logs (log entries are broadcast to the WebServer client).
 					if (StartCommandLine.Exists("jsoninout") == false)
 					{
-						Console.WriteLine("Eddie Web UI: " + m_webserver.ListenUrl + "/");
-						Console.WriteLine("Eddie Web UI access key: " + ProfileOptions.Get("webui.access_key"));
+						if (webuiEnabled)
+						{
+							Console.WriteLine("Eddie Web UI: " + m_webserver.ListenUrl + "/");
+							Console.WriteLine("Eddie Web UI access key: " + ProfileOptions.Get("webui.access_key"));
+						}
+
+						if (mcpEnabled)
+						{
+							Console.WriteLine("Eddie MCP endpoint: " + m_webserver.ListenUrl + "/mcp");
+							Console.WriteLine("Eddie MCP access key: " + ProfileOptions.Get("mcp.access_key"));
+						}
 					}
 				}
 
@@ -1321,6 +1349,7 @@ namespace Eddie.Core
 				if (mode == RefreshUiMode.Full)
 				{
 					UiSendStatusInfo();
+					UiManager.Broadcast("ui.servers.changed");
 				}
 
 				if (mode == RefreshUiMode.MainMessage)
@@ -1340,7 +1369,15 @@ namespace Eddie.Core
 
 		public virtual void OnProviderManifestFailed(Providers.IProvider provider)
 		{
+			if (provider == null)
+				return;
 
+			Json j = new Json();
+			j["command"].Value = "ui.provider.manifest.failed";
+			j["provider_title"].Value = provider.Title;
+			j["provider_id"].Value = provider.ID;
+			j["bootstrap_urls"].Value = ProfileOptions.Get("bootstrap.urls");
+			UiManager.Broadcast(j);
 		}
 
 		// ----------------------------------------------------
@@ -1940,11 +1977,6 @@ namespace Eddie.Core
 			}
 		}
 
-		public int GetElevatedServicePort()
-		{
-			return Conversions.ToInt32(StartCommandLine.Get("elevated.service.port", Constants.ElevatedServicePort.ToString()));
-		}
-
 		public IpAddress GetDefaultGatewayIPv4()
 		{
 			if (m_networkInfo.HasKey("ipv4-default-gateway"))
@@ -2029,7 +2061,32 @@ namespace Eddie.Core
 				jVersion["int"].Value = Constants.VersionInt;
 
 				Manifest["locales"].Value = LanguageManager.GetJson();
+
+				Json jLanguage = new Json();
+				Manifest["language"].Value = jLanguage;
+				jLanguage["current"].Value = LanguageManager.GetCurrentCode();
+				jLanguage["system"].Value = LanguageManager.GetSystemCode();
 			}
+		}
+
+		// Applies a language while running: texts built from now on use it, and clients are
+		// told about the new code so they can reload the texts they own.
+		// Manual texts of options keep the language resolved at start.
+		public void LanguageChange(string code)
+		{
+			LanguageManager.SetIso(code);
+
+			if (Manifest == null)
+				return;
+
+			lock (Manifest)
+			{
+				Manifest["language"]["current"].Value = LanguageManager.GetCurrentCode();
+			}
+
+			Json j = Manifest.Clone();
+			j["command"].Value = "ui.manifest";
+			UiManager.Broadcast(j);
 		}
 
 		public void UiBootRaise()
@@ -2041,11 +2098,52 @@ namespace Eddie.Core
 			jBoot["logs"].Value = Engine.Instance.Logs.GetJson();
 			jBoot["options"].Value = Engine.Instance.ProfileOptions.GetJson();
 
-			Json jPath = new Json();
-			jBoot["path"].Value = jPath;
-			jPath["profile"].Value = Engine.Instance.GetProfilePath();
-			jPath["data"].Value = Engine.Instance.GetDataPath();
-			jPath["application"].Value = Platform.Instance.GetApplicationPath();
+			// Localized strings needed by native (non-webview) dialogs of the UI container.
+			Json jTexts = new Json();
+			jBoot["texts"].Value = jTexts;
+			jTexts["exit_confirm"].Value = LanguageManager.GetText(LanguageItems.ExitConfirm);
+			jTexts["yes"].Value = LanguageManager.GetText(LanguageItems.Yes);
+			jTexts["no"].Value = LanguageManager.GetText(LanguageItems.No);
+
+			Json jEnvironment = new Json();
+			jBoot["environment"].Value = jEnvironment;
+
+			Json jEnvEddie = new Json();
+			jEnvironment["eddie"].Value = jEnvEddie;
+			jEnvEddie["version"].Value = Engine.Instance.GetVersionShow();
+			jEnvEddie["os_build"].Value = Platform.Instance.GetSystemCode();
+			jEnvEddie["architecture"].Value = Platform.Instance.GetProcessArchitecture();
+
+			Json jEnvOs = new Json();
+			jEnvironment["os"].Value = jEnvOs;
+			jEnvOs["type"].Value = Platform.Instance.GetCode();
+			jEnvOs["name"].Value = Platform.Instance.GetName();
+			jEnvOs["version"].Value = Platform.Instance.GetVersion();
+			jEnvOs["architecture"].Value = Platform.Instance.GetOsArchitecture();
+			jEnvOs["locale"].Value = Platform.Instance.GetUserLocale();
+
+			Json jEnvTools = new Json();
+			jEnvironment["tools"].Value = jEnvTools;
+			jEnvTools["openvpn"].Value = UiBootToolInfo(Software.GetTool("openvpn"));
+			jEnvTools["hummingbird"].Value = UiBootToolInfo(Software.GetTool("hummingbird"));
+			jEnvTools["ssh"].Value = UiBootToolInfo(Software.GetTool("ssh"));
+			jEnvTools["ssl"].Value = UiBootToolInfo(Software.GetTool("ssl"));
+			Json jEnvWireGuard = new Json();
+			jEnvWireGuard["version"].Value = Platform.Instance.GetWireGuardVersion();
+			jEnvWireGuard["path"].Value = "";
+			jEnvTools["wireguard"].Value = jEnvWireGuard;
+
+			Json jEnvPaths = new Json();
+			jEnvironment["paths"].Value = jEnvPaths;
+			jEnvPaths["profile"].Value = Engine.Instance.GetProfilePath();
+			jEnvPaths["data"].Value = Engine.Instance.GetDataPath();
+			jEnvPaths["application"].Value = Platform.Instance.GetApplicationPath();
+			jEnvPaths["executable"].Value = Platform.Instance.GetExecutablePath();
+
+			Json jEnvNetwork = new Json();
+			jEnvironment["network"].Value = jEnvNetwork;
+			jEnvNetwork["ipv4"].Value = Platform.Instance.GetSupportIPv4();
+			jEnvNetwork["ipv6"].Value = Platform.Instance.GetSupportIPv6();
 
 			Json jNetlockModes = new Json();
 			jBoot["netlock_modes"].Value = jNetlockModes;
@@ -2058,6 +2156,14 @@ namespace Eddie.Core
 			}
 
 			UiManager.Broadcast(jBoot);
+		}
+
+		private Json UiBootToolInfo(Tools.ITool tool)
+		{
+			Json j = new Json();
+			j["version"].Value = tool.Version;
+			j["path"].Value = tool.Path;
+			return j;
 		}
 
 		public Json StatusBuild(string logMessage)

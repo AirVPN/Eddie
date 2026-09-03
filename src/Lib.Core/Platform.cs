@@ -443,10 +443,17 @@ namespace Eddie.Core
 			return false;
 		}
 
+		// Restrict a file to the current user (Windows ACL). Returns true only if the restriction
+		// was applied and the file is still readable by this process.
 		public virtual bool FileEnsureCurrentUserOnly(string path)
 		{
-			// Used only under Windows, for ssh.exe key file.			
 			return false;
+		}
+
+		// Human readable owner/permissions of a file or directory, for diagnostic logs. Empty if unsupported.
+		public virtual string FileGetPermissionsReport(string path)
+		{
+			return "";
 		}
 
 		public virtual bool FileEnsurePermission(string path, string mode)
@@ -700,16 +707,6 @@ namespace Eddie.Core
 			return "";
 		}
 
-		public virtual bool IsPortLocalListening(int port)
-		{
-			foreach (IPEndPoint e in IPGlobalProperties.GetIPGlobalProperties().GetActiveTcpListeners())
-			{
-				if ((e.Address.ToString() == "127.0.0.1") && (e.Port == port))
-					return true;
-			}
-			return false;
-		}
-
 		public virtual bool ProcessKillSoft(Process process)
 		{
 			return false;
@@ -903,6 +900,32 @@ namespace Eddie.Core
 				{
 					try
 					{
+						if (adapter.NetworkInterfaceType == NetworkInterfaceType.Loopback)
+							continue;
+
+						// Same meaning as support_ipv4 / support_ipv6 in NetworkInterfaceInfoBuild.
+						// NDIS filter bindings and similar non-IP endpoints throw here.
+						bool supportIpv4 = false;
+						bool supportIpv6 = false;
+						try
+						{
+							adapter.GetIPProperties().GetIPv4Properties();
+							supportIpv4 = true;
+						}
+						catch
+						{
+						}
+						try
+						{
+							adapter.GetIPProperties().GetIPv6Properties();
+							supportIpv6 = true;
+						}
+						catch
+						{
+						}
+						if ((supportIpv4 == false) && (supportIpv6 == false))
+							continue;
+
 						string id = adapter.Id;
 						IPv4InterfaceStatistics istats = adapter.GetIPv4Statistics();
 						Int64 bytesRcv = istats.BytesReceived;
@@ -1013,6 +1036,7 @@ namespace Eddie.Core
 				}
 			}
 
+			OnDnsLockRestore();
 			OnDnsSwitchRestore();
 			OnInterfaceRestore();
 			OnIPv6Restore();
@@ -1053,6 +1077,25 @@ namespace Eddie.Core
 		public virtual string GetConnectionTunDriver(ConnectionTypes.IConnectionType connection)
 		{
 			return "os";
+		}
+
+		// Ciphers the data channel offload backend of this platform can handle.
+		// A cipher outside this list makes OpenVPN turn offload off at startup.
+		public virtual string GetDataChannelOffloadSupportedCiphers()
+		{
+			return "AES-128-GCM:AES-256-GCM:AES-192-GCM:CHACHA20-POLY1305";
+		}
+
+		// Enforcement of the DNS traffic, independent from the rewrite of the resolvers done by
+		// OnDnsSwitchDo: it must be applied even when there is nothing to rewrite.
+		public virtual bool OnDnsLockDo(ConnectionTypes.IConnectionType connection)
+		{
+			return true;
+		}
+
+		public virtual bool OnDnsLockRestore()
+		{
+			return true;
 		}
 
 		public virtual bool OnDnsSwitchDo(ConnectionTypes.IConnectionType connection, IpAddresses dns)

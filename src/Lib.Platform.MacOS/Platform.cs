@@ -18,7 +18,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Net.NetworkInformation;
 using System.Xml;
@@ -57,6 +56,16 @@ namespace Eddie.Platform.MacOS
 		public override string GetCode()
 		{
 			return "MacOS";
+		}
+
+		public override string GetUserLocale()
+		{
+			string osLocale = NativeMethods.GetUserLocale();
+			if (string.IsNullOrEmpty(osLocale) == false)
+				return osLocale;
+
+			// Fallback to env vars, set when launched from a shell.
+			return base.GetUserLocale();
 		}
 
 		public override string GetName()
@@ -180,7 +189,7 @@ namespace Eddie.Platform.MacOS
 
 			if (value)
 			{
-				RunElevated(new string[] { "service=install", "service_port=" + Engine.Instance.GetElevatedServicePort() }, true);
+				RunElevated(new string[] { "service=install" }, true);
 				return GetService();
 			}
 			else
@@ -353,32 +362,6 @@ namespace Eddie.Platform.MacOS
 			}
 
 			return base.LocateResource(relativePath);
-		}
-
-		public override bool IsPortLocalListening(int port)
-		{
-			// TOFIX, need a better implementation
-
-			string stdout = "";
-			string stderr = "";
-			int exitcode = 0;
-			ExecSyncCore(LocateExecutable("netstat"), new string[] { "-an", "-ptcp" }, "", out stdout, out stderr, out exitcode);
-
-			foreach (string line in stdout.Split('\n'))
-			{
-				string[] fields = line.CleanSpace().Split(' ');
-				if (fields.Length > 2)
-				{
-					if (fields[3] == "127.0.0.1." + port.ToString(CultureInfo.InvariantCulture))
-					{
-						if (fields[5] == "LISTEN")
-						{
-							return true;
-						}
-					}
-				}
-			}
-			return false;
 		}
 
 		public override void RouteApply(Json jRoute, string action)

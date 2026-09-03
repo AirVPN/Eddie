@@ -198,10 +198,13 @@ chmod 755 "${TARGETBINDIR}/wg"
 # See comment in /repository/build_macos.sh
 
 VARHARDENING="yes"
-# 2023-09-21, Ventura Notarization fail without hardening
-#if [ ${VAROS} = "macos-10.9" ]; then
-#    VARHARDENING="no"
-#fi
+# Ventura+ notarization needs hardening for macos-10.15.
+# Mojave must keep the historical macos-10.9 profile without --options=runtime:
+# Mono's SystemNetworkInterface type initializer fails under hardened runtime
+# (DllNotFoundException: libc.dylib). Align with macos_pkg/macos_dmg.
+if [ "${VAROS}" = "macos-10.9" ]; then
+    VARHARDENING="no"
+fi
 
 echo "Signing"
 

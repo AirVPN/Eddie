@@ -37,6 +37,7 @@ namespace Eddie.Core
 
 			KnownCommands["profile"] = LanguageManager.GetText(LanguageItems.ManCommandLineProfile);
 			KnownCommands["path"] = LanguageManager.GetText(LanguageItems.ManCommandLinePath);
+			KnownCommands["language"] = LanguageManager.GetText(LanguageItems.ManCommandLineLanguage);
 
 			KnownCommands["batch"] = "";
 			KnownCommands["jsoninout"] = "";
@@ -46,7 +47,6 @@ namespace Eddie.Core
 			KnownCommands["path.resources"] = "";
 			KnownCommands["path.tools"] = "";
 			KnownCommands["elevation"] = ""; // Windows: not used; Linux: auto,none,sudo,su,pkexec; macOS: auto,none,sudo,uiapp,ui
-			KnownCommands["elevated.service.port"] = "";
 		}
 
 		public bool Check()

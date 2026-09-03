@@ -153,7 +153,7 @@ namespace Eddie.Forms
 				if (MainWindow != null)
 					MainWindow.OnFrontMessage(data["message"].Value as Json);
 			}
-			else if (cmd == "system.report.progress")
+			else if (cmd == "report.progress")
 			{
 				string step = data["step"].Value as string;
 				string text = data["body"].Value as string;

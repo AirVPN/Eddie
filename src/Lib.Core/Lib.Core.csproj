@@ -136,6 +136,7 @@
     <Compile Include="CompatibilityManager.cs" />
     <Compile Include="LogsManager.cs" />
     <Compile Include="LogType.cs" />
+    <Compile Include="Mcp.cs" />
     <Compile Include="ProvidersManager.cs" />
     <Compile Include="Providers\Service.cs" />
     <Compile Include="Providers\OpenVPN.cs" />

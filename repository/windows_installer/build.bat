@@ -71,8 +71,7 @@ echo "Shell NSIS"
 rem Staff Deploy
 if defined EDDIESIGNINGDIR (
 	echo Step: Signing		
-	SET /p VARSIGNPASSWORD= < "%EDDIESIGNINGDIR%\eddie.win-signing.pfx.pwd"
-	%VARSCRIPTDIR%\..\windows_common\signtool.exe sign /fd sha256 /p "!VARSIGNPASSWORD!" /f "%EDDIESIGNINGDIR%\eddie.win-signing.pfx" /t http://timestamp.comodoca.com/authenticode /d "Eddie - VPN Tunnel" "%VARFINALPATH%" || goto :error
+	call %VARSCRIPTDIR%\..\windows_common\sign-authenticode.bat "%VARFINALPATH%" || goto :error
 
 	CALL %VARSCRIPTDIR%\..\windows_common\deploy.bat "%VARFINALPATH%" || goto :error
 	call %VARSCRIPTDIR%\..\windows_common\sign-openpgp.bat "%VARFINALPATH%" || goto :error

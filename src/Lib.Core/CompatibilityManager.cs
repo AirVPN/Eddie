@@ -76,7 +76,7 @@ namespace Eddie.Core
 				if (options["mode.protocol"] == "TOR")
 				{
 					options["mode.protocol"] = "TCP";
-					options["proxy.mode"] = "Tor";
+					options["proxy.mode"] = "tor";
 					if (options.ContainsKey("mode.tor.host"))
 					{
 						options["proxy.host"] = options["mode.tor.host"];
@@ -247,6 +247,18 @@ namespace Eddie.Core
 			{
 				name = "netlock.allowlist.outgoing.ips";
 			}
+			else if (name == "servers.scoretype") // <2.26.3, was stored capitalized ('Speed'/'Latency')
+			{
+				value = value.ToLowerInv();
+			}
+			else if (name == "proxy.mode") // <2.26.3, was stored capitalized ('None'/'Http'/...)
+			{
+				value = value.ToLowerInv();
+			}
+			else if (name == "proxy.auth") // <2.26.3, was stored capitalized ('None'/'Basic'/'NTLM')
+			{
+				value = value.ToLowerInv();
+			}
 			else if (name == "windows.driver") // Removed in 2.26.0
 			{
 				name = "";
@@ -275,17 +287,10 @@ namespace Eddie.Core
 			{
 				name = "";
 			}
-
-#if (EDDIE3)
-            if (name == "dns.check") // < 3.0
-            {
-                name = "providers.AirVPN.dns.check";
-            }
-            else if (name == "advanced.check.route") // < 3.0
-            {
-                name = "providers.AirVPN.tunnel.check";
-            }
-#endif
+			else if (name == "language.iso") // Removed in 2.27.0, replaced by the 'language' command line argument
+			{
+				name = "";
+			}
 		}
 
 		public static void FixProviderStorage(XmlDocument e)

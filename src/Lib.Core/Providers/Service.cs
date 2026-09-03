@@ -54,16 +54,6 @@ namespace Eddie.Core.Providers
 			return c;
 		}
 
-		public override void OnInit()
-		{
-			base.OnInit();
-
-#if (EDDIE3)
-            Engine.Instance.Storage.SetDefaultBool("providers." + GetCode() + ".dns.check", true, LanguageManager.GetText(LanguageItems.ManOptionServicesDnsCheck));
-            Engine.Instance.Storage.SetDefaultBool("providers." + GetCode() + ".tunnel.check", true, LanguageManager.GetText(LanguageItems.ManOptionServicesTunnelCheck));
-#endif
-		}
-
 		public override void OnLoad(XmlElement xmlStorage)
 		{
 			base.OnLoad(xmlStorage);
@@ -632,6 +622,7 @@ namespace Eddie.Core.Providers
 						continue;
 
 					Json jMessage = new Json();
+					jMessage["kind"].Value = kind;
 					jMessage["text"].Value = xmlMessage.GetAttribute("text");
 					jMessage["url"].Value = xmlMessage.GetAttribute("url");
 					jMessage["link"].Value = xmlMessage.GetAttribute("link");
@@ -822,11 +813,7 @@ namespace Eddie.Core.Providers
 		{
 			get
 			{
-#if (EDDIE3)
-                return Engine.Instance.Options.GetBool("providers." + GetCode() + ".dns.check");
-#else
 				return Engine.Instance.ProfileOptions.GetBool("dns.check");
-#endif
 			}
 		}
 
@@ -834,11 +821,7 @@ namespace Eddie.Core.Providers
 		{
 			get
 			{
-#if (EDDIE3)
-                return Engine.Instance.Options.GetBool("providers." + GetCode() + ".tunnel.check");
-#else
 				return Engine.Instance.ProfileOptions.GetBool("advanced.check.route");
-#endif
 			}
 		}
 
@@ -891,7 +874,6 @@ namespace Eddie.Core.Providers
 					urls.Add(nodeUrl.Attributes["address"].Value);
 				}
 			}
-			
 			return urls;
 		}
 

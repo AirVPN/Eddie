@@ -475,7 +475,7 @@ namespace Eddie.Forms.Forms
 				cboProxyWhen.Text = LanguageManager.GetText(LanguageItems.WindowsSettingsProxyWhenAlways);
 			txtProxyHost.Text = o.Get("proxy.host");
 			txtProxyPort.Text = o.Get("proxy.port");
-			cboProxyAuthentication.Text = o.Get("proxy.auth");
+			cboProxyAuthentication.Text = o.GetLower("proxy.auth");
 			txtProxyLogin.Text = o.Get("proxy.login");
 			txtProxyPassword.Text = o.Get("proxy.password");
 			txtProxyTorControlPort.Text = o.Get("proxy.tor.control.port");
@@ -873,7 +873,7 @@ namespace Eddie.Forms.Forms
 				o.Set("proxy.when", "always");
 			o.Set("proxy.host", txtProxyHost.Text);
 			o.Set("proxy.port", txtProxyPort.Text);
-			o.Set("proxy.auth", cboProxyAuthentication.Text);
+			o.Set("proxy.auth", cboProxyAuthentication.Text.ToLowerInv());
 			o.Set("proxy.login", txtProxyLogin.Text);
 			o.Set("proxy.password", txtProxyPassword.Text);
 			o.SetInt("proxy.tor.control.port", Conversions.ToInt32(txtProxyTorControlPort.Text));

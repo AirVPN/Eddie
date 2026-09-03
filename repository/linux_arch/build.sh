@@ -65,6 +65,7 @@ function arch_env() {
 		sed -i "s|{@line}|${LINE}|g" PKGBUILD
 		sed -i "s|{@version}|${VERSION}|g" PKGBUILD
 		sed -i "s|{@pkgname}|eddie-${PROJECT}|g" PKGBUILD    
+		sed -i "s|{@conflicts}|('airvpn' 'airvpn-beta-bin' 'airvpn-git' 'eddie-${PROJECT}-git')|g" PKGBUILD
 		sed -i "s|{@pkgdesc}|Eddie - VPN tunnel|g" PKGBUILD    
 		if [ "${PROJECT}" = "cli" ]; then
 			sed -i "s|{@pkgdesc}|Eddie - VPN tunnel - CLI - prebuilt|g" PKGBUILD    
@@ -104,6 +105,7 @@ function arch_env() {
 			sed -i "s|{@line}|${LINE}|g" PKGBUILD
 			sed -i "s|{@version}|${VERSION}|g" PKGBUILD    
 			sed -i "s|{@pkgname}|eddie-${PROJECT}-git|g" PKGBUILD    
+			sed -i "s|{@conflicts}|('airvpn' 'airvpn-beta-bin' 'airvpn-git' 'eddie-${PROJECT}')|g" PKGBUILD
 			if [ "${PROJECT}" = "cli" ]; then
 				sed -i "s|{@pkgdesc}|Eddie - VPN tunnel - CLI|g" PKGBUILD    
 				sed -i "s|{@pkgdepends}|(curl openvpn sudo)|g" PKGBUILD
@@ -135,6 +137,7 @@ function arch_env() {
 			sed -i "s|{@line}|${LINE}|g" PKGBUILD
 			sed -i "s|{@version}|${VERSIONSTABLE}|g" PKGBUILD    
 			sed -i "s|{@pkgname}|eddie-${PROJECT}|g" PKGBUILD    
+			sed -i "s|{@conflicts}|('airvpn' 'airvpn-beta-bin' 'airvpn-git' 'eddie-${PROJECT}-git')|g" PKGBUILD
 			if [ "${PROJECT}" = "cli" ]; then
 				sed -i "s|{@pkgdesc}|Eddie - VPN tunnel - CLI|g" PKGBUILD    
 				sed -i "s|{@pkgdepends}|(curl openvpn sudo)|g" PKGBUILD

@@ -40,18 +40,18 @@ protected:
 	virtual std::string GetProcessPathCurrent();
 	virtual std::string GetProcessPathOfId(int pid);
 	virtual std::string GetPrivilegedDataDir();
-#ifdef EDDIE_IPC_UNIXSOCKET
 	virtual int GetSocketPeerPid(HSOCKET s);
-#endif
 
 private:
 
+	bool m_hasSystemd = false;
 	bool m_hasSystemdResolved = false;
 
 	// Private
 	std::string IptablesExecutable(const std::string& compatibility, const std::string& layer, const std::string& action, const bool throwException = true);
 	std::string IptablesExec(const std::string& path, const std::vector<std::string>& args, const bool stdinWrite, const std::string stdinBody);
 	std::string NftablesSearchHandle(const std::string& rulesList, const std::string& comment);
+	std::string NftablesOwnedTables(const std::string& ruleset);
 	std::string GetRoutesAsJson();
 	void NetworkManagerSetInterfaceUnmanaged(const std::string& interfaceId);
 	unsigned long WireGuardLastHandshake(const std::string& interfaceId);

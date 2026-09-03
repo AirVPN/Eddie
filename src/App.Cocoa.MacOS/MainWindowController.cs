@@ -103,7 +103,7 @@ namespace Eddie.UI.Cocoa.Osx
 			ChkRemember.State = Engine.ProfileOptions.GetBool("remember") ? NSCellStateValue.On : NSCellStateValue.Off;
 			ChkServersShowAll.State = NSCellStateValue.Off;
 			GuiUtils.SetCheck(ChkServersLockCurrent, Engine.ProfileOptions.GetBool("servers.locklast"));
-			GuiUtils.SetSelected(CboServersScoringRule, Engine.ProfileOptions.Get("servers.scoretype"));
+			GuiUtils.SetSelected(CboServersScoringRule, (Engine.ProfileOptions.GetLower("servers.scoretype") == "latency") ? "Latency" : "Speed");
 
 			CboSpeedResolutions.RemoveAllItems();
 			CboSpeedResolutions.AddItem(LanguageManager.GetText(LanguageItems.WindowsMainSpeedResolution1));
@@ -377,7 +377,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 			CboServersScoringRule.Activated += (object sender, EventArgs e) =>
 			{
-				Engine.ProfileOptions.Set("servers.scoretype", GuiUtils.GetSelected(CboServersScoringRule));
+				Engine.ProfileOptions.Set("servers.scoretype", (GuiUtils.GetSelected(CboServersScoringRule) == "Latency") ? "latency" : "speed");
 
 				RefreshUi(Engine.RefreshUiMode.Full);
 			};
@@ -1192,7 +1192,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 		void SupportReport()
 		{
-			UiClient.Instance.Command("system.report.start");
+			UiClient.Instance.Command("report.start");
 		}
 
 		void LogsDoCopy(bool selectedOnly)

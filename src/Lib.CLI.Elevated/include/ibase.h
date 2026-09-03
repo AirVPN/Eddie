@@ -31,7 +31,6 @@
 typedef long pid_t;
 typedef unsigned int uint;
 typedef unsigned long ulong;
-typedef SOCKET HSOCKET;
 typedef int socklen_t;
 const std::string FsPathSeparator = "\\";
 const std::string FsEndLine = "\r\n";
@@ -39,20 +38,6 @@ const std::string FsEndLine = "\r\n";
 typedef int HSOCKET;
 const std::string FsPathSeparator = "/";
 const std::string FsEndLine = "\n";
-#endif
-
-// IPC transport selection.
-// EDDIE_IPC_LOCAL: use the OS local transport with kernel-attested peer credentials
-// (AF_UNIX on POSIX, named pipe on Windows). Comment out to fall back to the legacy
-// TCP loopback transport, where the peer PID is resolved via GetProcessIdMatchingIPEndPoints.
-#define EDDIE_IPC_LOCAL
-
-#ifdef EDDIE_IPC_LOCAL
-	#ifdef EDDIE_PLATFORM_WINDOWS
-		#define EDDIE_IPC_NAMEDPIPE
-	#else
-		#define EDDIE_IPC_UNIXSOCKET
-	#endif
 #endif
 
 #define NETBUFSIZE 256*256*10 // Maximum size of a single IPC command/buffer
@@ -86,7 +71,6 @@ class IBase
 {
 private:
 	std::string m_elevatedVersion = "v1378";
-	int m_elevatedPortDefault = 9350;
 
 	std::string m_session_key;
 	std::mutex m_mutex_inout;
@@ -241,14 +225,9 @@ protected:
 	virtual bool FsFileIsRootOnly(std::string path) = 0;
 	virtual bool FsDirectoryEnsureRootOnly(std::string path) = 0;
 	virtual bool FsDirectoryIsRootOnly(std::string path) = 0;
-	virtual bool SocketIsValid(HSOCKET s) = 0;
-	virtual void SocketMarkReuseAddr(HSOCKET s) = 0;
-	virtual void SocketBlockMode(HSOCKET s, bool block) = 0;
-	virtual void SocketClose(HSOCKET s) = 0;
-	virtual int SocketGetLastErrorCode() = 0;
 
-	// IPC transport (AF_UNIX / named pipe / TCP). Implemented per-OS so Main() stays transport-agnostic.
-	virtual void TransportListen(int port) = 0;                   // create+bind+listen; throws on failure
+	// IPC transport (AF_UNIX on POSIX, named pipe on Windows). Implemented per-OS so Main() stays transport-agnostic.
+	virtual void TransportListen() = 0;                           // create+bind+listen; throws on failure
 	virtual bool TransportAccept() = 0;                           // block until a client connects; false if stop requested
 	virtual int TransportGetClientProcessId() = 0;               // peer PID of the connected client (0 if unknown)
 	virtual int TransportRead(char* buffer, int maxLen) = 0;     // >0 bytes read, 0 peer closed, <0 error
@@ -265,10 +244,6 @@ protected:
 	virtual bool SystemWideDataDel(const std::string& key) = 0;
 	virtual bool SystemWideDataClean() = 0;
 	virtual std::string CheckExecutablePathPermissions(const std::string& path) = 0;
-#ifndef EDDIE_IPC_LOCAL
-	// Legacy TCP transport only: peer PID resolved by scanning the OS socket table.
-	virtual int GetProcessIdMatchingIPEndPoints(struct sockaddr_in& addrClient, struct sockaddr_in& addrServer) = 0;
-#endif
 
 	// Utils filesystem
 protected:
@@ -312,7 +287,6 @@ protected:
 	std::string StringXmlEncode(const std::string& str);
 	std::string StringHexEncode(const unsigned char* buf, const size_t s);
 	std::string StringHexEncode(const std::vector<char>& bytes);
-	std::string StringHexEncode(const int v, const int chars);
 	std::string StringSHA256(const std::string& str);
 	bool StringIsIPv4(const std::string& ip);
 	bool StringIsIPv6(const std::string& ip);
