@@ -1,7 +1,11 @@
 @echo off
 SETLOCAL ENABLEDELAYEDEXPANSION
 rem Authenticode signature for Windows artifacts. Accepts a file or a directory.
-rem With a directory, signs *.exe *.dll *.sys *.cat that are not already validly signed.
+rem With a directory, signs *.exe *.dll that are not already validly signed.
+rem Driver files (*.sys, *.cat) are never signed: kernel-mode load is authorized by the
+rem Microsoft attestation signature shipped by the driver vendor, which our code signing
+rem certificate cannot replace. Signing a *.sys also drops the vendor attestation signature,
+rem and signing a *.cat breaks driver installation.
 rem Signing identity is the certificate whose SHA-1 thumbprint is in
 rem %EDDIESIGNINGDIR%\eddie.win-signing.thumbprint, which must be available in the user store.
 rem No-op if EDDIESIGNINGDIR or the thumbprint file are not found.
@@ -18,7 +22,7 @@ set VARTIMESTAMP=http://time.certum.pl
 set VARDESCRIPTION=Eddie - VPN Tunnel
 
 if exist "%~1\" (
-	for %%f in ("%~1\*.exe" "%~1\*.dll" "%~1\*.sys" "%~1\*.cat") do (
+	for %%f in ("%~1\*.exe" "%~1\*.dll") do (
 		call :sign "%%~ff" || exit /b 1
 	)
 ) else (
@@ -28,6 +32,8 @@ if exist "%~1\" (
 exit /b 0
 
 :sign
+if /i "%~x1"==".sys" exit /b 0
+if /i "%~x1"==".cat" exit /b 0
 "%VARSIGNTOOL%" verify /pa "%~1" >nul 2>&1
 if not errorlevel 1 exit /b 0
 echo Signing %~1

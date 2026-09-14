@@ -628,7 +628,10 @@ bool Impl::ServiceInstall()
 	else
 	{
 		std::string elevatedLauncherOrig = GetProcessPathCurrent() + "-service";
-		
+
+		// /Library/PrivilegedHelperTools exists only once some privileged helper has been installed.
+		if (FsDirectoryCreate(FsFileGetDirectory(serviceLauncherPath)) == false)
+			return false;
 		if (FsFileCopy(elevatedLauncherOrig, serviceLauncherPath) == false)
 			return false;				
 		if (chown(serviceLauncherPath.c_str(), 0, 0) == -1)

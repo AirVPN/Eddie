@@ -273,6 +273,13 @@ void IWindows::Do(const std::string& commandId, const std::string& command, std:
 					args.push_back("--config");
 					args.push_back(configPath);
 
+					// OpenVPN parses the command line after the config file, so this always wins over
+					// any 'script-security' inside the config: external programs (up, down, route-up,
+					// tls-verify, ...) can never be called, whatever spelling the config uses.
+					// '1' is the OpenVPN default and still allows its built-in ifconfig/netsh calls.
+					args.push_back("--script-security");
+					args.push_back("1");
+
 					t_shellinfo info = ExecStart(path, args);
 
 					if (info.lastErrorCode != 0)

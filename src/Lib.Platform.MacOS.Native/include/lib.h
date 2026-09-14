@@ -43,6 +43,8 @@ extern "C" {
 
 	EDDIE_MACOS_NATIVE_EXPORT int eddie_kill(int pid, int sig);
 
+	// Writes a JSON array of { id, rcv, snd } for every non-loopback interface.
+	// If the result does not fit in bufMaxLen the array is truncated to the interfaces that fit.
 	EDDIE_MACOS_NATIVE_EXPORT void eddie_get_realtime_network_stats(char* buf, int bufMaxLen);
 
 	// Writes the user-preferred UI language as a BCP47 tag (e.g. "it-IT"), or an empty string if unknown.

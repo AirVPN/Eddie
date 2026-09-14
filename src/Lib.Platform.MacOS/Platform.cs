@@ -788,10 +788,13 @@ namespace Eddie.Platform.MacOS
 		{
 			// Mono NetworkInterface::GetIPv4Statistics().BytesReceived always return 0 under OSX.
 
-			int maxLen = 1024;
+			int maxLen = 64 * 1024;
 			byte[] buf = new byte[maxLen];
 			NativeMethods.GetRealtimeNetworkStats(buf, maxLen);
-			string jNativeStr = System.Text.Encoding.ASCII.GetString(buf);
+			int len = Array.IndexOf<byte>(buf, 0);
+			if (len < 0)
+				len = maxLen;
+			string jNativeStr = System.Text.Encoding.ASCII.GetString(buf, 0, len);
 
 			return Json.Parse(jNativeStr);
 			

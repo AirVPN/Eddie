@@ -101,6 +101,13 @@ void IPosix::Do(const std::string& commandId, const std::string& command, std::m
 				argv.push_back("--config");
 				argv.push_back(configPath);
 
+				// OpenVPN parses the command line after the config file, so this always wins over
+				// any 'script-security' inside the config: external programs (up, down, route-up,
+				// tls-verify, ...) can never be called, whatever spelling the config uses.
+				// '1' is the OpenVPN default and still allows its built-in ifconfig/ip/route calls.
+				argv.push_back("--script-security");
+				argv.push_back("1");
+
 				std::string openvpnDirectory = FsFileGetDirectory(path);
 				int chdirResult = chdir(openvpnDirectory.c_str()); // AppImage, our openvpn look ./ for .so
 				if (chdirResult != 0)
@@ -858,13 +865,19 @@ int IPosix::SocketGetLastErrorCode()
 
 void IPosix::TransportListen()
 {
-	// Socket lives in a root-owned runtime directory (created 0755 by root): other users can
-	// traverse it but cannot create files there, which removes the /tmp squatting/race surface.
+	// Socket lives in a root-owned runtime directory (0755): other users can traverse it but cannot
+	// create files there, which removes the /tmp squatting/race surface.
 	// Mode 0666 lets any local user connect by design (shared service): client authentication is
 	// enforced by the integrity gate in Main(), not by the socket mode or uid.
 	std::string sockDir = GetIpcRuntimeDir();
 	if (FsDirectoryCreate(sockDir) == false)
 		ThrowException("Error on creating IPC directory " + sockDir);
+
+	// mkdir() applies the process umask and leaves an existing directory untouched, so the mode is
+	// enforced here: without traverse permission the client cannot reach the socket, and the
+	// elevated would listen on an endpoint nobody can connect to.
+	if (chmod(sockDir.c_str(), 0755) != 0)
+		ThrowException("Error on securing IPC directory " + sockDir);
 
 	// Endpoint keyed by launch mode ("spot"/"service").
 	m_ipcSockPath = sockDir + "/eddie-elevated-" + GetLaunchMode() + ".sock";
@@ -996,6 +1009,14 @@ std::string IPosix::StringEnsureInterfaceName(const std::string& str)
 bool IPosix::SystemWideDataSet(const std::string& key, const std::string& value)
 {
 	std::string path = SystemWideDataPath();
+
+	// The parent directory is not guaranteed to exist: /Library/PrivilegedHelperTools on macOS is
+	// created on demand when a privileged helper is installed. Without it every write here fails and
+	// the client gate later finds no integrity snapshot, rejecting every client.
+	std::string dir = FsFileGetDirectory(path);
+	if ((dir != "") && (FsDirectoryCreate(dir) == false))
+		return false;
+
 	json j;
 
 	std::ifstream inFile(path);

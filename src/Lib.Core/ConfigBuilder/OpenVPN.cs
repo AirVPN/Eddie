@@ -53,8 +53,12 @@ namespace Eddie.Core.ConfigBuilder
 			return false;
 		}
 
-		public bool IsGroupAllowScriptSecurity(string name)
+		// Directives the privileged helper refuses in a config body, mirrored here so that a profile
+		// carrying one connects with the directive dropped instead of failing to start. The helper
+		// stays the enforcement point: this list is a convenience, never a security boundary.
+		public bool IsDirectiveRefusedByElevated(string name)
 		{
+			// Code execution and indirection
 			if (
 				(name == "script-security") ||
 				(name == "plugin") ||
@@ -68,8 +72,33 @@ namespace Eddie.Core.ConfigBuilder
 				(name == "ipchange") ||
 				(name == "iproute") ||
 				(name == "route-up") ||
-				(name == "route-pre-down")
+				(name == "route-pre-down") ||
+				(name == "config") ||
+				(name == "include")
 			  )
+				return true;
+
+			// Writing to a file with the privileges of the helper
+			if (
+				(name == "log") ||
+				(name == "log-append") ||
+				(name == "status") ||
+				(name == "status-version") ||
+				(name == "writepid") ||
+				(name == "tmp-dir") ||
+				(name == "ifconfig-pool-persist")
+			  )
+				return true;
+
+			// Loading an external module inside the privileged process
+			if (
+				(name == "pkcs11-providers") ||
+				(name == "engine")
+			  )
+				return true;
+
+			// Management interface, a control channel on the privileged process
+			if (name.StartsWithInv("management"))
 				return true;
 
 			return false;
@@ -271,6 +300,15 @@ namespace Eddie.Core.ConfigBuilder
 			}
 			else
 			{
+				// Checked before the directive list is touched, so a dropped directive leaves no
+				// empty entry behind and ExistsDirective() keeps answering on what is really built.
+				if (force == false)
+					if (IsDirectiveRefusedByElevated(name))
+					{
+						Engine.Instance.Logs.LogWarning("OpenVPN directive '" + name + "' ignored, not allowed in the privileged process");
+						return;
+					}
+
 				if (IsMultipleDirective(name))
 				{
 					if (Directives.ContainsKey(name) == false)
@@ -280,11 +318,6 @@ namespace Eddie.Core.ConfigBuilder
 				{
 					Directives[name] = new List<Directive>();
 				}
-
-				// Intentional: drop script-security directives unless force.
-				if (force == false)
-					if (IsGroupAllowScriptSecurity(name))
-						return;
 
 				Directive d = new Directive();
 				d.Text = body.Trim();
@@ -312,9 +345,6 @@ namespace Eddie.Core.ConfigBuilder
 				return true;
 
 			if (ExistsDirective("fragment"))
-				return true;
-
-			if (ExistsDirective("management-query-proxy"))
 				return true;
 
 			if (ExistsDirective("comp-lzo"))

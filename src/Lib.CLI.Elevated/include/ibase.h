@@ -143,7 +143,8 @@ protected:
 	virtual void IntegrityCheckClean(const std::string mode);
 	virtual std::string IntegrityCheckRead(const std::string mode);
 	virtual std::string IntegrityCheckBuild();
-	virtual bool IntegrityCheckFileKnown(const std::string& path);
+	// denyReason, when provided, receives a short description of the failed check.
+	virtual bool IntegrityCheckFileKnown(const std::string& path, std::string* denyReason = NULL);
 
 	// Executable security
 	bool IsRunnableExecutable(const std::string& path);
@@ -301,6 +302,7 @@ protected:
 	unsigned long GetTimestampUnix();
 	std::map<std::string, std::string> IniConfigToMap(const std::string& ini, std::string sectionKeySeparator = ".", bool convertKeyToLower = true);
 	std::map<std::string, std::string> ParseCommandLine(const std::vector<std::string>& args);
+	std::string ParseOpenVpnConfigDirective(const std::string& line);
 	std::string CheckValidOpenVpnConfigFile(const std::string& path);
 	std::string CheckValidOpenVpnConfigContent(const std::string& body);
 	std::string CheckValidHummingbirdConfigFile(const std::string& path);

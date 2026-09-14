@@ -20,6 +20,7 @@
 #include <sys/types.h>
 
 #include <algorithm>
+#include <cctype>
 #include <cstring>
 #include <fcntl.h>
 #include <fstream>
@@ -339,7 +340,13 @@ int IBase::Main()
 		ServiceReinstall();
 
 		// Update Security Info
-		IntegrityCheckUpdate("spot");
+		if ((IntegrityCheckUpdate("spot") == false) && (CanUseDirectPath(GetProcessPathCurrent()) == false))
+		{
+			// In a writable layout the client gate compares this snapshot against the current
+			// directory hashes: without it every client would be rejected as tampered.
+			LogLocal("Elevated startup aborted: unable to store the integrity snapshot");
+			return 1;
+		}
 	}
 	else if ((m_cmdline.find("mode") != m_cmdline.end()) && (m_cmdline["mode"] == "service"))
 	{
@@ -424,8 +431,12 @@ int IBase::Main()
 #else
 					if (true)
 					{
-						if (IntegrityCheckFileKnown(clientProcessPath) == false)
-							ThrowException("Client not allowed: Integrity check failed ");
+						std::string integrityDenyReason = "";
+						if (IntegrityCheckFileKnown(clientProcessPath, &integrityDenyReason) == false)
+						{
+							LogLocal("Client rejected, integrity check failed: " + integrityDenyReason + ". Client path: " + clientProcessPath + ", elevated path: " + GetProcessPathCurrent());
+							ThrowException("Client not allowed: Integrity check failed (" + integrityDenyReason + ")");
+						}
 					}
 #endif
 				}
@@ -832,14 +843,18 @@ std::string IBase::IntegrityCheckBuild()
 	return output;
 }
 
-bool IBase::IntegrityCheckFileKnown(const std::string& path)
+bool IBase::IntegrityCheckFileKnown(const std::string& path, std::string* denyReason)
 {
 	if (FsFileExists(path) == false)
+	{
+		if (denyReason != NULL) *denyReason = "client not found";
 		return false;
+	}
 
 	if (FsFileGetDirectory(path) != FsFileGetDirectory(GetProcessPathCurrent()))
 	{
 		// Not Elevated Path
+		if (denyReason != NULL) *denyReason = "client not in elevated directory";
 		return false;
 	}
 
@@ -849,12 +864,22 @@ bool IBase::IntegrityCheckFileKnown(const std::string& path)
 		return true;
 
 	std::string integrityKnown = IntegrityCheckRead(GetLaunchMode());
+	if (integrityKnown == "")
+	{
+		if (denyReason != NULL) *denyReason = "integrity snapshot not stored";
+		return false;
+	}
 
 	// Writable layout: recompute and compare the whole-directory hash against the stored snapshot
 	// to detect a swapped client binary or an injected library since startup/install.
 	std::string integrityComputed = IntegrityCheckBuild();
+	if (integrityKnown != integrityComputed)
+	{
+		if (denyReason != NULL) *denyReason = "integrity snapshot mismatch";
+		return false;
+	}
 
-	return (integrityKnown == integrityComputed);
+	return true;
 }
 
 // Executable security
@@ -1067,7 +1092,9 @@ void IBase::EnsureRuntimeDirReady()
 
 void IBase::EnsureStateDirReady()
 {
-	if (m_stateDir == "")
+	// Re-prepare also when the cached path stopped being valid: the state directory is shared
+	// between launch modes, so another elevated process can remove it while this one is alive.
+	if (m_stateDir == "" || FsDirectoryIsRootOnly(m_stateDir) == false)
 		StatePrepare();
 	if (m_stateDir == "" || FsDirectoryIsRootOnly(m_stateDir) == false)
 		ThrowException("State directory not available");
@@ -1718,6 +1745,90 @@ std::map<std::string, std::string> IBase::ParseCommandLine(const std::vector<std
 	return result;
 }
 
+std::string IBase::ParseOpenVpnConfigDirective(const std::string& line)
+{
+	// Mirrors OpenVPN parse_line() and bypass_doubledash() (src/openvpn/options_parse.c): same
+	// handling of double quotes, single quotes, backslash escapes and of the leading '--', so that
+	// a directive name cannot be hidden from the caller by a spelling OpenVPN still resolves.
+	// Deliberately stricter than OpenVPN in three cases, all fail-closed: OpenVPN discards the
+	// whole line on a bad backslash or on an unterminated quote, here the token read so far is
+	// returned anyway; and the result is lowercased, while OpenVPN matches case-sensitively.
+	// Returns "" when the line carries no directive (empty, blank or comment).
+	const int stateInitial = 0;
+	const int stateUnquoted = 1;
+	const int stateQuoted = 2;
+	const int stateSingleQuoted = 3;
+
+	int state = stateInitial;
+	bool backslash = false;
+	bool done = false;
+	std::string directive;
+
+	for (size_t i = 0; (i <= line.length()) && (done == false); i++)
+	{
+		const char in = (i < line.length()) ? line[i] : '\0';
+		const bool inIsSpace = ((in == '\0') || (isspace(static_cast<unsigned char>(in)) != 0));
+		char out = 0;
+
+		if ((backslash == false) && (in == '\\') && (state != stateSingleQuoted))
+		{
+			backslash = true;
+			continue;
+		}
+
+		if (state == stateInitial)
+		{
+			if (inIsSpace == false)
+			{
+				if ((in == ';') || (in == '#')) // Comment, like OpenVPN regardless of any backslash
+					break;
+
+				if ((backslash == false) && (in == '\"'))
+					state = stateQuoted;
+				else if ((backslash == false) && (in == '\''))
+					state = stateSingleQuoted;
+				else
+				{
+					out = in;
+					state = stateUnquoted;
+				}
+			}
+		}
+		else if (state == stateUnquoted)
+		{
+			if ((backslash == false) && (inIsSpace))
+				done = true;
+			else
+				out = in;
+		}
+		else if (state == stateQuoted)
+		{
+			if ((backslash == false) && (in == '\"'))
+				done = true;
+			else
+				out = in;
+		}
+		else // stateSingleQuoted, where a backslash is a literal character
+		{
+			if (in == '\'')
+				done = true;
+			else
+				out = in;
+		}
+
+		backslash = false;
+
+		if (out != 0)
+			directive += out;
+	}
+
+	// bypass_doubledash(): a single leading '--' is stripped, and only when something follows it
+	if ((directive.length() >= 3) && (directive.compare(0, 2, "--") == 0))
+		directive = directive.substr(2);
+
+	return StringToLower(directive);
+}
+
 std::string IBase::CheckValidOpenVpnConfigFile(const std::string& path)
 {
 	if (FsFileExists(path) == false)
@@ -1731,49 +1842,61 @@ std::string IBase::CheckValidOpenVpnConfigContent(const std::string& body)
 	std::vector<std::string> lines = StringToVector(body, '\n');
 	for (std::vector<std::string>::const_iterator i = lines.begin(); i != lines.end(); ++i)
 	{
-		std::string lineNormalized = *i;
-		lineNormalized = StringToLower(lineNormalized);
-		lineNormalized = StringReplaceAll(lineNormalized, "\t", " "); // Collapse TABs first so trim/prefix matching cannot be bypassed regardless of StringTrim's char set
-		lineNormalized = StringTrim(lineNormalized);
+		// Matching the raw line would let '--up', '"up"' or 'up' with a TAB through, because
+		// OpenVPN resolves them all to the same directive: extract the name the way it does.
+		// Inline blocks (<ca>...</ca>) are intentionally not tracked, their lines are checked
+		// like any other: that can only refuse more, never less.
+		const std::string directive = ParseOpenVpnConfigDirective(*i);
 
-		if (StringStartsWith(lineNormalized, "#"))
+		if (directive == "")
 			continue;
 
 		bool lineAllowed = true;
 
 		// The below list directive can be incompleted with newest OpenVPN version, 
-		// but any new dangerous directive is expected to be blocked by script-security
-		// Note: TABs are collapsed to spaces before prefix matching below.
+		// but any new dangerous directive is expected to be blocked by script-security,
+		// enforced on the OpenVPN command line by the caller.
 		// But this validation is only for additional security, Eddie already parse and prune with a better parser the config
-		if (StringStartsWith(lineNormalized, "script-security ")) lineAllowed = false;
-		if (StringStartsWith(lineNormalized, "plugin ")) lineAllowed = false;
-		if (StringStartsWith(lineNormalized, "up ")) lineAllowed = false;
-		if (StringStartsWith(lineNormalized, "down ")) lineAllowed = false;
-		if (StringStartsWith(lineNormalized, "client-connect ")) lineAllowed = false;
-		if (StringStartsWith(lineNormalized, "client-disconnect ")) lineAllowed = false;
-		if (StringStartsWith(lineNormalized, "learn-address ")) lineAllowed = false;
-		if (StringStartsWith(lineNormalized, "auth-user-pass-verify ")) lineAllowed = false;
-		if (StringStartsWith(lineNormalized, "tls-verify ")) lineAllowed = false;
-		if (StringStartsWith(lineNormalized, "ipchange ")) lineAllowed = false;
-		if (StringStartsWith(lineNormalized, "iproute ")) lineAllowed = false;
-		if (StringStartsWith(lineNormalized, "route-up ")) lineAllowed = false;
-		if (StringStartsWith(lineNormalized, "route-pre-down ")) lineAllowed = false;
-		if (StringStartsWith(lineNormalized, "config ")) lineAllowed = false;
-		if (StringStartsWith(lineNormalized, "include ")) lineAllowed = false;
+		if (directive == "script-security") lineAllowed = false;
+		if (directive == "plugin") lineAllowed = false;
+		if (directive == "up") lineAllowed = false;
+		if (directive == "down") lineAllowed = false;
+		if (directive == "client-connect") lineAllowed = false;
+		if (directive == "client-disconnect") lineAllowed = false;
+		if (directive == "learn-address") lineAllowed = false;
+		if (directive == "auth-user-pass-verify") lineAllowed = false;
+		if (directive == "tls-verify") lineAllowed = false;
+		if (directive == "ipchange") lineAllowed = false;
+		if (directive == "iproute") lineAllowed = false;
+		if (directive == "route-up") lineAllowed = false;
+		if (directive == "route-pre-down") lineAllowed = false;
+		if (directive == "config") lineAllowed = false;
+		if (directive == "include") lineAllowed = false;
 
 		// File-writing directives: running as root these let an attacker clobber any
 		// root-owned file with process output (e.g. 'log /etc/passwd'). Eddie captures
 		// stdout/stderr itself and never relies on these, so they can be safely refused.
-		if (StringStartsWith(lineNormalized, "log ")) lineAllowed = false;
-		if (StringStartsWith(lineNormalized, "log-append ")) lineAllowed = false;
-		if (StringStartsWith(lineNormalized, "status ")) lineAllowed = false;
-		if (StringStartsWith(lineNormalized, "status-version ")) lineAllowed = false;
-		if (StringStartsWith(lineNormalized, "writepid ")) lineAllowed = false;
-		if (StringStartsWith(lineNormalized, "tmp-dir ")) lineAllowed = false;
-		if (StringStartsWith(lineNormalized, "ifconfig-pool-persist ")) lineAllowed = false;
+		if (directive == "log") lineAllowed = false;
+		if (directive == "log-append") lineAllowed = false;
+		if (directive == "status") lineAllowed = false;
+		if (directive == "status-version") lineAllowed = false;
+		if (directive == "writepid") lineAllowed = false;
+		if (directive == "tmp-dir") lineAllowed = false;
+		if (directive == "ifconfig-pool-persist") lineAllowed = false;
+
+		// Directives that load an external module inside the privileged process, same class as
+		// 'plugin' and equally out of reach of script-security: the module runs with full
+		// privileges. Refused wholesale, no supported feature emits them.
+		if (directive == "pkcs11-providers") lineAllowed = false;
+		if (directive == "engine") lineAllowed = false;
+
+		// The management interface is a control channel on the privileged process: signals, state
+		// and cached passwords become reachable by whoever can open its socket or pipe. Matched by
+		// prefix to cover the whole family, no other directive name starts with 'management'.
+		if (StringStartsWith(directive, "management")) lineAllowed = false;
 
 		if (lineAllowed == false)
-			return "directive '" + lineNormalized + "' not allowed";
+			return "directive '" + directive + "' not allowed";
 	}
 
 	return "";

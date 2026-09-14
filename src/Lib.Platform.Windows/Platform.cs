@@ -846,6 +846,15 @@ namespace Eddie.Platform.Windows
 		{
 			base.AdaptConfigOpenVpn(config);
 
+			// The bundled ovpn-dco driver is the Windows 11 edition: on Windows 10 the device is
+			// created without error but never starts, so no adapter becomes available. The directive
+			// also makes DisablesDataChannelOffload() true, so the tap-windows6 adapter is prepared.
+			if (IsWin11OrNewer() == false)
+			{
+				if (config.ExistsDirective("disable-dco") == false)
+					config.AppendDirective("disable-dco", "", "OS");
+			}
+
 			if ((Engine.Instance.ProfileOptions.GetBool("windows.ipv6.bypass_dns")) && (Engine.Instance.ProfileOptions.GetBool("dns.delegate")))
 			{
 				config.AppendDirectives("pull-filter ignore \"dhcp-option DNS6\"", "OS");

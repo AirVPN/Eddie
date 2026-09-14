@@ -555,6 +555,11 @@ namespace Eddie.Core
 
 				Sleep(100);
 
+				// A session thread can end by itself, without any Disconnect request: complete the
+				// teardown here, otherwise the reference stay and any next Connect request is ignored.
+				if ((m_threadSession != null) && (m_threadSession.IsAlive() == false))
+					SessionStop();
+
 				// TOFIX: Action need to be converted in uimanager-commands, that already run in the engine thread.
 				ActionService currentAction = ActionService.None;
 

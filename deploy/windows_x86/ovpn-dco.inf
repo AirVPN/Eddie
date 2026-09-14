@@ -5,7 +5,7 @@ ClassGuid={4d36e972-e325-11ce-bfc1-08002be10318}
 Provider=%ovpn-dco.CompanyName%
 CatalogFile=ovpn-dco.cat
 PnpLockdown=1
-DriverVer = 02/17/2026,2.8.2.0
+DriverVer = 08/27/2026,2.8.7.0
 
 [DestinationDirs]
 DefaultDestDir = 12
@@ -53,6 +53,21 @@ HKR, Ndi,               Service,    0, %ovpn-dco.Name%
 [Drivers_Dir]
 ovpn-dco.sys
 
+; Security descriptor for the device object, written to the device's hardware key.
+; The driver also assigns this descriptor when it creates the device, but a value
+; here is applied by the PnP manager and takes precedence, so it is the only place
+; that overrides a descriptor coming from the device setup class.
+;
+; SYSTEM and Administrators full control, Everyone read/write/execute, restricted
+; code read/execute - the same access the device object gets by default on a system
+; where a non-elevated openvpn.exe can open it.
+[ovpn-dco_Device.NT.HW]
+AddReg=ovpn-dco_Security_AddReg
+
+[ovpn-dco_Security_AddReg]
+HKR,,DeviceCharacteristics,0x10001,0x0100 ; FILE_DEVICE_SECURE_OPEN
+HKR,,Security,,"D:P(A;;GA;;;SY)(A;;GA;;;BA)(A;;GRGWGX;;;WD)(A;;GRGX;;;RC)"
+
 [ovpn-dco_Device.NT.Services]
 AddService = ovpn-dco,%SPSVCINST_ASSOCSERVICE%, ovpn-dco_Service_Inst
 
@@ -88,4 +103,3 @@ ovpn-dco.DiskName = "OpenVPN Data Channel Offload Install Disk"
 ovpn-dco.DeviceDesc = "OpenVPN Data Channel Offload"
 ovpn-dco.SVCDESC = %ovpn-dco.DeviceDesc%
 ovpn-dco.CompanyName = "OpenVPN, Inc"
-

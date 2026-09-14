@@ -108,6 +108,14 @@ extern "C" {
 
 	void eddie_get_realtime_network_stats(char* buf, int bufMaxLen)
 	{
+		// Room for at least "[]" and the terminator.
+		if (bufMaxLen < 3)
+		{
+			if (bufMaxLen > 0)
+				buf[0] = '\0';
+			return;
+		}
+
 		std::string jsonStr = "";
 
 		jsonStr += "[";
@@ -128,17 +136,17 @@ extern "C" {
 		}
 		else
 		{
-			char* buf = (char*)malloc(len);
-			if (sysctl(mib, 6, buf, &len, NULL, 0) < 0) {
+			char* sysctlBuf = (char*)malloc(len);
+			if (sysctl(mib, 6, sysctlBuf, &len, NULL, 0) < 0) {
 				//fprintf(stderr, "sysctl: %s\n", strerror(errno));
 			}
 			else
 			{
-				char* lim = buf + len;
+				char* lim = sysctlBuf + len;
 				char* next = NULL;
 				//u_int64_t totalibytes = 0;
 				//u_int64_t totalobytes = 0;
-				for (next = buf; next < lim; )
+				for (next = sysctlBuf; next < lim; )
 				{
 					struct if_msghdr* ifm = (struct if_msghdr*)next;
 					next += ifm->ifm_msglen;
@@ -151,20 +159,25 @@ extern "C" {
 						//totalobytes += if2m->ifm_data.ifi_obytes;
 
 						char ifname[IF_NAMESIZE];
-        				if_indextoname(if2m->ifm_index, ifname);
+						if (if_indextoname(if2m->ifm_index, ifname) == NULL)
+							continue;
 
+						std::string record = "";
 						if (nRecords > 0)
-							jsonStr += ",";
-						jsonStr += "{ \"id\":\"" + std::string(ifname) + "\",\"rcv\":" + std::to_string(if2m->ifm_data.ifi_ibytes) + ",\"snd\":" + std::to_string(if2m->ifm_data.ifi_obytes) + " }";
+							record += ",";
+						record += "{ \"id\":\"" + std::string(ifname) + "\",\"rcv\":" + std::to_string(if2m->ifm_data.ifi_ibytes) + ",\"snd\":" + std::to_string(if2m->ifm_data.ifi_obytes) + " }";
+
+						// Stop when the record, the closing bracket and the terminator no longer fit.
+						if (jsonStr.size() + record.size() + 2 > (size_t)bufMaxLen)
+							break;
+
+						jsonStr += record;
 						nRecords++;
 					}
 				}
 			}
-			free(buf);
+			free(sysctlBuf);
 		}
-
-		if (jsonStr.size() + 3 > bufMaxLen) // Avoid buffer overflow
-			jsonStr = "[";
 
 		jsonStr += "]";
 		strcpy(buf, jsonStr.c_str());
