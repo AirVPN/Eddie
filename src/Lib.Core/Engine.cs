@@ -920,7 +920,6 @@ namespace Eddie.Core
 
 		public void UpdateConnectedStatus(bool connected)
 		{
-			// lock (this)  // TOCLEAN, removed in 2.21.8
 			{
 				if (connected)
 					WaitMessageClear();
@@ -950,7 +949,6 @@ namespace Eddie.Core
 				}
 			}
 
-			// lock (this) // TOCLEAN, removed in 2.21.8
 			{
 				m_mainStatusMessage = message;
 				m_mainStatusCancel = allowCancel;

@@ -1,0 +1,38 @@
+name: Build
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            project: src/App.CLI.Linux/App.CLI.Linux.net10.csproj
+          - os: macos-latest
+            project: src/App.CLI.MacOS/App.CLI.MacOS.net10.csproj
+          - os: windows-latest
+            project: src/App.CLI.Windows/App.CLI.Windows.net10.csproj
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      # Builds the modern (net10) CLI edition only - Lib.Core, the platform's Lib.Platform.*
+      # library, and the elevated C++ helper(s) via each project's own postbuild
+      # script/target. Does not build the legacy 2.x UI line (App.Forms.*, App.Cocoa.MacOS -
+      # Mono/.NET Framework 4.8) or produce release packages/installers
+      # (see repository/build_all_*.sh for that - needs signing/notarization secrets this
+      # workflow doesn't have).
+      - name: Build
+        run: dotnet build ${{ matrix.project }} --configuration Release
