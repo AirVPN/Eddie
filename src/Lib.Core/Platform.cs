@@ -979,20 +979,6 @@ namespace Eddie.Core
 		{
 		}
 
-		// TOCLEAN, see /repository/linux_appimage/readme.txt
-		/*
-		public virtual string RootExecutionOutsideBundleAdapt(string exePath)
-		{
-			// This is used for example when elevated run openvpn exe in a linux AppImage bundle: a root process (elevated) can't read an user volume (AppImage/fuse)
-			// Currently derived only on Linux
-			return exePath; // Do nothing
-		}
-
-		public virtual void RootExecutionOutsideBundleDelete(string exePath)
-		{
-		}
-		*/
-
 		public virtual void OnNetworkLockManagerInit()
 		{
 		}

@@ -144,8 +144,6 @@ namespace Eddie.Platform.Linux
 			ElevatedImpl e = new ElevatedImpl();
 			e.Start();
 
-			// RootExecutionOutsideBundleDelete(m_elevatedRunPath); // TOCLEAN, see /repository/linux_appimage/readme.txt
-
 			return e;
 		}
 
@@ -646,35 +644,6 @@ namespace Eddie.Platform.Linux
 			}
 		}
 
-		// TOCLEAN, see /repository/linux_appimage/readme.txt
-		/*
-		public override string RootExecutionOutsideBundleAdapt(string exePath)
-		{
-			if (Environment.GetEnvironmentVariable("APPIMAGE") == null)
-				return exePath;
-
-			if (exePath.StartsWithInv(GetApplicationPath()) == false)
-				return exePath;
-
-			// Copy to temporary file, will be deleted by RootExecutionOutsideBundleDelete
-
-			string name = new FileInfo(exePath).Name;
-			string newPath = DirectoryTemp() + DirSep + name;
-			if (File.Exists(newPath))
-				File.Delete(newPath);
-			File.Copy(exePath, newPath);
-			return newPath;
-		}		
-
-		public override void RootExecutionOutsideBundleDelete(string exePath)
-		{
-			if (exePath.StartsWithInv(DirectoryTemp()))
-			{
-				System.IO.File.Delete(exePath);
-			}
-		}
-		*/
-
 		public override void OnNetworkLockManagerInit()
 		{
 			base.OnNetworkLockManagerInit();
@@ -959,8 +928,6 @@ namespace Eddie.Platform.Linux
 		public int RunElevated(string[] arguments, bool waitEnd)
 		{
 			m_elevatedRunPath = GetElevatedHelperPath();
-
-			//m_elevatedRunPath = RootExecutionOutsideBundleAdapt(m_elevatedRunPath); // TOCLEAN, see /repository/linux_appimage/readme.txt
 
 			string elevationMethod = Engine.Instance.StartCommandLine.Get("elevation", "auto");
 			bool redirectStdOut = false;
