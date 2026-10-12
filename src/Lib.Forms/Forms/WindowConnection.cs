@@ -28,11 +28,27 @@ namespace Eddie.Forms.Forms
 
 		private Controls.TabNavigator m_tabMain;
 		private Core.ConnectionTypes.IConnectionType m_connection;
+		private Skin.Button awgexport;
 
 		public WindowConnection()
 		{
 			OnPreInitializeComponent();
 			InitializeComponent();
+			awgexport = new Skin.Button { Text = LanguageManager.GetText(LanguageItems.awgsave), Anchor = AnchorStyles.Left | AnchorStyles.Bottom, Visible = false };
+			awgexport.SetBounds(24, cmdOk.Top, 250, cmdOk.Height);
+			awgexport.Click += (sender, args) =>
+			{
+				try
+				{
+					var connection = m_connection as Core.ConnectionTypes.WireGuard;
+					string error = connection.ConfigStartup.HasError();
+					if (error != "") throw new FormatException(error);
+					using (var dialog = new SaveFileDialog { Filter = "wg / awg (*.conf)|*.conf", DefaultExt = "conf", AddExtension = true, FileName = "airvpn.conf" })
+						if (dialog.ShowDialog(this) == DialogResult.OK) System.IO.File.WriteAllText(dialog.FileName, connection.ExportConfigStartup(), new System.Text.UTF8Encoding(false));
+				}
+				catch (Exception error) { MessageBox.Show(this, error.Message, LanguageManager.GetText(LanguageItems.awgerror), MessageBoxButtons.OK, MessageBoxIcon.Error); }
+			};
+			Controls.Add(awgexport);
 			OnInitializeComponent();
 		}
 
@@ -65,6 +81,7 @@ namespace Eddie.Forms.Forms
 			Controls.Add(m_tabMain);
 
 			m_connection = Info.BuildConnection(null);
+			awgexport.Visible = m_connection is Core.ConnectionTypes.WireGuard;
 
 			// Intentional: show full generated config in connection detail dialog.
 			txtConfigGenerated.Text = Platform.Instance.NormalizeString(m_connection.ExportConfigStartup());

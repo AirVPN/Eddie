@@ -22,6 +22,8 @@ namespace Eddie.Core.ConfigBuilder
 {
 	public class WireGuard : IConfigBuilder
 	{
+		public awgprofile awg;
+
 		// Section [Interface]
 		public IpAddresses InterfaceAddresses = new IpAddresses();
 		public int InterfaceListenPort = 0;
@@ -56,6 +58,11 @@ namespace Eddie.Core.ConfigBuilder
 			if (PeerEndpointPort == 0)
 				return "Missing Endpoint Port";
 
+			if (awg != null)
+			{
+				var errors = awg.validate();
+				if (errors.Count > 0) return string.Join("; ", errors);
+			}
 			return "";
 		}
 
@@ -88,6 +95,13 @@ namespace Eddie.Core.ConfigBuilder
 			if (InterfaceTable != "")
 				s.Append("Table = " + InterfaceTable + Platform.Instance.EndOfLineSep);
 
+			if (awg != null)
+				foreach (string key in awgprofile.awgkeys)
+				{
+					string value = awgprofile.get(awg.iface, key);
+					if (value != "") s.Append(key + " = " + value + Platform.Instance.EndOfLineSep);
+				}
+
 			s.Append(Platform.Instance.EndOfLineSep);
 			s.Append("[Peer]" + Platform.Instance.EndOfLineSep);
 			s.Append("PublicKey = " + PeerPublicKey + Platform.Instance.EndOfLineSep);
@@ -110,10 +124,27 @@ namespace Eddie.Core.ConfigBuilder
 			return s.ToString();
 		}
 
+		public string buildexport(IpAddresses dns)
+		{
+			var config = (WireGuard)MemberwiseClone();
+			config.InterfaceDns = dns.Clone();
+			config.InterfaceTable = "";
+			return config.Build();
+		}
+
 		public override void Parse(string config)
 		{
 			base.Parse(config);
+			config = config.TrimStart('\ufeff');
 
+			awg = null;
+			if (System.Text.RegularExpressions.Regex.IsMatch(config, @"(?im)^\s*(jc|jmin|jmax|s[1-4]|h[1-4]|i[1-5])\s*="))
+			{
+				awg = awgprofile.parse(config);
+				var errors = awg.validate();
+				if (errors.Count > 0) throw new System.FormatException(string.Join("; ", errors));
+				if (awg.peers.Count != 1) throw new System.NotSupportedException("eddie connections currently require exactly one peer");
+			}
 			string section = "";
 
 			foreach (string lineOriginal in config.Split('\n'))
@@ -151,6 +182,7 @@ namespace Eddie.Core.ConfigBuilder
 								InterfaceAddresses.Add(value2.Trim());
 							}
 						}
+						else if ((section == "interface") && awgprofile.isawgkey(key)) { }
 						else if ((section == "interface") && (key == "listenport"))
 							InterfaceListenPort = Conversions.ToInt32(value);
 						else if ((section == "interface") && (key == "privatekey"))
@@ -182,7 +214,7 @@ namespace Eddie.Core.ConfigBuilder
 							int posPort = value.LastIndexOf(':');
 							if (posPort != -1)
 							{
-								PeerEndpointAddress = value.Substring(0, posPort);
+								PeerEndpointAddress = value.Substring(0, posPort).Trim('[', ']');
 								PeerEndpointPort = Conversions.ToInt32(value.Substring(posPort + 1));
 							}
 						}
@@ -209,6 +241,7 @@ namespace Eddie.Core.ConfigBuilder
 		public override void Adaptation()
 		{
 			base.Adaptation();
+			if (awg != null && Platform.Instance.GetCode() == "Windows") InterfaceFwMark = "";
 
 			// Normally WireGuard use AllowedIPs for routing or firewall routes, managed directly by Eddie.
 			PeerAllowedIPs.Clear();

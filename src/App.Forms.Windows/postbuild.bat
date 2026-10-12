@@ -32,7 +32,9 @@ powershell -nop -c "start-process sc.exe -ArgumentList stop,EddieElevationServic
 :s
 
 echo Copy Deploy files
+powershell -NoProfile -ExecutionPolicy Bypass -File "%basepath%\..\..\repository\windows_common\build-awg-engine.ps1" -arch %arch% || GOTO error
 copy %basepath%\..\..\deploy\windows_%arch%\* "%targetdir%\" /Y /V || GOTO error
+xcopy "%basepath%\..\..\deploy\amneziawg-licenses" "%targetdir%\amneziawg-licenses\" /E /I /Y || GOTO error
 
 echo Compile and copy native library
 call %basepath%\..\Lib.Platform.Windows.Native\build.bat Release %arch% || GOTO error

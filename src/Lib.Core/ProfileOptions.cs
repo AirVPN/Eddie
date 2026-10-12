@@ -516,6 +516,7 @@ namespace Eddie.Core
 			SetDefaultInt("wireguard.handshake.timeout.first", 50, NotInManNever);
 			SetDefaultInt("wireguard.handshake.timeout.connected", 180 + 20, NotInManNever); // To maintain the session a client must handshake at least once every 180 seconds.
 			SetDefaultInt("wireguard.interface.mtu", -1, LanguageManager.GetText(LanguageItems.ManOptionWireGuardInterfaceMTU));
+			SetDefault("amneziawg.airvpn.directives", "text", "", NotInManNever);
 
 			// Not in Settings			
 			SetDefaultInt("ssh.port", 0, LanguageManager.GetText(LanguageItems.ManOptionSshPort));

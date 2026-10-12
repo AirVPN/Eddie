@@ -41,7 +41,7 @@ namespace Eddie.Core.Providers
 			ConnectionMode mode = GetMode();
 
 			ConnectionTypes.IConnectionType c = null;
-			if (mode.Type == "wireguard")
+			if ((mode.Type == "wireguard") || (mode.Type == "amneziawg"))
 				c = new ConnectionTypes.WireGuard();
 			else
 			{
@@ -262,6 +262,17 @@ namespace Eddie.Core.Providers
 					else
 						throw new Exception("Unexpected connection type");
 				}
+			}
+			if (mode.Type == "amneziawg")
+			{
+				if (Platform.Instance.GetCode() != "Windows" || Code != "AirVPN") throw new NotSupportedException("airvpn amneziawg connections require windows");
+				var config = ((ConnectionTypes.WireGuard)connection).ConfigStartup;
+				var profile = ConfigBuilder.awgprofile.airvpn(Engine.Instance.ProfileOptions.Get("amneziawg.airvpn.directives"));
+				var account = ConfigBuilder.awgprofile.parse(config.Build());
+				foreach (var pair in account.iface) profile.iface[pair.Key] = pair.Value;
+				profile.peers.Clear();
+				profile.peers.AddRange(account.peers);
+				config.awg = profile;
 			}
 		}
 
@@ -836,6 +847,8 @@ namespace Eddie.Core.Providers
 					ConnectionMode mode = new ConnectionMode();
 					mode.ReadXML(xmlMode as XmlElement);
 					Modes.Add(mode);
+					if (Code == "AirVPN" && Platform.Instance.GetCode() == "Windows" && mode.Type == "wireguard" && mode.Protocol == "UDP" && mode.Transport == "")
+					Modes.Add(mode.amnezia());
 				}
 			}
 		}
@@ -1127,6 +1140,7 @@ namespace Eddie.Core.Providers
 				}
 			}
 
+			if (type == "amneziawg") throw new NotSupportedException("amneziawg is unavailable for this provider or platform");
 			return GetModeAuto();
 		}
 

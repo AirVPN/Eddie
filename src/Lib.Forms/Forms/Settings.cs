@@ -37,11 +37,28 @@ namespace Eddie.Forms.Forms
 
 		private Dictionary<string, string> m_mapNetworkEntryIFace = new Dictionary<string, string>();
 		private bool m_systemServiceInitial;
+		private string awgdraft;
 
 		public Settings()
 		{
 			OnPreInitializeComponent();
 			InitializeComponent();
+			if (Platform.Instance.GetCode() == "Windows")
+			{
+				var awg = new Skin.Button { Text = LanguageManager.GetText(LanguageItems.awgsettings), Anchor = AnchorStyles.Left | AnchorStyles.Bottom };
+				lstProtocols.Height -= 44;
+				awg.SetBounds(lstProtocols.Left, lstProtocols.Bottom + 8, 300, 34);
+				awg.Click += (sender, args) =>
+				{
+					try
+					{
+						using (var window = new awgparameterswindow(awgdraft ?? ""))
+							if (window.ShowDialog(this) == DialogResult.OK) awgdraft = window.directives;
+					}
+					catch (Exception error) { MessageBox.Show(this, error.Message, LanguageManager.GetText(LanguageItems.awgerror), MessageBoxButtons.OK, MessageBoxIcon.Error); }
+				};
+				tabProtocols.Controls.Add(awg);
+			}
 			OnInitializeComponent();
 		}
 
@@ -154,7 +171,7 @@ namespace Eddie.Forms.Forms
 						continue;
 					}
 
-					if ((mode.Type == "wireguard") && (Platform.Instance.GetSupportWireGuard() == false))
+					if (((mode.Type == "wireguard") || (mode.Type == "amneziawg")) && (Platform.Instance.GetSupportWireGuard() == false))
 						continue;
 
 					Controls.ListViewItemProtocol itemMode = new Controls.ListViewItemProtocol();
@@ -164,6 +181,7 @@ namespace Eddie.Forms.Forms
 					string modeType = mode.Type;
 					if (modeType == "openvpn") modeType = "OpenVPN";
 					if (modeType == "wireguard") modeType = "WireGuard";
+					if (modeType == "amneziawg") modeType = "amneziawg";
 					string protocol = mode.Protocol;
 					if (mode.Transport != "") protocol = mode.Transport + ">" + protocol;
 					itemMode.SubItems[0].Text = modeType;
@@ -366,6 +384,7 @@ namespace Eddie.Forms.Forms
 		{
 			Storage s = Engine.Instance.Storage;
 			ProfileOptions o = Engine.Instance.ProfileOptions;
+			awgdraft = o.Get("amneziawg.airvpn.directives");
 
 			// General            
 			chkSystemStart.Checked = o.GetBool("windows.start_os");
@@ -777,6 +796,8 @@ namespace Eddie.Forms.Forms
 		{
 			Storage s = Engine.Instance.Storage;
 			ProfileOptions o = Engine.Instance.ProfileOptions;
+			Core.ConfigBuilder.awgprofile.airvpn(awgdraft ?? "");
+			o.Set("amneziawg.airvpn.directives", awgdraft ?? "");
 
 			// General            			
 			o.SetBool("windows.start_os", chkSystemStart.Checked);

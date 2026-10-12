@@ -1,0 +1,37 @@
+name: windows amneziawg
+
+on:
+  push:
+    branches: [amneziawg-windows, main, master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-2022
+    timeout-minutes: 45
+    defaults:
+      run:
+        shell: powershell
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.24.4'
+          cache: false
+      - name: build windows x64
+        run: .\repository\windows_common\build-amneziawg.ps1 -arch x64
+      - name: package portable release
+        run: .\repository\windows_common\package-amneziawg.ps1 -arch x64
+      - uses: actions/upload-artifact@v4
+        with:
+          name: eddie-amneziawg-windows-x64
+          path: releases/*
+          if-no-files-found: error
+          compression-level: 0

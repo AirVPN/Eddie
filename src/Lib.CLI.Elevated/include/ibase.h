@@ -20,6 +20,7 @@
 #include <string>
 #include <map>
 #include <mutex>
+#include <atomic>
 #include <thread>
 #include <vector>
 
@@ -74,7 +75,7 @@ private:
 
 	std::string m_session_key;
 	std::mutex m_mutex_inout;
-	bool m_clientConnected = false;
+	std::atomic<bool> m_clientConnected = false;
 	bool m_debug = false;
 	time_t m_lastModified = 0;
 	std::map<pid_t, bool> m_pidManaged;
@@ -89,6 +90,7 @@ private:
 protected:
 	std::map<std::string, std::string> m_cmdline;
 	std::map<std::string, std::string> m_keypair;
+	bool clientconnected() const { return m_clientConnected; }
 
 	// Engine
 public:

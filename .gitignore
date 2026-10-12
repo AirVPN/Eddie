@@ -157,3 +157,11 @@ staff/*
 !staff/test-map/**
 staff/test-map/*/bin/
 
+.reference/
+.tools/
+artifacts/
+releases/
+**/.tools/
+deploy/windows_*/amneziawg-eddie.exe
+deploy/windows_*/wintun.dll
+
