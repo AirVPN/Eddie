@@ -150,3 +150,11 @@ repository/files/*
 # Staff local files
 staff/
 
+.reference/
+.tools/
+artifacts/
+releases/
+**/.tools/
+deploy/windows_*/amneziawg-eddie.exe
+deploy/windows_*/wintun.dll
+

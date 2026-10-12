@@ -31,7 +31,7 @@ namespace Eddie.Core.ConnectionTypes
 
 		public override string GetTypeName()
 		{
-			return "WireGuard";
+			return m_configStartup != null && m_configStartup.awg != null ? "AmneziaWG" : "WireGuard";
 		}
 
 		public override void Build()
@@ -52,6 +52,9 @@ namespace Eddie.Core.ConnectionTypes
 					m_configStartup.Parse(text);
 				}
 			}
+
+			if (m_configStartup.awg != null && Platform.Instance.GetCode() != "Windows")
+				throw new System.NotSupportedException("amneziawg connections in this build require windows");
 
 			SetupLayers();
 
@@ -83,7 +86,7 @@ namespace Eddie.Core.ConnectionTypes
 			base.OnStart();
 
 			m_elevatedCommand = new Elevated.Command();
-			m_elevatedCommand.Parameters["command"] = "wireguard";
+			m_elevatedCommand.Parameters["command"] = m_configStartup.awg != null ? "amneziawg" : "wireguard";
 			m_elevatedCommand.Parameters["action"] = "start";
 			m_elevatedCommand.Parameters["id"] = Id;
 			m_elevatedCommand.Parameters["interface"] = m_interfaceName;
@@ -140,7 +143,7 @@ namespace Eddie.Core.ConnectionTypes
 				{
 					m_stopRequested = true;
 
-					Engine.Instance.Elevated.DoCommandSync("wireguard", "action", "stop", "id", Id, "interface", m_interfaceName);
+					Engine.Instance.Elevated.DoCommandSync(m_configStartup.awg != null ? "amneziawg" : "wireguard", "action", "stop", "id", Id, "interface", m_interfaceName);
 				}
 			}
 
@@ -164,23 +167,23 @@ namespace Eddie.Core.ConnectionTypes
 				else if (messageLower == "setup-start")
 				{
 					log = false;
-					Engine.Instance.Logs.Log(LogType.Verbose, "WireGuard > " + LanguageManager.GetText(LanguageItems.WireGuardSetupStart));
+					Engine.Instance.Logs.Log(LogType.Verbose, GetTypeName() + " > " + LanguageManager.GetText(LanguageItems.WireGuardSetupStart));
 				}
 				else if (messageLower == "setup-complete")
 				{
 					log = false;
-					Engine.Instance.Logs.Log(LogType.Verbose, "WireGuard > " + LanguageManager.GetText(LanguageItems.WireGuardSetupComplete));
+					Engine.Instance.Logs.Log(LogType.Verbose, GetTypeName() + " > " + LanguageManager.GetText(LanguageItems.WireGuardSetupComplete));
 				}
 				else if (messageLower == "setup-interface")
 				{
 					log = false;
-					Engine.Instance.Logs.Log(LogType.Verbose, "WireGuard > " + LanguageManager.GetText(LanguageItems.WireGuardSetupInterface));
+					Engine.Instance.Logs.Log(LogType.Verbose, GetTypeName() + " > " + LanguageManager.GetText(LanguageItems.WireGuardSetupInterface));
 					SearchTunNetworkInterfaceByName(m_interfaceName);
 				}
 				else if (messageLower == "handshake-first")
 				{
 					log = false;
-					Engine.Instance.Logs.Log(LogType.Verbose, "WireGuard > " + LanguageManager.GetText(LanguageItems.WireGuardFirstHandshake));
+					Engine.Instance.Logs.Log(LogType.Verbose, GetTypeName() + " > " + LanguageManager.GetText(LanguageItems.WireGuardFirstHandshake));
 
 					if (Session.GetConnected() == false)
 					{
@@ -196,7 +199,7 @@ namespace Eddie.Core.ConnectionTypes
 
 					if (Session.InReset == false)
 					{
-						Engine.Instance.Logs.Log(LogType.Warning, "WireGuard > " + LanguageManager.GetText(LanguageItems.WireGuardTimeoutHandshake));
+						Engine.Instance.Logs.Log(LogType.Warning, GetTypeName() + " > " + LanguageManager.GetText(LanguageItems.WireGuardTimeoutHandshake));
 						Session.SetResetError();
 					}
 				}
@@ -210,21 +213,21 @@ namespace Eddie.Core.ConnectionTypes
 				else if (messageLower == "stop-requested")
 				{
 					log = false;
-					Engine.Instance.Logs.Log(LogType.Verbose, "WireGuard > " + LanguageManager.GetText(LanguageItems.WireGuardStopRequested));
+					Engine.Instance.Logs.Log(LogType.Verbose, GetTypeName() + " > " + LanguageManager.GetText(LanguageItems.WireGuardStopRequested));
 				}
 				else if (messageLower == "stop-interface")
 				{
 					log = false;
-					Engine.Instance.Logs.Log(LogType.Verbose, "WireGuard > " + LanguageManager.GetText(LanguageItems.WireGuardStopInterface));
+					Engine.Instance.Logs.Log(LogType.Verbose, GetTypeName() + " > " + LanguageManager.GetText(LanguageItems.WireGuardStopInterface));
 				}
 				else if (messageLower == "stop")
 				{
 					log = false;
-					Engine.Instance.Logs.Log(LogType.Verbose, "WireGuard > " + LanguageManager.GetText(LanguageItems.WireGuardStopCompleted));
+					Engine.Instance.Logs.Log(LogType.Verbose, GetTypeName() + " > " + LanguageManager.GetText(LanguageItems.WireGuardStopCompleted));
 				}
 
 				if (log)
-					Engine.Instance.Logs.Log(logType, "WireGuard > " + message);
+					Engine.Instance.Logs.Log(logType, GetTypeName() + " > " + message);
 			}
 		}
 

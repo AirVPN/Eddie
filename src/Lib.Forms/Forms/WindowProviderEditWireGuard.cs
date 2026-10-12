@@ -30,6 +30,19 @@ namespace Eddie.Forms.Forms
 		{
 			OnPreInitializeComponent();
 			InitializeComponent();
+			var profiles = new Skin.Button();
+			profiles.Text = LanguageManager.GetText(LanguageItems.awgtitle);
+			profiles.SetBounds(153, 297, 280, 28);
+			profiles.Anchor = System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right | System.Windows.Forms.AnchorStyles.Top;
+			profiles.Click += (sender, args) =>
+			{
+				using (var editor = new awgprofilewindow(txtPath.Text))
+				{
+					editor.ShowDialog(this);
+					if (editor.savedpath != "") txtPath.Text = System.IO.Path.GetDirectoryName(editor.savedpath);
+				}
+			};
+			Controls.Add(profiles);
 			OnInitializeComponent();
 		}
 

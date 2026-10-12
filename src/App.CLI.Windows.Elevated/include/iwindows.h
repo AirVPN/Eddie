@@ -26,6 +26,9 @@
 class IWindows : public IBase
 {
 protected:
+	void startawg(const std::string& commandid, std::map<std::string, std::string>& params);
+	std::mutex awgmutex;
+	std::map<std::string, bool> awgstoprequests;
 
 	virtual void Do(const std::string& id, const std::string& command, std::map<std::string, std::string>& params);
 	virtual bool IsServiceInstalled();

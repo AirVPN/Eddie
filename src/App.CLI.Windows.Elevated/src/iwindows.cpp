@@ -42,6 +42,8 @@
 
 #include "..\include\wireguard_nt.h" // WireGuardNT adapter API (wireguard.dll)
 
+#include "awgwindows.inl"
+
 void IWindows::Do(const std::string& commandId, const std::string& command, std::map<std::string, std::string>& params)
 {
 	if (command == "dns-flush")
@@ -401,6 +403,10 @@ void IWindows::Do(const std::string& commandId, const std::string& command, std:
 			}
 		}
 		ReplyCommand(commandId, version);
+	}
+	else if (command == "amneziawg")
+	{
+		startawg(commandId, params);
 	}
 	else if (command == "wireguard")
 	{

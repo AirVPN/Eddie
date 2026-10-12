@@ -1,0 +1,8 @@
+eddie android cps data and generation algorithms: gpl-3.0-or-later
+https://gitlab.com/AirVPN/EddieAndroid/-/tree/1376541c05f6d8b2ca8b07ffb790b2c95615cf9c
+amneziawg-go v0.2.19: mit
+https://github.com/amnezia-vpn/amneziawg-go/tree/v0.2.19
+amneziawg-windows v0.2.0 (conf and winipcfg): mit
+https://github.com/amnezia-vpn/amneziawg-windows/tree/v0.2.0
+wintun 0.14.1: official signed binary, prebuilt binaries license
+https://www.wintun.net/builds/wintun-0.14.1.zip

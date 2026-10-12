@@ -85,6 +85,10 @@
     <Compile Include="ConfigBuilder\IConfigBuilder.cs" />
     <Compile Include="ConfigBuilder\Hummingbird.cs" />
     <Compile Include="ConfigBuilder\WireGuard.cs" />
+    <Compile Include="ConfigBuilder\awgprofile.cs" />
+    <EmbeddedResource Include="Resources\awg.cps.csv">
+      <LogicalName>awg.cps.csv</LogicalName>
+    </EmbeddedResource>
     <Compile Include="ConfigBuilder\OpenVPN.cs" />
     <Compile Include="ConnectionInfoWarning.cs" />
     <Compile Include="ConnectionInfo.cs" />

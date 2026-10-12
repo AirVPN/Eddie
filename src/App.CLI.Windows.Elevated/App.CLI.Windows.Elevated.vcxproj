@@ -170,6 +170,7 @@
     <ClInclude Include="include\iwindows.h" />
     <ClInclude Include="include\main.h" />
     <ClInclude Include="include\wireguard_nt.h" />
+    <ClInclude Include="src\awgwindows.inl" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>

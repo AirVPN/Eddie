@@ -929,6 +929,7 @@ bool IBase::StagingPrepare()
 		if (StringStartsWith(file, "openvpn")) needCopy = true;
 		if (StringStartsWith(file, "hummingbird")) needCopy = true;
 		if (StringStartsWith(file, "wireguard")) needCopy = true;
+		if (StringStartsWith(file, "wintun")) needCopy = true;
 		if (StringStartsWith(file, "wg")) needCopy = true;
 		if (StringStartsWith(file, "amnezia")) needCopy = true;
 		if (StringStartsWith(file, "awg")) needCopy = true;

@@ -1,0 +1,28 @@
+{
+    "parent": "inv",
+    "items": {
+        "awgtitle": "профили wg / awg",
+        "awgnew": "создать",
+        "awgopen": "открыть / импорт",
+        "awgsave": "сохранить / экспорт .conf",
+        "awgfields": "настройки",
+        "awgpreview": "конфигурация / просмотр",
+        "awgcheck": "проверить",
+        "awgvalid": "конфигурация корректна",
+        "awgerror": "ошибка конфигурации",
+        "awgprotocol": "протокол",
+        "awgprivate": "создать приватный ключ",
+        "awgpublic": "вычислить публичный ключ",
+        "awglocalpublic": "публичный ключ клиента",
+        "awgjunk": "случайные jc / jmin / jmax",
+        "awgnote": "s1–s4 и h1–h4 должны совпадать с сервером. после изменения приватного ключа зарегистрируйте публичный ключ клиента на сервере. для подключения eddie требуется один peer; профили с несколькими peer можно редактировать и экспортировать.",
+        "awgpeer": "peer",
+        "awgaddpeer": "добавить peer",
+        "awgremovepeer": "удалить peer",
+        "awgpresets": "шаблон cps",
+        "awgmanual": "вручную",
+        "awgrandompreset": "случайный шаблон",
+        "awgclearcps": "очистить cps",
+        "awgclose": "закрыть"
+    }
+}

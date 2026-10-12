@@ -1,4 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\awg.cps.csv" LogicalName="awg.cps.csv" />
+  </ItemGroup>
   <PropertyGroup>
     <RootNamespace>Eddie.Core</RootNamespace>
     <AssemblyName>Lib.Core</AssemblyName>

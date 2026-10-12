@@ -49,7 +49,7 @@
     <ProjectReference Include="..\Lib.Platform.Windows\Lib.Platform.Windows.net10.csproj" />
   </ItemGroup>
 
-  <Target Name="WindowsPostBuild" AfterTargets="PostBuildEvent">
+  <Target Name="WindowsPostBuild" AfterTargets="PostBuildEvent" Condition="'$(skipwindowspostbuild)' != 'true'">
 		<Exec Command="$(ProjectDir)\postbuild.bat &quot;$(TargetDir)&quot; $(RuntimeIdentifier) $(ConfigurationName) net4" />
 	</Target>
 
