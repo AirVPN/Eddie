@@ -28,6 +28,7 @@ namespace Eddie.Core.ConnectionTypes
 		protected IpAddresses m_gateway = new IpAddresses();
 
 		protected bool m_stopRequested = false;
+		private IpAddress awgendpoint;
 
 		public override string GetTypeName()
 		{
@@ -78,6 +79,26 @@ namespace Eddie.Core.ConnectionTypes
 			}
 
 			m_configStartup.Adaptation();
+		}
+
+		public override void OnInit()
+		{
+			base.OnInit();
+			if (m_configStartup.awg != null && EntryIP.Valid && Engine.Instance.NetworkLockManager != null && awgendpoint == null)
+			{
+				awgendpoint = EntryIP.Clone();
+				Engine.Instance.NetworkLockManager.AllowConnectionEndpoint(awgendpoint);
+			}
+		}
+
+		public override void OnClose()
+		{
+			base.OnClose();
+			if (awgendpoint != null)
+			{
+				if (Engine.Instance.NetworkLockManager != null) Engine.Instance.NetworkLockManager.DeallowConnectionEndpoint(awgendpoint);
+				awgendpoint = null;
+			}
 		}
 
 		public override void OnStart()
@@ -250,7 +271,7 @@ namespace Eddie.Core.ConnectionTypes
 
 		public override string ExportConfigStartup()
 		{
-			return m_configStartup.Build();
+			return m_configStartup.buildexport(GetDns());
 		}
 
 		// -----------------------------------------

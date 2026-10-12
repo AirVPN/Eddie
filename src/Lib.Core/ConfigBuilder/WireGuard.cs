@@ -124,6 +124,14 @@ namespace Eddie.Core.ConfigBuilder
 			return s.ToString();
 		}
 
+		public string buildexport(IpAddresses dns)
+		{
+			var config = (WireGuard)MemberwiseClone();
+			config.InterfaceDns = dns.Clone();
+			config.InterfaceTable = "";
+			return config.Build();
+		}
+
 		public override void Parse(string config)
 		{
 			base.Parse(config);
