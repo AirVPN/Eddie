@@ -582,6 +582,11 @@
         "awgrandompreset": "random preset",
         "awgclearcps": "clear cps",
         "awgclose": "close",
+        "awgsettings": "amneziawg settings for airvpn",
+        "awgairvpn": "airvpn with custom amneziawg settings",
+        "awgairvpnnote": "these parameters apply when amneziawg is selected in protocols. airvpn keys and addresses come from your account. s1-s4 and h1-h4 are fixed to the values required by airvpn servers. jc/jmin/jmax and cps can be customized.",
+        "awgapply": "apply",
+        "awgdefaults": "defaults",
         "OsWindowsNetworkAdapterDnsDone": "DNS {1} of a network adapter forced ({2}, from {3} to {4})"
     }
 }

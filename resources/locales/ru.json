@@ -23,6 +23,11 @@
         "awgmanual": "вручную",
         "awgrandompreset": "случайный шаблон",
         "awgclearcps": "очистить cps",
-        "awgclose": "закрыть"
+        "awgclose": "закрыть",
+        "awgsettings": "настройки amneziawg для airvpn",
+        "awgairvpn": "airvpn с вашими параметрами amneziawg",
+        "awgairvpnnote": "параметры применяются при выборе amneziawg в протоколах. ключи и адреса airvpn берутся из аккаунта. s1-s4 и h1-h4 закреплены на значениях, необходимых серверам airvpn. jc/jmin/jmax и cps можно настраивать.",
+        "awgapply": "применить",
+        "awgdefaults": "по умолчанию"
     }
 }

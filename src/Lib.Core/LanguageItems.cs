@@ -601,6 +601,11 @@ namespace Eddie.Core
 		awgrandompreset,
 		awgclearcps,
 		awgclose,
+		awgsettings,
+		awgairvpn,
+		awgairvpnnote,
+		awgapply,
+		awgdefaults,
 
 	}
 }

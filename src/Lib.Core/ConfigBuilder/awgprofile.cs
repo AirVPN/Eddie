@@ -168,6 +168,13 @@ namespace Eddie.Core.ConfigBuilder
 				foreach (string key in awgkeys) if (iface.ContainsKey(key)) errors.Add("select amneziawg for " + key.ToLowerInvariant());
 				return errors;
 			}
+			errors.AddRange(validateawg());
+			return errors;
+		}
+
+		public List<string> validateawg()
+		{
+			var errors = new List<string>();
 			number(errors, iface, "Jc", version == 1 ? 0 : 1, 128);
 			number(errors, iface, "Jmin", version == 1 ? 0 : 1, 1280);
 			number(errors, iface, "Jmax", version == 1 ? 0 : 1, 1500);
@@ -214,6 +221,57 @@ namespace Eddie.Core.ConfigBuilder
 				if (!Array.Exists(supported, key => key.Equals(pair.Key, StringComparison.OrdinalIgnoreCase)) && !(isinterface && isawgkey(pair.Key))) errors.Add("unsupported parameter " + pair.Key.ToLowerInvariant());
 				if (pair.Value.Contains("\n") || pair.Value.Contains("\r") || pair.Value.Contains("#")) errors.Add("parameter " + pair.Key.ToLowerInvariant() + " contains a newline or comment character");
 			}
+		}
+
+		public string buildawg()
+		{
+			var output = new StringBuilder();
+			write(output, iface, awgkeys);
+			return output.ToString();
+		}
+
+		public static awgprofile airvpn(string directives)
+		{
+			var profile = create(2);
+			if (directives.Trim() != "")
+			{
+				var custom = parse("[Interface]\n" + directives);
+				if (custom.peers.Count != 0) throw new FormatException("airvpn settings must contain only awg interface directives");
+				foreach (var pair in custom.iface)
+				{
+					if (!isawgkey(pair.Key)) throw new FormatException("unsupported airvpn awg parameter " + pair.Key.ToLowerInvariant());
+					profile.iface[pair.Key] = pair.Value;
+				}
+			}
+			var errors = profile.validateawg();
+			for (int i = 1; i <= 4; i++)
+			{
+				if (get(profile.iface, "S" + i) != "0") errors.Add("airvpn servers require s1-s4 = 0");
+				if (get(profile.iface, "H" + i) != i.ToString(CultureInfo.InvariantCulture)) errors.Add("airvpn servers require h1-h4 = 1, 2, 3, 4");
+			}
+			if (errors.Count > 0) throw new FormatException(string.Join("; ", errors));
+			return profile;
+		}
+
+		public static List<string[]> presets()
+		{
+			var result = new List<string[]>();
+			using (var stream = typeof(awgprofile).Assembly.GetManifestResourceStream("awg.cps.csv"))
+			using (var reader = new System.IO.StreamReader(stream, Encoding.UTF8))
+			{
+				while (!reader.EndOfStream)
+				{
+					string[] values = reader.ReadLine().Split(',');
+					if (values.Length != 7) continue;
+					string[] compact = compactcps(values[2], values[3], values[4], values[5], values[6]);
+					if (compact[0] == "") continue;
+					Array.Copy(compact, 0, values, 2, 5);
+					bool valid = true;
+					for (int i = 2; i < 7; i++) if (values[i] != "" && validatesignature(values[i]) != "") valid = false;
+					if (valid) result.Add(values);
+				}
+			}
+			return result;
 		}
 
 		private static void checkkey(List<string> errors, Dictionary<string, string> values, string key, bool required)

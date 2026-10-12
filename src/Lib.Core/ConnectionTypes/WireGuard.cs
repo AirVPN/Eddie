@@ -53,12 +53,11 @@ namespace Eddie.Core.ConnectionTypes
 				}
 			}
 
-			if (m_configStartup.awg != null && Platform.Instance.GetCode() != "Windows")
-				throw new System.NotSupportedException("amneziawg connections in this build require windows");
-
 			SetupLayers();
 
 			Info.Provider.OnBuildConnection(this);
+			if (m_configStartup.awg != null && Platform.Instance.GetCode() != "Windows")
+				throw new System.NotSupportedException("amneziawg connections in this build require windows");
 
 			EntryIP = m_configStartup.PeerEndpointAddress;
 			EntryPort = m_configStartup.PeerEndpointPort;

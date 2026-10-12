@@ -80,5 +80,13 @@ namespace Eddie.Core
 				return false;
 			}
 		}
+
+		public ConnectionMode amnezia()
+		{
+			var mode = (ConnectionMode)MemberwiseClone();
+			mode.Type = "amneziawg";
+			mode.Title = LanguageManager.GetText(LanguageItems.awgairvpn);
+			return mode;
+		}
 	}
 }

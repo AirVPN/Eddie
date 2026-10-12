@@ -105,6 +105,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Forms\awgprofilewindow.cs" />
+    <Compile Include="Forms\awgparameterswindow.cs" />
     <Compile Include="Forms\WindowProviderEditWireGuard.cs">
       <SubType>Form</SubType>
     </Compile>
