@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Eddie. If not, see <http://www.gnu.org/licenses/>.
 // </eddie_source_header>
+// Modified by dajiaohuang on 2026-10-23: gate the DCO directive by OpenVPN version.
 
 using System;
 using System.Collections.Generic;
@@ -273,7 +274,8 @@ namespace Eddie.Core.ConfigBuilder
 				RemoveDirective("reneg-packets");
 			}
 
-			if (DisablesDataChannelOffload())
+			// The disable-dco directive is only recognized by OpenVPN 2.6 and later.
+			if (Engine.Instance.GetOpenVpnTool().VersionAboveOrEqual("2.6") && DisablesDataChannelOffload())
 			{
 				if (ExistsDirective("disable-dco") == false)
 					AppendDirective("disable-dco", "", "OS");
